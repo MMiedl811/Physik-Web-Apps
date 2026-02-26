@@ -1,1 +1,2345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Physik: Diagrammbastler (Segmente) – Split-Dashboard</title>
 
+  <style>
+    :root{
+      --bg: #f5f5f5;
+      --panel: #ffffff;
+      --panel-soft: #f7fafc;
+      --panel-muted: #edf2f7;
+
+      --text: #2d3748;
+      --muted: #718096;
+
+      --primary: #3182ce;
+      --secondary: #e53e3e;
+      --accent: #7d3c98;
+
+      --success: #48bb78;
+      --warning: #ed8936;
+
+      --grid: #e2e8f0;
+      --grid-minor: #edf2f7;
+      --border: #cbd5e0;
+
+      --shadow: 0 1px 3px rgba(0,0,0,0.10);
+
+      --motion-a: var(--primary);
+      --motion-b: var(--accent);
+      --time-marker: var(--secondary);
+
+      --sky-1: #87CEEB;
+      --sky-2: #E0F6FF;
+      --ground-1: #f0f0f0;
+      --ground-2: #e0e0e0;
+
+      --car-window: #3498db;
+      --car-wheel: #2c3e50;
+
+      --car-a-body: #E74C3C;
+      --car-a-stroke: #c0392b;
+
+      --car-b-body: #9b59b6;
+      --car-b-stroke: #6c3483;
+    }
+
+    *{ box-sizing: border-box; margin: 0; padding: 0; }
+
+    .app{
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .app__title{
+      font-size: 1.5rem;
+      margin-bottom: 16px;
+    }
+
+    .app__layout{
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px){
+      .app__layout{ grid-template-columns: 1fr; }
+    }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid rgba(0,0,0,0.02);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .controls{
+      padding: 14px;
+      position: sticky;
+      top: 18px;
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+    }
+
+    @media (max-width: 980px){
+      .controls{ position: relative; top: auto; max-height: none; }
+    }
+
+    .controls__section{
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--grid);
+    }
+
+    .controls__section:last-child{
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .app-label{
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .app-helper{
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .app-select, .app-input{
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    .toggle-row{
+      display: grid;
+      gap: 10px;
+    }
+
+    .toggle{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.875rem;
+      font-weight: 800;
+      user-select: none;
+    }
+
+    .toggle__input{
+      width: 16px;
+      height: 16px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    .btn-row{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn{
+      width: 100%;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      color: var(--panel);
+      background: var(--primary);
+    }
+
+    .btn:hover{ opacity: 0.92; }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn--danger{ background: var(--secondary); }
+    .btn--warning{ background: var(--warning); }
+
+    .readout{
+      margin-top: 8px;
+      padding: 10px 12px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: "Courier New", monospace;
+      font-weight: 900;
+      font-size: 0.95rem;
+      line-height: 1.35;
+    }
+
+    .readout--sub{
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .details{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--panel-soft);
+    }
+
+    .details__summary{
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-muted);
+      font-weight: 900;
+      list-style: none;
+    }
+
+    .details__summary::-webkit-details-marker{ display: none; }
+
+    .details__body{
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .grid-2{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .motion-tabs{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .motion-tabs__tab{
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .motion-tabs__tab--active{
+      border-color: rgba(49,130,206,0.5);
+      box-shadow: 0 0 0 3px rgba(49,130,206,0.15);
+    }
+
+    .hidden{ display: none !important; }
+
+    .motion-editor{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--panel-soft);
+    }
+
+    .segment-list{
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .segment{
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    .segment__summary{
+      cursor: pointer;
+      padding: 10px 12px;
+      background: var(--panel-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      list-style: none;
+    }
+
+    .segment__summary::-webkit-details-marker{ display: none; }
+
+    .segment__summary-text{
+      font-weight: 900;
+      font-size: 0.9rem;
+      line-height: 1.25;
+    }
+
+    .segment__actions{
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .icon-btn{
+      width: 36px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      cursor: pointer;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .icon-btn--danger{
+      border-color: rgba(229,62,62,0.35);
+      color: var(--secondary);
+    }
+
+    .segment__body{
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      background: var(--panel);
+    }
+
+    .segment__grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .segment__meta{
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--grid);
+      background: var(--panel-soft);
+      font-family: "Courier New", monospace;
+      font-weight: 900;
+      font-size: 0.85rem;
+      line-height: 1.35;
+    }
+
+    .segment__warn{
+      font-size: 0.8rem;
+      font-weight: 900;
+      color: var(--warning);
+      display: none;
+    }
+
+    .segment__warn--visible{ display: block; }
+
+    .stage{
+      padding: 14px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .stage__panel{
+      padding: 12px;
+      border: 1px solid rgba(0,0,0,0.02);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+
+    .stage__headline{
+      font-weight: 900;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .track-canvas{
+      width: 100%;
+      aspect-ratio: 16/4;
+      border: 1px solid var(--grid);
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 50%, var(--ground-1) 50%, var(--ground-2) 100%);
+    }
+
+    .charts-area{
+      position: relative;
+    }
+
+    .chart-row{
+      margin-bottom: 14px;
+    }
+
+    .chart-row:last-child{ margin-bottom: 0; }
+
+    .chart-row__label{
+      font-weight: 900;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .chart-split{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .chart-split--compare{
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 980px){
+      .chart-split--compare{
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-cell{
+      border: 1px solid var(--grid);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .chart-cell__header{
+      padding: 8px 10px;
+      background: var(--panel-muted);
+      border-bottom: 1px solid var(--grid);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chart-cell__title{
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    .chart-cell__title--a{ color: var(--motion-a); }
+    .chart-cell__title--b{ color: var(--motion-b); }
+
+    .chart-cell__canvas{
+      width: 100%;
+      display: block;
+    }
+
+    .chart-cell__canvas--single{
+      aspect-ratio: 4/3;
+    }
+
+    .charts--compare .chart-cell__canvas--single{
+      aspect-ratio: 16/9;
+    }
+
+    .chart-cell__canvas--grid{
+      aspect-ratio: 16/9;
+    }
+
+    .chart-tooltip{
+      position: absolute;
+      pointer-events: none;
+      min-width: 220px;
+      max-width: 340px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.97);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      font-size: 0.85rem;
+      line-height: 1.3;
+      color: var(--text);
+      display: none;
+    }
+
+    .chart-tooltip--visible{ display: block; }
+
+    .tooltip__t{
+      font-family: "Courier New", monospace;
+      font-weight: 900;
+      margin-bottom: 6px;
+    }
+
+    .tooltip__row{
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 8px;
+      margin-top: 8px;
+      align-items: start;
+    }
+
+    .tooltip__badge{
+      font-weight: 900;
+      color: var(--panel);
+      padding: 2px 6px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-align: center;
+      background: var(--motion-a);
+    }
+
+    .tooltip__badge--b{ background: var(--motion-b); }
+
+    .legend{
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .legend-item{
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .legend-line{
+      width: 26px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--motion-a);
+    }
+
+    .legend-line--b{ background: var(--motion-b); }
+    .legend-line--time{ background: var(--time-marker); }
+  </style>
+</head>
+
+<body class="app">
+  <h1 class="app__title">🚗 Diagrammbastler (Segmente): t‑x / t‑v / t‑a – Split-Dashboard</h1>
+
+  <div class="app__layout">
+    <aside class="panel controls" id="controls">
+      <div class="controls__section">
+        <label class="app-label" for="viewMode">Ansicht</label>
+        <select class="app-select" id="viewMode" aria-label="Ansicht wählen">
+          <option value="single">Einzeldiagramm (split A|B bei Vergleich)</option>
+          <option value="dashboard">Split-Dashboard: t‑x + t‑v + t‑a (A|B nebeneinander)</option>
+        </select>
+
+        <div id="chartTypeWrap">
+          <div style="height:10px;"></div>
+          <label class="app-label" for="chartType">Diagrammtyp (Single)</label>
+          <select class="app-select" id="chartType" aria-label="Diagrammtyp wählen">
+            <option value="tx">t‑x (Position x)</option>
+            <option value="tv">t‑v (Geschwindigkeit v)</option>
+            <option value="ta">t‑a (Beschleunigung a)</option>
+          </select>
+        </div>
+
+        <div style="height:10px;"></div>
+        <label class="toggle">
+          <input class="toggle__input" type="checkbox" id="compareToggle" aria-label="Vergleich aktivieren">
+          Vergleich (A + B)
+        </label>
+
+        <div class="app-helper">
+          Split-Logik: A und B werden <strong>nebeneinander</strong> gezeichnet (keine Kurven-Überlagerung).
+        </div>
+      </div>
+
+      <div class="controls__section">
+        <div class="toggle-row">
+          <label class="toggle">
+            <input class="toggle__input" type="checkbox" id="readToggle" checked aria-label="Ablese-Modus">
+            Ablese-Modus (Tooltip)
+          </label>
+
+          <label class="toggle">
+            <input class="toggle__input" type="checkbox" id="snapToggle" checked aria-label="Snap-to-Grid">
+            Snap-to-Grid
+          </label>
+        </div>
+
+        <div class="app-helper">
+          Snap wirkt auf Segment-Inputs und im Ablese-Modus (Cursor springt auf sinnvolle Zeit-Schritte).  
+          Animation läuft intern <strong>kontinuierlich</strong> (damit sie nicht einfriert).
+        </div>
+      </div>
+
+      <div class="controls__section">
+        <div class="btn-row">
+          <button class="btn" id="playBtn" aria-label="Animation starten oder pausieren">▶ Start</button>
+          <button class="btn btn--danger" id="resetBtn" aria-label="Zeit zurücksetzen">↺ Reset</button>
+        </div>
+
+        <label class="app-label" for="timeScrubber">Zeit (Scrub)</label>
+        <input class="app-input" id="timeScrubber" type="range" min="0" max="10" step="0.01" value="0" aria-label="Zeit-Slider">
+        <div class="readout" id="timeReadout">t = 0,0 s</div>
+        <div class="readout readout--sub" id="markerReadout">—</div>
+      </div>
+
+      <details class="controls__section details" id="deltaDetails">
+        <summary class="details__summary">📏 Δx Rechner (x(t₂) − x(t₁))</summary>
+        <div class="details__body">
+          <div class="grid-2">
+            <div>
+              <label class="app-label" for="t1">t₁ (s)</label>
+              <input class="app-input" id="t1" type="number" value="0" min="0" step="0.5" aria-label="t1">
+            </div>
+            <div>
+              <label class="app-label" for="t2">t₂ (s)</label>
+              <input class="app-input" id="t2" type="number" value="5" min="0" step="0.5" aria-label="t2">
+            </div>
+          </div>
+          <button class="btn btn--warning" id="deltaBtn" aria-label="Delta x berechnen">Δx berechnen</button>
+          <div class="readout hidden" id="deltaResult"></div>
+        </div>
+      </details>
+
+      <div class="controls__section">
+        <div class="motion-tabs" id="motionTabs">
+          <button class="motion-tabs__tab motion-tabs__tab--active" id="tabA" data-motion="A" aria-label="Bewegung A bearbeiten">Bewegung A</button>
+          <button class="motion-tabs__tab hidden" id="tabB" data-motion="B" aria-label="Bewegung B bearbeiten">Bewegung B</button>
+        </div>
+
+        <section class="motion-editor" id="motionEditorA" aria-label="Editor Bewegung A">
+          <label class="app-label" for="x0A">Startposition x₀ (A) in m</label>
+          <input class="app-input" id="x0A" type="number" value="0" step="0.5" aria-label="x0 A">
+
+          <div class="segment-list" id="segmentsA"></div>
+          <button class="btn" id="addSegA" aria-label="Segment A hinzufügen">+ Segment hinzufügen</button>
+
+          <div class="app-helper">
+            Segmente sind standardmäßig eingeklappt (Variante A). Öffne nur das, was du gerade brauchst.
+          </div>
+        </section>
+
+        <section class="motion-editor hidden" id="motionEditorB" aria-label="Editor Bewegung B">
+          <label class="app-label" for="x0B">Startposition x₀ (B) in m</label>
+          <input class="app-input" id="x0B" type="number" value="0" step="0.5" aria-label="x0 B">
+
+          <div class="segment-list" id="segmentsB"></div>
+          <button class="btn" id="addSegB" aria-label="Segment B hinzufügen">+ Segment hinzufügen</button>
+        </section>
+      </div>
+    </aside>
+
+    <main class="panel stage" id="stage">
+      <section class="stage__panel">
+        <div class="stage__headline">🚗 Animation (Auto folgt x(t))</div>
+        <div class="track-canvas" id="trackCanvas" aria-label="Auto-Track"></div>
+      </section>
+
+      <section class="stage__panel">
+        <div class="stage__headline">📈 Diagramme</div>
+
+        <div class="charts-area" id="chartsArea">
+          <div class="charts charts--single" id="chartsSingle">
+            <div class="chart-split" id="singleSplit">
+              <div class="chart-cell" id="singleCellA">
+                <div class="chart-cell__header">
+                  <div class="chart-cell__title chart-cell__title--a">A</div>
+                </div>
+                <div class="chart-cell__canvas chart-cell__canvas--single" id="chart-single-a"></div>
+              </div>
+
+              <div class="chart-cell hidden" id="singleCellB">
+                <div class="chart-cell__header">
+                  <div class="chart-cell__title chart-cell__title--b">B</div>
+                </div>
+                <div class="chart-cell__canvas chart-cell__canvas--single" id="chart-single-b"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="charts charts--dashboard hidden" id="chartsDashboard">
+            <div class="chart-row">
+              <div class="chart-row__label">t‑x (x in m)</div>
+              <div class="chart-split" id="splitTx">
+                <div class="chart-cell">
+                  <div class="chart-cell__header">
+                    <div class="chart-cell__title chart-cell__title--a">A</div>
+                  </div>
+                  <div class="chart-cell__canvas chart-cell__canvas--grid" id="chart-tx-a"></div>
+                </div>
+
+                <div class="chart-cell hidden" id="dashTxB">
+                  <div class="chart-cell__header">
+                    <div class="chart-cell__title chart-cell__title--b">B</div>
+                  </div>
+                  <div class="chart-cell__canvas chart-cell__canvas--grid" id="chart-tx-b"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-row">
+              <div class="chart-row__label">t‑v (v in m/s)</div>
+              <div class="chart-split" id="splitTv">
+                <div class="chart-cell">
+                  <div class="chart-cell__header">
+                    <div class="chart-cell__title chart-cell__title--a">A</div>
+                  </div>
+                  <div class="chart-cell__canvas chart-cell__canvas--grid" id="chart-tv-a"></div>
+                </div>
+
+                <div class="chart-cell hidden" id="dashTvB">
+                  <div class="chart-cell__header">
+                    <div class="chart-cell__title chart-cell__title--b">B</div>
+                  </div>
+                  <div class="chart-cell__canvas chart-cell__canvas--grid" id="chart-tv-b"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="chart-row">
+              <div class="chart-row__label">t‑a (a in m/s²)</div>
+              <div class="chart-split" id="splitTa">
+                <div class="chart-cell">
+                  <div class="chart-cell__header">
+                    <div class="chart-cell__title chart-cell__title--a">A</div>
+                  </div>
+                  <div class="chart-cell__canvas chart-cell__canvas--grid" id="chart-ta-a"></div>
+                </div>
+
+                <div class="chart-cell hidden" id="dashTaB">
+                  <div class="chart-cell__header">
+                    <div class="chart-cell__title chart-cell__title--b">B</div>
+                  </div>
+                  <div class="chart-cell__canvas chart-cell__canvas--grid" id="chart-ta-b"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-tooltip" id="chartTooltip"></div>
+        </div>
+
+        <div class="legend" id="legend">
+          <div class="legend-item"><span class="legend-line"></span> Bewegung A</div>
+          <div class="legend-item hidden" id="legendB"><span class="legend-line legend-line--b"></span> Bewegung B</div>
+          <div class="legend-item"><span class="legend-line legend-line--time"></span> Zeitmarker</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    (() => {
+      const EPS = 1e-9;
+
+      const PRESETS = {
+        single: { w: 800, h: 600, m: { top: 34, right: 26, bottom: 56, left: 70 }, font: { tick: 12, axis: 13 } },
+        grid:   { w: 520, h: 340, m: { top: 28, right: 18, bottom: 44, left: 58 }, font: { tick: 12, axis: 13 } },
+        track:  { w: 800, h: 180, m: { top: 18, right: 30, bottom: 44, left: 70 }, car: { w: 56, h: 28 } }
+      };
+
+      function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
+      function near(a, b, eps = 1e-9){ return Math.abs(a - b) <= eps; }
+
+      function decimalsFromStep(step){
+        const s = String(step);
+        if (!s.includes(".")) return 0;
+        return s.split(".")[1].length;
+      }
+
+      function formatDE(value, decimals){
+        if (!Number.isFinite(value)) return "—";
+        return value.toLocaleString("de-DE", {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        }).replace(/\./g, " ");
+      }
+
+      function roundToStep(value, step){
+        if (!Number.isFinite(value) || !Number.isFinite(step) || step <= 0) return value;
+        const inv = 1 / step;
+        const snapped = Math.round(value * inv) / inv;
+        const dec = Math.min(8, decimalsFromStep(step) + 2);
+        return parseFloat(snapped.toFixed(dec));
+      }
+
+      function niceNumber(range, round){
+        if (range === 0) return 0;
+        const exponent = Math.floor(Math.log10(range));
+        const fraction = range / Math.pow(10, exponent);
+        let niceFraction;
+
+        if (round) {
+          if (fraction < 1.5) niceFraction = 1;
+          else if (fraction < 3) niceFraction = 2;
+          else if (fraction < 4.5) niceFraction = 4;
+          else if (fraction < 7) niceFraction = 5;
+          else niceFraction = 10;
+        } else {
+          if (fraction <= 1) niceFraction = 1;
+          else if (fraction <= 2) niceFraction = 2;
+          else if (fraction <= 4) niceFraction = 4;
+          else if (fraction <= 5) niceFraction = 5;
+          else niceFraction = 10;
+        }
+        return niceFraction * Math.pow(10, exponent);
+      }
+
+      function computeMinorStep(majorStep){
+        if (!Number.isFinite(majorStep) || majorStep <= 0) return 0.5;
+        if (majorStep <= 1) return majorStep / 2;
+
+        const exponent = Math.floor(Math.log10(majorStep));
+        const pow10 = Math.pow(10, exponent);
+        const fraction = majorStep / pow10;
+
+        if (near(fraction, 5) || near(fraction, 10)) return majorStep / 5;
+        return majorStep / 4;
+      }
+
+      function computeNiceScale(minVal, maxVal, maxMajorTicks = 7){
+        let min = minVal;
+        let max = maxVal;
+
+        if (!Number.isFinite(min) || !Number.isFinite(max)){
+          return { min: -1, max: 1, majorStep: 1, minorStep: 0.5 };
+        }
+
+        if (near(min, max)){
+          const pad = (Math.abs(min) > 1) ? Math.abs(min) * 0.2 : 1;
+          min -= pad;
+          max += pad;
+        }
+
+        const range = max - min;
+        const niceRange = niceNumber(range, false);
+        const majorStep = niceNumber(niceRange / Math.max(1, (maxMajorTicks - 1)), true);
+
+        const niceMin = Math.floor(min / majorStep) * majorStep;
+        const niceMax = Math.ceil(max / majorStep) * majorStep;
+
+        let minorStep = computeMinorStep(majorStep);
+        const minorCount = (niceMax - niceMin) / (minorStep || 1);
+        if (minorCount > 90) minorStep = majorStep;
+
+        return { min: niceMin, max: niceMax, majorStep, minorStep };
+      }
+
+      const MotionEngine = {
+        rebuild(motion){
+          const x0 = Number.isFinite(motion.x0) ? motion.x0 : 0;
+
+          let tCursor = 0;
+          let xCursor = x0;
+
+          const segs = [];
+
+          for (let i = 0; i < motion.segments.length; i++){
+            const seg = motion.segments[i];
+
+            const durationRaw = parseFloat(seg.duration);
+            const duration = Math.max(0.1, Number.isFinite(durationRaw) ? durationRaw : 0.1);
+
+            const type = (seg.type === "const") ? "const" : "acc";
+            const v0Raw = parseFloat(seg.v0);
+            const vStart = Number.isFinite(v0Raw) ? v0Raw : 0;
+
+            const aRaw = parseFloat(seg.a);
+            const a = (type === "acc") ? (Number.isFinite(aRaw) ? aRaw : 0) : 0;
+
+            const tStart = tCursor;
+            const tEnd = tStart + duration;
+
+            const xStart = xCursor;
+            const xEnd = xStart + vStart * duration + 0.5 * a * duration * duration;
+
+            const vEnd = vStart + a * duration;
+
+            segs.push({
+              id: seg.id,
+              idx: i,
+              type,
+              duration,
+              tStart,
+              tEnd,
+              xStart,
+              xEnd,
+              vStart,
+              vEnd,
+              a
+            });
+
+            tCursor = tEnd;
+            xCursor = xEnd;
+          }
+
+          const totalTime = segs.length ? segs[segs.length - 1].tEnd : 0;
+
+          return {
+            x0,
+            segments: segs,
+            totalTime,
+            xEnd: segs.length ? segs[segs.length - 1].xEnd : x0,
+            vEnd: segs.length ? segs[segs.length - 1].vEnd : 0
+          };
+        },
+
+        evaluate(compiled, t){
+          if (!compiled || !compiled.segments.length){
+            return { inRange: false, afterEnd: false, t: 0, x: compiled ? compiled.x0 : 0, v: 0, a: 0, segmentIndex: -1, tEnd: compiled ? compiled.totalTime : 0 };
+          }
+
+          const tTotal = compiled.totalTime;
+
+          if (t < 0){
+            const s0 = compiled.segments[0];
+            return { inRange: true, afterEnd: false, t: 0, x: s0.xStart, v: s0.vStart, a: s0.a, segmentIndex: 0, tEnd: tTotal };
+          }
+
+          if (t > tTotal + EPS){
+            return { inRange: false, afterEnd: true, t, x: compiled.xEnd, v: compiled.vEnd, a: 0, segmentIndex: compiled.segments.length - 1, tEnd: tTotal };
+          }
+
+          for (let i = 0; i < compiled.segments.length; i++){
+            const s = compiled.segments[i];
+            if (t <= s.tEnd + EPS){
+              const tau = clamp(t - s.tStart, 0, s.duration);
+              const x = s.xStart + s.vStart * tau + 0.5 * s.a * tau * tau;
+              const v = s.vStart + s.a * tau;
+              return { inRange: true, afterEnd: false, t, x, v, a: s.a, segmentIndex: i, tEnd: tTotal };
+            }
+          }
+
+          const last = compiled.segments[compiled.segments.length - 1];
+          return { inRange: true, afterEnd: false, t: tTotal, x: last.xEnd, v: last.vEnd, a: last.a, segmentIndex: last.idx, tEnd: tTotal };
+        },
+
+        extents(compiled, type){
+          if (!compiled || !compiled.segments.length){
+            return { min: -1, max: 1 };
+          }
+
+          let min = Infinity;
+          let max = -Infinity;
+
+          const push = (y) => {
+            if (!Number.isFinite(y)) return;
+            min = Math.min(min, y);
+            max = Math.max(max, y);
+          };
+
+          for (const s of compiled.segments){
+            if (type === "tx"){
+              push(s.xStart);
+              push(s.xEnd);
+
+              if (Math.abs(s.a) > EPS){
+                const tau0 = -s.vStart / s.a;
+                if (tau0 > 0 + EPS && tau0 < s.duration - EPS){
+                  const x0 = s.xStart + s.vStart * tau0 + 0.5 * s.a * tau0 * tau0;
+                  push(x0);
+                }
+              }
+            } else if (type === "tv"){
+              push(s.vStart);
+              push(s.vEnd);
+            } else {
+              push(s.a);
+            }
+          }
+
+          if (!Number.isFinite(min) || !Number.isFinite(max)){
+            return { min: -1, max: 1 };
+          }
+          if (near(min, max)){
+            return { min: min - 1, max: max + 1 };
+          }
+          return { min, max };
+        }
+      };
+
+      const ChartRenderer = {
+        render(targetEl, opts){
+          const preset = PRESETS[opts.presetKey] || PRESETS.grid;
+          const { w, h, m, font } = preset;
+          const plotW = w - m.left - m.right;
+          const plotH = h - m.top - m.bottom;
+
+          const { compiled, motionKey, chartType, scales, highlight } = opts;
+
+          const tMax = scales.tMax;
+          const timeScale = scales.time;
+
+          const yScale = (chartType === "tx") ? scales.x : (chartType === "tv") ? scales.v : scales.a;
+
+          const toPx = (t, y) => {
+            const xPx = m.left + (t / tMax) * plotW;
+            const yPx = h - m.bottom - ((y - yScale.min) / (yScale.max - yScale.min)) * plotH;
+            return { x: xPx, y: yPx };
+          };
+
+          const gridSvg = this._gridSvg(timeScale, yScale, { w, h, m, plotW, plotH, tMax, font });
+          const zeroSvg = this._zeroRefSvg(yScale, { w, h, m, plotH });
+
+          const boundaries = this._boundariesSvg(compiled, { h, m, plotW, tMax }, motionKey);
+          const path = this._pathSvg(compiled, chartType, toPx, motionKey);
+
+          const yLabel = (chartType === "tx") ? "x in m" : (chartType === "tv") ? "v in m/s" : "a in m/s²";
+
+          const mapId = targetEl.id;
+
+          const markerColor = (motionKey === "A") ? "var(--motion-a)" : "var(--motion-b)";
+          const showHighlight = !!highlight && chartType === "tx";
+
+          const svg = `
+            <svg data-role="chart-svg"
+                 data-map-id="${mapId}"
+                 data-motion="${motionKey}"
+                 data-type="${chartType}"
+                 width="100%" height="100%"
+                 viewBox="0 0 ${w} ${h}"
+                 xmlns="http://www.w3.org/2000/svg">
+              ${gridSvg}
+              ${zeroSvg}
+              ${boundaries}
+              <g data-role="axes">
+                <line x1="${m.left}" y1="${h-m.bottom}" x2="${w-m.right}" y2="${h-m.bottom}" stroke="var(--text)" stroke-width="2"/>
+                <line x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${h-m.bottom}" stroke="var(--text)" stroke-width="2"/>
+              </g>
+              <text x="${w-m.right}" y="${h-m.bottom+34}" font-family="Arial" font-size="${font.axis}" font-weight="bold" text-anchor="end" fill="var(--text)">t in s</text>
+              <text x="${m.left-10}" y="${m.top-10}" font-family="Arial" font-size="${font.axis}" font-weight="bold" text-anchor="middle" fill="var(--text)">${yLabel}</text>
+              ${path}
+              <g data-role="overlay" pointer-events="none">
+                <line data-role="crosshair" x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${h-m.bottom}"
+                      stroke="var(--time-marker)" stroke-width="2" stroke-dasharray="6,3" opacity="0.85"/>
+                <circle data-role="marker" cx="${m.left}" cy="${h-m.bottom}" r="6"
+                        fill="${markerColor}" stroke="var(--panel)" stroke-width="2" opacity="1"/>
+                <line data-role="highlight-1"
+                      x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${h-m.bottom}"
+                      stroke="var(--warning)" stroke-width="2" stroke-dasharray="4,2" opacity="${showHighlight ? 0.85 : 0}"/>
+                <line data-role="highlight-2"
+                      x1="${m.left}" y1="${m.top}" x2="${m.left}" y2="${h-m.bottom}"
+                      stroke="var(--warning)" stroke-width="2" stroke-dasharray="4,2" opacity="${showHighlight ? 0.85 : 0}"/>
+              </g>
+            </svg>
+          `;
+
+          targetEl.innerHTML = svg;
+
+          // position highlight lines now (optional)
+          if (showHighlight){
+            const svgEl = targetEl.querySelector('svg[data-role="chart-svg"]');
+            const l1 = svgEl.querySelector('[data-role="highlight-1"]');
+            const l2 = svgEl.querySelector('[data-role="highlight-2"]');
+
+            const x1 = m.left + (clamp(highlight.t1, 0, tMax) / tMax) * plotW;
+            const x2 = m.left + (clamp(highlight.t2, 0, tMax) / tMax) * plotW;
+
+            l1.setAttribute("x1", x1.toFixed(1));
+            l1.setAttribute("x2", x1.toFixed(1));
+            l2.setAttribute("x1", x2.toFixed(1));
+            l2.setAttribute("x2", x2.toFixed(1));
+          }
+
+          return { w, h, m, plotW, plotH, tMax, yMin: yScale.min, yMax: yScale.max };
+        },
+
+        _gridSvg(timeScale, yScale, map){
+          const { w, h, m, plotW, plotH, tMax, font } = map;
+          const tMajor = timeScale.majorStep;
+          const tMinor = timeScale.minorStep;
+
+          const yMajor = yScale.majorStep;
+          const yMinor = yScale.minorStep;
+
+          const tToX = (t) => m.left + (t / tMax) * plotW;
+          const yToY = (y) => h - m.bottom - ((y - yScale.min) / (yScale.max - yScale.min)) * plotH;
+
+          let minorLines = "";
+          let majorLines = "";
+          let xLabels = "";
+          let yLabels = "";
+
+          const minorVCount = (tMinor > 0) ? Math.floor(tMax / tMinor + EPS) : 0;
+          if (tMinor > 0 && minorVCount <= 90){
+            for (let i = 0; i <= minorVCount; i++){
+              const t = i * tMinor;
+              const x = tToX(t);
+              minorLines += `<line x1="${x.toFixed(1)}" y1="${m.top}" x2="${x.toFixed(1)}" y2="${(h-m.bottom).toFixed(1)}" stroke="var(--grid-minor)" stroke-width="1"/>`;
+            }
+          }
+
+          const yMinorCount = (yMinor > 0) ? Math.round((yScale.max - yScale.min) / yMinor) : 0;
+          if (yMinor > 0 && yMinorCount <= 90){
+            for (let i = 0; i <= yMinorCount; i++){
+              const yVal = yScale.min + i * yMinor;
+              const y = yToY(yVal);
+              minorLines += `<line x1="${m.left}" y1="${y.toFixed(1)}" x2="${(w-m.right).toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--grid-minor)" stroke-width="1"/>`;
+            }
+          }
+
+          const majorVCount = (tMajor > 0) ? Math.floor(tMax / tMajor + EPS) : 0;
+          const tDec = decimalsFromStep(tMajor || 1);
+
+          if (tMajor > 0){
+            for (let i = 0; i <= majorVCount; i++){
+              const t = i * tMajor;
+              const x = tToX(t);
+              majorLines += `<line x1="${x.toFixed(1)}" y1="${m.top}" x2="${x.toFixed(1)}" y2="${(h-m.bottom).toFixed(1)}" stroke="var(--grid)" stroke-width="1.5"/>`;
+              xLabels += `<text x="${x.toFixed(1)}" y="${(h-m.bottom+18).toFixed(1)}" font-family="Arial" font-size="${font.tick}" text-anchor="middle" fill="var(--muted)">${formatDE(t, tDec)}</text>`;
+            }
+
+            if (!near(majorVCount * tMajor, tMax)){
+              const x = tToX(tMax);
+              majorLines += `<line x1="${x.toFixed(1)}" y1="${m.top}" x2="${x.toFixed(1)}" y2="${(h-m.bottom).toFixed(1)}" stroke="var(--grid)" stroke-width="1.5"/>`;
+              xLabels += `<text x="${x.toFixed(1)}" y="${(h-m.bottom+18).toFixed(1)}" font-family="Arial" font-size="${font.tick}" text-anchor="middle" fill="var(--muted)">${formatDE(tMax, Math.max(0, tDec))}</text>`;
+            }
+          }
+
+          const yMajorCount = (yMajor > 0) ? Math.round((yScale.max - yScale.min) / yMajor) : 0;
+          const yDec = decimalsFromStep(yMajor || 1);
+
+          if (yMajor > 0 && yMajorCount <= 50){
+            for (let i = 0; i <= yMajorCount; i++){
+              const yVal = yScale.min + i * yMajor;
+              const y = yToY(yVal);
+              majorLines += `<line x1="${m.left}" y1="${y.toFixed(1)}" x2="${(w-m.right).toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--grid)" stroke-width="1.5"/>`;
+
+              const isZero = near(yVal, 0, 1e-7);
+              const color = isZero ? "var(--secondary)" : "var(--muted)";
+              const weight = isZero ? "bold" : "normal";
+
+              yLabels += `<text x="${(m.left-10).toFixed(1)}" y="${(y+4).toFixed(1)}" font-family="Arial" font-size="${font.tick}" text-anchor="end" fill="${color}" font-weight="${weight}">${formatDE(yVal, yDec)}</text>`;
+            }
+          }
+
+          return `<g data-role="grid">${minorLines}${majorLines}${xLabels}${yLabels}</g>`;
+        },
+
+        _zeroRefSvg(yScale, map){
+          const { w, h, m, plotH } = map;
+
+          const inside = (0 >= yScale.min - EPS) && (0 <= yScale.max + EPS);
+          if (inside){
+            const y0 = h - m.bottom - ((0 - yScale.min) / (yScale.max - yScale.min)) * plotH;
+            return `<line x1="${m.left}" y1="${y0.toFixed(1)}" x2="${(w-m.right).toFixed(1)}" y2="${y0.toFixed(1)}" stroke="var(--secondary)" stroke-width="2" stroke-dasharray="6,3" opacity="0.85"/>`;
+          }
+
+          const below = 0 < yScale.min;
+          const yEdge = below ? (h - m.bottom) : m.top;
+
+          const tri = below
+            ? `${m.left-6},${(yEdge+2).toFixed(1)} ${m.left+6},${(yEdge+2).toFixed(1)} ${m.left},${(yEdge+12).toFixed(1)}`
+            : `${m.left-6},${(yEdge-2).toFixed(1)} ${m.left+6},${(yEdge-2).toFixed(1)} ${m.left},${(yEdge-12).toFixed(1)}`;
+
+          const yLabel = below ? (yEdge + 26) : (yEdge - 16);
+
+          return `
+            <polygon points="${tri}" fill="var(--secondary)" opacity="0.9"/>
+            <text x="${(m.left-10).toFixed(1)}" y="${yLabel.toFixed(1)}" font-family="Arial" font-size="11" text-anchor="end" fill="var(--secondary)" font-weight="bold">0</text>
+          `;
+        },
+
+        _boundariesSvg(compiled, map, motionKey){
+          if (!compiled || !compiled.segments.length) return "";
+
+          const { h, m, plotW, tMax } = map;
+          const color = (motionKey === "A") ? "var(--motion-a)" : "var(--motion-b)";
+          let out = `<g data-role="boundaries">`;
+
+          for (let i = 1; i < compiled.segments.length; i++){
+            const t = compiled.segments[i].tStart;
+            const x = m.left + (t / tMax) * plotW;
+            out += `<line x1="${x.toFixed(1)}" y1="${m.top}" x2="${x.toFixed(1)}" y2="${(h-m.bottom).toFixed(1)}"
+                          stroke="${color}" stroke-width="2" stroke-dasharray="6,4" opacity="0.18"/>`;
+          }
+
+          out += `</g>`;
+          return out;
+        },
+
+        _pathSvg(compiled, chartType, toPx, motionKey){
+          if (!compiled || !compiled.segments.length) return "";
+
+          const color = (motionKey === "A") ? "var(--motion-a)" : "var(--motion-b)";
+
+          let d = "";
+          let first = true;
+
+          const yAt = (seg, tau) => {
+            if (chartType === "tx") return seg.xStart + seg.vStart * tau + 0.5 * seg.a * tau * tau;
+            if (chartType === "tv") return seg.vStart + seg.a * tau;
+            return seg.a;
+          };
+
+          for (const seg of compiled.segments){
+            const n = Math.max(12, Math.min(40, Math.round(seg.duration * 8)));
+            for (let i = 0; i <= n; i++){
+              const tau = (i / n) * seg.duration;
+              const t = seg.tStart + tau;
+              const y = yAt(seg, tau);
+              const p = toPx(t, y);
+
+              if (first){
+                d = `M ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+                first = false;
+              } else {
+                d += ` L ${p.x.toFixed(1)} ${p.y.toFixed(1)}`;
+              }
+            }
+          }
+
+          return `<path d="${d}" fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
+        }
+      };
+
+      const TrackRenderer = {
+        render(targetEl, opts){
+          const preset = PRESETS.track;
+          const { w, h, m } = preset;
+          const plotW = w - m.left - m.right;
+
+          const xScale = opts.scales.x;
+
+          let xMin = Math.min(xScale.min, 0);
+          let xMax = Math.max(xScale.max, 0);
+          if (near(xMin, xMax)){
+            xMin -= 1;
+            xMax += 1;
+          }
+
+          const toX = (x) => m.left + ((x - xMin) / (xMax - xMin)) * plotW;
+
+          const roadY = h - m.bottom;
+          const carW = preset.car.w;
+          const carH = preset.car.h;
+          const carY = roadY - carH - 6;
+
+          const tickStep = xScale.majorStep || 1;
+          const tickDec = decimalsFromStep(tickStep);
+
+          let ticks = "";
+          const firstTick = Math.ceil(xMin / tickStep) * tickStep;
+          for (let x = firstTick; x <= xMax + EPS; x += tickStep){
+            const px = toX(x);
+            ticks += `
+              <line x1="${px.toFixed(1)}" y1="${roadY.toFixed(1)}" x2="${px.toFixed(1)}" y2="${(roadY+8).toFixed(1)}" stroke="var(--text)" stroke-width="1" opacity="0.55"/>
+              <text x="${px.toFixed(1)}" y="${(roadY+26).toFixed(1)}" font-family="Arial" font-size="11" text-anchor="middle" fill="var(--muted)">${formatDE(x, tickDec)}</text>
+            `;
+          }
+
+          const xZero = toX(0);
+          const zeroInside = (0 >= xMin - EPS) && (0 <= xMax + EPS);
+
+          const carSvg = (role, bodyFill, bodyStroke, labelText, labelFill) => `
+            <g data-role="${role}" transform="translate(${m.left.toFixed(1)}, ${carY.toFixed(1)})">
+              <rect x="0" y="10" width="${carW}" height="16" rx="5" fill="${bodyFill}" stroke="${bodyStroke}" stroke-width="2"/>
+              <rect x="10" y="2" width="22" height="10" rx="2" fill="var(--car-window)" opacity="0.85"/>
+              <circle cx="14" cy="28" r="6" fill="var(--car-wheel)"/>
+              <circle cx="42" cy="28" r="6" fill="var(--car-wheel)"/>
+              <text x="${(carW/2).toFixed(1)}" y="9" font-family="Arial" font-size="12" text-anchor="middle" fill="${labelFill}" font-weight="bold">${labelText}</text>
+            </g>
+          `;
+
+          const svg = `
+            <svg data-role="track-svg" width="100%" height="100%" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+              <text x="${(w/2).toFixed(1)}" y="18" font-family="Arial" font-size="13" font-weight="bold" text-anchor="middle" fill="var(--text)">Track: Position x (m)</text>
+              <line x1="${m.left}" y1="${roadY.toFixed(1)}" x2="${(w-m.right).toFixed(1)}" y2="${roadY.toFixed(1)}" stroke="var(--text)" stroke-width="4" opacity="0.85"/>
+              <line x1="${m.left}" y1="${(roadY-10).toFixed(1)}" x2="${(w-m.right).toFixed(1)}" y2="${(roadY-10).toFixed(1)}"
+                    stroke="var(--panel)" stroke-width="2" stroke-dasharray="10,10" opacity="0.9"/>
+              ${ticks}
+              <line x1="${xZero.toFixed(1)}" y1="${m.top}" x2="${xZero.toFixed(1)}" y2="${roadY.toFixed(1)}"
+                    stroke="var(--secondary)" stroke-width="2" stroke-dasharray="6,3" opacity="${zeroInside ? 0.9 : 0}"/>
+              ${carSvg("car-a", "var(--car-a-body)", "var(--car-a-stroke)", "A", "var(--text)")}
+              ${carSvg("car-b", "var(--car-b-body)", "var(--car-b-stroke)", "B", "var(--text)")}
+            </svg>
+          `;
+
+          targetEl.innerHTML = svg;
+
+          const svgEl = targetEl.querySelector('svg[data-role="track-svg"]');
+          return {
+            w, h, m, plotW, xMin, xMax, toX, roadY, carY, carW, carH,
+            svgEl,
+            carA: svgEl.querySelector('[data-role="car-a"]'),
+            carB: svgEl.querySelector('[data-role="car-b"]')
+          };
+        }
+      };
+
+      const App = {
+        dom: {},
+        state: {
+          viewMode: "single",
+          chartType: "tx",
+          compare: false,
+          readMode: true,
+          snap: true,
+
+          playing: false,
+          currentTime: 0,
+
+          hoverActive: false,
+          hoverTime: 0,
+
+          highlight: null,
+
+          activeTab: "A",
+
+          rafId: null,
+          lastPerf: 0,
+
+          recomputeToken: null
+        },
+
+        motions: {
+          A: { x0: 0, segments: [] },
+          B: { x0: 0, segments: [] }
+        },
+
+        compiled: { A: null, B: null },
+        scales: null,
+        chartMaps: {},
+        trackMap: null,
+
+        segCounter: 1,
+
+        init(){
+          this._cacheDom();
+          this._bindEvents();
+          this._seedDefaults();
+
+          this._renderSegments("A");
+          this._renderSegments("B");
+
+          this._applyUIState();
+          this.recomputeAll(true);
+        },
+
+        _cacheDom(){
+          const $ = (id) => document.getElementById(id);
+          this.dom = {
+            viewMode: $("viewMode"),
+            chartTypeWrap: $("chartTypeWrap"),
+            chartType: $("chartType"),
+
+            compareToggle: $("compareToggle"),
+            readToggle: $("readToggle"),
+            snapToggle: $("snapToggle"),
+
+            playBtn: $("playBtn"),
+            resetBtn: $("resetBtn"),
+            timeScrubber: $("timeScrubber"),
+            timeReadout: $("timeReadout"),
+            markerReadout: $("markerReadout"),
+
+            deltaDetails: $("deltaDetails"),
+            t1: $("t1"),
+            t2: $("t2"),
+            deltaBtn: $("deltaBtn"),
+            deltaResult: $("deltaResult"),
+
+            tabA: $("tabA"),
+            tabB: $("tabB"),
+            motionEditorA: $("motionEditorA"),
+            motionEditorB: $("motionEditorB"),
+            x0A: $("x0A"),
+            x0B: $("x0B"),
+            segmentsA: $("segmentsA"),
+            segmentsB: $("segmentsB"),
+            addSegA: $("addSegA"),
+            addSegB: $("addSegB"),
+
+            chartsArea: $("chartsArea"),
+            chartsSingle: $("chartsSingle"),
+            chartsDashboard: $("chartsDashboard"),
+            singleSplit: $("singleSplit"),
+            splitTx: $("splitTx"),
+            splitTv: $("splitTv"),
+            splitTa: $("splitTa"),
+
+            singleCellB: $("singleCellB"),
+            dashTxB: $("dashTxB"),
+            dashTvB: $("dashTvB"),
+            dashTaB: $("dashTaB"),
+
+            legendB: $("legendB"),
+
+            chartSingleA: $("chart-single-a"),
+            chartSingleB: $("chart-single-b"),
+
+            chartTxA: $("chart-tx-a"),
+            chartTxB: $("chart-tx-b"),
+            chartTvA: $("chart-tv-a"),
+            chartTvB: $("chart-tv-b"),
+            chartTaA: $("chart-ta-a"),
+            chartTaB: $("chart-ta-b"),
+
+            chartTooltip: $("chartTooltip"),
+            trackCanvas: $("trackCanvas")
+          };
+        },
+
+        _bindEvents(){
+          const d = this.dom;
+
+          d.viewMode.addEventListener("change", () => {
+            this.pause();
+            this.state.viewMode = d.viewMode.value;
+            this._applyUIState();
+            this.recomputeAll(true);
+          });
+
+          d.chartType.addEventListener("change", () => {
+            this.pause();
+            this.state.chartType = d.chartType.value;
+            this.recomputeAll(true);
+          });
+
+          d.compareToggle.addEventListener("change", () => {
+            this.pause();
+            this.state.compare = d.compareToggle.checked;
+            if (!this.state.compare && this.state.activeTab === "B"){
+              this.state.activeTab = "A";
+            }
+            this._applyUIState();
+            this.recomputeAll(true);
+          });
+
+          d.readToggle.addEventListener("change", () => {
+            this.state.readMode = d.readToggle.checked;
+            if (!this.state.readMode){
+              this._hideTooltip();
+              this.state.hoverActive = false;
+              this.updateOverlays();
+            }
+          });
+
+          d.snapToggle.addEventListener("change", () => {
+            this.pause();
+            this.state.snap = d.snapToggle.checked;
+            this.recomputeAll(true);
+          });
+
+          d.playBtn.addEventListener("click", () => this.togglePlay());
+          d.resetBtn.addEventListener("click", () => this.resetTime());
+
+          d.timeScrubber.addEventListener("input", () => {
+            this.pause();
+            const t = parseFloat(d.timeScrubber.value);
+            this.state.currentTime = Number.isFinite(t) ? t : 0;
+            this._setTimeReadout(this.state.currentTime);
+            this.updateOverlays();
+          });
+
+          d.timeScrubber.addEventListener("change", () => {
+            if (!this.scales) return;
+            if (!this.state.snap) return;
+
+            const stepT = this.scales.time.minorStep || 0.5;
+            this.state.currentTime = roundToStep(this.state.currentTime, stepT);
+            d.timeScrubber.value = String(this.state.currentTime);
+            this._setTimeReadout(this.state.currentTime);
+            this.updateOverlays();
+          });
+
+          d.deltaBtn.addEventListener("click", () => this.computeDeltaX());
+
+          d.tabA.addEventListener("click", () => {
+            this.state.activeTab = "A";
+            this._applyUIState();
+          });
+
+          d.tabB.addEventListener("click", () => {
+            if (!this.state.compare) return;
+            this.state.activeTab = "B";
+            this._applyUIState();
+          });
+
+          d.x0A.addEventListener("input", () => this._scheduleRecompute(false));
+          d.x0A.addEventListener("change", () => this._scheduleRecompute(true));
+
+          d.x0B.addEventListener("input", () => this._scheduleRecompute(false));
+          d.x0B.addEventListener("change", () => this._scheduleRecompute(true));
+
+          d.addSegA.addEventListener("click", () => this.addSegment("A"));
+          d.addSegB.addEventListener("click", () => this.addSegment("B"));
+
+          this._bindSegmentEvents(d.segmentsA, "A");
+          this._bindSegmentEvents(d.segmentsB, "B");
+
+          d.chartsArea.addEventListener("mousemove", (e) => this.onChartsMouseMove(e));
+          d.chartsArea.addEventListener("mouseleave", () => this.onChartsMouseLeave());
+        },
+
+        _bindSegmentEvents(container, motionKey){
+          container.addEventListener("input", (e) => this._handleSegmentFieldEvent(e, motionKey, false));
+          container.addEventListener("change", (e) => this._handleSegmentFieldEvent(e, motionKey, true));
+          container.addEventListener("click", (e) => this._handleSegmentActionClick(e, motionKey));
+        },
+
+        _seedDefaults(){
+          this.motions.A.x0 = 0;
+          this.motions.A.segments = [
+            { id: this._newSegId(), type: "acc", duration: 5, v0: 2, a: 1 },
+            { id: this._newSegId(), type: "const", duration: 7.5, v0: 6, a: 0 }
+          ];
+
+          this.motions.B.x0 = 0;
+          this.motions.B.segments = [
+            { id: this._newSegId(), type: "acc", duration: 5, v0: 1, a: 0.5 },
+            { id: this._newSegId(), type: "const", duration: 7.5, v0: 3.5, a: 0 }
+          ];
+        },
+
+        _newSegId(){
+          return "seg_" + (this.segCounter++);
+        },
+
+        _applyUIState(){
+          const d = this.dom;
+
+          // View
+          const dashboard = this.state.viewMode === "dashboard";
+          d.chartsSingle.classList.toggle("hidden", dashboard);
+          d.chartsDashboard.classList.toggle("hidden", !dashboard);
+          d.chartTypeWrap.classList.toggle("hidden", dashboard);
+
+          // Compare
+          const cmp = this.state.compare;
+
+          d.singleCellB.classList.toggle("hidden", !cmp);
+          d.dashTxB.classList.toggle("hidden", !cmp);
+          d.dashTvB.classList.toggle("hidden", !cmp);
+          d.dashTaB.classList.toggle("hidden", !cmp);
+
+          d.legendB.classList.toggle("hidden", !cmp);
+
+          // Split columns
+          const splitOn = cmp;
+          d.singleSplit.classList.toggle("chart-split--compare", splitOn);
+          d.splitTx.classList.toggle("chart-split--compare", splitOn);
+          d.splitTv.classList.toggle("chart-split--compare", splitOn);
+          d.splitTa.classList.toggle("chart-split--compare", splitOn);
+
+          // Single chart aspect ratio mode
+          d.chartsSingle.classList.toggle("charts--compare", splitOn);
+
+          // Tabs
+          d.tabB.classList.toggle("hidden", !cmp);
+
+          const activeA = this.state.activeTab === "A";
+          d.tabA.classList.toggle("motion-tabs__tab--active", activeA);
+          d.tabB.classList.toggle("motion-tabs__tab--active", !activeA);
+
+          d.motionEditorA.classList.toggle("hidden", !activeA);
+          d.motionEditorB.classList.toggle("hidden", activeA || !cmp);
+
+          if (!cmp && !activeA){
+            this.state.activeTab = "A";
+            d.motionEditorA.classList.remove("hidden");
+            d.motionEditorB.classList.add("hidden");
+            d.tabA.classList.add("motion-tabs__tab--active");
+          }
+        },
+
+        _scheduleRecompute(hard){
+          if (this.state.recomputeToken) return;
+          this.state.recomputeToken = requestAnimationFrame(() => {
+            this.state.recomputeToken = null;
+            this.recomputeAll(!!hard);
+          });
+        },
+
+        recomputeAll(hard){
+          const d = this.dom;
+
+          // Update model
+          const x0A = parseFloat(d.x0A.value);
+          const x0B = parseFloat(d.x0B.value);
+          if (Number.isFinite(x0A)) this.motions.A.x0 = x0A;
+          if (Number.isFinite(x0B)) this.motions.B.x0 = x0B;
+
+          // Compile
+          this.compiled.A = MotionEngine.rebuild(this.motions.A);
+          this.compiled.B = MotionEngine.rebuild(this.motions.B);
+
+          // Scales
+          this.scales = this._computeScales();
+
+          // Snap some inputs on hard recompute
+          if (hard && this.state.snap){
+            const stepX = this.scales.x.minorStep || 0.5;
+            const stepT = this.scales.time.minorStep || 0.5;
+
+            this.motions.A.x0 = roundToStep(this.motions.A.x0, stepX);
+            this.motions.B.x0 = roundToStep(this.motions.B.x0, stepX);
+            d.x0A.value = String(this.motions.A.x0);
+            d.x0B.value = String(this.motions.B.x0);
+
+            const t1 = roundToStep(parseFloat(d.t1.value) || 0, stepT);
+            const t2 = roundToStep(parseFloat(d.t2.value) || 0, stepT);
+            d.t1.value = String(t1);
+            d.t2.value = String(t2);
+          }
+
+          // Apply step attributes
+          this._applyInputSteps();
+
+          // Clamp time
+          this.state.currentTime = clamp(this.state.currentTime, 0, this.scales.tMax);
+          d.timeScrubber.max = String(this.scales.tMax);
+          d.timeScrubber.value = String(this.state.currentTime);
+
+          this._setTimeReadout(this.state.currentTime);
+
+          // Render track + charts
+          this.trackMap = TrackRenderer.render(d.trackCanvas, { scales: this.scales, compare: this.state.compare });
+
+          this.chartMaps = {};
+          this._renderCharts();
+
+          // Update per-segment meta + warnings
+          this._updateSegmentComputed("A");
+          if (this.state.compare) this._updateSegmentComputed("B");
+
+          // Update overlays
+          this.updateOverlays();
+        },
+
+        _computeScales(){
+          const compare = this.state.compare;
+
+          const tA = this.compiled.A.totalTime;
+          const tB = this.compiled.B.totalTime;
+          let tMax = compare ? Math.max(tA, tB) : tA;
+          if (!Number.isFinite(tMax) || tMax < 0.1) tMax = 1;
+
+          const extA_x = MotionEngine.extents(this.compiled.A, "tx");
+          const extA_v = MotionEngine.extents(this.compiled.A, "tv");
+          const extA_a = MotionEngine.extents(this.compiled.A, "ta");
+
+          const extB_x = compare ? MotionEngine.extents(this.compiled.B, "tx") : null;
+          const extB_v = compare ? MotionEngine.extents(this.compiled.B, "tv") : null;
+          const extB_a = compare ? MotionEngine.extents(this.compiled.B, "ta") : null;
+
+          const combine = (e1, e2) => e2 ? { min: Math.min(e1.min, e2.min), max: Math.max(e1.max, e2.max) } : e1;
+
+          const pad = (ext) => {
+            const r = ext.max - ext.min;
+            const p = (r > 0) ? r * 0.08 : 1;
+            return { min: ext.min - p, max: ext.max + p };
+          };
+
+          const xExt = pad(combine(extA_x, extB_x));
+          const vExt = pad(combine(extA_v, extB_v));
+          const aExt = pad(combine(extA_a, extB_a));
+
+          const xScale = computeNiceScale(xExt.min, xExt.max, 7);
+          const vScale = computeNiceScale(vExt.min, vExt.max, 7);
+          const aScale = computeNiceScale(aExt.min, aExt.max, 7);
+
+          const timeTmp = computeNiceScale(0, tMax, 7);
+          const time = { min: 0, max: tMax, majorStep: timeTmp.majorStep, minorStep: timeTmp.minorStep };
+
+          return { tMax, time, x: xScale, v: vScale, a: aScale };
+        },
+
+        _applyInputSteps(){
+          const d = this.dom;
+          const stepX = this.scales.x.minorStep || 0.5;
+          const stepV = this.scales.v.minorStep || 0.5;
+          const stepA = this.scales.a.minorStep || 0.25;
+          const stepT = this.scales.time.minorStep || 0.5;
+
+          d.x0A.step = String(stepX);
+          d.x0B.step = String(stepX);
+
+          d.t1.step = String(stepT);
+          d.t2.step = String(stepT);
+
+          const applyToSegmentContainer = (container) => {
+            container.querySelectorAll('input[data-field="duration"]').forEach(inp => inp.step = String(stepT));
+            container.querySelectorAll('input[data-field="v0"]').forEach(inp => inp.step = String(stepV));
+            container.querySelectorAll('input[data-field="a"]').forEach(inp => inp.step = String(stepA));
+          };
+
+          applyToSegmentContainer(d.segmentsA);
+          applyToSegmentContainer(d.segmentsB);
+        },
+
+        _renderCharts(){
+          const presetKey = (this.state.viewMode === "single" && !this.state.compare) ? "single" : "grid";
+          const highlight = this.state.highlight;
+
+          if (this.state.viewMode === "single"){
+            const type = this.state.chartType;
+
+            const mapA = ChartRenderer.render(this.dom.chartSingleA, {
+              presetKey,
+              compiled: this.compiled.A,
+              motionKey: "A",
+              chartType: type,
+              scales: this.scales,
+              highlight
+            });
+            this.chartMaps[this.dom.chartSingleA.id] = mapA;
+
+            if (this.state.compare){
+              const mapB = ChartRenderer.render(this.dom.chartSingleB, {
+                presetKey,
+                compiled: this.compiled.B,
+                motionKey: "B",
+                chartType: type,
+                scales: this.scales,
+                highlight
+              });
+              this.chartMaps[this.dom.chartSingleB.id] = mapB;
+            } else {
+              this.dom.chartSingleB.innerHTML = "";
+            }
+            return;
+          }
+
+          // dashboard
+          const dashPreset = "grid";
+
+          const mTxA = ChartRenderer.render(this.dom.chartTxA, { presetKey: dashPreset, compiled: this.compiled.A, motionKey: "A", chartType: "tx", scales: this.scales, highlight });
+          const mTvA = ChartRenderer.render(this.dom.chartTvA, { presetKey: dashPreset, compiled: this.compiled.A, motionKey: "A", chartType: "tv", scales: this.scales, highlight });
+          const mTaA = ChartRenderer.render(this.dom.chartTaA, { presetKey: dashPreset, compiled: this.compiled.A, motionKey: "A", chartType: "ta", scales: this.scales, highlight });
+
+          this.chartMaps[this.dom.chartTxA.id] = mTxA;
+          this.chartMaps[this.dom.chartTvA.id] = mTvA;
+          this.chartMaps[this.dom.chartTaA.id] = mTaA;
+
+          if (this.state.compare){
+            const mTxB = ChartRenderer.render(this.dom.chartTxB, { presetKey: dashPreset, compiled: this.compiled.B, motionKey: "B", chartType: "tx", scales: this.scales, highlight });
+            const mTvB = ChartRenderer.render(this.dom.chartTvB, { presetKey: dashPreset, compiled: this.compiled.B, motionKey: "B", chartType: "tv", scales: this.scales, highlight });
+            const mTaB = ChartRenderer.render(this.dom.chartTaB, { presetKey: dashPreset, compiled: this.compiled.B, motionKey: "B", chartType: "ta", scales: this.scales, highlight });
+
+            this.chartMaps[this.dom.chartTxB.id] = mTxB;
+            this.chartMaps[this.dom.chartTvB.id] = mTvB;
+            this.chartMaps[this.dom.chartTaB.id] = mTaB;
+          } else {
+            this.dom.chartTxB.innerHTML = "";
+            this.dom.chartTvB.innerHTML = "";
+            this.dom.chartTaB.innerHTML = "";
+          }
+        },
+
+        _updateSegmentComputed(motionKey){
+          const container = (motionKey === "A") ? this.dom.segmentsA : this.dom.segmentsB;
+          const compiled = this.compiled[motionKey];
+          if (!compiled) return;
+
+          compiled.segments.forEach((seg) => {
+            const el = container.querySelector(`[data-seg-id="${seg.id}"]`);
+            if (!el) return;
+
+            const meta = el.querySelector('[data-role="meta"]');
+            const warn = el.querySelector('[data-role="warn"]');
+
+            if (meta){
+              meta.textContent =
+                `t: ${formatDE(seg.tStart, 1)}–${formatDE(seg.tEnd, 1)} s | ` +
+                `x: ${formatDE(seg.xStart, 2)} → ${formatDE(seg.xEnd, 2)} m | ` +
+                `v: ${formatDE(seg.vStart, 2)} → ${formatDE(seg.vEnd, 2)} m/s | ` +
+                `a: ${formatDE(seg.a, 2)} m/s²`;
+            }
+
+            if (warn){
+              warn.classList.remove("segment__warn--visible");
+              if (seg.idx > 0){
+                const prev = compiled.segments[seg.idx - 1];
+                const dv = seg.vStart - prev.vEnd;
+                if (Math.abs(dv) > 1e-6){
+                  warn.textContent = `Hinweis: Sprung in v an Segmentgrenze (Δv = ${formatDE(dv, 2)} m/s).`;
+                  warn.classList.add("segment__warn--visible");
+                }
+              }
+            }
+          });
+        },
+
+        _segmentSummary(seg, idx){
+          const dt = Number.isFinite(parseFloat(seg.duration)) ? parseFloat(seg.duration) : 0;
+          const v0 = Number.isFinite(parseFloat(seg.v0)) ? parseFloat(seg.v0) : 0;
+          const a = Number.isFinite(parseFloat(seg.a)) ? parseFloat(seg.a) : 0;
+
+          if (seg.type === "const"){
+            return `Segment ${idx+1} | gleichförmig | Δt ${formatDE(dt, 1)} s | v ${formatDE(v0, 1)} m/s`;
+          }
+          return `Segment ${idx+1} | beschleunigt | Δt ${formatDE(dt, 1)} s | v₀ ${formatDE(v0, 1)} m/s | a ${formatDE(a, 2)} m/s²`;
+        },
+
+        _renderSegments(motionKey, openIds){
+          const motion = this.motions[motionKey];
+          const container = (motionKey === "A") ? this.dom.segmentsA : this.dom.segmentsB;
+
+          if (!motion.segments.length){
+            container.innerHTML = `<div class="app-helper">Noch keine Segmente. Klick auf „+ Segment hinzufügen“.</div>`;
+            return;
+          }
+
+          const openSet = openIds || new Set();
+
+          let html = "";
+          for (let i = 0; i < motion.segments.length; i++){
+            const seg = motion.segments[i];
+            const isOpen = openSet.has(seg.id);
+
+            const typeOptions = `
+              <option value="acc" ${seg.type !== "const" ? "selected" : ""}>beschleunigt (a konstant)</option>
+              <option value="const" ${seg.type === "const" ? "selected" : ""}>gleichförmig (v konstant)</option>
+            `;
+
+            const vLabel = (seg.type === "const") ? "v (m/s)" : "v₀ (m/s)";
+            const aDisabled = (seg.type === "const") ? "disabled" : "";
+
+            html += `
+              <details class="segment" data-seg-id="${seg.id}" ${isOpen ? "open" : ""}>
+                <summary class="segment__summary">
+                  <span class="segment__summary-text" data-role="summaryText">${this._segmentSummary(seg, i)}</span>
+                  <span class="segment__actions">
+                    <button class="icon-btn" type="button" data-action="duplicate" aria-label="Segment duplizieren">⎘</button>
+                    <button class="icon-btn icon-btn--danger" type="button" data-action="delete" aria-label="Segment löschen">✕</button>
+                  </span>
+                </summary>
+
+                <div class="segment__body">
+                  <div>
+                    <label class="app-label">Typ</label>
+                    <select class="app-select" data-field="type" aria-label="Segmenttyp">
+                      ${typeOptions}
+                    </select>
+                  </div>
+
+                  <div class="segment__grid">
+                    <div>
+                      <label class="app-label">Δt (s)</label>
+                      <input class="app-input" type="number" min="0.1" data-field="duration" value="${seg.duration}">
+                    </div>
+
+                    <div>
+                      <label class="app-label" data-role="vLabel">${vLabel}</label>
+                      <input class="app-input" type="number" data-field="v0" value="${seg.v0}">
+                    </div>
+
+                    <div>
+                      <label class="app-label">a (m/s²)</label>
+                      <input class="app-input" type="number" data-field="a" value="${seg.type === "const" ? 0 : seg.a}" ${aDisabled}>
+                    </div>
+
+                    <div>
+                      <label class="app-label">Info</label>
+                      <div class="readout readout--sub">Sprünge in v sind erlaubt</div>
+                    </div>
+                  </div>
+
+                  <div class="segment__meta" data-role="meta">—</div>
+                  <div class="segment__warn" data-role="warn">—</div>
+                </div>
+              </details>
+            `;
+          }
+
+          container.innerHTML = html;
+        },
+
+        _getOpenSegmentIds(motionKey){
+          const container = (motionKey === "A") ? this.dom.segmentsA : this.dom.segmentsB;
+          const ids = new Set();
+          container.querySelectorAll('details.segment[open]').forEach(d => {
+            const id = d.getAttribute("data-seg-id");
+            if (id) ids.add(id);
+          });
+          return ids;
+        },
+
+        addSegment(motionKey){
+          this.pause();
+
+          const openIds = this._getOpenSegmentIds(motionKey);
+
+          const motion = this.motions[motionKey];
+
+          // Guess v0 = previous vEnd to make “physically smooth” the default (but user can override)
+          let vGuess = 0;
+          const compiled = this.compiled[motionKey];
+          if (compiled && compiled.segments.length){
+            vGuess = compiled.vEnd;
+          }
+
+          const newSeg = {
+            id: this._newSegId(),
+            type: "acc",
+            duration: 5,
+            v0: vGuess,
+            a: 0
+          };
+
+          motion.segments.push(newSeg);
+          openIds.add(newSeg.id);
+
+          this._renderSegments(motionKey, openIds);
+          this.recomputeAll(true);
+        },
+
+        deleteSegment(motionKey, segId){
+          this.pause();
+
+          const openIds = this._getOpenSegmentIds(motionKey);
+          openIds.delete(segId);
+
+          const motion = this.motions[motionKey];
+          motion.segments = motion.segments.filter(s => s.id !== segId);
+
+          this._renderSegments(motionKey, openIds);
+          this.recomputeAll(true);
+        },
+
+        duplicateSegment(motionKey, segId){
+          this.pause();
+
+          const openIds = this._getOpenSegmentIds(motionKey);
+
+          const motion = this.motions[motionKey];
+          const idx = motion.segments.findIndex(s => s.id === segId);
+          if (idx < 0) return;
+
+          const src = motion.segments[idx];
+          const copy = { ...src, id: this._newSegId() };
+
+          motion.segments.splice(idx + 1, 0, copy);
+          openIds.add(copy.id);
+
+          this._renderSegments(motionKey, openIds);
+          this.recomputeAll(true);
+        },
+
+        _handleSegmentActionClick(e, motionKey){
+          const btn = e.target.closest("[data-action]");
+          if (!btn) return;
+
+          // Prevent details toggle
+          e.preventDefault();
+          e.stopPropagation();
+
+          const action = btn.getAttribute("data-action");
+          const card = btn.closest("[data-seg-id]");
+          if (!card) return;
+
+          const segId = card.getAttribute("data-seg-id");
+          if (!segId) return;
+
+          if (action === "delete") this.deleteSegment(motionKey, segId);
+          if (action === "duplicate") this.duplicateSegment(motionKey, segId);
+        },
+
+        _handleSegmentFieldEvent(e, motionKey, snapNow){
+          const input = e.target;
+          const card = input.closest("[data-seg-id]");
+          if (!card) return;
+
+          const segId = card.getAttribute("data-seg-id");
+          const field = input.getAttribute("data-field");
+          if (!field) return;
+
+          const motion = this.motions[motionKey];
+          const segIndex = motion.segments.findIndex(s => s.id === segId);
+          if (segIndex < 0) return;
+
+          const seg = motion.segments[segIndex];
+
+          if (field === "type"){
+            seg.type = (input.value === "const") ? "const" : "acc";
+            if (seg.type === "const") seg.a = 0;
+
+            // Re-render only this motion segments to update disabled a field / labels
+            const openIds = this._getOpenSegmentIds(motionKey);
+            openIds.add(segId);
+            this._renderSegments(motionKey, openIds);
+            this.recomputeAll(true);
+            return;
+          }
+
+          let num = parseFloat(input.value);
+          if (!Number.isFinite(num)){
+            if (snapNow){
+              // if user leaves empty and blurs: force 0
+              num = 0;
+              input.value = "0";
+            } else {
+              return;
+            }
+          }
+
+          if (snapNow && this.state.snap && this.scales){
+            const step = this._stepForField(field);
+            num = roundToStep(num, step);
+            input.value = String(num);
+          }
+
+          if (field === "duration"){
+            seg.duration = Math.max(0.1, num);
+            input.value = String(seg.duration);
+          } else if (field === "v0"){
+            seg.v0 = num;
+          } else if (field === "a"){
+            seg.a = (seg.type === "const") ? 0 : num;
+            if (seg.type === "const"){
+              seg.a = 0;
+              input.value = "0";
+            }
+          }
+
+          // Update summary text live (minimal)
+          const summaryText = card.querySelector('[data-role="summaryText"]');
+          if (summaryText){
+            summaryText.textContent = this._segmentSummary(seg, segIndex);
+          }
+
+          // Update v label if needed
+          const vLabelEl = card.querySelector('[data-role="vLabel"]');
+          if (vLabelEl){
+            vLabelEl.textContent = (seg.type === "const") ? "v (m/s)" : "v₀ (m/s)";
+          }
+
+          this._scheduleRecompute(snapNow);
+        },
+
+        _stepForField(field){
+          if (!this.scales) return 0.5;
+          if (field === "duration") return this.scales.time.minorStep || 0.5;
+          if (field === "v0") return this.scales.v.minorStep || 0.5;
+          if (field === "a") return this.scales.a.minorStep || 0.25;
+          return 0.5;
+        },
+
+        _activeTime(){
+          if (!this.state.playing && this.state.readMode && this.state.hoverActive){
+            return clamp(this.state.hoverTime, 0, this.scales ? this.scales.tMax : 1);
+          }
+          return clamp(this.state.currentTime, 0, this.scales ? this.scales.tMax : 1);
+        },
+
+        updateOverlays(){
+          if (!this.scales) return;
+
+          const t = this._activeTime();
+
+          // Update charts
+          const svgs = this.dom.chartsArea.querySelectorAll('svg[data-role="chart-svg"]');
+          svgs.forEach(svg => {
+            const mapId = svg.dataset.mapId;
+            const motionKey = svg.dataset.motion;
+            const type = svg.dataset.type;
+
+            const map = this.chartMaps[mapId];
+            if (!map) return;
+
+            const cross = svg.querySelector('[data-role="crosshair"]');
+            const marker = svg.querySelector('[data-role="marker"]');
+            const h1 = svg.querySelector('[data-role="highlight-1"]');
+            const h2 = svg.querySelector('[data-role="highlight-2"]');
+
+            const xPx = map.m.left + (t / map.tMax) * map.plotW;
+
+            if (cross){
+              cross.setAttribute("x1", xPx.toFixed(1));
+              cross.setAttribute("x2", xPx.toFixed(1));
+            }
+
+            const compiled = this.compiled[motionKey];
+            const ev = MotionEngine.evaluate(compiled, t);
+
+            const yScale = (type === "tx") ? this.scales.x : (type === "tv") ? this.scales.v : this.scales.a;
+            const yVal = (type === "tx") ? ev.x : (type === "tv") ? ev.v : ev.a;
+
+            const yPx = map.h - map.m.bottom - ((yVal - yScale.min) / (yScale.max - yScale.min)) * map.plotH;
+
+            if (marker){
+              marker.setAttribute("cx", xPx.toFixed(1));
+              marker.setAttribute("cy", yPx.toFixed(1));
+              marker.setAttribute("opacity", ev.inRange ? "1" : "0");
+            }
+
+            // highlight lines only meaningful for t-x (we still keep them in SVG but hidden by opacity unless tx+highlight)
+            if (this.state.highlight && type === "tx" && h1 && h2){
+              const tt1 = clamp(this.state.highlight.t1, 0, map.tMax);
+              const tt2 = clamp(this.state.highlight.t2, 0, map.tMax);
+              const xx1 = map.m.left + (tt1 / map.tMax) * map.plotW;
+              const xx2 = map.m.left + (tt2 / map.tMax) * map.plotW;
+
+              h1.setAttribute("opacity", "0.85");
+              h2.setAttribute("opacity", "0.85");
+
+              h1.setAttribute("x1", xx1.toFixed(1));
+              h1.setAttribute("x2", xx1.toFixed(1));
+              h2.setAttribute("x1", xx2.toFixed(1));
+              h2.setAttribute("x2", xx2.toFixed(1));
+            } else {
+              if (h1) h1.setAttribute("opacity", "0");
+              if (h2) h2.setAttribute("opacity", "0");
+            }
+          });
+
+          // Update track cars
+          if (this.trackMap){
+            const evA = MotionEngine.evaluate(this.compiled.A, t);
+            const xA = evA.x;
+            const pxA = this.trackMap.toX(xA);
+
+            if (this.trackMap.carA){
+              const tx = pxA - this.trackMap.carW / 2;
+              this.trackMap.carA.setAttribute("transform", `translate(${tx.toFixed(1)}, ${this.trackMap.carY.toFixed(1)})`);
+              this.trackMap.carA.setAttribute("opacity", "1");
+            }
+
+            if (this.trackMap.carB){
+              if (this.state.compare){
+                const evB = MotionEngine.evaluate(this.compiled.B, t);
+                const xB = evB.x;
+                const pxB = this.trackMap.toX(xB);
+                const txB = pxB - this.trackMap.carW / 2;
+                this.trackMap.carB.setAttribute("transform", `translate(${txB.toFixed(1)}, ${this.trackMap.carY.toFixed(1)})`);
+                this.trackMap.carB.setAttribute("opacity", "1");
+              } else {
+                this.trackMap.carB.setAttribute("opacity", "0");
+              }
+            }
+          }
+
+          // Update readout
+          this._setMarkerReadout(t);
+        },
+
+        _setTimeReadout(t){
+          this.dom.timeReadout.textContent = `t = ${formatDE(t, 1)} s`;
+        },
+
+        _setMarkerReadout(t){
+          const a = MotionEngine.evaluate(this.compiled.A, t);
+          const aSeg = a.inRange ? `S${a.segmentIndex + 1}` : (a.afterEnd ? "Ende" : "—");
+
+          let text = `A (${aSeg}): x=${formatDE(a.x, 2)} m | v=${formatDE(a.v, 2)} m/s | a=${formatDE(a.a, 2)} m/s²`;
+
+          if (this.state.compare){
+            const b = MotionEngine.evaluate(this.compiled.B, t);
+            const bSeg = b.inRange ? `S${b.segmentIndex + 1}` : (b.afterEnd ? "Ende" : "—");
+            text += `\nB (${bSeg}): x=${formatDE(b.x, 2)} m | v=${formatDE(b.v, 2)} m/s | a=${formatDE(b.a, 2)} m/s²`;
+          }
+
+          this.dom.markerReadout.textContent = text;
+        },
+
+        togglePlay(){
+          if (this.state.playing) this.pause();
+          else this.play();
+        },
+
+        play(){
+          if (!this.scales) return;
+
+          // If at end: restart
+          if (this.state.currentTime >= this.scales.tMax - EPS){
+            this.state.currentTime = 0;
+            this.dom.timeScrubber.value = "0";
+            this._setTimeReadout(0);
+          }
+
+          this.state.playing = true;
+          this.dom.playBtn.textContent = "⏸ Pause";
+
+          // stop hover
+          this.state.hoverActive = false;
+          this._hideTooltip();
+
+          this.state.lastPerf = performance.now();
+
+          const loop = (now) => {
+            if (!this.state.playing) return;
+
+            const dt = (now - this.state.lastPerf) / 1000;
+            this.state.lastPerf = now;
+
+            this.state.currentTime = clamp(this.state.currentTime + dt, 0, this.scales.tMax);
+
+            this.dom.timeScrubber.value = String(this.state.currentTime);
+            this._setTimeReadout(this.state.currentTime);
+
+            this.updateOverlays();
+
+            if (this.state.currentTime >= this.scales.tMax - EPS){
+              this.pause();
+              return;
+            }
+
+            this.state.rafId = requestAnimationFrame(loop);
+          };
+
+          this.state.rafId = requestAnimationFrame(loop);
+        },
+
+        pause(){
+          this.state.playing = false;
+          this.dom.playBtn.textContent = "▶ Start";
+          if (this.state.rafId) cancelAnimationFrame(this.state.rafId);
+          this.state.rafId = null;
+        },
+
+        resetTime(){
+          this.pause();
+          this.state.currentTime = 0;
+          this.dom.timeScrubber.value = "0";
+          this._setTimeReadout(0);
+          this.updateOverlays();
+        },
+
+        computeDeltaX(){
+          if (!this.scales) return;
+
+          let t1 = parseFloat(this.dom.t1.value);
+          let t2 = parseFloat(this.dom.t2.value);
+          if (!Number.isFinite(t1)) t1 = 0;
+          if (!Number.isFinite(t2)) t2 = 0;
+
+          const tMax = this.scales.tMax;
+          const stepT = this.scales.time.minorStep || 0.5;
+
+          if (this.state.snap){
+            t1 = roundToStep(t1, stepT);
+            t2 = roundToStep(t2, stepT);
+            this.dom.t1.value = String(t1);
+            this.dom.t2.value = String(t2);
+          }
+
+          if (t1 < 0 || t2 < 0 || t1 > tMax || t2 > tMax){
+            alert("t₁ und t₂ müssen zwischen 0 und Gesamtzeit liegen.");
+            return;
+          }
+
+          const xa1 = MotionEngine.evaluate(this.compiled.A, t1).x;
+          const xa2 = MotionEngine.evaluate(this.compiled.A, t2).x;
+          const dxa = xa2 - xa1;
+
+          let out = `A: Δx = ${formatDE(dxa, 2)} m  (x(t₁)=${formatDE(xa1, 2)} m → x(t₂)=${formatDE(xa2, 2)} m)`;
+
+          if (this.state.compare){
+            const xb1 = MotionEngine.evaluate(this.compiled.B, t1).x;
+            const xb2 = MotionEngine.evaluate(this.compiled.B, t2).x;
+            const dxb = xb2 - xb1;
+            out += `\nB: Δx = ${formatDE(dxb, 2)} m  (x(t₁)=${formatDE(xb1, 2)} m → x(t₂)=${formatDE(xb2, 2)} m)`;
+          }
+
+          this.dom.deltaResult.textContent = out;
+          this.dom.deltaResult.classList.remove("hidden");
+
+          this.state.highlight = { t1, t2 };
+          this.updateOverlays();
+        },
+
+        onChartsMouseMove(e){
+          if (!this.state.readMode) return;
+          if (this.state.playing) return;
+          if (!this.scales) return;
+
+          const cell = e.target.closest(".chart-cell");
+          if (!cell) return;
+
+          const svg = cell.querySelector('svg[data-role="chart-svg"]');
+          if (!svg) return;
+
+          const mapId = svg.dataset.mapId;
+          const map = this.chartMaps[mapId];
+          if (!map) return;
+
+          const rect = svg.getBoundingClientRect();
+          const relX = (e.clientX - rect.left) / rect.width;
+          const svgX = relX * map.w;
+
+          let t = ((svgX - map.m.left) / map.plotW) * map.tMax;
+          t = clamp(t, 0, map.tMax);
+
+          if (this.state.snap){
+            const stepT = this.scales.time.minorStep || 0.5;
+            t = roundToStep(t, stepT);
+          }
+
+          this.state.hoverActive = true;
+          this.state.hoverTime = t;
+
+          this.updateOverlays();
+          this._showTooltip(e.clientX, e.clientY, t);
+        },
+
+        onChartsMouseLeave(){
+          this.state.hoverActive = false;
+          this._hideTooltip();
+          this.updateOverlays();
+        },
+
+        _showTooltip(clientX, clientY, t){
+          const tip = this.dom.chartTooltip;
+          const wrap = this.dom.chartsArea.getBoundingClientRect();
+
+          const a = MotionEngine.evaluate(this.compiled.A, t);
+          const aSeg = a.inRange ? `Segment ${a.segmentIndex + 1}` : (a.afterEnd ? `Ende (${formatDE(a.tEnd, 1)} s)` : "—");
+
+          let html = `
+            <div class="tooltip__t">t = ${formatDE(t, 2)} s</div>
+
+            <div class="tooltip__row">
+              <div class="tooltip__badge">A</div>
+              <div>
+                ${aSeg}<br>
+                x = ${formatDE(a.x, 2)} m<br>
+                v = ${formatDE(a.v, 2)} m/s<br>
+                a = ${formatDE(a.a, 2)} m/s²
+              </div>
+            </div>
+          `;
+
+          if (this.state.compare){
+            const b = MotionEngine.evaluate(this.compiled.B, t);
+            const bSeg = b.inRange ? `Segment ${b.segmentIndex + 1}` : (b.afterEnd ? `Ende (${formatDE(b.tEnd, 1)} s)` : "—");
+
+            html += `
+              <div class="tooltip__row">
+                <div class="tooltip__badge tooltip__badge--b">B</div>
+                <div>
+                  ${bSeg}<br>
+                  x = ${formatDE(b.x, 2)} m<br>
+                  v = ${formatDE(b.v, 2)} m/s<br>
+                  a = ${formatDE(b.a, 2)} m/s²
+                </div>
+              </div>
+            `;
+          }
+
+          tip.innerHTML = html;
+          tip.classList.add("chart-tooltip--visible");
+
+          // clamp tooltip inside charts area
+          const tipW = tip.offsetWidth;
+          const tipH = tip.offsetHeight;
+
+          const left = clamp(clientX - wrap.left + 12, 10, wrap.width - tipW - 10);
+          const top  = clamp(clientY - wrap.top + 12, 10, wrap.height - tipH - 10);
+
+          tip.style.left = left + "px";
+          tip.style.top = top + "px";
+        },
+
+        _hideTooltip(){
+          this.dom.chartTooltip.classList.remove("chart-tooltip--visible");
+        }
+      };
+
+      document.addEventListener("DOMContentLoaded", () => App.init());
+    })();
+  </script>
+</body>
+</html>
