@@ -1,1 +1,1044 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Schwingungen – Feder- & Fadenpendel (p5.js)</title>
+  
+  <!-- p5.js CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+  <!-- KaTeX for LaTeX rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #f8fafc;
+      --bg-topbar: #0f172a;
+      --text-light: #f1f5f9;
+      --accent: #3b82f6;
+      --card-bg: #ffffff;
+      --border: #e2e8f0;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .topbar {
+      background-color: var(--bg-topbar);
+      color: var(--text-light);
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+
+    .topbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+    }
+
+    /* Tabs Styling */
+    .tabs {
+      display: flex;
+      gap: 5px;
+      margin-bottom: -11px;
+    }
+
+    .tab-btn {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-bottom: none;
+      padding: 8px 20px;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      color: var(--bg-topbar);
+      border-color: var(--card-bg);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 18px;
+      flex-shrink: 0;
+      margin-right: 10px;
+    }
+
+    .category-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      margin-right: 5px;
+      font-weight: bold;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .control-group label {
+      font-size: 12px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    input[type="range"] {
+      width: 100px;
+      height: 25px;
+    }
+
+    input[type="number"] {
+      width: 55px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #475569;
+      background: #1e293b;
+      color: white;
+      font-size: 12px;
+    }
+
+    select, button {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    select {
+      background: #1e293b;
+      color: white;
+      border: 1px solid #475569;
+    }
+
+    .btn-primary { background-color: var(--accent); color: white; }
+    .btn-secondary { background-color: #475569; color: white; }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      padding: 10px;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    #canvas-container {
+      flex: 1;
+      background: var(--card-bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      position: relative;
+      display: flex;
+    }
+
+    .info-footer {
+      background: #f1f5f9;
+      padding: 10px 20px;
+      font-size: 12px;
+      color: #475569;
+      border-top: 1px solid var(--border);
+      line-height: 1.4;
+    }
+
+    .formula-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255,255,255,0.8);
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+      pointer-events: none;
+      border: 1px solid var(--border);
+    }
+
+    .center-hint {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(15, 23, 42, 0.92);
+      color: var(--text-light);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 12px;
+      padding: 12px 16px;
+      max-width: min(460px, 85%);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.35;
+      white-space: pre-line;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 180ms ease, visibility 180ms ease;
+      z-index: 200;
+    }
+
+    .center-hint.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .error-hint {
+      position: absolute;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      background: rgba(239, 68, 68, 0.92);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 10px;
+      padding: 10px 12px;
+      max-width: min(860px, 92%);
+      font-size: 12px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+      z-index: 300;
+      display: none;
+    }
+
+    .error-hint.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-row">
+      <h1>Schwingungen</h1>
+      <div class="tabs">
+        <button class="tab-btn active" id="tabSpring" onclick="switchTab('spring')">Federpendel</button>
+        <button class="tab-btn" id="tabPendulum" onclick="switchTab('pendulum')">Fadenpendel</button>
+      </div>
+      <span style="flex: 1"></span>
+      <span class="category-label">Steuerung:</span>
+      <div class="control-group">
+        <button id="playBtn" class="btn-primary">Pause</button>
+        <button id="slowBtn" class="btn-secondary">Slow-Mo</button>
+        <button id="resetBtn" class="btn-secondary">Reset</button>
+      </div>
+    </div>
+
+    <div class="topbar-row">
+      <div id="springParams" style="display: flex; gap: 15px; align-items: center;">
+        <span class="category-label">Parameter:</span>
+        <div class="control-group">
+          <label>Amplitude (cm):</label>
+          <input type="range" id="ampSliderSpring" min="1" max="30" step="0.5" value="10">
+          <input type="number" id="ampInputSpring" value="10" step="0.5">
+        </div>
+        <div class="control-group">
+          <label>Masse (g):</label>
+          <input type="range" id="massSliderSpring" min="50" max="200" step="1" value="100">
+          <input type="number" id="massInputSpring" value="100" step="1">
+        </div>
+        <div class="control-group">
+          <label>D (N/m):</label>
+          <input type="range" id="kSlider" min="1" max="10" step="0.1" value="4">
+          <input type="number" id="kInput" value="4" step="0.1">
+        </div>
+      </div>
+      <div id="pendulumParams" style="display: none; gap: 15px; align-items: center;">
+        <span class="category-label">Parameter:</span>
+        <div class="control-group">
+          <label>Auslenkung (°):</label>
+          <input type="range" id="ampSliderPend" min="1" max="30" step="0.5" value="15">
+          <input type="number" id="ampInputPend" value="15" step="0.5">
+        </div>
+        <div class="control-group">
+          <label>Masse (kg):</label>
+          <input type="range" id="massSliderPend" min="0.5" max="1.5" step="0.05" value="1.0">
+          <input type="number" id="massInputPend" value="1.0" step="0.05">
+        </div>
+        <div class="control-group">
+          <label>L (m):</label>
+          <input type="range" id="lSlider" min="0.5" max="2.5" step="0.05" value="1.0">
+          <input type="number" id="lInput" value="1.0" step="0.05">
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar-row">
+      <span class="category-label">Visualisierung:</span>
+      <div class="control-group"><label><input type="checkbox" id="energyToggle"> Energie-Balken</label></div>
+      <div class="control-group"><label><input type="checkbox" id="forceSplitToggle"> Kräfte-Zerlegung (Feder)</label></div>
+      <div class="control-group"><label><input type="checkbox" id="forceVectorToggle" checked> Kraft-Vektoren</label></div>
+      <div class="control-group"><label><input type="checkbox" id="vToggle"> t-v Diagramm</label></div>
+      <div class="control-group"><label><input type="checkbox" id="aToggle"> t-a Diagramm</label></div>
+      <div class="control-group"><label><input type="checkbox" id="combinedToggle"> Kombiniertes Diagramm</label></div>
+      <div class="control-group"><label><input type="checkbox" id="cursorToggle"> Cursor mit Werten</label></div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div id="canvas-container">
+      <div id="formulaBox" class="formula-overlay"></div>
+      <div id="centerHint" class="center-hint"></div>
+      <div id="errorHint" class="error-hint"></div>
+    </div>
+  </main>
+
+  <footer class="info-footer">
+    <strong>Didaktischer Hinweis:</strong> Das Fadenpendel wird hier als idealer harmonischer Oszillator dargestellt. In der Realität gilt dies nur für kleine Winkel. Zudem wird die Zentripetalkraft zur Vereinfachung der Kräfteaddition vernachlässigt.
+  </footer>
+
+  <script>
+    // Getrennte Zustände für Feder- und Fadenpendel
+    let system = 'spring';
+    
+    let springState = {
+      t: 0, history: [], maxHistory: 600,
+      amplitude: 0.1, mass: 0.1, k: 4
+    };
+    
+    let pendulumState = {
+      t: 0, history: [], maxHistory: 600,
+      amplitude: (15 * Math.PI) / 180, mass: 1.0, L: 1.0
+    };
+
+    function getActiveState() {
+      return system === 'spring' ? springState : pendulumState;
+    }
+
+    function resetState(state) {
+      state.t = 0;
+      state.history = [];
+    }
+    
+    let canvas, isRunning = true, isSlowMo = false, isDragging = false;
+    let dt = 0.02, g = 9.81;
+    let visibleTime = 3; // in Sekunden, wird dynamisch angepasst
+    
+    // Cursor-Variablen
+    let cursorX = -1, cursorY = -1;
+    let cursorTime = 0, cursorPos = 0, cursorVel = 0, cursorAcc = 0;
+
+    // Slider-Referenzen für Federpendel
+    let ampSliderSpring, ampInputSpring, massSliderSpring, massInputSpring, kSlider, kInput;
+    // Slider-Referenzen für Fadenpendel  
+    let ampSliderPend, ampInputPend, massSliderPend, massInputPend, lSlider, lInput;
+    let playBtn, slowBtn, resetBtn;
+
+    let hintTimeout = null;
+
+    function showErrorHint(text) {
+      const el = document.getElementById('errorHint');
+      if (!el) return;
+      el.innerText = text;
+      el.classList.add('show');
+    }
+
+    function hideErrorHint() {
+      const el = document.getElementById('errorHint');
+      if (!el) return;
+      el.classList.remove('show');
+    }
+
+    // Global error hooks – so sehen wir Fehler auch ohne DevTools
+    window.addEventListener('error', (e) => {
+      const msg = e?.error?.stack || e?.message || String(e);
+      showErrorHint("Fehler im Script:\n" + msg);
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      const msg = e?.reason?.stack || e?.reason?.message || String(e?.reason || e);
+      showErrorHint("Unbehandelte Promise-Rejection:\n" + msg);
+    });
+
+    function safeKatexRender(tex, element) {
+      try {
+        if (window.katex && typeof window.katex.render === 'function') {
+          window.katex.render(tex, element);
+        } else {
+          // Fallback: plain text
+          element.textContent = tex.replace(/\\\\/g, '\\');
+        }
+      } catch (err) {
+        // KaTeX darf niemals die Simulation stoppen
+        try { element.textContent = tex; } catch {}
+      }
+    }
+
+    function showCenterHint(text, durationMs = 3500) {
+      const el = document.getElementById('centerHint');
+      if (!el) return;
+      el.innerText = text;
+      el.classList.add('show');
+      if (hintTimeout) window.clearTimeout(hintTimeout);
+      hintTimeout = window.setTimeout(() => {
+        el.classList.remove('show');
+      }, durationMs);
+    }
+
+    function hideCenterHint() {
+      const el = document.getElementById('centerHint');
+      if (!el) return;
+      el.classList.remove('show');
+      if (hintTimeout) window.clearTimeout(hintTimeout);
+      hintTimeout = null;
+    }
+
+    // Tab-Umschalt-Funktion
+    function switchTab(newSystem) {
+      system = newSystem;
+      
+      // Tab-Buttons aktualisieren
+      document.getElementById('tabSpring').classList.toggle('active', system === 'spring');
+      document.getElementById('tabPendulum').classList.toggle('active', system === 'pendulum');
+      
+      // Parameter-Bereiche ein-/ausblenden
+      document.getElementById('springParams').style.display = system === 'spring' ? 'flex' : 'none';
+      document.getElementById('pendulumParams').style.display = system === 'pendulum' ? 'flex' : 'none';
+      
+      // Zustand zurücksetzen (Auto-Reset beim Tabwechsel)
+      resetState(getActiveState());
+
+      // Cursor ggf. auf neuen State umstellen
+      if (document.getElementById('cursorToggle').checked) {
+        updateCursorValues();
+      }
+    }
+
+    function setup() {
+      let container = document.getElementById('canvas-container');
+      canvas = createCanvas(container.offsetWidth, container.offsetHeight);
+      canvas.parent('canvas-container');
+
+      // Wenn wir hier ankommen, ist p5 aktiv – dann ggf. alte Fehlermeldungen weg
+      hideErrorHint();
+      
+      // Slider-Referenzen abrufen
+      ampSliderSpring = document.getElementById('ampSliderSpring');
+      ampInputSpring = document.getElementById('ampInputSpring');
+      massSliderSpring = document.getElementById('massSliderSpring');
+      massInputSpring = document.getElementById('massInputSpring');
+      kSlider = document.getElementById('kSlider');
+      kInput = document.getElementById('kInput');
+      
+      ampSliderPend = document.getElementById('ampSliderPend');
+      ampInputPend = document.getElementById('ampInputPend');
+      massSliderPend = document.getElementById('massSliderPend');
+      massInputPend = document.getElementById('massInputPend');
+      lSlider = document.getElementById('lSlider');
+      lInput = document.getElementById('lInput');
+      
+      playBtn = document.getElementById('playBtn');
+      slowBtn = document.getElementById('slowBtn');
+      resetBtn = document.getElementById('resetBtn');
+
+      playBtn.onclick = () => { 
+        isRunning = !isRunning; 
+        playBtn.innerText = isRunning ? "Pause" : "Start"; 
+        if (isRunning) hideCenterHint();
+      };
+      slowBtn.onclick = () => { 
+        isSlowMo = !isSlowMo; 
+        slowBtn.style.backgroundColor = isSlowMo ? '#f59e0b' : '#475569'; 
+      };
+      resetBtn.onclick = () => { 
+        resetState(getActiveState());
+        if (document.getElementById('cursorToggle').checked) {
+          updateCursorValues();
+        }
+      };
+
+      // Synchronisation für Federpendel-Slider
+      const syncSpring = (s, i) => {
+        s.oninput = () => { i.value = s.value; resetState(springState); };
+        i.onchange = () => { s.value = i.value; resetState(springState); };
+      };
+      syncSpring(ampSliderSpring, ampInputSpring);
+      syncSpring(massSliderSpring, massInputSpring);
+      syncSpring(kSlider, kInput);
+
+      // Synchronisation für Fadenpendel-Slider
+      const syncPend = (s, i) => {
+        s.oninput = () => { i.value = s.value; resetState(pendulumState); };
+        i.onchange = () => { s.value = i.value; resetState(pendulumState); };
+      };
+      syncPend(ampSliderPend, ampInputPend);
+      syncPend(massSliderPend, massInputPend);
+      syncPend(lSlider, lInput);
+
+      // Maus- und Touch-Events für Cursor
+      canvas.mouseMoved(handleMouseMoved);
+      canvas.touchMoved(handleTouchMoved);
+      canvas.mouseOut(() => { cursorX = -1; cursorY = -1; });
+      canvas.touchEnded(() => { cursorX = -1; cursorY = -1; });
+
+      // Cursor-Toggle mit Auto-Pause
+      document.getElementById('cursorToggle').addEventListener('change', function() {
+        if (this.checked) {
+          isRunning = false;
+          playBtn.innerText = "Start";
+          showCenterHint(
+            "Simulation pausiert!\n\nCursor-Modus aktiv: Bewege die Maus über die Diagramme, um Werte abzulesen.\n\nMit 'Start' läuft die Simulation weiter.",
+            4500
+          );
+        } else {
+          hideCenterHint();
+        }
+      });
+
+      window.addEventListener('resize', () => { resizeCanvas(container.offsetWidth, container.offsetHeight); });
+    }
+
+    function draw() {
+      background(255);
+      
+      // Aktuellen Zustand abrufen basierend auf aktivem System
+      let currentState = system === 'spring' ? springState : pendulumState;
+      let ampSlider = system === 'spring' ? ampSliderSpring : ampSliderPend;
+      
+      // Parameter aus den Slidern aktualisieren
+      if (system === 'spring') {
+        currentState.mass = parseFloat(massSliderSpring.value) / 1000;
+        currentState.k = parseFloat(kSlider.value);
+        currentState.amplitude = parseFloat(ampSliderSpring.value) / 100;
+      } else {
+        currentState.mass = parseFloat(massSliderPend.value);
+        currentState.L = parseFloat(lSlider.value);
+        currentState.amplitude = (parseFloat(ampSliderPend.value) * PI) / 180;
+      }
+
+      handleTouchInteraction();
+      
+      let omega, pos, vel, acc, T, plotPos, plotVel, plotAcc;
+      omega = system === 'spring' ? Math.sqrt(currentState.k / currentState.mass) : Math.sqrt(g / currentState.L);
+      T = 2 * PI / omega;
+      
+      // Dynamische Anpassung des sichtbaren Zeitbereichs (mindestens 2 Perioden, mindestens 1 Sekunde)
+      visibleTime = Math.max(1.0, 2 * T);
+      
+      // Slow-Mo berücksichtigen: effektiver Zeitschritt
+      let effectiveDt = isSlowMo ? dt * 0.1 : dt;
+      // History-Länge anpassen: genug Punkte für visibleTime bei effektivem dt
+      currentState.maxHistory = Math.min(Math.ceil(visibleTime / effectiveDt), 5000);
+      
+      pos = currentState.amplitude * Math.cos(omega * currentState.t);
+      vel = -currentState.amplitude * omega * Math.sin(omega * currentState.t);
+      acc = -omega * omega * pos;
+      
+      if (system === 'spring') {
+        plotPos = pos; plotVel = vel; plotAcc = acc;
+        safeKatexRender(`T = 2\\pi \\sqrt{\\frac{m}{D}} \\approx ${T.toFixed(2)}\\text{ s}`, document.getElementById('formulaBox'));
+      } else {
+        // Diagramme zeigen den linearen Weg s = L·θ (und die linearen Ableitungen)
+        plotPos = currentState.L * pos;
+        plotVel = currentState.L * vel;
+        plotAcc = currentState.L * acc;
+        safeKatexRender(`T = 2\\pi \\sqrt{\\frac{l}{g}} \\approx ${T.toFixed(2)}\\text{ s}`, document.getElementById('formulaBox'));
+      }
+
+      if (isRunning && !isDragging) {
+        currentState.t += effectiveDt;
+        currentState.history.push({t: currentState.t, pos: plotPos, vel: plotVel, acc: plotAcc});
+
+        // WICHTIG: History zeitbasiert beschneiden (stabil bei Slow‑Mo an/aus)
+        // Sonst bleiben nach einem Moduswechsel viele "zu alte" Punkte übrig,
+        // die dann links aus dem Diagramm herauslaufen (starker Shift).
+        const minT = Math.max(0, currentState.t - visibleTime);
+        while (currentState.history.length > 0 && currentState.history[0].t < minT) {
+          currentState.history.shift();
+        }
+
+        // Hard-cap (Performance) – unabhängig vom aktuellen dt
+        while (currentState.history.length > 5000) {
+          currentState.history.shift();
+        }
+      }
+
+      let midX = width * 0.5;
+      drawAnimationArea(0, 0, midX, height, pos, vel, acc);
+      
+      let vActive = document.getElementById('vToggle').checked;
+      let aActive = document.getElementById('aToggle').checked;
+      let combinedActive = document.getElementById('combinedToggle').checked;
+
+      if (combinedActive) {
+        drawDiagramArea(midX, 0, width - midX, height, 'combined');
+      } else {
+        let activeDiagrams = 1 + (vActive ? 1 : 0) + (aActive ? 1 : 0);
+        let diagH = height / activeDiagrams;
+        let curY = 0;
+        
+        drawDiagramArea(midX, curY, width - midX, diagH, 'pos'); curY += diagH;
+        if (vActive) { drawDiagramArea(midX, curY, width - midX, diagH, 'vel'); curY += diagH; }
+        if (aActive) { drawDiagramArea(midX, curY, width - midX, diagH, 'acc'); }
+      }
+      
+      stroke(226, 232, 240); strokeWeight(1); line(midX, 0, midX, height);
+    }
+
+    function drawAnimationArea(x, y, w, h, pos, vel, acc) {
+      push();
+      translate(x + w/2, y + 40);
+      stroke(50); strokeWeight(4); line(-100, 0, 100, 0);
+
+      const state = getActiveState();
+      const mass = state.mass;
+      const k = state.k;
+      const amplitude = state.amplitude;
+      const L = state.L;
+
+      if (system === 'spring') {
+        if (document.getElementById('energyToggle').checked) drawEnergyBars(-w/2 + 20, h - 100, vel, pos, false, state);
+        let y0 = h * 0.35;
+        stroke(150, 150, 150, 150); strokeWeight(1); drawingContext.setLineDash([5, 5]); line(-w/2 + 20, y0, w/2 - 20, y0); drawingContext.setLineDash([]);
+        fill(100); noStroke(); textSize(11); text("Ruhelage (y=0)", -w/2 + 30, y0 - 5);
+        fill(37, 99, 235); textAlign(LEFT); textSize(14); text(`y = ${(pos * 100).toFixed(1)} cm`, w/2 - 80, 30);
+        let yNull = y0 + amplitude * 500;
+        stroke(34, 197, 94, 150); strokeWeight(1.5); line(-w/2 + 20, yNull, w/2 - 20, yNull);
+        fill(22, 163, 74); text("Nullniveau E_pot", -w/2 + 30, yNull + 15);
+        let currentY = y0 - pos * 500;
+        drawSpring(0, 0, currentY - 30);
+        fill(30, 41, 59); noStroke(); rectMode(CENTER); rect(0, currentY, 90, 60, 8);
+        fill(255); circle(0, currentY, 4);
+        if (document.getElementById('forceVectorToggle').checked) {
+          let fScale = 50;
+          if (document.getElementById('forceSplitToggle').checked) {
+            drawArrow(45, currentY, 0, -mass * g * fScale, '#16a34a', 'F_stat');
+            drawArrow(45, currentY, 0, k * pos * fScale, '#ef4444', 'F_dyn');
+            drawArrow(-45, currentY, 0, mass * g * fScale, '#2563eb', 'F_G');
+          } else {
+            drawArrow(45, currentY, 0, mass * g * fScale, '#2563eb', 'F_G');
+            drawArrow(45, currentY, 0, -(mass * g - k * pos) * fScale, '#16a34a', 'F_F');
+          }
+        }
+      } else {
+        let visualL = L * (h * 0.6), px = visualL * Math.sin(pos), py = visualL * Math.cos(pos);
+        stroke(150, 150, 150, 150); strokeWeight(1); drawingContext.setLineDash([5, 5]); line(0, 0, 0, visualL + 50); drawingContext.setLineDash([]);
+        fill(100); noStroke(); textSize(11); text("Ruhelage (x=0)", 5, visualL + 40);
+        fill(37, 99, 235); textAlign(LEFT); textSize(14); text(`s = ${(L * pos * 100).toFixed(1)} cm`, w/2 - 80, 30);
+        if (document.getElementById('energyToggle').checked) drawEnergyBars(-w/2 + 20, h - 100, vel, pos, true, state);
+        stroke(50); strokeWeight(3); line(0, 0, px, py);
+        fill(30, 41, 59); noStroke(); circle(px, py, 60);
+        if (document.getElementById('forceVectorToggle').checked) {
+          let fScale = 40, F_G = mass * g, F_res_mag = -mass * g * Math.sin(pos);
+          let frx = F_res_mag * Math.cos(pos), fry = -F_res_mag * Math.sin(pos);
+          drawArrow(px, py, 0, F_G * fScale, '#2563eb', 'F_G');
+          drawArrow(px, py, frx * fScale, (fry - F_G) * fScale, '#7c3aed', 'F_Z');
+          drawArrow(px, py, frx * fScale, fry * fScale, '#ef4444', 'F_res');
+        }
+      }
+      pop();
+    }
+
+    function drawSpring(x, y1, y2) {
+      stroke(71, 85, 105); strokeWeight(2.5); noFill(); beginShape();
+      let steps = 40; vertex(x, y1);
+      for (let i = 1; i < steps; i++) { vertex(x + (i % 2 === 0 ? 20 : -20), lerp(y1, y2, i / steps)); }
+      vertex(x, y2); endShape();
+    }
+
+    function drawArrow(x, y, dx, dy, col, label) {
+      if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return;
+      let angle = atan2(dy, dx);
+      let len = dist(0, 0, dx, dy);
+      let headSize = 12;
+      
+      // Draw shaft slightly shorter so it doesn't peek through the tip
+      stroke(col); strokeWeight(5); 
+      line(x, y, x + (len - headSize) * cos(angle), y + (len - headSize) * sin(angle));
+      
+      push(); 
+      translate(x + dx, y + dy); 
+      rotate(angle); 
+      fill(col); noStroke();
+      triangle(0, 0, -headSize, -headSize/2, -headSize, headSize/2); 
+      
+      if (label) { 
+        rotate(-angle); 
+        textSize(13); textStyle(BOLD); 
+        textAlign(LEFT, CENTER);
+        text(label, 15, 0); 
+        textStyle(NORMAL); 
+      }
+      pop();
+    }
+
+    function drawEnergyBars(x, y, v, p, isPend, state) {
+      state = state || getActiveState();
+      const mass = state.mass;
+      const k = state.k;
+      const amplitude = state.amplitude;
+      const L = state.L;
+
+      let Ek, Ep;
+      if (!isPend) {
+        Ek = 0.5 * mass * v * v;
+        let dLs = (mass * g) / k;
+        Ep = 0.5 * k * Math.pow(dLs - p, 2) + mass * g * (amplitude + p);
+      } else {
+        Ek = 0.5 * mass * Math.pow(L * v, 2);
+        Ep = mass * g * L * (1 - Math.cos(p));
+      }
+      let Eg = Ek + Ep, sc = Eg > 0.001 ? 100 / Eg : 1000;
+      noStroke(); let bw = 30;
+      fill(37, 99, 235); rect(x, y, bw, -Ek * sc);
+      fill(22, 163, 74); rect(x + bw + 10, y, bw, -Ep * sc);
+      fill(239, 68, 68); rect(x + (bw + 10) * 2, y, bw, -Eg * sc);
+      fill(50); textSize(11); textAlign(CENTER);
+      text("E_kin", x + bw/2, y + 15); text("E_pot", x + bw + 15, y + 15); text("E_ges", x + (bw + 10) * 2 + bw/2, y + 15);
+      textAlign(LEFT); text(Eg.toFixed(3) + " J", x, y - (Eg * sc + 10));
+    }
+
+    function drawDiagramArea(x, y, w, h, type) {
+      push(); translate(x, y);
+      
+      // Aktuellen Zustand abrufen
+      let currentState = system === 'spring' ? springState : pendulumState;
+      let omega = system === 'spring' ? Math.sqrt(currentState.k / currentState.mass) : Math.sqrt(g / currentState.L);
+      // Amplitude für Diagramm-Skalierung immer aus dem echten State (Simulation) nehmen
+      // Feder: y-Amplitude (m), Pendel: s-Amplitude = L·θ (m)
+      let ampM = system === 'spring' ? currentState.amplitude : (currentState.L * currentState.amplitude);
+      let T = 2 * PI / omega;
+      let margin = 45;
+      
+      // Sichtbarer Zeitbereich (letzte visibleTime Sekunden)
+      let timeMin = Math.max(0, currentState.t - visibleTime);
+      let timeMax = currentState.t;
+      if (Math.abs(timeMax - timeMin) < 1e-9) timeMax = timeMin + 1e-9; // verhindert NaN in map()
+      let timeSpan = timeMax - timeMin;
+      
+      let dR, label, unit, c;
+      let types = type === 'combined' ? ['pos', 'vel', 'acc'] : [type];
+      
+      // Grid
+      stroke(232);
+      strokeWeight(1);
+      for (let i = 0; i <= 10; i++) {
+        const gx = map(i, 0, 10, margin, w - margin);
+        line(gx, margin, gx, h - margin);
+        // Horizontale Gridlines nur im kombinierten Diagramm,
+        // sonst werden die "Hauptlinien" bei den Tick-Werten gezeichnet (exakt passend zu den Labels)
+        if (type === 'combined') {
+          const gy = map(i, 0, 10, margin, h - margin);
+          line(margin, gy, w - margin, gy);
+        }
+      }
+
+      // Plot frame
+      noFill();
+      stroke(220);
+      strokeWeight(1.2);
+      rect(margin, margin, w - 2 * margin, h - 2 * margin);
+
+      // Axes (0-Linie + y-Achse) – bewusst kräftiger für bessere Lesbarkeit
+      const yZero = Math.round(h / 2) + 0.5;
+      stroke(35);
+      strokeWeight(2.3);
+      line(margin, yZero, w - margin, yZero);
+
+      stroke(90);
+      strokeWeight(2.3);
+      line(margin, margin, margin, h - margin);
+
+      fill(50);
+      noStroke();
+      textSize(11);
+      textAlign(RIGHT, CENTER);
+      text("t (s)", w - margin, yZero + 16);
+      
+      // Zeitachsen-Beschriftung und Periodenmarkierung
+      // Adaptive Zeitschrittweite basierend auf T
+      let timeStep;
+      if (T <= 0.25) timeStep = 0.05;
+      else if (T <= 0.5) timeStep = 0.1;
+      else if (T <= 1) timeStep = 0.2;
+      else if (T <= 2) timeStep = 0.5;
+      else timeStep = 1;
+      
+      // Anzahl der beschrifteten Linien begrenzen (maximal 8)
+      let numTicks = Math.floor(visibleTime / timeStep);
+      if (numTicks > 8) {
+        timeStep = visibleTime / 8;
+      }
+      // Runde auf schöne Werte (0.05, 0.1, 0.2, 0.5, 1)
+      if (timeStep > 0.75) timeStep = 1;
+      else if (timeStep > 0.4) timeStep = 0.5;
+      else if (timeStep > 0.15) timeStep = 0.2;
+      else if (timeStep > 0.075) timeStep = 0.1;
+      else timeStep = 0.05;
+      
+      stroke(210, 210, 210, 170); strokeWeight(1);
+      let startTick = Math.ceil(timeMin / timeStep) * timeStep;
+      let tickSpacingPx = (w - 2 * margin) * (timeStep / visibleTime);
+      let labelEvery = tickSpacingPx < 50 ? 2 : 1; // Alle 2 Ticks beschriften wenn zu eng
+      let tickCount = 0;
+      for (let tickTime = startTick; tickTime <= timeMax; tickTime += timeStep) {
+        let xPos = map(tickTime, timeMin, timeMax, margin, w - margin);
+        line(xPos, margin, xPos, h - margin);
+        fill(110); noStroke(); textSize(10); textAlign(CENTER, TOP);
+        let decimalPlaces = timeStep < 0.1 ? 2 : (timeStep < 1 ? 1 : 0);
+        let label = tickTime.toFixed(decimalPlaces) + " s";
+        // Beschriften nur bei jedem labelEvery-ten Tick und wenn Platz genug
+        if (tickCount % labelEvery === 0 && tickSpacingPx > 20) {
+          text(label, xPos, h - margin + 10);
+        }
+        tickCount++;
+      }
+      
+      // Markiere Perioden T, 2T, ... solange sie im sichtbaren Bereich sind
+      stroke(255, 165, 0, 200); strokeWeight(2.4);
+      fill(255, 165, 0); noStroke(); textSize(10);
+      textAlign(CENTER, BOTTOM);
+      for (let n = 1; n <= 5; n++) {
+        let periodTime = timeMax - n * T;
+        if (periodTime >= timeMin) {
+          let periodX = map(periodTime, timeMin, timeMax, margin, w - margin);
+          line(periodX, margin, periodX, h - margin);
+          // Nur die erste Periode beschriften, wenn T nicht zu klein ist (mehr als 20 Pixel Abstand)
+          if (n === 1 && T > 0.1) {
+            text(`T ≈ ${T.toFixed(2)} s`, periodX, margin - 8);
+          }
+        }
+      }
+      // Füge auch eine horizontale Linie bei t = 0 ein (Start der Aufzeichnung)
+      stroke(150, 150, 150, 210); strokeWeight(1.4);
+      line(map(timeMax - visibleTime, timeMin, timeMax, margin, w - margin), margin, map(timeMax - visibleTime, timeMin, timeMax, margin, w - margin), h - margin);
+      fill(150); textAlign(CENTER, TOP);
+      text("t = 0", map(timeMax - visibleTime, timeMin, timeMax, margin, w - margin), h - margin - 15);
+
+      types.forEach((tName, idx) => {
+        let range;
+        const posSymbol = system === 'spring' ? 'y' : 's';
+        if (tName === 'pos') { range = ampM; label = posSymbol; unit = " cm"; c = color(37, 99, 235); }
+        else if (tName === 'vel') { range = ampM * omega; label = "v"; unit = " cm/s"; c = color(22, 163, 74); }
+        else { range = ampM * omega * omega; label = "a"; unit = " cm/s²"; c = color(239, 68, 68); }
+        dR = range * 1.2;
+
+        if (type !== 'combined') {
+          textAlign(RIGHT, CENTER);
+          textSize(11);
+          for(let i = -2; i <= 2; i++) {
+            let val = (i / 2) * range;
+            let gy = map(val, -dR, dR, h - margin, margin);
+            const gyPix = Math.round(gy) + 0.5;
+
+            // Haupt-Hilfslinien genau auf den Tick-Werten (damit die Labels "auf" der Linie sitzen)
+            if (Math.abs(val) < 1e-12) {
+              stroke(35);
+              strokeWeight(2.3);
+            } else {
+              stroke(225);
+              strokeWeight(1.4);
+            }
+            line(margin, gyPix, w - margin, gyPix);
+
+            // Tick an der y-Achse
+            stroke(120);
+            strokeWeight(2.3);
+            line(margin - 7, gyPix, margin, gyPix);
+
+            noStroke();
+            fill(90);
+            text((val * 100).toFixed(1) + unit, margin - 12, gyPix);
+          }
+          textAlign(CENTER);
+          push();
+          translate(margin - 35, h/2);
+          rotate(-HALF_PI);
+          textSize(11);
+          if (type === 'pos') text(system === 'spring' ? "Auslenkung y" : "Weg s", 0, 0);
+          else text(type === 'vel' ? "Geschw. v" : "Beschl. a", 0, 0);
+          pop();
+        } else {
+          // Legend for combined
+          fill(c); noStroke(); textAlign(LEFT);
+          text(label + " (" + unit.trim() + ")", margin + 10 + idx * 70, margin - 10);
+        }
+
+        if (currentState.history.length > 1) {
+          const curveW = type === 'combined' ? 2.6 : 3.3;
+          noFill(); stroke(c); strokeWeight(curveW); beginShape();
+          for (let i = 0; i < currentState.history.length; i++) {
+            let xPos = map(currentState.history[i].t, timeMin, timeMax, margin, w - margin);
+            let yPos = map(currentState.history[i][tName], -dR, dR, h - margin, margin);
+            vertex(xPos, yPos);
+          }
+          endShape();
+          fill(c); noStroke(); let last = currentState.history.length - 1;
+          let lastX = map(currentState.history[last].t, timeMin, timeMax, margin, w - margin);
+          let lastY = map(currentState.history[last][tName], -dR, dR, h - margin, margin);
+          circle(lastX, lastY, type === 'combined' ? 5 : 7);
+        }
+      });
+
+      // Cursor-Linie und Wert-Anzeige (wenn aktiviert)
+      if (document.getElementById('cursorToggle').checked) {
+        // Cursor-Koordinaten relativ zum Diagrammbereich
+        let cursorRelX = cursorX - x;
+        let cursorRelY = cursorY - y;
+        if (cursorRelX >= margin && cursorRelX <= w - margin && cursorRelY >= margin && cursorRelY <= h - margin) {
+          // Vertikale gestrichelte Linie zeichnen
+          drawingContext.setLineDash([5, 3]);
+          stroke(100, 100, 255, 180);
+          strokeWeight(1);
+          line(cursorRelX, margin, cursorRelX, h - margin);
+          drawingContext.setLineDash([]);
+
+          // Tooltip-Box mit Werten (Position rechts oder links vom Cursor, je nach Platz)
+          let tooltipX = cursorRelX + 15;
+          let tooltipY = margin + 15;
+          if (tooltipX + 140 > w - margin) {
+            tooltipX = cursorRelX - 155; // nach links verschieben
+          }
+          fill(255, 255, 240, 220);
+          stroke(100);
+          strokeWeight(1);
+          rect(tooltipX - 5, tooltipY - 15, 140, 60, 5);
+          
+          fill(0);
+          textSize(10);
+          textAlign(LEFT);
+          noStroke();
+          text(`t = ${cursorTime.toFixed(2)} s`, tooltipX, tooltipY);
+          if (type === 'pos' || type === 'combined') {
+            const posSymbol = system === 'spring' ? 'y' : 's';
+            text(`${posSymbol} = ${(cursorPos * 100).toFixed(1)} cm`, tooltipX, tooltipY + 15);
+          }
+          if (type === 'vel' || type === 'combined') {
+            text(`v = ${(cursorVel * 100).toFixed(1)} cm/s`, tooltipX, tooltipY + 30);
+          }
+          if (type === 'acc' || type === 'combined') {
+            text(`a = ${(cursorAcc * 100).toFixed(1)} cm/s²`, tooltipX, tooltipY + 45);
+          }
+        }
+      }
+      pop();
+    }
+
+    function handleTouchInteraction() {
+      let midX = width * 0.5, centerX = midX / 2;
+      let h = height;
+      if (touches.length > 0) {
+        let tx = touches[0].x, ty = touches[0].y;
+        if (tx < midX) {
+          isDragging = true;
+
+          const state = getActiveState();
+          const ampSlider = system === 'spring' ? ampSliderSpring : ampSliderPend;
+          const ampInput = system === 'spring' ? ampInputSpring : ampInputPend;
+
+          if (system === 'spring') {
+            let y0 = h * 0.35 + 40;
+            let ampVal = constrain(Math.abs((y0 - ty) / 500) * 100, 1, 30);
+            ampSlider.value = ampVal; ampInput.value = ampVal.toFixed(1);
+          } else {
+            let ampVal = constrain(Math.abs(atan2(tx - centerX, ty - 40)) * 180 / PI, 1, 30);
+            ampSlider.value = ampVal; ampInput.value = ampVal.toFixed(1);
+          }
+
+          // Programmatic Slider-Änderung triggert kein oninput -> State hier manuell resetten
+          resetState(state);
+        }
+      } else { isDragging = false; }
+    }
+
+    // Cursor Event-Handler
+    function handleMouseMoved() {
+      if (!document.getElementById('cursorToggle').checked) return;
+      cursorX = mouseX;
+      cursorY = mouseY;
+      updateCursorValues();
+    }
+
+    function handleTouchMoved() {
+      if (!document.getElementById('cursorToggle').checked) return;
+      if (touches.length > 0) {
+        cursorX = touches[0].x;
+        cursorY = touches[0].y;
+        updateCursorValues();
+      }
+    }
+
+    function updateCursorValues() {
+      // Nur ausführen, wenn Cursor im Diagrammbereich (rechte Hälfte)
+      let midX = width * 0.5;
+      if (cursorX < midX) {
+        cursorTime = cursorPos = cursorVel = cursorAcc = 0;
+        return;
+      }
+
+      const state = getActiveState();
+
+      let margin = 45;
+      let w = width - midX;
+      let timeMin = Math.max(0, state.t - visibleTime);
+      let timeMax = state.t;
+      if (Math.abs(timeMax - timeMin) < 1e-9) timeMax = timeMin + 1e-9;
+      
+      // Umrechnung X -> Zeit
+      const x0 = midX + margin;
+      const x1 = midX + w - margin;
+      const clampedX = constrain(cursorX, x0, x1);
+      const frac = (x1 - x0) > 0 ? (clampedX - x0) / (x1 - x0) : 0;
+      cursorTime = timeMin + frac * (timeMax - timeMin);
+      cursorTime = constrain(cursorTime, timeMin, timeMax);
+
+      // Finde den nächstgelegenen History-Punkt
+      let nearestIdx = -1;
+      let minDiff = Infinity;
+      for (let i = 0; i < state.history.length; i++) {
+        let diff = Math.abs(state.history[i].t - cursorTime);
+        if (diff < minDiff) {
+          minDiff = diff;
+          nearestIdx = i;
+        }
+      }
+      if (nearestIdx >= 0) {
+        cursorPos = state.history[nearestIdx].pos;
+        cursorVel = state.history[nearestIdx].vel;
+        cursorAcc = state.history[nearestIdx].acc;
+      } else {
+        // Fallback: Berechne Werte direkt aus der Sinusfunktion
+        if (system === 'spring') {
+          const omega = Math.sqrt(state.k / state.mass);
+          cursorPos = state.amplitude * Math.cos(omega * cursorTime);
+          cursorVel = -state.amplitude * omega * Math.sin(omega * cursorTime);
+          cursorAcc = -omega * omega * cursorPos;
+        } else {
+          const omega = Math.sqrt(g / state.L);
+          const theta = state.amplitude * Math.cos(omega * cursorTime);
+          const thetaDot = -state.amplitude * omega * Math.sin(omega * cursorTime);
+          const thetaDDot = -omega * omega * theta;
+          cursorPos = state.L * theta;
+          cursorVel = state.L * thetaDot;
+          cursorAcc = state.L * thetaDDot;
+        }
+      }
+    }
+  </script>
+</body>
+</html>
 
