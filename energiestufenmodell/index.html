@@ -1,1 +1,1102 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quanten-Labor 2.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === MODERN LIGHT DESIGN SYSTEM === */
+        :root {
+            /* Colors - Fresh & Light */
+            --bg-body: #f3f6f9;
+            --bg-card: rgba(255, 255, 255, 0.85);
+            --bg-card-solid: #ffffff;
+            
+            --primary: #6366f1;      /* Indigo */
+            --primary-light: #818cf8;
+            --accent: #06b6d4;       /* Cyan */
+            --accent-glow: rgba(6, 182, 212, 0.3);
+            
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --text-light: #94a3b8;
+            
+            --success: #10b981;
+            --error: #f43f5e;
+            --warning: #f59e0b;
+            
+            /* Spectrum Colors */
+            --spec-ir: #ef4444;
+            --spec-vis: #22c55e;
+            --spec-uv: #8b5cf6;
+
+            /* UI */
+            --radius: 12px;
+            --radius-lg: 20px;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
+            
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font);
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0f9ff 50%, #fdf4ff 100%);
+            color: var(--text-main);
+            /* FIX: Strikte Höhe auf Viewport beschränkt */
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden; /* Kein Scrollen auf Body-Ebene */
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+
+        /* === LAYOUT === */
+        .app-container {
+            max-width: 1500px;
+            margin: 0 auto;
+            width: 100%;
+            height: 100%; /* Füllt den Body */
+            display: grid;
+            grid-template-columns: 300px 1fr 260px;
+            /* Header auto, Mitte 1fr (rest), Spektren fix 150px */
+            grid-template-rows: auto 1fr 150px; 
+            gap: 15px;
+        }
+
+        /* === HEADER === */
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: var(--bg-card-solid);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            min-height: 60px; /* Fixe Mindesthöhe */
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .brand h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .unit-toggle {
+            display: flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: var(--radius);
+            gap: 2px;
+        }
+
+        .unit-btn {
+            padding: 6px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .unit-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        /* === CARDS === */
+        .card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.8);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 12px 16px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            background: rgba(255,255,255,0.5);
+            flex-shrink: 0; /* Header nicht schrumpfen */
+        }
+
+        .card-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto; /* Scrollen innerhalb der Sidebar, falls nötig */
+        }
+
+        /* === CONTROLS === */
+        .controls { grid-column: 1; grid-row: 2; }
+
+        .input-group label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-family: var(--font);
+            background: white;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            transition: border-color 0.2s;
+        }
+        select:focus { outline: none; border-color: var(--primary); }
+
+        /* Slider */
+        .slider-container {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: var(--radius);
+            border: 1px solid #e2e8f0;
+        }
+
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-light) 0%, var(--accent) 100%);
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: white;
+            border: 3px solid var(--primary);
+            border-radius: 50%;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
+        }
+
+        .number-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        input[type="number"] {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-weight: 600;
+            text-align: right;
+        }
+        input[type="number"]:focus { outline: none; border-color: var(--primary); }
+
+        .unit-tag {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 8px 10px;
+            border-radius: var(--radius);
+        }
+
+        /* Feedback */
+        .feedback {
+            padding: 10px;
+            border-radius: var(--radius);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .feedback.neutral { background: #f8fafc; color: var(--text-muted); border: 2px dashed #e2e8f0; }
+        .feedback.valid { background: #ecfdf5; color: #059669; border: 2px solid #a7f3d0; }
+        .feedback.invalid { background: #fef2f2; color: #dc2626; border: 2px solid #fecaca; }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 16px;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: var(--font);
+        }
+
+        .btn-excite {
+            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+            color: white;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .btn-excite.ready {
+            opacity: 1;
+            pointer-events: auto;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-reset {
+            background: white;
+            color: var(--text-main);
+            border: 2px solid #e2e8f0;
+            margin-top: auto;
+        }
+        .btn-reset:hover { background: #f8fafc; border-color: #cbd5e1; }
+
+        /* === STAGE === */
+        .stage { 
+            grid-column: 2; 
+            grid-row: 2; 
+            position: relative;
+            /* Wichtig: Keine festen Höhen, Grid regelt das */
+        }
+
+        /* FIX: SVG Container fitting */
+        .stage-svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Energy Counter */
+        .energy-counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            font-size: 0.75rem;
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 10;
+        }
+
+        .counter-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .counter-label { color: var(--text-muted); font-weight: 500; }
+        .counter-val { font-weight: 700; font-family: monospace; font-size: 0.85rem; }
+        .counter-val.in { color: var(--primary); }
+        .counter-val.out { color: var(--success); }
+        .counter-val.balanced { color: var(--accent); }
+
+        /* SVG Styles */
+        .level-line { stroke: #cbd5e1; stroke-width: 2; stroke-linecap: round; }
+        .level-line.ground { stroke: #94a3b8; stroke-width: 3; }
+        .level-label { font-size: 12px; font-weight: 600; fill: #64748b; }
+        .level-value { font-size: 11px; font-family: monospace; fill: #475569; font-weight: 600; }
+
+        .electron {
+            fill: var(--accent);
+            filter: drop-shadow(0 0 6px var(--accent-glow));
+            transition: cy 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .electron.excited { fill: #f43f5e; filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.5)); }
+
+        .arrow-path {
+            stroke-width: 3;
+            fill: none;
+            stroke-linecap: round;
+            opacity: 0;
+            animation: drawArrow 0.6s forwards;
+        }
+        @keyframes drawArrow { to { opacity: 1; } }
+
+        /* === RELAXATION === */
+        .relaxation { grid-column: 3; grid-row: 2; }
+
+        .relax-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .relax-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius);
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .relax-item:hover {
+            border-color: var(--primary);
+            transform: translateX(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .relax-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 4px;
+        }
+        .relax-item.uv::before { background: var(--spec-uv); }
+        .relax-item.vis::before { background: var(--spec-vis); }
+        .relax-item.ir::before { background: var(--spec-ir); }
+
+        .relax-content { margin-left: 6px; }
+        .relax-to { font-size: 0.7rem; color: var(--text-muted); display: block; }
+        .relax-val { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
+        
+        .relax-badge { 
+            font-size: 0.6rem; 
+            font-weight: 800; 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .uv .relax-badge { background: #f3e8ff; color: #7c3aed; }
+        .vis .relax-badge { background: #dcfce7; color: #16a34a; }
+        .ir .relax-badge { background: #fee2e2; color: #dc2626; }
+
+        .relax-hint {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 15px;
+        }
+
+        /* === SPECTRA === */
+        .spectra {
+            grid-column: 1 / -1;
+            grid-row: 3;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            /* Höhe wird durch Grid Row definiert */
+        }
+
+        .spectrum-card {
+            background: var(--bg-card-solid);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .spectrum-header {
+            padding: 8px 14px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .spectrum-body {
+            flex: 1;
+            position: relative;
+            min-height: 0; /* Wichtig für Flexbox in Grid */
+        }
+
+        /* Absorption: Rainbow with black lines */
+        .abs-spectrum-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, 
+                #7c3aed 0%,   /* UV */
+                #3b82f6 15%,  /* Blau */
+                #22c55e 35%,  /* Grün */
+                #eab308 55%,  /* Gelb */
+                #f97316 75%,  /* Orange */
+                #ef4444 90%,  /* Rot */
+                #991b1b 100%  /* IR */
+            );
+            opacity: 0.9;
+        }
+
+        .spectrum-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .abs-line {
+            stroke: #000000;
+            stroke-width: 3;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .abs-line.show { opacity: 1; }
+        .abs-line.highlight { stroke-width: 5; opacity: 1; }
+
+        .em-line {
+            stroke-width: 4;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn { to { opacity: 0.9; } }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            body { height: auto; overflow: auto; padding: 10px; }
+            .app-container {
+                display: flex;
+                flex-direction: column;
+                height: auto;
+                gap: 10px;
+            }
+            .stage { min-height: 400px; order: -1; }
+            .spectra { height: 200px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <!-- HEADER -->
+    <header class="header">
+        <div class="brand">
+            <div class="brand-icon">⚛</div>
+            <h1>Quanten-Labor</h1>
+        </div>
+        <div class="unit-toggle">
+            <button class="unit-btn active" id="btn-ev">Elektronenvolt</button>
+            <button class="unit-btn" id="btn-j">Joule</button>
+        </div>
+    </header>
+
+    <!-- CONTROLS -->
+    <aside class="card controls">
+        <div class="card-header">Steuerung</div>
+        <div class="card-body">
+            
+            <div class="input-group">
+                <label>Element</label>
+                <select id="element-select"></select>
+            </div>
+
+            <div class="input-group">
+                <label>Energie (eV)</label>
+                <div class="slider-container">
+                    <input type="range" id="energy-slider" min="0" max="30" step="0.01" value="0">
+                    <div class="number-row">
+                        <input type="number" id="energy-input" min="0" max="30" step="0.01" value="0.00">
+                        <span class="unit-tag" id="unit-label">eV</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="feedback-box" class="feedback neutral">
+                Wähle eine Energie
+            </div>
+
+            <button id="btn-excite" class="btn btn-excite">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                Anregen
+            </button>
+
+            <button id="btn-reset" class="btn btn-reset">
+                Reset
+            </button>
+
+        </div>
+    </aside>
+
+    <!-- STAGE -->
+    <main class="card stage">
+        <div class="card-header">Energieniveau-Diagramm</div>
+        
+        <!-- Minimalist Energy Counter -->
+        <div class="energy-counter" id="energy-counter">
+            <div class="counter-row">
+                <span class="counter-label">Eingang</span>
+                <span class="counter-val in" id="counter-in">0.00 eV</span>
+            </div>
+            <div class="counter-row">
+                <span class="counter-label">Ausgang</span>
+                <span class="counter-val out" id="counter-out">0.00 eV</span>
+            </div>
+        </div>
+
+        <svg class="stage-svg" id="stage-svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid meet">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+                </marker>
+            </defs>
+            <g id="ladder-group"></g>
+            <g id="arrows-group"></g>
+            <circle id="electron" class="electron" cx="200" cy="450" r="12" />
+        </svg>
+    </main>
+
+    <!-- RELAXATION -->
+    <aside class="card relaxation">
+        <div class="card-header">Übergänge</div>
+        <div class="card-body">
+            <p class="relax-hint" id="relax-hint">
+                Grundzustand (E₀).<br>Führe Energie zu.
+            </p>
+            <ul class="relax-list" id="relaxation-list"></ul>
+        </div>
+    </aside>
+
+    <!-- SPECTRA -->
+    <footer class="spectra">
+        <div class="spectrum-card">
+            <div class="spectrum-header">
+                <span>🌈</span> Absorption (Weißlicht)
+            </div>
+            <div class="spectrum-body">
+                <div class="abs-spectrum-bg"></div>
+                <svg class="spectrum-svg" id="abs-svg" viewBox="0 0 400 100" preserveAspectRatio="none"></svg>
+            </div>
+        </div>
+        <div class="spectrum-card">
+            <div class="spectrum-header">
+                <span>💡</span> Emission (Gemessen)
+            </div>
+            <div class="spectrum-body" style="background: #111827;">
+                <svg class="spectrum-svg" id="em-svg" viewBox="0 0 400 100" preserveAspectRatio="none"></svg>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+/* === DATEN: 10 ELEMENTE === */
+const ELEMENTS = {
+    H: {
+        name: "Wasserstoff (H)",
+        maxSlider: 14.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 10.20 }, { id: "E₂", ev: 12.09 }, { id: "E₃", ev: 12.75 }, { id: "E₄", ev: 13.06 }
+        ]
+    },
+    He: {
+        name: "Helium (He)",
+        maxSlider: 25.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 19.82 }, { id: "E₂", ev: 20.61 }, { id: "E₃", ev: 21.22 }, { id: "E₄", ev: 23.00 }
+        ]
+    },
+    Li: {
+        name: "Lithium (Li)",
+        maxSlider: 6.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.85 }, { id: "E₂", ev: 3.83 }, { id: "E₃", ev: 4.54 }, { id: "E₄", ev: 4.80 }
+        ]
+    },
+    Na: {
+        name: "Natrium (Na)",
+        maxSlider: 6.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 2.10 }, { id: "E₂", ev: 3.19 }, { id: "E₃", ev: 3.61 }, { id: "E₄", ev: 4.11 }
+        ]
+    },
+    K: {
+        name: "Kalium (K)",
+        maxSlider: 5.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.61 }, { id: "E₂", ev: 2.60 }, { id: "E₃", ev: 3.06 }, { id: "E₄", ev: 3.40 }
+        ]
+    },
+    Sr: {
+        name: "Strontium (Sr)",
+        maxSlider: 5.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.80 }, { id: "E₂", ev: 2.30 }, { id: "E₃", ev: 2.69 }, { id: "E₄", ev: 3.00 }
+        ]
+    },
+    Ba: {
+        name: "Barium (Ba)",
+        maxSlider: 6.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 2.24 }, { id: "E₂", ev: 2.80 }, { id: "E₃", ev: 3.50 }, { id: "E₄", ev: 4.00 }
+        ]
+    },
+    Cu: {
+        name: "Kupfer (Cu)",
+        maxSlider: 8.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.39 }, { id: "E₂", ev: 3.79 }, { id: "E₃", ev: 5.00 }, { id: "E₄", ev: 6.00 }
+        ]
+    },
+    Hg: {
+        name: "Quecksilber (Hg)",
+        maxSlider: 10.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 4.67 }, { id: "E₂", ev: 4.89 }, { id: "E₃", ev: 6.70 }, { id: "E₄", ev: 8.84 }
+        ]
+    },
+    Ne: {
+        name: "Neon (Ne)",
+        maxSlider: 22.00,
+        levels: [
+            { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 16.62 }, { id: "E₂", ev: 18.38 }, { id: "E₃", ev: 19.80 }, { id: "E₄", ev: 20.05 }
+        ]
+    }
+};
+
+/* === STATE === */
+const state = {
+    element: 'H',
+    unit: 'eV',
+    currentLevelIndex: 0,
+    targetLevelIndex: null,
+    energyIn: 0,
+    energyOut: 0,
+    arrowPositions: []
+};
+
+/* === DOM === */
+const dom = {
+    select: document.getElementById('element-select'),
+    slider: document.getElementById('energy-slider'),
+    input: document.getElementById('energy-input'),
+    feedback: document.getElementById('feedback-box'),
+    btnExcite: document.getElementById('btn-excite'),
+    btnReset: document.getElementById('btn-reset'),
+    ladderGroup: document.getElementById('ladder-group'),
+    arrowsGroup: document.getElementById('arrows-group'),
+    electron: document.getElementById('electron'),
+    relaxList: document.getElementById('relaxation-list'),
+    relaxHint: document.getElementById('relax-hint'),
+    absSvg: document.getElementById('abs-svg'),
+    emSvg: document.getElementById('em-svg'),
+    unitLabel: document.getElementById('unit-label'),
+    btnEv: document.getElementById('btn-ev'),
+    btnJ: document.getElementById('btn-j'),
+    counterIn: document.getElementById('counter-in'),
+    counterOut: document.getElementById('counter-out')
+};
+
+/* === HELPERS === */
+function formatEnergy(ev) {
+    if (state.unit === 'eV') return ev.toFixed(2) + ' eV';
+    const j = ev * 1.602;
+    return j.toFixed(2) + 'e-19 J';
+}
+
+function getSpectralColor(ev) {
+    if (ev < 1.65) return '#ef4444';
+    if (ev < 2.00) return '#f97316';
+    if (ev < 2.50) return '#eab308';
+    if (ev < 2.80) return '#22c55e';
+    if (ev < 3.10) return '#3b82f6';
+    return '#8b5cf6';
+}
+
+function getRegionName(ev) {
+    if (ev < 1.65) return 'IR';
+    if (ev <= 3.10) return 'VIS';
+    return 'UV';
+}
+
+function getY(levelIndex, totalLevels) {
+    const step = 380 / (totalLevels - 1);
+    return 440 - (levelIndex * step);
+}
+
+function updateCounter() {
+    dom.counterIn.textContent = formatEnergy(state.energyIn);
+    dom.counterOut.textContent = formatEnergy(state.energyOut);
+    
+    const diff = Math.abs(state.energyIn - state.energyOut);
+    if (state.energyIn > 0 && diff < 0.01) {
+        dom.counterOut.classList.add('balanced');
+    } else {
+        dom.counterOut.classList.remove('balanced');
+    }
+}
+
+/* === INIT === */
+function initApp() {
+    Object.keys(ELEMENTS).forEach(key => {
+        const opt = document.createElement('option');
+        opt.value = key;
+        opt.textContent = ELEMENTS[key].name;
+        dom.select.appendChild(opt);
+    });
+
+    renderLadder();
+    renderAbsorptionSpectrum();
+    updateCounter();
+    updateValidation();
+}
+
+/* === RENDERING === */
+function renderLadder() {
+    const el = ELEMENTS[state.element];
+    dom.ladderGroup.innerHTML = '';
+    
+    dom.slider.max = el.maxSlider;
+    dom.input.max = el.maxSlider;
+
+    el.levels.forEach((lvl, idx) => {
+        const y = getY(idx, el.levels.length);
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', 50);
+        line.setAttribute('y1', y);
+        line.setAttribute('x2', 350);
+        line.setAttribute('y2', y);
+        line.setAttribute('class', idx === 0 ? 'level-line ground' : 'level-line');
+        dom.ladderGroup.appendChild(line);
+
+        const txtId = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txtId.setAttribute('x', 40);
+        txtId.setAttribute('y', y + 5);
+        txtId.setAttribute('class', 'level-label');
+        txtId.setAttribute('text-anchor', 'end');
+        txtId.textContent = lvl.id;
+        dom.ladderGroup.appendChild(txtId);
+
+        const txtEv = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txtEv.setAttribute('x', 360);
+        txtEv.setAttribute('y', y + 5);
+        txtEv.setAttribute('class', 'level-value');
+        txtEv.textContent = formatEnergy(lvl.ev);
+        dom.ladderGroup.appendChild(txtEv);
+    });
+
+    moveElectron(state.currentLevelIndex);
+}
+
+function moveElectron(levelIndex) {
+    const el = ELEMENTS[state.element];
+    const y = getY(levelIndex, el.levels.length);
+    dom.electron.setAttribute('cy', y);
+    
+    if (levelIndex > 0) dom.electron.classList.add('excited');
+    else dom.electron.classList.remove('excited');
+}
+
+function renderAbsorptionSpectrum() {
+    const el = ELEMENTS[state.element];
+    dom.absSvg.innerHTML = '';
+    const scaleX = (ev) => (ev / el.maxSlider) * 400;
+
+    el.levels.forEach((lvl, idx) => {
+        if (idx === 0) return;
+        const x = scaleX(lvl.ev);
+        
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x);
+        line.setAttribute('y1', 0);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', 100);
+        line.setAttribute('class', 'abs-line');
+        line.id = `abs-line-${idx}`;
+        dom.absSvg.appendChild(line);
+    });
+}
+
+function addEmissionLine(ev) {
+    const el = ELEMENTS[state.element];
+    const scaleX = (val) => (val / el.maxSlider) * 400;
+    const x = scaleX(ev);
+    const color = getSpectralColor(ev);
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', x);
+    line.setAttribute('y1', 10);
+    line.setAttribute('x2', x);
+    line.setAttribute('y2', 90);
+    line.setAttribute('class', 'em-line');
+    line.setAttribute('stroke', color);
+    
+    dom.emSvg.appendChild(line);
+}
+
+/* === LOGIC === */
+function updateValidation() {
+    const val = parseFloat(dom.input.value);
+    const el = ELEMENTS[state.element];
+    const valStr = val.toFixed(2);
+    
+    let matchIndex = -1;
+    for (let i = 1; i < el.levels.length; i++) {
+        if (el.levels[i].ev.toFixed(2) === valStr) {
+            matchIndex = i;
+            break;
+        }
+    }
+
+    if (matchIndex !== -1) {
+        state.targetLevelIndex = matchIndex;
+        dom.feedback.innerHTML = `✓ Treffer: ${el.levels[matchIndex].id}`;
+        dom.feedback.className = 'feedback valid';
+        dom.btnExcite.classList.add('ready');
+    } else {
+        state.targetLevelIndex = null;
+        dom.feedback.className = 'feedback invalid';
+        dom.btnExcite.classList.remove('ready');
+        
+        if (val > el.levels[el.levels.length-1].ev) {
+             dom.feedback.textContent = "Energie zu hoch (Ionisierung)";
+        } else {
+             dom.feedback.textContent = `${formatEnergy(val)} passt nicht`;
+        }
+    }
+}
+
+function excite() {
+    if (state.targetLevelIndex === null) return;
+    
+    dom.btnExcite.classList.remove('ready');
+    dom.input.disabled = true;
+    dom.slider.disabled = true;
+    dom.select.disabled = true;
+
+    const absLine = document.getElementById(`abs-line-${state.targetLevelIndex}`);
+    if(absLine) {
+        absLine.classList.add('show', 'highlight');
+        setTimeout(() => absLine.classList.remove('highlight'), 500);
+    }
+
+    const el = ELEMENTS[state.element];
+    state.energyIn = el.levels[state.targetLevelIndex].ev;
+    updateCounter();
+
+    state.currentLevelIndex = state.targetLevelIndex;
+    state.arrowPositions = [];
+    moveElectron(state.currentLevelIndex);
+    updateRelaxationOptions();
+    
+    dom.feedback.textContent = "Angeregt! Wähle Übergang.";
+    dom.feedback.className = 'feedback neutral';
+}
+
+function updateRelaxationOptions() {
+    dom.relaxList.innerHTML = '';
+    const el = ELEMENTS[state.element];
+    const currentIdx = state.currentLevelIndex;
+
+    if (currentIdx === 0) {
+        dom.relaxHint.style.display = 'block';
+        dom.relaxHint.innerHTML = 'Grundzustand (E₀).';
+        dom.input.disabled = false;
+        dom.slider.disabled = false;
+        dom.select.disabled = false;
+        updateValidation();
+        return;
+    }
+
+    dom.relaxHint.style.display = 'none';
+
+    for (let i = currentIdx - 1; i >= 0; i--) {
+        const targetLvl = el.levels[i];
+        const deltaE = el.levels[currentIdx].ev - targetLvl.ev;
+        const region = getRegionName(deltaE);
+        const regionClass = region.toLowerCase();
+
+        const li = document.createElement('li');
+        li.className = `relax-item ${regionClass}`;
+        li.innerHTML = `
+            <div class="relax-content">
+                <span class="relax-to">nach ${targetLvl.id}</span>
+                <div class="relax-val">${formatEnergy(deltaE)}</div>
+            </div>
+            <span class="relax-badge">${region}</span>
+        `;
+        
+        li.onclick = () => relax(i, deltaE);
+        dom.relaxList.appendChild(li);
+    }
+}
+
+function relax(targetIndex, energyDiff) {
+    const el = ELEMENTS[state.element];
+    const currentIdx = state.currentLevelIndex;
+    
+    const arrowX = getSmartArrowPosition(currentIdx, targetIndex);
+    
+    drawArrow(currentIdx, targetIndex, getSpectralColor(energyDiff), arrowX);
+    
+    state.currentLevelIndex = targetIndex;
+    moveElectron(targetIndex);
+    
+    state.energyOut += energyDiff;
+    updateCounter();
+    
+    addEmissionLine(energyDiff);
+    updateRelaxationOptions();
+}
+
+function getSmartArrowPosition(fromIdx, toIdx) {
+    const totalWidth = 320 - 80;
+    const step = totalWidth / 5;
+    const existingCount = state.arrowPositions.length;
+    const baseX = 80 + step * (existingCount % 5) + step / 2;
+    const offset = (fromIdx - toIdx) * 10;
+    
+    state.arrowPositions.push(baseX);
+    return baseX + offset;
+}
+
+function drawArrow(fromIdx, toIdx, color, x) {
+    const el = ELEMENTS[state.element];
+    const y1 = getY(fromIdx, el.levels.length);
+    const y2 = getY(toIdx, el.levels.length);
+
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', `M ${x} ${y1} L ${x} ${y2}`);
+    path.setAttribute('stroke', color);
+    path.setAttribute('class', 'arrow-path');
+    dom.arrowsGroup.appendChild(path);
+}
+
+function resetSystem() {
+    state.currentLevelIndex = 0;
+    state.targetLevelIndex = null;
+    state.energyIn = 0;
+    state.energyOut = 0;
+    state.arrowPositions = [];
+    
+    dom.input.disabled = false;
+    dom.slider.disabled = false;
+    dom.select.disabled = false;
+    dom.input.value = 0;
+    dom.slider.value = 0;
+    
+    dom.arrowsGroup.innerHTML = '';
+    dom.emSvg.innerHTML = '';
+    
+    document.querySelectorAll('.abs-line').forEach(l => {
+        l.classList.remove('show', 'highlight');
+    });
+    
+    moveElectron(0);
+    updateRelaxationOptions();
+    updateCounter();
+    updateValidation();
+    
+    dom.feedback.textContent = "System zurückgesetzt";
+    dom.feedback.className = 'feedback neutral';
+}
+
+/* === EVENTS === */
+dom.slider.addEventListener('input', (e) => {
+    dom.input.value = e.target.value;
+    updateValidation();
+});
+
+dom.input.addEventListener('input', (e) => {
+    dom.slider.value = e.target.value;
+    updateValidation();
+});
+
+dom.select.addEventListener('change', (e) => {
+    state.element = e.target.value;
+    resetSystem();
+    renderLadder();
+    renderAbsorptionSpectrum();
+});
+
+dom.btnExcite.addEventListener('click', excite);
+dom.btnReset.addEventListener('click', resetSystem);
+
+dom.btnEv.addEventListener('click', () => {
+    state.unit = 'eV';
+    dom.btnEv.classList.add('active');
+    dom.btnJ.classList.remove('active');
+    dom.unitLabel.textContent = 'eV';
+    renderLadder();
+    updateRelaxationOptions();
+    updateCounter();
+    updateValidation();
+});
+
+dom.btnJ.addEventListener('click', () => {
+    state.unit = 'J';
+    dom.btnJ.classList.add('active');
+    dom.btnEv.classList.remove('active');
+    dom.unitLabel.textContent = 'J';
+    renderLadder();
+    updateRelaxationOptions();
+    updateCounter();
+    updateValidation();
+});
+
+/* === START === */
+initApp();
+
+</script>
+</body>
+</html>
 
