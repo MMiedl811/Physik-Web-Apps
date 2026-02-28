@@ -1,1 +1,1096 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Physik Applet: Geschwindigkeit vs. Geschwindigkeitsänderung</title>
+    
+    <!-- Code Beginn: p5.js CDN Einbindung -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.js"></script>
+    <!-- Code Ende: p5.js CDN Einbindung -->
+    
+    <style>
+        /* Code Beginn: CSS Grundgerüst & Layout */
+        :root {
+            --sidebar-width: 300px;
+            --primary-color: #007aff;
+            --bg-color: #f5f5f7;
+            --sidebar-bg: #ffffff;
+            --text-color: #1d1d1f;
+            --border-color: #d2d2d7;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            overflow: hidden;
+            touch-action: none; /* Verhindert Standard-Gesten auf dem iPad */
+        }
+
+        #app-container {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #sidebar {
+            width: var(--sidebar-width);
+            min-width: var(--sidebar-width);
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            z-index: 10;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+        }
+
+        #main-area {
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #e5e5e7; /* Etwas dunklerer Hintergrund für den Canvas-Bereich */
+        }
+
+        h1 {
+            font-size: 1.4rem;
+            margin-bottom: 24px;
+            color: var(--text-color);
+            line-height: 1.2;
+        }
+
+        .control-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-color);
+        }
+
+        /* iPad-optimierte Slider */
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 8px;
+            -webkit-appearance: none;
+            height: 12px;
+            background: #d2d2d7;
+            border-radius: 6px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 28px;
+            height: 28px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 2px solid white;
+        }
+
+        .value-display {
+            font-size: 0.9rem;
+            color: #86868b;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        #start-reset-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            margin-top: auto;
+            -webkit-tap-highlight-color: transparent;
+            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
+        }
+
+        #start-reset-btn:active {
+            background-color: #0056b3;
+            transform: scale(0.98);
+        }
+
+        #canvas-parent {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Game Overlay Styles */
+        #game-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 100;
+            display: none;
+            max-width: 80%;
+            border: 3px solid var(--primary-color);
+        }
+
+        #game-overlay h2 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+
+        #game-overlay button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        /* Turn Pop-up Styles */
+        #turn-popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            text-align: center;
+            z-index: 110;
+            display: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: 4px solid #007aff;
+        }
+
+        /* Winner Screen Styles */
+        #winner-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            color: white;
+            text-align: center;
+        }
+
+        #winner-screen h1 {
+            font-size: 3rem;
+            color: #ffcc00;
+            margin-bottom: 20px;
+        }
+
+        #winner-screen button {
+            background: #ffcc00;
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+        }
+        /* Code Ende: CSS Grundgerüst & Layout */
+    </style>
+</head>
+<body>
+    <!-- Code Beginn: HTML Struktur -->
+    <div id="app-container">
+        <aside id="sidebar">
+            <h1>Eishockey-Physik: v vs. Δv</h1>
+            
+            <div class="control-group">
+                <label for="va-slider">Anfangsgeschwindigkeit v<sub>A</sub></label>
+                <input type="range" id="va-slider" min="1" max="25" step="0.1" value="10">
+                <div class="value-display"><span id="va-value">10.0</span> m/s</div>
+            </div>
+
+            <div class="control-group">
+                <label for="dv-slider">Geschwindigkeitsänderung Δv</label>
+                <input type="range" id="dv-slider" min="0" max="25" step="0.1" value="10">
+                <div class="value-display"><span id="dv-value">10.0</span> m/s</div>
+            </div>
+
+            <div class="control-group">
+                <label for="angle-slider">Winkel von Δv (°)</label>
+                <input type="range" id="angle-slider" min="0" max="360" step="1" value="0">
+                <div class="value-display" id="angle-value">0°</div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="show-vectors">
+                <label for="show-vectors">Vektoren & Beschriftungen anzeigen</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="show-ve-mag">
+                <label for="show-ve-mag">Betrag von v<sub>E</sub> anzeigen</label>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="slowmo-toggle">
+                <label for="slowmo-toggle">Slow Motion (1/4 Speed)</label>
+            </div>
+
+            <div class="checkbox-group" style="background: #e1f5fe; padding: 10px; border-radius: 10px; border: 1px solid #b3e5fc;">
+                <input type="checkbox" id="game-mode-toggle">
+                <label for="game-mode-toggle">🏆 Game Mode</label>
+            </div>
+
+            <div style="display: flex; gap: 10px; margin-top: auto;">
+                <button id="start-reset-btn" style="flex: 2;">Start / Reset</button>
+                <button id="pause-btn" style="flex: 1; background-color: #8e8e93; color: white; border: none; border-radius: 14px; font-weight: 600; cursor: pointer;">Pause</button>
+            </div>
+        </aside>
+
+        <main id="main-area">
+            <div id="canvas-parent">
+                <div id="game-overlay">
+                    <h2>🏆 Game Mode Aktiviert!</h2>
+                    <p>Triff das bewegliche Tor, um Punkte zu sammeln!</p>
+                    <p><b>Mitte (Gold):</b> 100 Pkt<br>
+                       <b>Seite (Silber):</b> 50 Pkt<br>
+                       <b>Rand (Bronze):</b> 20 Pkt</p>
+                    <p><b>Spieler 1 (Blau) vs. Spieler 2 (Rot)</b><br>
+                       Jeder hat 5 Versuche!</p>
+                    <button id="close-overlay">Alles klar!</button>
+                </div>
+                <div id="turn-popup">Spieler 1 ist dran!</div>
+                <div id="winner-screen">
+                    <h1 id="winner-text">Spieler 1 gewinnt!</h1>
+                    <p id="final-scores">Score 1: 0 | Score 2: 0</p>
+                    <button id="restart-game">Nochmal spielen</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Code Ende: HTML Struktur -->
+
+    <script>
+        // Code Beginn: Globale Variablen & Konstanten
+        let puck;
+        let impulsePoint;
+        let goal;
+        let canvasScale = 15; // Pixel pro m/s
+        let isSimulationRunning = false;
+        let isPaused = false;
+        let isDraggingDV = false;
+        const HITBOX_RADIUS = 45; // Radius für Touch-Bedienung (> 40px)
+        
+        // Game Mode Variablen
+        let isGameMode = false;
+        let score1 = 0;
+        let score2 = 0;
+        let currentPlayer = 1; // 1 oder 2
+        let shotsTaken1 = 0;
+        let shotsTaken2 = 0;
+        let isGameOver = false;
+        let particles = [];
+        let fireworks = [];
+        let lastHitScore = 0;
+        let hitTextTimer = 0;
+        let goalPhase = 0;
+        
+        // State Machine
+        const STATE = {
+            SETUP: 'setup',
+            MOVING_VA: 'moving_va',
+            MOVING_VE: 'moving_ve',
+            STOPPED: 'stopped'
+        };
+        let currentState = STATE.SETUP;
+        let puckTrail = [];
+        
+        // Farben
+        const COLOR_ICE = "#f0f0f5";
+        const COLOR_LINE_BLUE = "#003399";
+        const COLOR_LINE_RED = "#cc0000";
+        const COLOR_PUCK = "#000000";
+        const COLOR_GOAL = "#333333";
+        const COLOR_VA = "#007aff"; // Blau (Schulbuch)
+        const COLOR_DV = "#34c759"; // Grün
+        const COLOR_VE = "#ff3b30"; // Rot (Schulbuch)
+        // Code Ende: Globale Variablen & Konstanten
+
+        // Code Beginn: UI-Logik & Initialisierung
+        const vaSlider = document.getElementById('va-slider');
+        const dvSlider = document.getElementById('dv-slider');
+        const angleSlider = document.getElementById('angle-slider');
+        const vaValue = document.getElementById('va-value');
+        const dvValue = document.getElementById('dv-value');
+        const angleValue = document.getElementById('angle-value');
+        const showVectorsCheckbox = document.getElementById('show-vectors');
+        const showVeMagCheckbox = document.getElementById('show-ve-mag');
+        const slowmoToggle = document.getElementById('slowmo-toggle');
+        const gameModeToggle = document.getElementById('game-mode-toggle');
+        const startBtn = document.getElementById('start-reset-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const gameOverlay = document.getElementById('game-overlay');
+        const closeOverlayBtn = document.getElementById('close-overlay');
+        const turnPopup = document.getElementById('turn-popup');
+        const winnerScreen = document.getElementById('winner-screen');
+        const winnerText = document.getElementById('winner-text');
+        const finalScoresText = document.getElementById('final-scores');
+        const restartGameBtn = document.getElementById('restart-game');
+
+        gameModeToggle.addEventListener('change', (e) => {
+            isGameMode = e.target.checked;
+            if (isGameMode) {
+                gameOverlay.style.display = 'block';
+                goal.width = 240; // Doppelt so groß im Game Mode
+            } else {
+                gameOverlay.style.display = 'none';
+                winnerScreen.style.display = 'none';
+                resetGameStats();
+                goal.width = 120; // Standardgröße
+            }
+            initEnvironment();
+        });
+
+        closeOverlayBtn.addEventListener('click', () => {
+            gameOverlay.style.display = 'none';
+            showTurnPopup();
+        });
+
+        restartGameBtn.addEventListener('click', () => {
+            winnerScreen.style.display = 'none';
+            resetGameStats();
+            initEnvironment();
+            showTurnPopup();
+        });
+
+        function resetGameStats() {
+            score1 = 0;
+            score2 = 0;
+            currentPlayer = 1;
+            shotsTaken1 = 0;
+            shotsTaken2 = 0;
+            isGameOver = false;
+            fireworks = [];
+        }
+
+        function showTurnPopup() {
+            if (!isGameMode || isGameOver) return;
+            turnPopup.textContent = "Spieler " + currentPlayer + " ist dran!";
+            turnPopup.style.borderColor = currentPlayer === 1 ? "#007aff" : "#ff3b30";
+            turnPopup.style.color = currentPlayer === 1 ? "#007aff" : "#ff3b30";
+            turnPopup.style.display = 'block';
+            setTimeout(() => {
+                turnPopup.style.display = 'none';
+            }, 1500);
+        }
+
+        pauseBtn.addEventListener('click', () => {
+            if (isSimulationRunning && currentState !== STATE.STOPPED) {
+                isPaused = !isPaused;
+                pauseBtn.textContent = isPaused ? "Weiter" : "Pause";
+                pauseBtn.style.backgroundColor = isPaused ? "#34c759" : "#8e8e93";
+            }
+        });
+
+        vaSlider.addEventListener('input', (e) => {
+            vaValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        
+        dvSlider.addEventListener('input', (e) => {
+            dvValue.textContent = parseFloat(e.target.value).toFixed(1);
+        });
+        
+        angleSlider.addEventListener('input', (e) => {
+            angleValue.textContent = e.target.value + '°';
+        });
+        // Code Ende: UI-Logik & Initialisierung
+
+        // Code Beginn: p5.js Setup & Statische Umgebung
+        function setup() {
+            let canvasParent = document.getElementById('canvas-parent');
+            let w = canvasParent.clientWidth;
+            let h = canvasParent.clientHeight;
+            let canvas = createCanvas(w, h);
+            canvas.parent('canvas-parent');
+            
+            initEnvironment();
+        }
+
+        function initEnvironment() {
+            // Stoßpunkt in der Mitte
+            impulsePoint = createVector(width / 2, height / 2);
+            
+            // Tor oben mittig
+            goal = {
+                x: width / 2,
+                y: 40,
+                width: isGameMode ? 240 : 120, // Größe abhängig vom Modus
+                height: 20
+            };
+
+            // Puck am linken Rand, gleiche Y-Höhe wie Stoßpunkt
+            puck = {
+                pos: createVector(40, impulsePoint.y),
+                vel: createVector(0, 0),
+                startPos: createVector(40, impulsePoint.y),
+                size: 25
+            };
+            
+            puckTrail = [];
+            currentState = STATE.SETUP;
+            isSimulationRunning = false;
+            isPaused = false;
+            startBtn.textContent = "Start";
+            pauseBtn.textContent = "Pause";
+            pauseBtn.style.backgroundColor = "#8e8e93";
+            
+            if (isGameMode && !isGameOver && shotsTaken1 + shotsTaken2 > 0) {
+                showTurnPopup();
+            }
+        }
+
+        function draw() {
+            drawIceField();
+            
+            if (isGameMode) {
+                // Tor-Animation (Hälfte langsamer: 0.01 statt 0.02)
+                goalPhase += 0.01;
+                goal.x = width / 2 + sin(goalPhase) * (width * 0.3);
+                
+                // Score Anzeige Spieler 1 (Links Blau)
+                push();
+                fill("#007aff");
+                textSize(24);
+                textStyle(BOLD);
+                textAlign(LEFT, TOP);
+                text("Spieler 1: " + score1 + " (" + shotsTaken1 + "/5)", 30, 30);
+                
+                // Score Anzeige Spieler 2 (Rechts Rot)
+                fill("#ff3b30");
+                textAlign(RIGHT, TOP);
+                text("Spieler 2: " + score2 + " (" + shotsTaken2 + "/5)", width - 30, 30);
+                pop();
+            }
+
+            drawGoal();
+            drawImpulsePoint();
+            
+            // Block 5: Physik & State Machine Update
+            updatePhysics();
+            
+            // Block 3: Vektoren berechnen und zeichnen
+            drawVectors();
+            
+            // Block 4: Touch-Interaktion
+            checkTouchInteraction();
+            
+            drawPuck();
+
+            // Partikel & Feedback
+            updateParticles();
+            updateFireworks();
+            drawHitFeedback();
+        }
+
+        function drawIceField() {
+            background(COLOR_ICE);
+            
+            // Umrandung (Bande)
+            strokeWeight(4);
+            stroke(200);
+            noFill();
+            rect(10, 10, width - 20, height - 20, 40);
+
+            // Mittellinie (Rot) - Jetzt horizontal
+            stroke(COLOR_LINE_RED);
+            strokeWeight(2);
+            line(10, height / 2, width - 10, height / 2);
+
+            // Anspielkreise (Deko)
+            stroke(COLOR_LINE_BLUE);
+            noFill();
+            ellipse(width / 2, height / 2, 150);
+            
+            // Blaue Linien - Jetzt horizontal
+            stroke(COLOR_LINE_BLUE);
+            strokeWeight(3);
+            line(10, height * 0.3, width - 10, height * 0.3);
+            line(10, height * 0.7, width - 10, height * 0.7);
+        }
+
+        function drawGoal() {
+            push();
+            rectMode(CENTER);
+            
+            if (isGameMode) {
+                // Drei Zonen zeichnen
+                let w = goal.width;
+                let h = goal.height;
+                
+                // 20 Pkt Zone (Bronze/Braun)
+                fill(205, 127, 50);
+                rect(goal.x, goal.y, w, h);
+                
+                // 50 Pkt Zone (Silber)
+                fill(192, 192, 192);
+                rect(goal.x, goal.y, w * 0.6, h);
+                
+                // 100 Pkt Zone (Gold)
+                fill(255, 215, 0);
+                rect(goal.x, goal.y, w * 0.2, h);
+                
+                // Beschriftung der Zonen (optional, nur wenn groß genug)
+                fill(0);
+                textSize(10);
+                textAlign(CENTER, CENTER);
+                text("100", goal.x, goal.y);
+            } else {
+                fill(255);
+                stroke(COLOR_GOAL);
+                strokeWeight(3);
+                rect(goal.x, goal.y, goal.width, goal.height);
+            }
+            
+            // Tor-Netz-Optik
+            stroke(0, 50);
+            strokeWeight(1);
+            for(let i = -goal.width/2 + 10; i < goal.width/2; i += 10) {
+                line(goal.x + i, goal.y - goal.height/2, goal.x + i, goal.y + goal.height/2);
+            }
+            pop();
+        }
+
+        function drawImpulsePoint() {
+            // Stoßpunkt als kleines Kreuz zeichnen
+            push();
+            stroke(COLOR_LINE_RED);
+            strokeWeight(2);
+            let s = 8;
+            line(impulsePoint.x - s, impulsePoint.y - s, impulsePoint.x + s, impulsePoint.y + s);
+            line(impulsePoint.x - s, impulsePoint.y + s, impulsePoint.x + s, impulsePoint.y - s);
+            pop();
+            
+            // Hockeyschläger am Stoßpunkt zeichnen
+            drawHockeyStick();
+        }
+        
+        // Code Beginn: Hockeyspieler Grafik (Vogelperspektive)
+        function drawHockeyStick() {
+            push();
+            // Position UNTER dem Stoßpunkt (ca. 80 Pixel darunter)
+            translate(impulsePoint.x, impulsePoint.y + 80);
+            
+            // 180 Grad Rotation (umgedreht)
+            rotate(radians(180));
+            
+            // Skalierung anpassen (SVG war 400x400, wir brauchen ca. 120x120)
+            let scaleFactor = 0.35;
+            scale(scaleFactor);
+            
+            // Offset zum Zentrieren (SVG Mitte war 200,200)
+            translate(-200, -200);
+            
+            // Hintergrund Eis (optional, nur wenn benötigt)
+            // fill(240, 248, 255); // #f0f8ff
+            // noStroke();
+            // rect(0, 0, 400, 400);
+            
+            // Handschuhe / Arme (Andeutung der Haltung)
+            stroke(44, 62, 80); // #2c3e50
+            strokeWeight(12);
+            strokeCap(ROUND);
+            line(150, 200, 100, 280);
+            line(250, 200, 140, 300);
+            
+            // Schultern / Torso
+            fill(231, 76, 60); // #e74c3c
+            stroke(192, 57, 43); // #c0392b
+            strokeWeight(3);
+            ellipse(200, 200, 120, 70); // rx=60*2, ry=35*2
+            
+            // Helm
+            fill(255, 255, 255);
+            stroke(189, 195, 199); // #bdc3c7
+            strokeWeight(2);
+            ellipse(200, 200, 44, 44); // r=22*2
+            
+            // Visier-Detail am Helm
+            noFill();
+            stroke(52, 73, 94); // #34495e
+            strokeWeight(2);
+            beginShape();
+            vertex(185, 185);
+            bezierVertex(200, 175, 200, 175, 215, 185);
+            endShape();
+            
+            // Hockeyschläger (Schaft)
+            stroke(121, 85, 72); // #795548
+            strokeWeight(6);
+            strokeCap(ROUND);
+            line(100, 280, 50, 340);
+            
+            // Schlägerblatt
+            fill(44, 62, 80); // #2c3e50
+            noStroke();
+            beginShape();
+            vertex(50, 340);
+            vertex(20, 355);
+            bezierVertex(10, 360, 15, 370, 25, 365);
+            vertex(55, 350);
+            endShape(CLOSE);
+            
+            // Der Puck (kleiner, da er sonst zu groß wirkt)
+            fill(0);
+            ellipse(35, 375, 16, 16); // r=8*2, aber halbiert für bessere Proportion
+            
+            pop();
+        }
+        // Code Ende: Hockeyspieler Grafik
+
+        function drawPuck() {
+            // Trail zeichnen
+            push();
+            stroke(100, 100, 100, 150);
+            strokeWeight(2);
+            noFill();
+            beginShape();
+            for (let p of puckTrail) {
+                vertex(p.x, p.y);
+            }
+            endShape();
+            pop();
+
+            push();
+            let puckCol = COLOR_PUCK;
+            if (isGameMode) {
+                puckCol = currentPlayer === 1 ? "#007aff" : "#ff3b30";
+            }
+            fill(puckCol);
+            noStroke();
+            ellipse(puck.pos.x, puck.pos.y, puck.size);
+            
+            // Glanzlicht auf dem Puck
+            fill(255, 100);
+            ellipse(puck.pos.x - puck.size*0.2, puck.pos.y - puck.size*0.2, puck.size*0.3);
+            pop();
+        }
+
+        // Code Beginn: Physik-Engine & State-Machine
+        startBtn.addEventListener('click', () => {
+            if (currentState === STATE.SETUP) {
+                currentState = STATE.MOVING_VA;
+                isSimulationRunning = true;
+                startBtn.textContent = "Reset";
+                
+                let vaMag = parseFloat(vaSlider.value) * 0.4; // Skalierung für Animation (verdoppelt)
+                puck.vel = createVector(vaMag, 0);
+            } else {
+                initEnvironment();
+            }
+        });
+
+        function updatePhysics() {
+            if (currentState === STATE.SETUP || currentState === STATE.STOPPED || isPaused) return;
+
+            let animSpeed = slowmoToggle.checked ? 0.25 : 1.0;
+
+            // Trail hinzufügen
+            if (frameCount % 2 === 0) {
+                puckTrail.push(puck.pos.copy());
+                if (puckTrail.length > 100) puckTrail.shift();
+            }
+
+            // Bewegung mit Geschwindigkeitsfaktor
+            let moveStep = p5.Vector.mult(puck.vel, animSpeed);
+            puck.pos.add(moveStep);
+
+            // Phase 1 -> Phase 2 am Stoßpunkt
+            if (currentState === STATE.MOVING_VA && puck.pos.x >= impulsePoint.x) {
+                puck.pos.x = impulsePoint.x; // Exakt am Stoßpunkt positionieren
+                
+                let dvMag = parseFloat(dvSlider.value) * 0.4; // Skalierung für Animation (verdoppelt)
+                let angle = radians(parseFloat(angleSlider.value));
+                let dV = createVector(cos(angle), sin(angle)).mult(dvMag);
+                
+                puck.vel.add(dV); // Vektoraddition: vE = vA + dv
+                currentState = STATE.MOVING_VE;
+            }
+
+            // Kollisionsabfrage Tor
+            if (puck.pos.y <= goal.y + goal.height/2 && 
+                puck.pos.x > goal.x - goal.width/2 && 
+                puck.pos.x < goal.x + goal.width/2) {
+                
+                if (isGameMode) {
+                    let distFromCenter = abs(puck.pos.x - goal.x);
+                    let points = 0;
+                    if (distFromCenter < goal.width * 0.1) {
+                        points = 100;
+                    } else if (distFromCenter < goal.width * 0.3) {
+                        points = 50;
+                    } else {
+                        points = 20;
+                    }
+                    addScore(points);
+                    spawnConfetti(puck.pos.x, puck.pos.y);
+                }
+                stopPuck();
+            }
+
+            // Kollisionsabfrage Bande
+            if (puck.pos.x < 20 || puck.pos.x > width - 20 || 
+                puck.pos.y < 20 || puck.pos.y > height - 20) {
+                stopPuck();
+            }
+        }
+
+        function stopPuck() {
+            currentState = STATE.STOPPED;
+            puck.vel.set(0, 0);
+            // Post-Shot-Automatik: Vektoren einblenden
+            showVectorsCheckbox.checked = true;
+            
+            if (isGameMode) {
+                if (currentPlayer === 1) shotsTaken1++;
+                else shotsTaken2++;
+                
+                if (shotsTaken1 >= 5 && shotsTaken2 >= 5) {
+                    endGame();
+                } else {
+                    // Spieler wechseln
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                }
+            }
+        }
+
+        function endGame() {
+            isGameOver = true;
+            winnerScreen.style.display = 'flex';
+            finalScoresText.textContent = "Spieler 1: " + score1 + " | Spieler 2: " + score2;
+            
+            if (score1 > score2) {
+                winnerText.textContent = "Spieler 1 gewinnt! 🏆";
+                winnerText.style.color = "#007aff";
+            } else if (score2 > score1) {
+                winnerText.textContent = "Spieler 2 gewinnt! 🏆";
+                winnerText.style.color = "#ff3b30";
+            } else {
+                winnerText.textContent = "Unentschieden! 🤝";
+                winnerText.style.color = "#ffcc00";
+            }
+            
+            // Feuerwerk starten
+            for(let i = 0; i < 5; i++) {
+                setTimeout(spawnFirework, i * 1000);
+            }
+        }
+        // Code Ende: Physik-Engine & State-Machine
+
+        // Code Beginn: Touch-Interaktion & Synchronisation
+        function checkTouchInteraction() {
+            if (isSimulationRunning) return;
+
+            let dvMag = parseFloat(dvSlider.value) * canvasScale;
+            let angle = radians(parseFloat(angleSlider.value));
+            let dV = createVector(cos(angle), sin(angle)).mult(dvMag);
+            let dVEnd = p5.Vector.add(impulsePoint, dV);
+
+            // Hitbox-Check (Radius mind. 40px)
+            let d = dist(mouseX, mouseY, dVEnd.x, dVEnd.y);
+            
+            if (mouseIsPressed) {
+                if (!isDraggingDV && d < HITBOX_RADIUS) {
+                    isDraggingDV = true;
+                }
+                
+                if (isDraggingDV) {
+                    // Berechne neuen Vektor basierend auf Maus/Touch-Position
+                    let newDV = createVector(mouseX - impulsePoint.x, mouseY - impulsePoint.y);
+                    let newMag = newDV.mag() / canvasScale;
+                    let newAngle = degrees(newDV.heading());
+                    
+                    // Normalisiere Winkel auf 0-360
+                    if (newAngle < 0) newAngle += 360;
+                    
+                    // Synchronisation mit Sidebar
+                    dvSlider.value = constrain(newMag, 0, 25).toFixed(1);
+                    angleSlider.value = Math.round(newAngle);
+                    
+                    // UI-Werte aktualisieren
+                    dvValue.textContent = parseFloat(dvSlider.value).toFixed(1);
+                    angleValue.textContent = angleSlider.value + '°';
+                }
+            } else {
+                isDraggingDV = false;
+            }
+        }
+        // Code Ende: Touch-Interaktion & Synchronisation
+
+        // Code Beginn: Vektor-Mathematik & Pfeile
+        function drawVectors() {
+            let vaMag = parseFloat(vaSlider.value) * canvasScale;
+            let dvMag = parseFloat(dvSlider.value) * canvasScale;
+            let angle = radians(parseFloat(angleSlider.value));
+
+            // vA: Startet am Stoßpunkt, zeigt nach rechts
+            let vA_End = createVector(impulsePoint.x + vaMag, impulsePoint.y);
+
+            // dv: Startet am Stoßpunkt
+            let dV = createVector(cos(angle), sin(angle)).mult(dvMag);
+            let dV_End = p5.Vector.add(impulsePoint, dV);
+
+            // Konstruktion: dv verschoben an die Spitze von vA
+            let dV_Moved_End = p5.Vector.add(vA_End, dV);
+
+            let showAll = showVectorsCheckbox.checked;
+
+            if (showAll || currentState === STATE.STOPPED) {
+                // 1. vA (Blau) ab Stoßpunkt
+                drawArrow(impulsePoint, vA_End, COLOR_VA, "vA");
+                
+                // 2. Δv (Grün) ab Stoßpunkt
+                drawArrow(impulsePoint, dV_End, COLOR_DV, "Δv");
+                
+                // 3. Δv verschoben (Grün, etwas dünner/blasser)
+                push();
+                let colDV_fade = color(52, 199, 89, 150);
+                drawArrow(vA_End, dV_Moved_End, colDV_fade, "");
+                pop();
+
+                // 4. vE (Rot) als Resultierende vom Stoßpunkt zur Spitze des verschobenen Δv
+                let vE_Label = "vE";
+                if (showVeMagCheckbox.checked) {
+                    let vA_vec = createVector(parseFloat(vaSlider.value), 0);
+                    let dV_vec = createVector(cos(angle), sin(angle)).mult(parseFloat(dvSlider.value));
+                    let vE_vec = p5.Vector.add(vA_vec, dV_vec);
+                    vE_Label += " = " + vE_vec.mag().toFixed(1) + " m/s";
+                }
+                drawArrow(impulsePoint, dV_Moved_End, COLOR_VE, vE_Label);
+            } else {
+                // Wenn Checkbox aus: Nur Δv am Stoßpunkt zur Einstellung
+                drawArrow(impulsePoint, dV_End, COLOR_DV, "");
+            }
+        }
+
+        function drawArrow(base, target, col, label) {
+            push();
+            stroke(col);
+            strokeWeight(5); // Dickere Linien für iPad
+            fill(col);
+            
+            line(base.x, base.y, target.x, target.y);
+            
+            let angle = atan2(target.y - base.y, target.x - base.x);
+            let dist = p5.Vector.dist(base, target);
+            
+            if (dist > 5) {
+                push();
+                translate(target.x, target.y);
+                rotate(angle);
+                let arrowSize = 10; // Größere Pfeilspitzen
+                triangle(0, 0, -arrowSize * 2, -arrowSize, -arrowSize * 2, arrowSize);
+                pop();
+            }
+
+            if (label !== "" && (showVectorsCheckbox.checked || currentState === STATE.STOPPED)) {
+                noStroke();
+                textSize(18);
+                textStyle(BOLD);
+                textAlign(CENTER, BOTTOM);
+                text(label, (base.x + target.x) / 2, (base.y + target.y) / 2 - 15);
+            }
+            pop();
+        }
+        // Code Ende: Vektor-Mathematik & Pfeile
+
+        // Game Mode Hilfsfunktionen
+        function addScore(points) {
+            if (currentPlayer === 1) score1 += points;
+            else score2 += points;
+            lastHitScore = points;
+            hitTextTimer = 100;
+        }
+
+        function spawnFirework() {
+            if (!isGameOver) return;
+            let x = random(width * 0.2, width * 0.8);
+            let y = height;
+            fireworks.push(new Firework(x, y));
+        }
+
+        function updateFireworks() {
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                fireworks[i].update();
+                fireworks[i].draw();
+                if (fireworks[i].isDead()) {
+                    fireworks.splice(i, 1);
+                }
+            }
+        }
+
+        function spawnConfetti(x, y) {
+            for (let i = 0; i < 50; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].isDead()) {
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function drawHitFeedback() {
+            if (hitTextTimer > 0) {
+                push();
+                textAlign(CENTER);
+                textSize(40);
+                textStyle(BOLD);
+                fill(255, 165, 0, hitTextTimer * 2.5);
+                text("TOR! +" + lastHitScore, width / 2, height / 2);
+                hitTextTimer -= 2;
+                pop();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, col) {
+                this.pos = createVector(x, y);
+                this.vel = p5.Vector.random2D().mult(random(2, 8));
+                this.acc = createVector(0, 0.1);
+                this.color = col || color(random(255), random(255), random(255));
+                this.lifespan = 255;
+                this.size = random(4, 8);
+            }
+
+            update() {
+                this.vel.add(this.acc);
+                this.pos.add(this.vel);
+                this.lifespan -= 4;
+            }
+
+            draw() {
+                noStroke();
+                fill(red(this.color), green(this.color), blue(this.color), this.lifespan);
+                rect(this.pos.x, this.pos.y, this.size, this.size);
+            }
+
+            isDead() {
+                return this.lifespan < 0;
+            }
+        }
+
+        class Firework {
+            constructor(x, y) {
+                this.pos = createVector(x, y);
+                this.vel = createVector(0, random(-12, -18));
+                this.exploded = false;
+                this.particles = [];
+                this.color = color(random(255), random(255), random(255));
+            }
+
+            update() {
+                if (!this.exploded) {
+                    this.pos.add(this.vel);
+                    this.vel.y += 0.2; // Schwerkraft
+                    if (this.vel.y >= 0) {
+                        this.explode();
+                    }
+                } else {
+                    for (let i = this.particles.length - 1; i >= 0; i--) {
+                        this.particles[i].update();
+                        if (this.particles[i].isDead()) {
+                            this.particles.splice(i, 1);
+                        }
+                    }
+                }
+            }
+
+            explode() {
+                this.exploded = true;
+                for (let i = 0; i < 100; i++) {
+                    this.particles.push(new Particle(this.pos.x, this.pos.y, this.color));
+                }
+            }
+
+            draw() {
+                if (!this.exploded) {
+                    fill(this.color);
+                    noStroke();
+                    ellipse(this.pos.x, this.pos.y, 10, 10);
+                } else {
+                    for (let p of this.particles) {
+                        p.draw();
+                    }
+                }
+            }
+
+            isDead() {
+                return this.exploded && this.particles.length === 0;
+            }
+        }
+
+        function windowResized() {
+            let canvasParent = document.getElementById('canvas-parent');
+            resizeCanvas(canvasParent.clientWidth, canvasParent.clientHeight);
+            initEnvironment();
+        }
+        // Code Ende: p5.js Setup & Statische Umgebung
+    </script>
+</body>
+</html>
 
