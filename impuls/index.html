@@ -1,1 +1,966 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Impuls – Stoß & Vektoraddition (Fixed)</title>
+
+  <style>
+    /* === THEME TOKENS === */
+    :root{
+      --c-bg: #f6f7fb;
+      --c-surface: #ffffff;
+      --c-surface-2: #f0f2f8;
+      --c-border: #d7dbe8;
+      --c-text: #1f2430;
+      --c-muted: #5b6478;
+      --c-grid: rgba(31, 36, 48, 0.1);
+
+      --c-coin1: #2f80ed;
+      --c-coin2: #27ae60;
+      --c-impulse: #9b51e0;
+      --c-result: #eb5757;
+      --c-velocity: #f2994a;
+
+      --shadow-soft: 0 8px 24px rgba(31, 36, 48, 0.08);
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height: 100%; }
+    body{
+      margin: 0;
+      background: var(--c-bg);
+      color: var(--c-text);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.35;
+    }
+
+    /* === LAYOUT === */
+    .app{
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app__header{
+      padding: 16px;
+      border-bottom: 1px solid var(--c-border);
+      background: var(--c-surface);
+    }
+    .app__title{ margin: 0; font-size: 20px; }
+    .app__subtitle{ margin: 6px 0 0; font-size: 14px; color: var(--c-muted); }
+
+    .app__main{
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+      padding: 16px;
+    }
+    @media (min-width: 1100px){
+      .app__main{
+        grid-template-columns: 2fr 1fr;
+      }
+    }
+
+    /* === STAGE (Animation) === */
+    .stage{
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      touch-action: none; /* Wichtig für Touch-Drag */
+    }
+
+    #animationSvg{
+      width: 100%;
+      height: 400px;
+      display: block;
+      background: var(--c-surface);
+      cursor: default;
+    }
+
+    /* Cursor Styles für Interaktion */
+    .grab-cursor { cursor: grab; }
+    .grabbing-cursor { cursor: grabbing; }
+
+    .stage__controls{
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 12px;
+      background: rgba(255,255,255,0.95);
+      padding: 8px 16px;
+      border-radius: 24px;
+      border: 1px solid var(--c-border);
+      box-shadow: var(--shadow-soft);
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      max-width: calc(100% - 24px);
+      z-index: 10;
+    }
+
+    .btn{
+      padding: 10px 20px;
+      border-radius: 20px;
+      border: none;
+      background: var(--c-coin1);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      transition: transform 0.1s;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn:hover{ transform: translateY(-1px); }
+    .btn:active{ transform: translateY(0); }
+    .btn--secondary{ background: var(--c-muted); }
+    .btn--play{ background: var(--c-result); font-size: 16px; padding: 10px 28px; }
+
+    /* === VECTOR VIEWS === */
+    .vector-views{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    @media (max-width: 700px){
+      .vector-views{ grid-template-columns: 1fr; }
+    }
+
+    .vector-view{
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 12px;
+      position: relative;
+    }
+
+    .vector-view__title{
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--c-muted);
+      text-align: center;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .vector-view__svg{
+      width: 100%;
+      height: 280px;
+      display: block;
+    }
+
+    /* === PANEL (Sidebar) === */
+    .panel{
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow-soft);
+      height: fit-content;
+    }
+
+    .panel__section{
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--c-border);
+    }
+    .panel__section:last-child{ margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+
+    .panel__title{ margin: 0 0 12px; font-size: 16px; font-weight: 800; }
+    .coin-config{ margin-bottom: 16px; }
+
+    .control-group{ margin-bottom: 12px; }
+    .control-label{
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--c-muted);
+      margin-bottom: 4px;
+    }
+    .control-value{ font-weight: 700; color: var(--c-text); }
+    .control-row{ display: flex; align-items: center; gap: 10px; }
+
+    input[type="range"]{
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--c-border);
+      outline: none;
+      -webkit-appearance: none;
+    }
+    input[type="range"]::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--c-text);
+      cursor: pointer;
+      border: 2px solid var(--c-surface);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    input[type="number"]{
+      width: 70px;
+      padding: 6px 8px;
+      border: 1px solid var(--c-border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    /* === UI COMPONENTS === */
+    .ext-modebar{
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid var(--c-border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      box-shadow: var(--shadow-soft);
+      flex-wrap: wrap;
+    }
+    .ext-modebar__label{
+      font-size: 12px;
+      color: var(--c-muted);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .ext-modebar__btn{
+      border: 1px solid var(--c-border);
+      background: var(--c-surface-2);
+      color: var(--c-text);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.15s ease;
+    }
+    .ext-modebar__btn:hover{ transform: translateY(-1px); }
+    .ext-modebar__btn--active{
+      background: var(--c-result);
+      border-color: var(--c-result);
+      color: #fff;
+    }
+
+    .ext-speed{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--c-border);
+      background: var(--c-surface-2);
+      min-width: 200px;
+    }
+    .ext-speed__label{ font-size: 12px; color: var(--c-muted); font-weight: 900; }
+    .ext-speed__value{ font-size: 12px; font-weight: 900; min-width: 35px; text-align: right; }
+  </style>
+</head>
+
+<body class="app">
+  <header class="app__header">
+    <h1 class="app__title">Impuls – Elastischer Stoß (2D)</h1>
+    <p class="app__subtitle">Ziehe an den <strong>Kugeln</strong> (Position) oder an den <strong>Pfeilspitzen</strong> (Richtung & Geschwindigkeit). Beobachte die Vektoraddition unten.</p>
+  </header>
+
+  <main class="app__main">
+    <div class="main-content">
+      <!-- Animation Stage -->
+      <div class="stage">
+        <svg id="animationSvg" viewBox="0 0 800 400">
+          <defs>
+            <marker id="arr-v1" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--c-velocity)"/>
+            </marker>
+            <marker id="arr-v2" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="6" markerHeight="6" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--c-coin2)"/>
+            </marker>
+          </defs>
+          <!-- Grid -->
+          <g id="animGrid" stroke="var(--c-grid)" stroke-width="1"></g>
+          <!-- Kugel 1 -->
+          <g id="coin1Group" class="grab-cursor">
+            <circle id="coin1" r="25" fill="var(--c-coin1)" stroke="var(--c-text)" stroke-width="2"/>
+            <text y="5" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="14" font-weight="800" pointer-events="none">m₁</text>
+            <!-- Vektor Gruppe -->
+            <g id="v1Group" class="grab-cursor">
+              <line id="v1Line" stroke="var(--c-velocity)" stroke-width="4" stroke-linecap="round" marker-end="url(#arr-v1)"/>
+              <!-- Unsichtbarer Hit-Area Kreis für bessere Touch-Bedienung -->
+              <circle id="v1Hit" r="20" fill="transparent" />
+              <!-- Sichtbarer Handle -->
+              <circle id="v1Handle" r="6" fill="var(--c-velocity)" stroke="white" stroke-width="2"/>
+            </g>
+          </g>
+          <!-- Kugel 2 -->
+          <g id="coin2Group" class="grab-cursor">
+            <circle id="coin2" r="25" fill="var(--c-coin2)" stroke="var(--c-text)" stroke-width="2"/>
+            <text y="5" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="14" font-weight="800" pointer-events="none">m₂</text>
+            <!-- Vektor Gruppe -->
+            <g id="v2Group" class="grab-cursor">
+              <line id="v2Line" stroke="var(--c-coin2)" stroke-width="4" stroke-linecap="round" marker-end="url(#arr-v2)"/>
+              <!-- Unsichtbarer Hit-Area Kreis -->
+              <circle id="v2Hit" r="20" fill="transparent" />
+              <!-- Sichtbarer Handle -->
+              <circle id="v2Handle" r="6" fill="var(--c-coin2)" stroke="white" stroke-width="2"/>
+            </g>
+          </g>
+        </svg>
+
+        <div class="stage__controls">
+          <button class="btn btn--play" id="playBtn" type="button">▶ Play</button>
+          <div class="ext-speed" aria-label="Tempo der Animation">
+            <span class="ext-speed__label">Tempo</span>
+            <input class="ext-speed__range" type="range" id="extSpeedRange" min="0.10" max="1.00" step="0.05" value="0.25">
+            <span class="ext-speed__value" id="extSpeedValue">25%</span>
+          </div>
+          <button class="btn btn--secondary" id="resetPosBtn" type="button">Positionen</button>
+          <button class="btn btn--secondary" id="resetBtn" type="button">Reset</button>
+        </div>
+      </div>
+
+      <!-- Toggle v / p -->
+      <div class="ext-modebar" aria-label="Auswahl: Geschwindigkeit oder Impuls">
+        <span class="ext-modebar__label">Vektor-Diagramm:</span>
+        <button class="ext-modebar__btn ext-modebar__btn--active" id="modeMomentumBtn" type="button">Impuls (p)</button>
+        <button class="ext-modebar__btn" id="modeVelocityBtn" type="button">Geschwindigkeit (v)</button>
+      </div>
+
+      <!-- Vector Views -->
+      <div class="vector-views">
+        <!-- VORHER -->
+        <div class="vector-view">
+          <div class="vector-view__title" id="titleBefore">Vor dem Stoß</div>
+          <svg class="vector-view__svg" id="svgBefore" viewBox="0 0 400 280">
+            <defs>
+              <marker id="m-p1" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--c-coin1)"/>
+              </marker>
+              <marker id="m-p2" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--c-coin2)"/>
+              </marker>
+              <marker id="m-ptot" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--c-result)"/>
+              </marker>
+            </defs>
+            <g id="beforeGrid" stroke="var(--c-grid)" stroke-width="1"></g>
+            <!-- Vektoren -->
+            <line id="beforeP1" stroke="var(--c-coin1)" stroke-width="4" stroke-linecap="round" marker-end="url(#m-p1)"/>
+            <line id="beforeP2" stroke="var(--c-coin2)" stroke-width="4" stroke-linecap="round" stroke-dasharray="6,3" marker-end="url(#m-p2)"/>
+            <line id="beforePtot" stroke="var(--c-result)" stroke-width="5" stroke-opacity="0.5" stroke-linecap="round" marker-end="url(#m-ptot)"/>
+            <circle cx="50" cy="230" r="3" fill="var(--c-text)"/>
+            <!-- Labels -->
+            <text id="lbl-b-p1" font-size="12" font-weight="800" fill="var(--c-coin1)">p₁</text>
+            <text id="lbl-b-p2" font-size="12" font-weight="800" fill="var(--c-coin2)">p₂</text>
+            <text id="lbl-b-ptot" font-size="12" font-weight="800" fill="var(--c-result)">Summe</text>
+            <text id="beforeScaleHint" x="390" y="270" text-anchor="end" font-size="10" fill="var(--c-muted)">Scale</text>
+          </svg>
+        </div>
+
+        <!-- NACHHER -->
+        <div class="vector-view">
+          <div class="vector-view__title" id="titleAfter">Nach dem Stoß</div>
+          <svg class="vector-view__svg" id="svgAfter" viewBox="0 0 400 280">
+            <defs>
+              <marker id="m-p1a" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--c-coin1)"/>
+              </marker>
+              <marker id="m-p2a" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--c-coin2)"/>
+              </marker>
+              <marker id="m-ptota" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="strokeWidth" markerWidth="5" markerHeight="5" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--c-result)"/>
+              </marker>
+            </defs>
+            <g id="afterGrid" stroke="var(--c-grid)" stroke-width="1"></g>
+            <text id="afterHint" x="200" y="140" text-anchor="middle" fill="var(--c-muted)" font-size="13">Animation starten...</text>
+            <!-- Referenz (Summe Vorher) -->
+            <line id="afterRefSum" stroke="var(--c-result)" stroke-width="5" stroke-opacity="0.2" stroke-linecap="round"/>
+            <!-- Vektoren Nachher -->
+            <line id="afterP1" stroke="var(--c-coin1)" stroke-width="4" stroke-linecap="round" marker-end="url(#m-p1a)" opacity="0"/>
+            <line id="afterP2" stroke="var(--c-coin2)" stroke-width="4" stroke-linecap="round" marker-end="url(#m-p2a)" opacity="0"/>
+            <line id="afterSum" stroke="var(--c-result)" stroke-width="3" stroke-linecap="round" stroke-dasharray="4,4" marker-end="url(#m-ptota)" opacity="0"/>
+            <circle cx="50" cy="230" r="3" fill="var(--c-text)"/>
+            <text id="lbl-a-p1" font-size="12" font-weight="800" fill="var(--c-coin1)" opacity="0">p₁'</text>
+            <text id="lbl-a-p2" font-size="12" font-weight="800" fill="var(--c-coin2)" opacity="0">p₂'</text>
+            <text id="lbl-a-sum" font-size="12" font-weight="800" fill="var(--c-result)" opacity="0">Summe'</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls Sidebar -->
+    <aside class="panel">
+      <div class="panel__section">
+        <div class="panel__title">Körper 1 (Blau)</div>
+        <div class="coin-config">
+          <div class="control-group">
+            <div class="control-label"><span>Masse</span><span class="control-value" id="val-m1">20 g</span></div>
+            <div class="control-row">
+              <input type="range" id="range-m1" min="10" max="100" step="5" value="20">
+              <input type="number" id="num-m1" value="20">
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label"><span>Geschwindigkeit</span><span class="control-value" id="val-v1">4,0 m/s</span></div>
+            <div class="control-row">
+              <input type="range" id="range-v1" min="0" max="10" step="0.5" value="4">
+              <input type="number" id="num-v1" value="4">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel__section">
+        <div class="panel__title">Körper 2 (Grün)</div>
+        <div class="coin-config">
+          <div class="control-group">
+            <div class="control-label"><span>Masse</span><span class="control-value" id="val-m2">20 g</span></div>
+            <div class="control-row">
+              <input type="range" id="range-m2" min="10" max="100" step="5" value="20">
+              <input type="number" id="num-m2" value="20">
+            </div>
+          </div>
+          <div class="control-group">
+            <div class="control-label"><span>Geschwindigkeit</span><span class="control-value" id="val-v2">0,0 m/s</span></div>
+            <div class="control-row">
+              <input type="range" id="range-v2" min="0" max="10" step="0.5" value="0">
+              <input type="number" id="num-v2" value="0">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel__section">
+        <div class="panel__title">Werte</div>
+        <div style="font-size: 13px; line-height: 1.6;">
+          <div style="display:flex; justify-content:space-between;">
+            <span>p₁</span><strong id="disp-p1">0,08 Ns</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between;">
+            <span>p₂</span><strong id="disp-p2">0,00 Ns</strong>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px solid var(--c-border);">
+            <span>p_ges</span><strong id="disp-ptot" style="color:var(--c-result)">0,08 Ns</strong>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    /**
+     * LeKo-AI Refactored Physics Engine
+     * Credo: Stability before Features.
+     */
+
+    // --- CONFIG ---
+    const CFG = {
+      scaleNs: 600,    // Pixel pro Ns
+      scaleV: 50,      // Pixel pro m/s
+      gridStep: 40,    // Grid Size in px
+      origin: { x: 50, y: 230 }, // Ursprung der Vektordiagramme
+      baseSpeed: 100,  // Basisgeschwindigkeit der Animation
+      vecScale: 15     // Skalierung der Vektoren auf der Stage (1m/s = 15px)
+    };
+
+    // --- STATE ---
+    const state = {
+      m1: 0.02, m2: 0.02,
+      v1: 4.0, v2: 0.0,
+      angle1: 0, angle2: 0, // Grad
+      
+      // Positionen
+      pos1: { x: 200, y: 200 },
+      pos2: { x: 500, y: 200 },
+      
+      // Runtime
+      isPlaying: false,
+      isPaused: false,
+      timeScale: 0.25,
+      vectorMode: 'momentum', // 'momentum' | 'velocity'
+      
+      // Simulation Snapshot
+      sim: {
+        p1: {x:0, y:0}, p2: {x:0, y:0},
+        v1: {x:0, y:0}, v2: {x:0, y:0},
+        collided: false,
+        resV1: {x:0, y:0}, resV2: {x:0, y:0} // Resultierende Geschwindigkeiten
+      }
+    };
+
+    // --- DOM CACHE ---
+    const D = {
+      svg: document.getElementById('animationSvg'),
+      c1: document.getElementById('coin1Group'),
+      c2: document.getElementById('coin2Group'),
+      v1Line: document.getElementById('v1Line'),
+      v1Hand: document.getElementById('v1Handle'),
+      v1Hit: document.getElementById('v1Hit'),
+      v2Line: document.getElementById('v2Line'),
+      v2Hand: document.getElementById('v2Handle'),
+      v2Hit: document.getElementById('v2Hit'),
+      
+      // Inputs
+      inM1: { r: document.getElementById('range-m1'), n: document.getElementById('num-m1'), v: document.getElementById('val-m1') },
+      inM2: { r: document.getElementById('range-m2'), n: document.getElementById('num-m2'), v: document.getElementById('val-m2') },
+      inV1: { r: document.getElementById('range-v1'), n: document.getElementById('num-v1'), v: document.getElementById('val-v1') },
+      inV2: { r: document.getElementById('range-v2'), n: document.getElementById('num-v2'), v: document.getElementById('val-v2') },
+      
+      // Display
+      dP1: document.getElementById('disp-p1'),
+      dP2: document.getElementById('disp-p2'),
+      dPTot: document.getElementById('disp-ptot'),
+      
+      // Vector Views
+      svgBefore: document.getElementById('svgBefore'),
+      svgAfter: document.getElementById('svgAfter'),
+      vecB: {
+        p1: document.getElementById('beforeP1'),
+        p2: document.getElementById('beforeP2'),
+        ptot: document.getElementById('beforePtot'),
+        l1: document.getElementById('lbl-b-p1'),
+        l2: document.getElementById('lbl-b-p2'),
+        lt: document.getElementById('lbl-b-ptot')
+      },
+      vecA: {
+        p1: document.getElementById('afterP1'),
+        p2: document.getElementById('afterP2'),
+        sum: document.getElementById('afterSum'),
+        ref: document.getElementById('afterRefSum'),
+        hint: document.getElementById('afterHint'),
+        l1: document.getElementById('lbl-a-p1'),
+        l2: document.getElementById('lbl-a-p2'),
+        ls: document.getElementById('lbl-a-sum')
+      },
+      
+      // Buttons
+      btnPlay: document.getElementById('playBtn'),
+      btnResetPos: document.getElementById('resetPosBtn'),
+      btnResetAll: document.getElementById('resetBtn'),
+      btnModeP: document.getElementById('modeMomentumBtn'),
+      btnModeV: document.getElementById('modeVelocityBtn'),
+      inpSpeed: document.getElementById('extSpeedRange'),
+      valSpeed: document.getElementById('extSpeedValue')
+    };
+
+    // --- HELPERS ---
+    const toRad = d => d * Math.PI / 180;
+    const toDeg = r => r * 180 / Math.PI;
+    const fmt = (n, d=2) => n.toLocaleString('de-DE', {minimumFractionDigits:d, maximumFractionDigits:d});
+    const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+    // --- CORE LOGIC ---
+
+    function updateStateFromInputs() {
+      // Berechne aktuelle Vektoren basierend auf Winkel & Betrag
+      const rad1 = toRad(state.angle1);
+      const rad2 = toRad(state.angle2);
+      
+      state.sim.v1 = { x: state.v1 * Math.cos(rad1), y: state.v1 * Math.sin(rad1) };
+      state.sim.v2 = { x: state.v2 * Math.cos(rad2), y: state.v2 * Math.sin(rad2) };
+      
+      // Positionen updaten (nur wenn nicht gespielt wird)
+      if(!state.isPlaying && !state.isPaused) {
+        state.sim.p1 = { ...state.pos1 };
+        state.sim.p2 = { ...state.pos2 };
+        state.sim.collided = false;
+      }
+      
+      render();
+    }
+
+    function calculateCollision() {
+      // 2D Elastischer Stoß
+      const dx = state.sim.p2.x - state.sim.p1.x;
+      const dy = state.sim.p2.y - state.sim.p1.y;
+      const dist = Math.hypot(dx, dy);
+      
+      if(dist === 0) return; // Prevent div by zero
+
+      // Normalen- und Tangentialvektor
+      const nx = dx / dist;
+      const ny = dy / dist;
+      const tx = -ny;
+      const ty = nx;
+
+      // Zerlegung der Geschwindigkeiten
+      const v1n = state.sim.v1.x * nx + state.sim.v1.y * ny;
+      const v1t = state.sim.v1.x * tx + state.sim.v1.y * ty;
+      const v2n = state.sim.v2.x * nx + state.sim.v2.y * ny;
+      const v2t = state.sim.v2.x * tx + state.sim.v2.y * ty;
+
+      // 1D Stoß entlang der Normalen
+      const m1 = state.m1;
+      const m2 = state.m2;
+      
+      const v1n_new = (v1n * (m1 - m2) + 2 * m2 * v2n) / (m1 + m2);
+      const v2n_new = (v2n * (m2 - m1) + 2 * m1 * v1n) / (m1 + m2);
+
+      // Rücktransformation
+      state.sim.resV1.x = v1n_new * nx + v1t * tx;
+      state.sim.resV1.y = v1n_new * ny + v1t * ty;
+      state.sim.resV2.x = v2n_new * nx + v2t * tx;
+      state.sim.resV2.y = v2n_new * ny + v2t * ty;
+      
+      state.sim.collided = true;
+    }
+
+    // --- RENDERER ---
+
+    function setArrow(el, x1, y1, x2, y2, visible=true) {
+      if(!visible || (Math.abs(x1-x2)<0.1 && Math.abs(y1-y2)<0.1)) {
+        el.setAttribute('opacity', 0);
+        return;
+      }
+      el.setAttribute('x1', x1); el.setAttribute('y1', y1);
+      el.setAttribute('x2', x2); el.setAttribute('y2', y2);
+      el.setAttribute('opacity', 1);
+    }
+
+    function setLabel(el, x, y, txt, visible=true) {
+      if(!visible) { el.setAttribute('opacity', 0); return; }
+      el.setAttribute('x', x); el.setAttribute('y', y);
+      el.textContent = txt;
+      el.setAttribute('opacity', 1);
+    }
+
+    function render() {
+      // 1. Animation Stage
+      D.c1.setAttribute('transform', `translate(${state.sim.p1.x}, ${state.sim.p1.y})`);
+      D.c2.setAttribute('transform', `translate(${state.sim.p2.x}, ${state.sim.p2.y})`);
+      
+      // Radius basierend auf Masse (visueller Effekt)
+      const r1 = 20 + state.m1 * 500; 
+      const r2 = 20 + state.m2 * 500;
+      D.c1.querySelector('circle').setAttribute('r', r1);
+      D.c2.querySelector('circle').setAttribute('r', r2);
+
+      // Vektoren an den Kugeln
+      const vScale = CFG.vecScale; 
+      const v1x = (state.isPlaying ? state.sim.v1.x : state.v1 * Math.cos(toRad(state.angle1))) * vScale;
+      const v1y = (state.isPlaying ? state.sim.v1.y : state.v1 * Math.sin(toRad(state.angle1))) * vScale;
+      const v2x = (state.isPlaying ? state.sim.v2.x : state.v2 * Math.cos(toRad(state.angle2))) * vScale;
+      const v2y = (state.isPlaying ? state.sim.v2.y : state.v2 * Math.sin(toRad(state.angle2))) * vScale;
+
+      D.v1Line.setAttribute('x2', v1x); D.v1Line.setAttribute('y2', v1y);
+      D.v1Hand.setAttribute('cx', v1x); D.v1Hand.setAttribute('cy', v1y);
+      D.v1Hit.setAttribute('cx', v1x); D.v1Hit.setAttribute('cy', v1y); // Hit Area mitbewegen!
+
+      D.v2Line.setAttribute('x2', v2x); D.v2Line.setAttribute('y2', v2y);
+      D.v2Hand.setAttribute('cx', v2x); D.v2Hand.setAttribute('cy', v2y);
+      D.v2Hit.setAttribute('cx', v2x); D.v2Hit.setAttribute('cy', v2y); // Hit Area mitbewegen!
+
+      // Handles ausblenden während Play
+      const op = state.isPlaying ? 0 : 1;
+      D.v1Hand.setAttribute('opacity', op); D.v2Hand.setAttribute('opacity', op);
+      // Hit Areas auch deaktivieren (pointer-events)
+      D.v1Hit.style.pointerEvents = state.isPlaying ? 'none' : 'all';
+      D.v2Hit.style.pointerEvents = state.isPlaying ? 'none' : 'all';
+
+      // 2. Vector Views
+      renderVectorDiagrams();
+
+      // 3. Text Werte
+      const p1Abs = state.m1 * Math.hypot(state.sim.v1.x, state.sim.v1.y);
+      const p2Abs = state.m2 * Math.hypot(state.sim.v2.x, state.sim.v2.y);
+      // Gesamtimpuls (Vektoraddition Betrag)
+      const pTotX = state.m1 * state.sim.v1.x + state.m2 * state.sim.v2.x;
+      const pTotY = state.m1 * state.sim.v1.y + state.m2 * state.sim.v2.y;
+      const pTotAbs = Math.hypot(pTotX, pTotY);
+
+      D.dP1.textContent = fmt(p1Abs) + " Ns";
+      D.dP2.textContent = fmt(p2Abs) + " Ns";
+      D.dPTot.textContent = fmt(pTotAbs) + " Ns";
+    }
+
+    function renderVectorDiagrams() {
+      const isMom = state.vectorMode === 'momentum';
+      const scale = isMom ? CFG.scaleNs : CFG.scaleV;
+      const ox = CFG.origin.x;
+      const oy = CFG.origin.y;
+
+      // Startwerte (vor Stoß)
+      // Wir nehmen hier immer die Initialwerte aus dem State, nicht die laufende Sim
+      const iv1x = state.v1 * Math.cos(toRad(state.angle1));
+      const iv1y = state.v1 * Math.sin(toRad(state.angle1));
+      const iv2x = state.v2 * Math.cos(toRad(state.angle2));
+      const iv2y = state.v2 * Math.sin(toRad(state.angle2));
+
+      const m1 = isMom ? state.m1 : 1;
+      const m2 = isMom ? state.m2 : 1;
+
+      // Vektoren Vorher
+      const vec1x = iv1x * m1 * scale;
+      const vec1y = iv1y * m1 * scale;
+      const vec2x = iv2x * m2 * scale;
+      const vec2y = iv2y * m2 * scale;
+
+      // Zeichnen Vorher (Spitze an Spitze)
+      // p1 vom Ursprung
+      setArrow(D.vecB.p1, ox, oy, ox+vec1x, oy+vec1y);
+      setLabel(D.vecB.l1, ox+vec1x/2, oy+vec1y/2 - 10, isMom ? "p₁" : "v₁");
+
+      // p2 an p1
+      setArrow(D.vecB.p2, ox+vec1x, oy+vec1y, ox+vec1x+vec2x, oy+vec1y+vec2y);
+      setLabel(D.vecB.l2, ox+vec1x+vec2x/2 + 10, oy+vec1y+vec2y/2, isMom ? "p₂" : "v₂");
+
+      // Summe
+      setArrow(D.vecB.ptot, ox, oy, ox+vec1x+vec2x, oy+vec1y+vec2y);
+      setLabel(D.vecB.lt, ox+(vec1x+vec2x)/2, oy+(vec1y+vec2y)/2 + 20, "Sum");
+
+      // Referenzpunkt für Nachher
+      const refX = ox + vec1x + vec2x;
+      const refY = oy + vec1y + vec2y;
+
+      // Zeichnen Nachher
+      if(!state.sim.collided) {
+        D.vecA.hint.setAttribute('opacity', 1);
+        [D.vecA.p1, D.vecA.p2, D.vecA.sum, D.vecA.l1, D.vecA.l2, D.vecA.ls].forEach(e => e.setAttribute('opacity', 0));
+        // Referenzlinie (Summe vorher)
+        setArrow(D.vecA.ref, ox, oy, refX, refY);
+        return;
+      }
+
+      D.vecA.hint.setAttribute('opacity', 0);
+
+      // Vektoren Nachher (berechnet aus Collision Result)
+      const res1x = state.sim.resV1.x * m1 * scale;
+      const res1y = state.sim.resV1.y * m1 * scale;
+      const res2x = state.sim.resV2.x * m2 * scale;
+      const res2y = state.sim.resV2.y * m2 * scale;
+
+      // p1'
+      setArrow(D.vecA.p1, ox, oy, ox+res1x, oy+res1y);
+      setLabel(D.vecA.l1, ox+res1x/2, oy+res1y/2 - 10, isMom ? "p₁'" : "v₁'");
+
+      // p2' an p1'
+      setArrow(D.vecA.p2, ox+res1x, oy+res1y, ox+res1x+res2x, oy+res1y+res2y);
+      setLabel(D.vecA.l2, ox+res1x+res2x/2 + 10, oy+res1y+res2y/2, isMom ? "p₂'" : "v₂'");
+
+      // Summe Nachher (gestrichelt)
+      setArrow(D.vecA.sum, ox, oy, ox+res1x+res2x, oy+res1y+res2y);
+      
+      // Referenz (Summe Vorher) - Ghost
+      setArrow(D.vecA.ref, ox, oy, refX, refY);
+    }
+
+    // --- ANIMATION LOOP ---
+    let lastTime = 0;
+    function loop(ts) {
+      if(!state.isPlaying) return;
+      if(!lastTime) lastTime = ts;
+      const dt = Math.min((ts - lastTime) / 1000, 0.05); // Cap dt
+      lastTime = ts;
+
+      // Bewegung
+      const speed = CFG.baseSpeed * state.timeScale;
+      state.sim.p1.x += state.sim.v1.x * speed * dt;
+      state.sim.p1.y += state.sim.v1.y * speed * dt;
+      state.sim.p2.x += state.sim.v2.x * speed * dt;
+      state.sim.p2.y += state.sim.v2.y * speed * dt;
+
+      // Kollision Check
+      const r1 = 20 + state.m1 * 500; 
+      const r2 = 20 + state.m2 * 500;
+      const dx = state.sim.p2.x - state.sim.p1.x;
+      const dy = state.sim.p2.y - state.sim.p1.y;
+      const dist = Math.hypot(dx, dy);
+
+      if(dist < (r1 + r2) && !state.sim.collided) {
+        calculateCollision();
+        // Setze neue Geschwindigkeiten
+        state.sim.v1 = { ...state.sim.resV1 };
+        state.sim.v2 = { ...state.sim.resV2 };
+      }
+
+      // Bounds Check (Stop Animation)
+      if(state.sim.p1.x < -50 || state.sim.p1.x > 850 || state.sim.p2.x < -50 || state.sim.p2.x > 850) {
+        state.isPlaying = false;
+        state.isPaused = false;
+        D.btnPlay.textContent = "▶ Nochmal";
+      }
+
+      render();
+      requestAnimationFrame(loop);
+    }
+
+    // --- INTERACTION ---
+    
+    // Dragging Logic
+    let dragTarget = null;
+    
+    D.svg.addEventListener('pointerdown', e => {
+      if(state.isPlaying) return;
+      
+      const t = e.target;
+      // Hit-Test für Gruppen oder direkte Elemente
+      if(t.closest('#coin1Group') && !t.closest('#v1Group')) dragTarget = 'c1';
+      else if(t.closest('#coin2Group') && !t.closest('#v2Group')) dragTarget = 'c2';
+      else if(t.closest('#v1Group')) dragTarget = 'v1';
+      else if(t.closest('#v2Group')) dragTarget = 'v2';
+      
+      if(dragTarget) {
+        D.svg.setPointerCapture(e.pointerId);
+        D.svg.classList.add('grabbing-cursor');
+        e.preventDefault();
+      }
+    });
+
+    D.svg.addEventListener('pointermove', e => {
+      if(!dragTarget) return;
+      const pt = getSvgPoint(e);
+      
+      if(dragTarget === 'c1') {
+        state.pos1 = { x: pt.x, y: pt.y };
+      } else if(dragTarget === 'c2') {
+        state.pos2 = { x: pt.x, y: pt.y };
+      } else if(dragTarget === 'v1') {
+        // Vektor berechnen: Maus - Kugelmitte
+        const dx = pt.x - state.pos1.x;
+        const dy = pt.y - state.pos1.y;
+        
+        // Winkel
+        state.angle1 = toDeg(Math.atan2(dy, dx));
+        
+        // Länge -> Geschwindigkeit (15px = 1m/s)
+        const len = Math.hypot(dx, dy);
+        state.v1 = clamp(len / CFG.vecScale, 0, 10);
+        
+        // Inputs live updaten
+        updateInputsFromState();
+      } else if(dragTarget === 'v2') {
+        const dx = pt.x - state.pos2.x;
+        const dy = pt.y - state.pos2.y;
+        state.angle2 = toDeg(Math.atan2(dy, dx));
+        const len = Math.hypot(dx, dy);
+        state.v2 = clamp(len / CFG.vecScale, 0, 10);
+        updateInputsFromState();
+      }
+      
+      updateStateFromInputs();
+    });
+
+    D.svg.addEventListener('pointerup', e => {
+      dragTarget = null;
+      D.svg.classList.remove('grabbing-cursor');
+      D.svg.releasePointerCapture(e.pointerId);
+    });
+
+    function getSvgPoint(e) {
+      const pt = D.svg.createSVGPoint();
+      pt.x = e.clientX; pt.y = e.clientY;
+      return pt.matrixTransform(D.svg.getScreenCTM().inverse());
+    }
+
+    // Input Bindings
+    function bindInput(key, stateKey, scale=1) {
+      const el = D[key];
+      const handler = (e) => {
+        state[stateKey] = parseFloat(e.target.value) / scale;
+        el.r.value = e.target.value;
+        el.n.value = e.target.value;
+        if(key.includes('M')) el.v.textContent = e.target.value + " g";
+        else el.v.textContent = parseFloat(e.target.value).toFixed(1) + " m/s";
+        updateStateFromInputs();
+      };
+      el.r.addEventListener('input', handler);
+      el.n.addEventListener('input', handler);
+    }
+
+    bindInput('inM1', 'm1', 1000);
+    bindInput('inM2', 'm2', 1000);
+    bindInput('inV1', 'v1', 1);
+    bindInput('inV2', 'v2', 1);
+
+    function updateInputsFromState() {
+      // Sync Inputs wenn per Drag geändert
+      D.inV1.r.value = state.v1; D.inV1.n.value = state.v1.toFixed(1); D.inV1.v.textContent = state.v1.toFixed(1)+" m/s";
+      D.inV2.r.value = state.v2; D.inV2.n.value = state.v2.toFixed(1); D.inV2.v.textContent = state.v2.toFixed(1)+" m/s";
+    }
+
+    // Buttons
+    D.btnPlay.addEventListener('click', () => {
+      if(state.isPlaying) {
+        state.isPlaying = false;
+        state.isPaused = true;
+        D.btnPlay.textContent = "▶ Weiter";
+      } else {
+        state.isPlaying = true;
+        state.isPaused = false;
+        lastTime = 0;
+        D.btnPlay.textContent = "⏸ Pause";
+        // Wenn Reset nötig war (Kugeln out of bounds), resetten wir implizit
+        if(state.sim.p1.x < 0 || state.sim.p1.x > 800) {
+           state.sim.p1 = {...state.pos1}; state.sim.p2 = {...state.pos2};
+           state.sim.collided = false;
+           updateStateFromInputs();
+        }
+        requestAnimationFrame(loop);
+      }
+    });
+
+    D.btnResetPos.addEventListener('click', () => {
+      state.isPlaying = false; state.isPaused = false;
+      D.btnPlay.textContent = "▶ Play";
+      state.pos1 = {x:200, y:200}; state.pos2 = {x:500, y:200};
+      updateStateFromInputs();
+    });
+
+    D.btnResetAll.addEventListener('click', () => {
+      location.reload(); // Hard Reset ist hier am saubersten
+    });
+
+    // Mode Toggle
+    const setMode = (m) => {
+      state.vectorMode = m;
+      D.btnModeP.classList.toggle('ext-modebar__btn--active', m === 'momentum');
+      D.btnModeV.classList.toggle('ext-modebar__btn--active', m === 'velocity');
+      render();
+    };
+    D.btnModeP.addEventListener('click', () => setMode('momentum'));
+    D.btnModeV.addEventListener('click', () => setMode('velocity'));
+
+    // Speed
+    D.inpSpeed.addEventListener('input', e => {
+      state.timeScale = parseFloat(e.target.value);
+      D.valSpeed.textContent = Math.round(state.timeScale*100)+"%";
+    });
+
+    // Init Grid
+    const grid = document.getElementById('animGrid');
+    for(let i=0; i<=800; i+=40) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", i); l.setAttribute("y1", 0); l.setAttribute("x2", i); l.setAttribute("y2", 400);
+      l.setAttribute("stroke-opacity", i%200===0?0.3:0.1);
+      grid.appendChild(l);
+    }
+    for(let i=0; i<=400; i+=40) {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", 0); l.setAttribute("y1", i); l.setAttribute("x2", 800); l.setAttribute("y2", i);
+      l.setAttribute("stroke-opacity", i%200===0?0.3:0.1);
+      grid.appendChild(l);
+    }
+
+    // Start
+    updateStateFromInputs();
+
+  </script>
+</body>
+</html>
 
