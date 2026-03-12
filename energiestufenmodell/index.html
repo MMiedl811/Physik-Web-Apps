@@ -81,6 +81,14 @@
             min-height: 60px; /* Fixe Mindesthöhe */
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
         .brand {
             display: flex;
             align-items: center;
@@ -106,6 +114,16 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+        }
+
+        .header-note {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            background: #eef2ff;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid #c7d2fe;
         }
 
         .unit-toggle {
@@ -471,18 +489,7 @@
 
         /* Absorption: Rainbow with black lines */
         .abs-spectrum-bg {
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(90deg, 
-                #7c3aed 0%,   /* UV */
-                #3b82f6 15%,  /* Blau */
-                #22c55e 35%,  /* Grün */
-                #eab308 55%,  /* Gelb */
-                #f97316 75%,  /* Orange */
-                #ef4444 90%,  /* Rot */
-                #991b1b 100%  /* IR */
-            );
-            opacity: 0.9;
+            display: none;
         }
 
         .spectrum-svg {
@@ -495,17 +502,19 @@
         .abs-line {
             stroke: #000000;
             stroke-width: 3;
-            opacity: 0;
-            transition: opacity 0.3s;
+            opacity: 1;
+            transition: opacity 0.3s, stroke-width 0.3s;
         }
-        .abs-line.show { opacity: 1; }
+        .abs-line.non-visible { stroke-dasharray: none; }
+        .abs-line.selected { opacity: 1; }
         .abs-line.highlight { stroke-width: 5; opacity: 1; }
 
         .em-line {
-            stroke-width: 4;
+            stroke-width: 4.5;
             opacity: 0;
             animation: fadeIn 0.5s forwards;
         }
+        .em-line.non-visible { stroke-dasharray: 6 4; stroke-linecap: round; }
         @keyframes fadeIn { to { opacity: 0.9; } }
 
         /* Responsive */
@@ -516,6 +525,14 @@
                 flex-direction: column;
                 height: auto;
                 gap: 10px;
+            }
+            .header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .header-actions {
+                width: 100%;
+                justify-content: flex-start;
             }
             .stage { min-height: 400px; order: -1; }
             .spectra { height: 200px; }
@@ -532,9 +549,12 @@
             <div class="brand-icon">⚛</div>
             <h1>Quanten-Labor</h1>
         </div>
-        <div class="unit-toggle">
-            <button class="unit-btn active" id="btn-ev">Elektronenvolt</button>
-            <button class="unit-btn" id="btn-j">Joule</button>
+        <div class="header-actions">
+            <div class="header-note">Spektren in eV · IR &lt; 1,6 · UV &gt; 3,3</div>
+            <div class="unit-toggle">
+                <button class="unit-btn active" id="btn-ev">Elektronenvolt</button>
+                <button class="unit-btn" id="btn-j">Joule</button>
+            </div>
         </div>
     </header>
 
@@ -549,7 +569,7 @@
             </div>
 
             <div class="input-group">
-                <label>Energie (eV)</label>
+                <label>Energie</label>
                 <div class="slider-container">
                     <input type="range" id="energy-slider" min="0" max="30" step="0.01" value="0">
                     <div class="number-row">
@@ -594,7 +614,7 @@
         <svg class="stage-svg" id="stage-svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid meet">
             <defs>
                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+                    <polygon points="0 0, 10 3.5, 0 7" fill="context-stroke" />
                 </marker>
             </defs>
             <g id="ladder-group"></g>
@@ -618,7 +638,7 @@
     <footer class="spectra">
         <div class="spectrum-card">
             <div class="spectrum-header">
-                <span>🌈</span> Absorption (Weißlicht)
+                <span>🌈</span> Absorption · aufgenommene Photonenergie
             </div>
             <div class="spectrum-body">
                 <div class="abs-spectrum-bg"></div>
@@ -627,7 +647,7 @@
         </div>
         <div class="spectrum-card">
             <div class="spectrum-header">
-                <span>💡</span> Emission (Gemessen)
+                <span>💡</span> Emission · abgegebene Photonenergie
             </div>
             <div class="spectrum-body" style="background: #111827;">
                 <svg class="spectrum-svg" id="em-svg" viewBox="0 0 400 100" preserveAspectRatio="none"></svg>
@@ -712,15 +732,36 @@ const ELEMENTS = {
     }
 };
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+const EV_TO_J = 1.602;
+const IR_MAX_EV = 1.6;
+const UV_MIN_EV = 3.3;
+const SPECTRUM_WIDTH = 400;
+const SPECTRUM_HEIGHT = 100;
+const SPECTRUM_LAYOUT = {
+    ir: 0.20,
+    visible: 0.60,
+    uv: 0.20
+};
+const SPECTRUM_VISIBLE_STOPS = [
+    { ev: 1.6, color: '#ef4444' },
+    { ev: 1.95, color: '#f97316' },
+    { ev: 2.25, color: '#eab308' },
+    { ev: 2.55, color: '#22c55e' },
+    { ev: 2.90, color: '#3b82f6' },
+    { ev: 3.30, color: '#8b5cf6' }
+];
+
 /* === STATE === */
 const state = {
     element: 'H',
     unit: 'eV',
     currentLevelIndex: 0,
     targetLevelIndex: null,
+    absorbedLevelIndex: null,
     energyIn: 0,
     energyOut: 0,
-    arrowPositions: []
+    emissionLines: []
 };
 
 /* === DOM === */
@@ -746,25 +787,156 @@ const dom = {
 };
 
 /* === HELPERS === */
-function formatEnergy(ev) {
-    if (state.unit === 'eV') return ev.toFixed(2) + ' eV';
-    const j = ev * 1.602;
-    return j.toFixed(2) + 'e-19 J';
+function getElementData() {
+    return ELEMENTS[state.element];
 }
 
-function getSpectralColor(ev) {
-    if (ev < 1.65) return '#ef4444';
-    if (ev < 2.00) return '#f97316';
-    if (ev < 2.50) return '#eab308';
-    if (ev < 2.80) return '#22c55e';
-    if (ev < 3.10) return '#3b82f6';
-    return '#8b5cf6';
+function clamp(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
+
+function createSvgEl(tag, attributes = {}, textContent = '') {
+    const node = document.createElementNS(SVG_NS, tag);
+    Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+    if (textContent !== '') node.textContent = textContent;
+    return node;
+}
+
+function formatEnergy(ev) {
+    if (state.unit === 'eV') return `${ev.toFixed(2)} eV`;
+    return `${(ev * EV_TO_J).toFixed(2)} ×10⁻¹⁹ J`;
+}
+
+function displayValueFromEv(ev) {
+    return state.unit === 'eV' ? ev : ev * EV_TO_J;
+}
+
+function evFromDisplayValue(value) {
+    return state.unit === 'eV' ? value : value / EV_TO_J;
+}
+
+function getDisplayedInputValue() {
+    const value = parseFloat(dom.input.value);
+    return Number.isFinite(value) ? value : 0;
+}
+
+function getInputEnergyEv() {
+    return evFromDisplayValue(getDisplayedInputValue());
+}
+
+function setInputFromEv(ev) {
+    const displayValue = displayValueFromEv(ev);
+    dom.slider.value = displayValue.toFixed(2);
+    dom.input.value = displayValue.toFixed(2);
+}
+
+function syncInputRange(ev = 0) {
+    const el = getElementData();
+    const maxDisplay = displayValueFromEv(el.maxSlider);
+
+    dom.slider.min = 0;
+    dom.input.min = 0;
+    dom.slider.max = maxDisplay.toFixed(2);
+    dom.input.max = maxDisplay.toFixed(2);
+    dom.slider.step = 0.01;
+    dom.input.step = 0.01;
+    dom.unitLabel.textContent = state.unit === 'eV' ? 'eV' : '×10⁻¹⁹ J';
+
+    setInputFromEv(clamp(ev, 0, el.maxSlider));
+}
+
+function setFeedback(type, message) {
+    dom.feedback.innerHTML = message;
+    dom.feedback.className = `feedback ${type}`;
+}
+
+function hexToRgb(hex) {
+    const clean = hex.replace('#', '');
+    return {
+        r: parseInt(clean.slice(0, 2), 16),
+        g: parseInt(clean.slice(2, 4), 16),
+        b: parseInt(clean.slice(4, 6), 16)
+    };
+}
+
+function rgbToHex({ r, g, b }) {
+    return `#${[r, g, b].map(value => value.toString(16).padStart(2, '0')).join('')}`;
+}
+
+function interpolateColor(startHex, endHex, ratio) {
+    const start = hexToRgb(startHex);
+    const end = hexToRgb(endHex);
+
+    return rgbToHex({
+        r: Math.round(start.r + (end.r - start.r) * ratio),
+        g: Math.round(start.g + (end.g - start.g) * ratio),
+        b: Math.round(start.b + (end.b - start.b) * ratio)
+    });
+}
+
+function getVisibleColor(ev) {
+    if (ev <= SPECTRUM_VISIBLE_STOPS[0].ev) return SPECTRUM_VISIBLE_STOPS[0].color;
+
+    for (let i = 0; i < SPECTRUM_VISIBLE_STOPS.length - 1; i++) {
+        const start = SPECTRUM_VISIBLE_STOPS[i];
+        const end = SPECTRUM_VISIBLE_STOPS[i + 1];
+
+        if (ev >= start.ev && ev <= end.ev) {
+            const ratio = (ev - start.ev) / (end.ev - start.ev);
+            return interpolateColor(start.color, end.color, ratio);
+        }
+    }
+
+    return SPECTRUM_VISIBLE_STOPS[SPECTRUM_VISIBLE_STOPS.length - 1].color;
+}
+
+function getVisibleColorName(ev) {
+    if (ev < 1.85) return 'rot';
+    if (ev < 2.10) return 'orange';
+    if (ev < 2.40) return 'gelb';
+    if (ev < 2.75) return 'grün';
+    if (ev < 3.10) return 'blau';
+    return 'violett';
 }
 
 function getRegionName(ev) {
-    if (ev < 1.65) return 'IR';
-    if (ev <= 3.10) return 'VIS';
+    if (ev < IR_MAX_EV) return 'IR';
+    if (ev <= UV_MIN_EV) return 'VIS';
     return 'UV';
+}
+
+function getPhotonHint(ev) {
+    const region = getRegionName(ev);
+    return region === 'VIS' ? `sichtbar (${getVisibleColorName(ev)})` : `${region} (nicht sichtbar)`;
+}
+
+function getSpectralColor(ev) {
+    const region = getRegionName(ev);
+    if (region === 'IR') return '#b91c1c';
+    if (region === 'UV') return '#7c3aed';
+    return getVisibleColor(ev);
+}
+
+function formatBoundary(ev) {
+    return `${ev.toFixed(1).replace('.', ',')} eV`;
+}
+
+function getSpectrumX(ev, maxEv = getElementData().maxSlider) {
+    const irWidth = SPECTRUM_WIDTH * SPECTRUM_LAYOUT.ir;
+    const visibleWidth = SPECTRUM_WIDTH * SPECTRUM_LAYOUT.visible;
+    const uvWidth = SPECTRUM_WIDTH * SPECTRUM_LAYOUT.uv;
+
+    if (ev <= IR_MAX_EV) {
+        return clamp((ev / IR_MAX_EV) * irWidth, 0, irWidth);
+    }
+
+    if (ev <= UV_MIN_EV) {
+        const visibleRatio = (ev - IR_MAX_EV) / Math.max(UV_MIN_EV - IR_MAX_EV, 0.0001);
+        return irWidth + clamp(visibleRatio, 0, 1) * visibleWidth;
+    }
+
+    const uvRatio = (ev - UV_MIN_EV) / Math.max(maxEv - UV_MIN_EV, 0.0001);
+    return irWidth + visibleWidth + clamp(uvRatio, 0, 1) * uvWidth;
 }
 
 function getY(levelIndex, totalLevels) {
@@ -772,10 +944,28 @@ function getY(levelIndex, totalLevels) {
     return 440 - (levelIndex * step);
 }
 
+function getTransitionTrackX(fromIdx, toIdx) {
+    const transitions = [];
+    const totalLevels = getElementData().levels.length;
+    const minX = 90;
+    const maxX = 310;
+
+    for (let from = totalLevels - 1; from >= 1; from--) {
+        for (let to = from - 1; to >= 0; to--) {
+            transitions.push(`${from}-${to}`);
+        }
+    }
+
+    const index = transitions.indexOf(`${fromIdx}-${toIdx}`);
+    if (index === -1 || transitions.length === 1) return (minX + maxX) / 2;
+
+    return minX + (index / (transitions.length - 1)) * (maxX - minX);
+}
+
 function updateCounter() {
     dom.counterIn.textContent = formatEnergy(state.energyIn);
     dom.counterOut.textContent = formatEnergy(state.energyOut);
-    
+
     const diff = Math.abs(state.energyIn - state.energyOut);
     if (state.energyIn > 0 && diff < 0.01) {
         dom.counterOut.classList.add('balanced');
@@ -793,44 +983,46 @@ function initApp() {
         dom.select.appendChild(opt);
     });
 
+    dom.select.value = state.element;
+    syncInputRange(0);
     renderLadder();
     renderAbsorptionSpectrum();
+    renderEmissionSpectrum();
     updateCounter();
     updateValidation();
+    updateRelaxationOptions();
 }
 
 /* === RENDERING === */
 function renderLadder() {
-    const el = ELEMENTS[state.element];
+    const el = getElementData();
     dom.ladderGroup.innerHTML = '';
-    
-    dom.slider.max = el.maxSlider;
-    dom.input.max = el.maxSlider;
 
     el.levels.forEach((lvl, idx) => {
         const y = getY(idx, el.levels.length);
-        
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', 50);
-        line.setAttribute('y1', y);
-        line.setAttribute('x2', 350);
-        line.setAttribute('y2', y);
-        line.setAttribute('class', idx === 0 ? 'level-line ground' : 'level-line');
+
+        const line = createSvgEl('line', {
+            x1: 50,
+            y1: y,
+            x2: 350,
+            y2: y,
+            class: idx === 0 ? 'level-line ground' : 'level-line'
+        });
         dom.ladderGroup.appendChild(line);
 
-        const txtId = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        txtId.setAttribute('x', 40);
-        txtId.setAttribute('y', y + 5);
-        txtId.setAttribute('class', 'level-label');
-        txtId.setAttribute('text-anchor', 'end');
-        txtId.textContent = lvl.id;
+        const txtId = createSvgEl('text', {
+            x: 40,
+            y: y + 5,
+            class: 'level-label',
+            'text-anchor': 'end'
+        }, lvl.id);
         dom.ladderGroup.appendChild(txtId);
 
-        const txtEv = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        txtEv.setAttribute('x', 360);
-        txtEv.setAttribute('y', y + 5);
-        txtEv.setAttribute('class', 'level-value');
-        txtEv.textContent = formatEnergy(lvl.ev);
+        const txtEv = createSvgEl('text', {
+            x: 360,
+            y: y + 5,
+            class: 'level-value'
+        }, formatEnergy(lvl.ev));
         dom.ladderGroup.appendChild(txtEv);
     });
 
@@ -838,7 +1030,7 @@ function renderLadder() {
 }
 
 function moveElectron(levelIndex) {
-    const el = ELEMENTS[state.element];
+    const el = getElementData();
     const y = getY(levelIndex, el.levels.length);
     dom.electron.setAttribute('cy', y);
     
@@ -846,110 +1038,264 @@ function moveElectron(levelIndex) {
     else dom.electron.classList.remove('excited');
 }
 
+function renderSpectrumBase(svg, mode) {
+    const isEmission = mode === 'em';
+    const maxEv = getElementData().maxSlider;
+    const irX = getSpectrumX(IR_MAX_EV, maxEv);
+    const uvX = getSpectrumX(UV_MIN_EV, maxEv);
+    const visibleWidth = Math.max(uvX - irX, 0);
+    const gradientId = `${mode}-gradient-${state.element}`;
+    const labelColor = isEmission ? '#e2e8f0' : '#334155';
+    const subLabelColor = isEmission ? '#94a3b8' : '#64748b';
+    const boundaryColor = isEmission ? 'rgba(255,255,255,0.55)' : '#475569';
+    const uvWidth = Math.max(SPECTRUM_WIDTH - uvX, 0);
+
+    svg.innerHTML = '';
+
+    const defs = createSvgEl('defs');
+    const gradient = createSvgEl('linearGradient', {
+        id: gradientId,
+        x1: irX,
+        y1: 0,
+        x2: uvX,
+        y2: 0,
+        gradientUnits: 'userSpaceOnUse'
+    });
+
+    SPECTRUM_VISIBLE_STOPS.forEach(stop => {
+        const offset = ((stop.ev - IR_MAX_EV) / (UV_MIN_EV - IR_MAX_EV)) * 100;
+        gradient.appendChild(createSvgEl('stop', {
+            offset: `${offset}%`,
+            'stop-color': stop.color,
+            'stop-opacity': isEmission ? 0.30 : 0.95
+        }));
+    });
+
+    defs.appendChild(gradient);
+    svg.appendChild(defs);
+    svg.appendChild(createSvgEl('rect', {
+        x: 0,
+        y: 0,
+        width: SPECTRUM_WIDTH,
+        height: SPECTRUM_HEIGHT,
+        fill: isEmission ? '#111827' : '#ffffff'
+    }));
+    svg.appendChild(createSvgEl('rect', {
+        x: 0,
+        y: 0,
+        width: irX,
+        height: SPECTRUM_HEIGHT,
+        fill: isEmission ? 'rgba(127,29,29,0.30)' : '#fee2e2'
+    }));
+    svg.appendChild(createSvgEl('rect', {
+        x: irX,
+        y: 0,
+        width: visibleWidth,
+        height: SPECTRUM_HEIGHT,
+        fill: `url(#${gradientId})`
+    }));
+    svg.appendChild(createSvgEl('rect', {
+        x: uvX,
+        y: 0,
+        width: uvWidth,
+        height: SPECTRUM_HEIGHT,
+        fill: isEmission ? 'rgba(91,33,182,0.28)' : '#ede9fe'
+    }));
+
+    [irX, uvX].forEach(x => {
+        svg.appendChild(createSvgEl('line', {
+            x1: x,
+            y1: 0,
+            x2: x,
+            y2: SPECTRUM_HEIGHT,
+            stroke: boundaryColor,
+            'stroke-dasharray': '4 4',
+            'stroke-width': 1.4
+        }));
+    });
+
+    [
+        { x: irX / 2, title: 'IR', subtitle: irX > 78 ? 'nicht sichtbar' : '' },
+        { x: irX + visibleWidth / 2, title: visibleWidth > 90 ? 'sichtbar' : 'VIS', subtitle: '' },
+        { x: uvX + uvWidth / 2, title: 'UV', subtitle: uvWidth > 78 ? 'nicht sichtbar' : '' }
+    ].forEach(({ x, title, subtitle }) => {
+        svg.appendChild(createSvgEl('text', {
+            x,
+            y: 16,
+            fill: labelColor,
+            'font-size': 11,
+            'font-weight': 700,
+            'text-anchor': 'middle'
+        }, title));
+
+        if (subtitle) {
+            svg.appendChild(createSvgEl('text', {
+                x,
+                y: 29,
+                fill: subLabelColor,
+                'font-size': 8,
+                'font-weight': 600,
+                'text-anchor': 'middle'
+            }, subtitle));
+        }
+    });
+
+    [
+        { x: irX, label: formatBoundary(IR_MAX_EV) },
+        { x: uvX, label: formatBoundary(UV_MIN_EV) }
+    ].forEach(({ x, label }) => {
+        svg.appendChild(createSvgEl('text', {
+            x,
+            y: 92,
+            fill: labelColor,
+            'font-size': 10,
+            'font-weight': 700,
+            'text-anchor': 'middle'
+        }, label));
+    });
+}
+
+function getEmissionGroups() {
+    const groups = new Map();
+
+    state.emissionLines.forEach(ev => {
+        const key = ev.toFixed(2);
+        if (!groups.has(key)) groups.set(key, { ev, count: 0 });
+        groups.get(key).count += 1;
+    });
+
+    return Array.from(groups.values()).sort((a, b) => a.ev - b.ev);
+}
+
 function renderAbsorptionSpectrum() {
-    const el = ELEMENTS[state.element];
-    dom.absSvg.innerHTML = '';
-    const scaleX = (ev) => (ev / el.maxSlider) * 400;
+    const el = getElementData();
+    const selectedIndex = state.currentLevelIndex === 0 ? state.targetLevelIndex : state.absorbedLevelIndex;
+
+    renderSpectrumBase(dom.absSvg, 'abs');
 
     el.levels.forEach((lvl, idx) => {
         if (idx === 0) return;
-        const x = scaleX(lvl.ev);
-        
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', x);
-        line.setAttribute('y1', 0);
-        line.setAttribute('x2', x);
-        line.setAttribute('y2', 100);
-        line.setAttribute('class', 'abs-line');
-        line.id = `abs-line-${idx}`;
+
+        const classes = ['abs-line'];
+        if (getRegionName(lvl.ev) !== 'VIS') classes.push('non-visible');
+        if (selectedIndex === idx) classes.push('selected');
+
+        const line = createSvgEl('line', {
+            x1: getSpectrumX(lvl.ev, el.maxSlider),
+            y1: 10,
+            x2: getSpectrumX(lvl.ev, el.maxSlider),
+            y2: 84,
+            class: classes.join(' '),
+            id: `abs-line-${idx}`
+        });
+
         dom.absSvg.appendChild(line);
     });
 }
 
-function addEmissionLine(ev) {
-    const el = ELEMENTS[state.element];
-    const scaleX = (val) => (val / el.maxSlider) * 400;
-    const x = scaleX(ev);
-    const color = getSpectralColor(ev);
+function renderEmissionSpectrum() {
+    const maxEv = getElementData().maxSlider;
 
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', x);
-    line.setAttribute('y1', 10);
-    line.setAttribute('x2', x);
-    line.setAttribute('y2', 90);
-    line.setAttribute('class', 'em-line');
-    line.setAttribute('stroke', color);
-    
-    dom.emSvg.appendChild(line);
+    renderSpectrumBase(dom.emSvg, 'em');
+
+    getEmissionGroups().forEach(({ ev, count }) => {
+        const classes = ['em-line'];
+        if (getRegionName(ev) !== 'VIS') classes.push('non-visible');
+
+        dom.emSvg.appendChild(createSvgEl('line', {
+            x1: getSpectrumX(ev, maxEv),
+            y1: 10,
+            x2: getSpectrumX(ev, maxEv),
+            y2: 84,
+            class: classes.join(' '),
+            stroke: getSpectralColor(ev),
+            'stroke-width': (4.5 + (count - 1) * 1.2).toFixed(1)
+        }));
+    });
+}
+
+function pulseAbsorptionLine(index) {
+    const line = document.getElementById(`abs-line-${index}`);
+    if (!line) return;
+    line.classList.add('highlight');
+    setTimeout(() => line.classList.remove('highlight'), 650);
 }
 
 /* === LOGIC === */
+
 function updateValidation() {
-    const val = parseFloat(dom.input.value);
-    const el = ELEMENTS[state.element];
-    const valStr = val.toFixed(2);
-    
+    if (state.currentLevelIndex !== 0) return;
+
+    const el = getElementData();
+    const displayValue = getDisplayedInputValue();
+    const inputEv = getInputEnergyEv();
+    const tolerance = 0.005;
     let matchIndex = -1;
+
     for (let i = 1; i < el.levels.length; i++) {
-        if (el.levels[i].ev.toFixed(2) === valStr) {
+        if (Math.abs(displayValueFromEv(el.levels[i].ev) - displayValue) < tolerance) {
             matchIndex = i;
             break;
         }
     }
 
-    if (matchIndex !== -1) {
-        state.targetLevelIndex = matchIndex;
-        dom.feedback.innerHTML = `✓ Treffer: ${el.levels[matchIndex].id}`;
-        dom.feedback.className = 'feedback valid';
-        dom.btnExcite.classList.add('ready');
-    } else {
-        state.targetLevelIndex = null;
-        dom.feedback.className = 'feedback invalid';
+    state.targetLevelIndex = matchIndex === -1 ? null : matchIndex;
+    renderAbsorptionSpectrum();
+
+    if (displayValue < tolerance) {
         dom.btnExcite.classList.remove('ready');
-        
-        if (val > el.levels[el.levels.length-1].ev) {
-             dom.feedback.textContent = "Energie zu hoch (Ionisierung)";
-        } else {
-             dom.feedback.textContent = `${formatEnergy(val)} passt nicht`;
-        }
+        setFeedback('neutral', 'Wähle eine Energie, die genau zu einem Energieniveau passt.');
+        return;
+    }
+
+    if (matchIndex !== -1) {
+        const level = el.levels[matchIndex];
+        dom.btnExcite.classList.add('ready');
+        setFeedback('valid', `✓ Treffer: ${level.id} · ${formatEnergy(level.ev)} · ${getPhotonHint(level.ev)}`);
+        return;
+    }
+
+    dom.btnExcite.classList.remove('ready');
+
+    if (inputEv > el.levels[el.levels.length - 1].ev + tolerance) {
+        setFeedback('invalid', 'Energie zu hoch (Ionisierung).');
+    } else {
+        setFeedback('invalid', `${formatEnergy(inputEv)} passt zu keinem Energieniveau.`);
     }
 }
 
 function excite() {
-    if (state.targetLevelIndex === null) return;
-    
+    if (state.targetLevelIndex === null || state.currentLevelIndex !== 0) return;
+
+    const el = getElementData();
+
+    state.energyIn += el.levels[state.targetLevelIndex].ev;
+    state.absorbedLevelIndex = state.targetLevelIndex;
+    state.currentLevelIndex = state.targetLevelIndex;
+
     dom.btnExcite.classList.remove('ready');
     dom.input.disabled = true;
     dom.slider.disabled = true;
     dom.select.disabled = true;
 
-    const absLine = document.getElementById(`abs-line-${state.targetLevelIndex}`);
-    if(absLine) {
-        absLine.classList.add('show', 'highlight');
-        setTimeout(() => absLine.classList.remove('highlight'), 500);
-    }
-
-    const el = ELEMENTS[state.element];
-    state.energyIn = el.levels[state.targetLevelIndex].ev;
-    updateCounter();
-
-    state.currentLevelIndex = state.targetLevelIndex;
-    state.arrowPositions = [];
+    renderAbsorptionSpectrum();
+    pulseAbsorptionLine(state.targetLevelIndex);
     moveElectron(state.currentLevelIndex);
+    updateCounter();
     updateRelaxationOptions();
-    
-    dom.feedback.textContent = "Angeregt! Wähle Übergang.";
-    dom.feedback.className = 'feedback neutral';
+    setFeedback('neutral', 'Angeregt! Wähle jetzt einen möglichen Rücksprung.');
 }
 
 function updateRelaxationOptions() {
     dom.relaxList.innerHTML = '';
-    const el = ELEMENTS[state.element];
+    const el = getElementData();
     const currentIdx = state.currentLevelIndex;
 
     if (currentIdx === 0) {
         dom.relaxHint.style.display = 'block';
-        dom.relaxHint.innerHTML = 'Grundzustand (E₀).';
+        dom.relaxHint.innerHTML = state.energyIn > 0
+            ? 'Grundzustand (E₀).<br>Neue Anregung oder Reset möglich.'
+            : 'Grundzustand (E₀).<br>Führe Energie zu.';
         dom.input.disabled = false;
         dom.slider.disabled = false;
         dom.select.disabled = false;
@@ -974,80 +1320,69 @@ function updateRelaxationOptions() {
             </div>
             <span class="relax-badge">${region}</span>
         `;
-        
+
         li.onclick = () => relax(i, deltaE);
         dom.relaxList.appendChild(li);
     }
 }
 
 function relax(targetIndex, energyDiff) {
-    const el = ELEMENTS[state.element];
     const currentIdx = state.currentLevelIndex;
-    
-    const arrowX = getSmartArrowPosition(currentIdx, targetIndex);
-    
-    drawArrow(currentIdx, targetIndex, getSpectralColor(energyDiff), arrowX);
-    
-    state.currentLevelIndex = targetIndex;
-    moveElectron(targetIndex);
-    
-    state.energyOut += energyDiff;
-    updateCounter();
-    
-    addEmissionLine(energyDiff);
-    updateRelaxationOptions();
-}
+    const arrowX = getTransitionTrackX(currentIdx, targetIndex);
 
-function getSmartArrowPosition(fromIdx, toIdx) {
-    const totalWidth = 320 - 80;
-    const step = totalWidth / 5;
-    const existingCount = state.arrowPositions.length;
-    const baseX = 80 + step * (existingCount % 5) + step / 2;
-    const offset = (fromIdx - toIdx) * 10;
-    
-    state.arrowPositions.push(baseX);
-    return baseX + offset;
+    drawArrow(currentIdx, targetIndex, getSpectralColor(energyDiff), arrowX);
+
+    state.currentLevelIndex = targetIndex;
+    state.energyOut += energyDiff;
+    state.emissionLines.push(energyDiff);
+
+    moveElectron(targetIndex);
+    updateCounter();
+    renderEmissionSpectrum();
+    updateRelaxationOptions();
+
+    if (targetIndex === 0) {
+        setFeedback('neutral', 'Grundzustand erreicht. Du kannst erneut anregen oder resetten.');
+    } else {
+        setFeedback('neutral', `Photon abgegeben: ${formatEnergy(energyDiff)} · ${getPhotonHint(energyDiff)}`);
+    }
 }
 
 function drawArrow(fromIdx, toIdx, color, x) {
-    const el = ELEMENTS[state.element];
+    const el = getElementData();
     const y1 = getY(fromIdx, el.levels.length);
     const y2 = getY(toIdx, el.levels.length);
 
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('d', `M ${x} ${y1} L ${x} ${y2}`);
-    path.setAttribute('stroke', color);
-    path.setAttribute('class', 'arrow-path');
+    const path = createSvgEl('path', {
+        d: `M ${x} ${y1} L ${x} ${y2}`,
+        stroke: color,
+        class: 'arrow-path',
+        'marker-end': 'url(#arrowhead)'
+    });
+
     dom.arrowsGroup.appendChild(path);
 }
 
 function resetSystem() {
     state.currentLevelIndex = 0;
     state.targetLevelIndex = null;
+    state.absorbedLevelIndex = null;
     state.energyIn = 0;
     state.energyOut = 0;
-    state.arrowPositions = [];
-    
+    state.emissionLines = [];
+
     dom.input.disabled = false;
     dom.slider.disabled = false;
     dom.select.disabled = false;
-    dom.input.value = 0;
-    dom.slider.value = 0;
-    
     dom.arrowsGroup.innerHTML = '';
-    dom.emSvg.innerHTML = '';
-    
-    document.querySelectorAll('.abs-line').forEach(l => {
-        l.classList.remove('show', 'highlight');
-    });
-    
-    moveElectron(0);
-    updateRelaxationOptions();
+
+    syncInputRange(0);
+    renderLadder();
+    renderAbsorptionSpectrum();
+    renderEmissionSpectrum();
     updateCounter();
-    updateValidation();
-    
-    dom.feedback.textContent = "System zurückgesetzt";
-    dom.feedback.className = 'feedback neutral';
+    updateRelaxationOptions();
+    setFeedback('neutral', 'System zurückgesetzt. Wähle eine neue Energie.');
 }
 
 /* === EVENTS === */
@@ -1064,34 +1399,30 @@ dom.input.addEventListener('input', (e) => {
 dom.select.addEventListener('change', (e) => {
     state.element = e.target.value;
     resetSystem();
-    renderLadder();
-    renderAbsorptionSpectrum();
 });
 
 dom.btnExcite.addEventListener('click', excite);
 dom.btnReset.addEventListener('click', resetSystem);
 
-dom.btnEv.addEventListener('click', () => {
-    state.unit = 'eV';
-    dom.btnEv.classList.add('active');
-    dom.btnJ.classList.remove('active');
-    dom.unitLabel.textContent = 'eV';
-    renderLadder();
-    updateRelaxationOptions();
-    updateCounter();
-    updateValidation();
-});
+function updateDisplayUnit(unit) {
+    if (state.unit === unit) return;
 
-dom.btnJ.addEventListener('click', () => {
-    state.unit = 'J';
-    dom.btnJ.classList.add('active');
-    dom.btnEv.classList.remove('active');
-    dom.unitLabel.textContent = 'J';
+    const currentInputEv = getInputEnergyEv();
+    state.unit = unit;
+
+    dom.btnEv.classList.toggle('active', unit === 'eV');
+    dom.btnJ.classList.toggle('active', unit === 'J');
+
+    syncInputRange(currentInputEv);
     renderLadder();
-    updateRelaxationOptions();
+    renderAbsorptionSpectrum();
+    renderEmissionSpectrum();
     updateCounter();
-    updateValidation();
-});
+    updateRelaxationOptions();
+}
+
+dom.btnEv.addEventListener('click', () => updateDisplayUnit('eV'));
+dom.btnJ.addEventListener('click', () => updateDisplayUnit('J'));
 
 /* === START === */
 initApp();
@@ -1099,4 +1430,3 @@ initApp();
 </script>
 </body>
 </html>
-
