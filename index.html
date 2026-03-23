@@ -1,112 +1,177 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physik Applets – Matthias Miedl</title>
-    <style>
-        :root {
-            --bg-color: #f4f7f9;
-            --card-bg: #ffffff;
-            --text-color: #2c3e50;
-            --accent-color: #007aff;
-            --hover-bg: #f0f0f0;
-            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Physik Applets – Matthias Miedl</title>
+  <style>
+    :root {
+      --bg-color: #f4f7f9;
+      --card-bg: #ffffff;
+      --text-color: #2c3e50;
+      --accent-color: #007aff;
+      --hover-bg: #f0f0f0;
+      --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        body {
-            font-family: var(--font-main);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: var(--font-main);
+      background: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-        header { text-align: center; margin-bottom: 40px; margin-top: 20px; }
-        h1 { font-size: 2.2rem; font-weight: 800; margin: 0; color: var(--text-color); }
-        p { color: #7f8c8d; margin-top: 10px; font-size: 1.1rem; }
+    header {
+      text-align: center;
+      margin: 20px 0 40px;
+    }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-            gap: 20px;
-            width: 100%;
-            max-width: 1100px;
-        }
+    h1 {
+      margin: 0;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text-color);
+    }
 
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            text-decoration: none;
-            color: var(--text-color);
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            transition: all 0.2s ease-in-out;
-            border: 1px solid rgba(0,0,0,0.03);
-        }
+    p {
+      margin: 10px 0 0;
+      color: #7f8c8d;
+      font-size: 1.1rem;
+    }
 
-        @media (hover: hover) {
-            .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); border-color: var(--accent-color); }
-        }
+    .grid {
+      width: 100%;
+      max-width: 1100px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
 
-        .card:active { transform: scale(0.95); background-color: var(--hover-bg); }
-        .card-icon { font-size: 3.5rem; margin-bottom: 15px; }
-        .card-title { font-size: 1.1rem; font-weight: 700; line-height: 1.3; }
+    .card {
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+      padding: 30px;
+      text-align: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      user-select: none;
+    }
 
-        footer { margin-top: 60px; padding-bottom: 30px; font-size: 0.9rem; color: #95a5a6; }
-    </style>
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+      border-color: var(--accent-color);
+    }
+
+    .card:active {
+      transform: scale(0.97);
+      background: var(--hover-bg);
+    }
+
+    .card-icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      line-height: 1;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-bottom: 30px;
+      font-size: 0.9rem;
+      color: #95a5a6;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .card {
+        min-height: 160px;
+        padding: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <h1>Physik Interaktiv</h1>
-        <p>Digitale Lernumgebungen für das iPad</p>
-    </header>
+  <header>
+    <h1>Physik Interaktiv</h1>
+    <p>Digitale Lernumgebungen für das iPad</p>
+  </header>
 
-    <main class="grid" id="app-grid"></main>
+  <main class="grid">
+    <div class="card">
+      <div class="card-icon">🎮</div>
+      <div class="card-title">Klasse 8 Quiz zu Geschwindigkeit</div>
+    </div>
 
-    <footer>
-        &copy; <span id="year"></span> – mmiedl811.github.io
-    </footer>
+    <div class="card">
+      <div class="card-icon">🏎️</div>
+      <div class="card-title">Geschwindigkeitsänderung</div>
+    </div>
 
-    <script>
-        // HIER SIND DEINE THEMEN:
-        const myApps = [
-                      { title: "Geschwindigkeitsänderung", path: "v_aenderung", icon: "🏎️" },
-                      { title: "Energiestufenmodell", path: "energiestufenmodell", icon: "⚛️" },
-                      { title: "Richtungsänderung nach Stoß", path: "impuls", icon: "↗️" },
-                      { title: "Größe Impuls", path: "impulsdiagramm", icon: "💥" },
-                      { title: "Bewegungsdiagramme", path: "diagramme", icon: "📈" },
-                      { title: "Schwingungen", path: "schwingungen", icon: "🪶" },
-                    { title: "Klasse 8 Quiz zu Geschwindigkeit", path: "quiz", icon: "🎮" }
-];
+    <div class="card">
+      <div class="card-icon">⚛️</div>
+      <div class="card-title">Energiestufenmodell</div>
+    </div>
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const grid = document.getElementById('app-grid');
-            document.getElementById('year').textContent = new Date().getFullYear();
+    <div class="card">
+      <div class="card-icon">↗️</div>
+      <div class="card-title">Richtungsänderung nach Stoß</div>
+    </div>
 
-            myApps.forEach(app => {
-                const card = document.createElement('a');
-                card.href = app.path + "/"; 
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="card-icon">${app.icon}</div>
-                    <div class="card-title">${app.title}</div>
-                `;
-                grid.appendChild(card);
-            });
-        });
-    </script>
+    <div class="card">
+      <div class="card-icon">💥</div>
+      <div class="card-title">Größe Impuls</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">📈</div>
+      <div class="card-title">Bewegungsdiagramme</div>
+    </div>
+
+    <div class="card">
+      <div class="card-icon">🪶</div>
+      <div class="card-title">Schwingungen</div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2026 – mmiedl811.github.io
+  </footer>
+
 </body>
 </html>
