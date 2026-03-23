@@ -1,0 +1,1901 @@
+<!DOCTYPE html>
+<html lang="de"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physik Quiz – zentrale quiz.html</title>
+<style>
+:root{
+    --primary:#2563eb;--primary-dark:#1d4ed8;--success:#10b981;--error:#ef4444;--warning:#f59e0b;
+    --bg:#f8fafc;--surface:#ffffff;--muted:#f1f5f9;--text:#1f2937;--text-muted:#6b7280;--border:#e5e7eb;
+    --shadow:0 8px 24px rgba(15,23,42,.08);--radius:14px;--p1:#3b82f6;--p2:#8b5cf6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;min-height:100vh}
+.app{max-width:920px;margin:0 auto;padding:1rem}
+.screen{display:none}.screen.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;margin-bottom:1rem;padding-bottom:.85rem;border-bottom:1px solid var(--border)}
+.header.sticky{position:sticky;top:0;background:var(--bg);z-index:10;padding-top:.75rem}
+.title{font-size:1.5rem;font-weight:800;color:var(--primary);letter-spacing:-.02em}
+.subtitle{color:var(--text-muted);margin-top:.2rem;font-size:.95rem;max-width:38rem}
+.controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.stack{display:flex;flex-direction:column;gap:1rem}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:0 4px 14px rgba(15,23,42,.05)}
+.card.disabled{opacity:.65;background:var(--muted)}
+.config-shell{display:grid;gap:.9rem}
+.flow-shell{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:0 4px 14px rgba(15,23,42,.05);overflow:hidden}
+.flow-step{border:none;padding:1rem 1.1rem;border-top:1px solid var(--border)}
+.flow-step:first-child{border-top:none}
+.flow-step.hidden-step{display:none}
+.flow-step.disabled{opacity:.6;background:var(--muted)}
+fieldset{border:none}
+legend{display:flex;align-items:center;gap:.55rem;font-weight:800;margin-bottom:.75rem;font-size:1rem}
+.step-number{width:24px;height:24px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:var(--muted);color:var(--primary);font-size:.78rem;font-weight:900;flex-shrink:0}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chip{border:1.5px solid var(--border);background:var(--surface);border-radius:999px;padding:.48rem .82rem;min-height:40px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:.5rem;transition:.18s;font-size:.95rem}
+.chip:hover:not(:disabled){border-color:var(--primary);transform:none;background:rgba(37,99,235,.03)}
+.chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.chip:disabled{opacity:.42;cursor:not-allowed}
+.count{font-size:.72rem;padding:.08rem .35rem;border-radius:999px;background:rgba(15,23,42,.08);font-weight:800}
+.chip.active .count{background:rgba(255,255,255,.18)}
+.toolbar{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.7rem}
+.summary-bar{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap;padding:.8rem 1rem;border:1px solid rgba(37,99,235,.14);border-radius:14px;background:rgba(37,99,235,.04)}
+.summary-tag{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .65rem;border-radius:999px;background:rgba(37,99,235,.08);color:var(--primary);font-size:.78rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.summary-copy{display:flex;flex-direction:column;gap:.15rem}
+.summary-copy strong{font-size:1rem}
+.helper,.muted{color:var(--text-muted);font-size:.9rem}
+.error{color:var(--error);font-size:.92rem;margin-top:.6rem}
+.control-panel{display:grid;gap:.9rem;padding:1rem 1.05rem}
+.control-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:end}
+.control-bottom{display:grid;gap:.5rem}
+.range-wrap{display:grid;gap:.45rem}
+.slider-row{display:flex;justify-content:space-between;align-items:center;gap:1rem;font-weight:800;margin-bottom:.55rem;font-size:.92rem}
+input[type="range"]{width:100%}
+input[type="range"]:disabled{opacity:.45}
+.modes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.55rem}
+.mode-btn{border:1.5px solid var(--border);background:var(--surface);border-radius:12px;padding:.72rem .5rem;font-weight:700;cursor:pointer;transition:.18s;font-size:.92rem}
+.mode-btn:hover{border-color:var(--primary)}
+.mode-btn.active{border-color:var(--primary);background:rgba(37,99,235,.08);color:var(--primary)}
+.btn{border:none;border-radius:var(--radius);padding:.9rem 1.3rem;font-weight:700;cursor:pointer;transition:.18s;width:100%}
+.btn:hover:not(:disabled){transform:translateY(-1px)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.primary{background:var(--primary);color:#fff}.btn.primary:hover:not(:disabled){background:var(--primary-dark)}
+.btn.secondary{background:var(--surface);color:var(--primary);border:2px solid var(--primary)}
+.btn.secondary:hover:not(:disabled){background:rgba(37,99,235,.06)}
+.btn.danger{background:var(--error);color:#fff}.btn.danger:hover:not(:disabled){background:#dc2626}
+.btn.small{width:auto;padding:.55rem .95rem;font-size:.9rem}
+.start-btn{width:auto;min-width:180px}
+.teacher-shortcut{white-space:nowrap}
+.control-actions{display:flex;justify-content:space-between;align-items:center;gap:.8rem;flex-wrap:wrap}
+.sound-toggle,.icon-btn,.ghost-btn{border:2px solid var(--border);background:var(--surface);border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:.18s}
+.sound-toggle{width:44px;height:44px;font-size:1.2rem}.sound-toggle.active{background:var(--primary);border-color:var(--primary);color:#fff}
+.sound-toggle:hover,.icon-btn:hover,.ghost-btn:hover{border-color:var(--primary)}
+.ghost-btn{border-radius:12px;padding:.65rem 1rem;font-weight:700;color:var(--text-muted)}
+.ghost-btn:hover{color:var(--error);border-color:var(--error)}
+.progress{width:100%;height:8px;background:var(--border);border-radius:999px;overflow:hidden;margin-bottom:.85rem}
+.progress-bar{height:100%;width:0;background:var(--primary)}
+.meta{display:flex;justify-content:space-between;align-items:center;gap:.75rem;flex-wrap:wrap;color:var(--text-muted);font-size:.93rem}
+.pill,.badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .75rem;border-radius:999px;font-weight:800;font-size:.86rem}
+.pill{background:rgba(37,99,235,.08);color:var(--primary)}
+.badge{background:rgba(37,99,235,.10);color:var(--primary)}
+.badge.chapter{background:rgba(16,185,129,.12);color:#047857}
+.streak{font-weight:800;color:var(--warning)}
+.duel{display:flex;align-items:center;gap:.75rem;font-weight:800}
+.player{padding:.28rem .75rem;border-radius:999px;color:#fff;opacity:.45;transition:.18s}
+.player.active{opacity:1;transform:scale(1.03)}
+.player.one{background:var(--p1)}.player.two{background:var(--p2)}
+.question-card{background:var(--surface);border-radius:var(--radius);padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1rem}
+.question-title{font-size:1.3rem;font-weight:800;margin:1rem 0 1.2rem}
+.image-wrap{margin-bottom:1rem;text-align:center}.image-wrap img{max-width:100%;max-height:280px;border-radius:12px;border:1px solid var(--border)}
+.answers{display:grid;grid-template-columns:1fr;gap:.75rem}
+.answer{border:2px solid var(--border);background:var(--surface);border-radius:var(--radius);padding:1rem;text-align:left;font-size:1rem;cursor:pointer;transition:.18s}
+.answer:hover:not(:disabled){border-color:var(--primary);transform:translateY(-1px)}
+.answer.correct{background:var(--success);border-color:var(--success);color:#fff}.answer.wrong{background:var(--error);border-color:var(--error);color:#fff}
+.answer:disabled{opacity:.82;cursor:not-allowed}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.class-btn{padding:1.2rem;font-size:1.1rem;border:none;border-radius:var(--radius);font-weight:800;cursor:pointer}
+.class-btn.ok{background:var(--success);color:#fff}.class-btn.bad{background:var(--error);color:#fff}
+.partner-hint{background:rgba(245,158,11,.12);border:2px solid var(--warning);border-radius:var(--radius);padding:1rem;margin-bottom:1rem;font-weight:700}
+.feedback{display:none}.feedback.show{display:block}
+.feedback.ok{border-color:var(--success);background:rgba(16,185,129,.06)}
+.feedback.bad{border-color:var(--error);background:rgba(239,68,68,.06)}
+.feedback.info{border-color:var(--warning);background:rgba(245,158,11,.08)}
+.feedback-icon{font-size:2rem;margin-bottom:.5rem}.feedback-title{font-size:1.1rem;font-weight:800;margin-bottom:.35rem}.feedback-text{color:var(--text-muted);margin-bottom:1rem}
+.result-circle{width:126px;height:126px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--primary);color:#fff;margin:0 auto 1rem;box-shadow:var(--shadow)}
+.result-circle.duel1{background:var(--p1)}.result-circle.duel2{background:var(--p2)}
+.percent{font-size:2rem;font-weight:900}.fraction{font-size:.9rem;opacity:.92}
+.result-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.4rem 0}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.stat-label{display:block;color:var(--text-muted);font-size:.88rem;margin-bottom:.25rem}.stat-value{font-size:1.25rem;font-weight:900}
+.duel-result{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;margin:1.4rem 0}
+.duel-card{background:var(--surface);border:3px solid var(--border);border-radius:var(--radius);padding:1rem}.duel-card.winner{border-color:var(--success)}.duel-card.loser{opacity:.78}
+.teacher-toolbar{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+.teacher-note{flex:1 1 100%}
+.teacher-filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;align-items:end}
+.selection-tools{display:flex;gap:.55rem;flex-wrap:wrap;grid-column:1/-1}
+.list{display:flex;flex-direction:column;gap:1rem;max-height:60vh;overflow:auto;padding-right:.1rem}
+.item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem}
+.item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.item-head-main{display:flex;align-items:flex-start;gap:.75rem;flex:1}
+.select-box{display:inline-flex;align-items:center;gap:.5rem;font-size:.9rem;font-weight:700;color:var(--text-muted);padding-top:.05rem;white-space:nowrap}
+.select-box input{width:18px;height:18px}
+.badges{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:.7rem}
+.meta-badge{display:inline-flex;align-items:center;gap:.3rem;padding:.23rem .55rem;border-radius:999px;font-size:.76rem;font-weight:900;background:rgba(37,99,235,.08);color:var(--primary)}
+.meta-badge.chapter{background:rgba(16,185,129,.10);color:#047857}.meta-badge.topic{background:rgba(245,158,11,.12);color:#b45309}
+.icon-btn{width:34px;height:34px;border-radius:10px}.icon-btn.danger:hover{border-color:var(--error);color:var(--error)}
+.form{display:none;margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);gap:.75rem}.form.visible{display:grid}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+.form-group{display:flex;flex-direction:column;gap:.3rem}.form-group label{font-size:.88rem;font-weight:700;color:var(--text-muted)}
+.form-group input,.form-group textarea,.form-group select{padding:.6rem;border:1px solid var(--border);border-radius:10px;font:inherit;background:var(--surface)}
+.form-group textarea{min-height:72px;resize:vertical}
+.actions{display:flex;gap:1rem;flex-wrap:wrap;padding-top:.5rem;border-top:2px solid var(--border)}
+.empty{padding:1.2rem;border:1px dashed var(--border);border-radius:var(--radius);text-align:center;color:var(--text-muted);background:var(--surface)}
+.hidden{display:none!important}
+@media (min-width:700px){.answers{grid-template-columns:1fr 1fr}}
+@media (min-width:640px){.modes{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:720px){.grid-2,.form-grid,.actions,.result-grid,.duel-result{grid-template-columns:1fr}.question-card,.card{padding:1rem}.control-top{grid-template-columns:1fr}.control-actions{flex-direction:column;align-items:stretch}.start-btn,.teacher-shortcut{width:100%}.summary-bar{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="app">
+    <section id="screen-config" class="screen active" aria-label="Konfiguration">
+        <header class="header">
+            <div>
+                <h1 class="title">⚛️ Physik Quiz</h1>
+                <p class="subtitle">Klassenstufe, Kapitel und Unterthemen auswählen – danach startet das Quiz.</p>
+            </div>
+            <div class="controls">
+                <button class="sound-toggle active" type="button" aria-label="Sound umschalten"><span class="sound-icon">🔊</span></button>
+            </div>
+        </header>
+
+        <main class="stack">
+            <section class="config-shell">
+                <div class="flow-shell">
+                    <fieldset class="flow-step">
+                        <legend><span class="step-number">1</span><span>Klassenstufe</span></legend>
+                        <div id="grade-chips" class="chips"></div>
+                    </fieldset>
+
+                    <fieldset id="chapter-card" class="flow-step hidden-step disabled">
+                        <legend><span class="step-number">2</span><span>Kapitel / Thema</span></legend>
+                        <div id="chapter-chips" class="chips"></div>
+                        <p id="chapter-helper" class="helper">Bitte zuerst eine Klassenstufe wählen.</p>
+                    </fieldset>
+
+                    <fieldset id="topic-card" class="flow-step hidden-step disabled">
+                        <legend><span class="step-number">3</span><span>Unterthemen</span></legend>
+                        <div class="toolbar">
+                            <button id="btn-select-all-topics" class="btn secondary small" type="button" disabled="">Alle Unterthemen</button>
+                            <button id="btn-clear-topics" class="btn secondary small" type="button" disabled="">Auswahl löschen</button>
+                        </div>
+                        <div id="topic-chips" class="chips"></div>
+                        <p id="topic-helper" class="helper">Bitte zuerst ein Kapitel wählen.</p>
+                        <p id="topic-error" class="error hidden">Bitte wählen Sie mindestens ein Unterthema aus.</p>
+                    </fieldset>
+                </div>
+
+                <section class="summary-bar" aria-live="polite">
+                    <span id="summary-tag" class="summary-tag">Schritt 1</span>
+                    <div class="summary-copy">
+                        <strong id="summary-text">Bitte wählen Sie zunächst eine Klassenstufe.</strong>
+                        <div id="summary-stats" class="muted">Danach werden passende Kapitel und Unterthemen eingeblendet.</div>
+                    </div>
+                </section>
+
+                <section class="card control-panel">
+                    <div class="control-top">
+                        <div class="range-wrap">
+                            <div class="slider-row">
+                                <label for="q-count">Anzahl der Fragen</label>
+                                <output id="q-count-output" for="q-count">0</output>
+                            </div>
+                            <input id="q-count" type="range" min="1" max="1" value="1" step="1" disabled="">
+                            <p id="q-count-help" class="helper">Wählen Sie zuerst mindestens ein Unterthema aus.</p>
+                        </div>
+                        <button id="btn-start" class="btn primary start-btn" type="button" disabled="">Quiz starten</button>
+                    </div>
+
+                    <div class="control-bottom">
+                        <div class="modes" aria-label="Spielmodus">
+                            <button class="mode-btn active" type="button" data-mode="solo">👤 Einzel</button>
+                            <button class="mode-btn" type="button" data-mode="classroom">👥 Klasse</button>
+                            <button class="mode-btn" type="button" data-mode="partner">🤝 Partner</button>
+                            <button class="mode-btn" type="button" data-mode="duel">⚔️ Duell</button>
+                        </div>
+
+                        <div class="control-actions">
+                            <p class="muted">Optional: Fragenkatalog verwalten oder direkt mit der Auswahl starten.</p>
+                            <button id="btn-teacher" class="btn secondary small teacher-shortcut" type="button">📝 Fragenkatalog bearbeiten</button>
+                        </div>
+                    </div>
+                </section>
+            </section>
+        </main>
+    </section>
+
+    <section id="screen-quiz" class="screen" hidden="" aria-label="Quiz">
+        <header class="header sticky">
+            <div style="flex:1">
+                <div class="progress"><div id="progress-bar" class="progress-bar"></div></div>
+                <div class="meta">
+                    <span>Frage <span id="current-index">1</span>/<span id="total-count">1</span></span>
+                    <span id="quiz-selection" class="pill">Kapitel</span>
+                    <div id="duel-indicator" class="duel hidden">
+                        <span id="duel-p1" class="player one active">Spieler 1</span>
+                        <span id="duel-score">0 : 0</span>
+                        <span id="duel-p2" class="player two">Spieler 2</span>
+                    </div>
+                    <span id="streak" class="streak">🔥 0</span>
+                </div>
+            </div>
+            <div class="controls">
+                <button class="sound-toggle active" type="button" aria-label="Sound umschalten"><span class="sound-icon">🔊</span></button>
+                <button id="btn-abort" class="ghost-btn" type="button">Zurück zur Auswahl</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="question-card">
+                <div class="badges">
+                    <span id="current-chapter" class="badge chapter">Kapitel</span>
+                    <span id="current-topic" class="badge">Unterthema</span>
+                </div>
+                <h2 id="question-text" class="question-title">Frage lädt …</h2>
+                <div id="image-wrap" class="image-wrap hidden"><img id="question-image" src="" alt="Fragenbild"></div>
+                <div id="answers" class="answers"></div>
+                <div id="classroom-controls" class="grid-2 hidden" style="margin-top:1rem">
+                    <button id="btn-mark-correct" class="class-btn ok" type="button">✓ Richtig</button>
+                    <button id="btn-mark-wrong" class="class-btn bad" type="button">✗ Falsch</button>
+                </div>
+                <div id="partner-controls" class="hidden" style="margin-top:1rem">
+                    <div class="partner-hint">💡 Quizmaster: Stelle die Frage erst deinem Partner. Anschließend kannst du Musterlösung und Erklärung anzeigen.</div>
+                    <button id="btn-show-solution" class="btn secondary" type="button">💡 Musterlösung anzeigen</button>
+                </div>
+            </section>
+
+            <section id="feedback" class="card feedback hidden">
+                <div id="feedback-icon" class="feedback-icon">✓</div>
+                <div id="feedback-title" class="feedback-title">Richtig!</div>
+                <p id="feedback-text" class="feedback-text"></p>
+                <button id="btn-next" class="btn secondary" type="button">Weiter</button>
+            </section>
+        </main>
+    </section>
+
+    <section id="screen-result" class="screen" hidden="" aria-label="Ergebnis">
+        <main class="card" style="text-align:center">
+            <h2 id="result-title" style="margin-bottom:.35rem">🎉 Quiz beendet!</h2>
+            <p id="result-selection" class="muted">Kapitel</p>
+
+            <div id="normal-result">
+                <div class="result-circle">
+                    <div id="result-percent" class="percent">0%</div>
+                    <div id="result-fraction" class="fraction">0/0</div>
+                </div>
+                <div class="result-grid">
+                    <div class="stat"><span class="stat-label">Richtige Antworten</span><span id="result-correct" class="stat-value">0</span></div>
+                    <div class="stat"><span class="stat-label">Längste Serie</span><span id="result-streak" class="stat-value">0 🔥</span></div>
+                </div>
+            </div>
+
+            <div id="duel-result" class="duel-result hidden">
+                <div id="result-p1" class="duel-card">
+                    <div class="result-circle duel1">
+                        <div id="duel-p1-percent" class="percent">0%</div>
+                        <div id="duel-p1-fraction" class="fraction">0/0</div>
+                    </div>
+                    <div class="stat-value">Spieler 1</div>
+                </div>
+                <div id="result-p2" class="duel-card">
+                    <div class="result-circle duel2">
+                        <div id="duel-p2-percent" class="percent">0%</div>
+                        <div id="duel-p2-fraction" class="fraction">0/0</div>
+                    </div>
+                    <div class="stat-value">Spieler 2</div>
+                </div>
+            </div>
+
+            <p id="result-message" class="muted" style="margin:1rem 0 1.25rem"></p>
+            <button id="btn-restart" class="btn primary" type="button">Zurück zur Auswahl</button>
+        </main>
+    </section>
+
+    <section id="screen-teacher" class="screen" aria-label="Lehrerbereich" hidden="">
+        <header class="header">
+            <div>
+                <h1 class="title">📝 Fragenkatalog bearbeiten</h1>
+                <p class="subtitle">Diese Datei enthält den Fragenkatalog selbst. Dauerhaft wird der Stand erst nach dem Speichern der aktualisierten <strong>quiz.html</strong>.</p>
+            </div>
+            <div class="controls">
+                <button class="sound-toggle active" type="button" aria-label="Sound umschalten"><span class="sound-icon">🔊</span></button>
+            </div>
+        </header>
+
+        <main class="stack">
+            <div class="card teacher-toolbar">
+                <button id="btn-add-question" class="btn primary small" type="button">+ Neue Frage</button>
+                <button id="btn-export-json" class="btn secondary small" type="button">📤 Fragenkatalog exportieren (JSON)</button>
+                <button id="btn-import-replace" class="btn secondary small" type="button">📁 Fragenkatalog ersetzen (JSON)</button>
+                <button id="btn-import-add" class="btn secondary small" type="button">➕ Fragen hinzufügen (JSON)</button>
+                <input id="import-json" type="file" accept=".json" class="hidden">
+                <p class="teacher-note muted">Importe und manuelle Änderungen wirken dauerhaft erst dann, wenn Sie unten die aktualisierte <strong>quiz.html</strong> speichern.</p>
+            </div>
+
+            <div class="card teacher-filters">
+                <div class="form-group">
+                    <label for="teacher-filter-grade">Klassenstufe filtern</label>
+                    <select id="teacher-filter-grade"><option value="all">Alle Klassenstufen</option><option value="8">Klasse 8</option></select>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-filter-chapter">Kapitel filtern</label>
+                    <select id="teacher-filter-chapter"><option value="all">Alle Kapitel</option><option value="geschwindigkeit-und-geschwindigkeitsaenderung">Geschwindigkeit und Geschwindigkeitsänderung</option></select>
+                </div>
+                <div id="teacher-count" class="muted" style="padding-bottom:.25rem">0 Fragen sichtbar</div>
+                <div class="selection-tools">
+                    <button id="btn-select-visible" class="btn secondary small" type="button">☑️ Alle sichtbaren auswählen</button>
+                    <button id="btn-clear-selection" class="btn secondary small" type="button" disabled="">Auswahl aufheben</button>
+                    <button id="btn-delete-selected" class="btn danger small" type="button" disabled="">🗑️ Ausgewählte Fragen löschen</button>
+                </div>
+            </div>
+
+            <div id="teacher-list" class="list"></div>
+
+            <div class="actions">
+                <button id="btn-teacher-back" class="btn secondary" type="button">Zurück zum Menü</button>
+                <button id="btn-save-all" class="btn primary" type="button">💾 quiz.html speichern</button>
+            </div>
+        </main>
+    </section>
+</div>
+
+<script id="embedded-question-bank" type="application/json">
+{
+  "questions": [
+    {
+      "id": 8019,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsaenderung",
+      "topicLabel": "Geschwindigkeitsänderung",
+      "question": "Ein Puck prallt an einer Bande ab und fährt danach gleich schnell, aber in einer anderen Richtung weiter. Was hat sich geändert?",
+      "answers": [
+        "Nur die Masse des Pucks",
+        "Nur die Zeit",
+        "Nur die Richtung der Geschwindigkeit",
+        "Gar nichts"
+      ],
+      "correct": 2,
+      "explanation": "Bei gleichem Betrag, aber anderer Richtung, hat sich nur die Richtung der Geschwindigkeit geändert.",
+      "image": ""
+    },
+    {
+      "id": 8020,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsaenderung",
+      "topicLabel": "Geschwindigkeitsänderung",
+      "question": "Je größer die Kraft und je länger die Einwirkung bei einem Stoß dauert, desto ...",
+      "answers": [
+        "kleiner ist die Geschwindigkeitsänderung",
+        "kleiner ist die Masse",
+        "größer ist die Position",
+        "größer ist die Geschwindigkeitsänderung"
+      ],
+      "correct": 3,
+      "explanation": "Eine größere Kraft und eine längere Einwirkdauer führen zu einer größeren Geschwindigkeitsänderung.",
+      "image": ""
+    },
+    {
+      "id": 8018,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsaenderung",
+      "topicLabel": "Geschwindigkeitsänderung",
+      "question": "Kann sich die Geschwindigkeit ändern, obwohl der Betrag gleich bleibt?",
+      "answers": [
+        "Nein, dann bleibt sie immer gleich",
+        "Ja, aber nur bei größerer Masse",
+        "Ja, wenn sich nur die Richtung ändert",
+        "Nein, weil nur die Zeit zählt"
+      ],
+      "correct": 2,
+      "explanation": "Auch eine Richtungsänderung ist eine Geschwindigkeitsänderung, selbst wenn der Betrag gleich bleibt.",
+      "image": ""
+    },
+    {
+      "id": 8016,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsaenderung",
+      "topicLabel": "Geschwindigkeitsänderung",
+      "question": "Was bedeutet die Schreibweise Δv?",
+      "answers": [
+        "Die Geschwindigkeitsänderung",
+        "Die zurückgelegte Strecke",
+        "Der Zeitpunkt",
+        "Die Kraft"
+      ],
+      "correct": 0,
+      "explanation": "Δv steht für die Änderung der Geschwindigkeit.",
+      "image": ""
+    },
+    {
+      "id": 8017,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsaenderung",
+      "topicLabel": "Geschwindigkeitsänderung",
+      "question": "Wie berechnet man die Geschwindigkeitsänderung aus Anfangs- und Endgeschwindigkeit?",
+      "answers": [
+        "Δv = v_A + v_E",
+        "Δv = v_A - v_E",
+        "Δv = v_E / v_A",
+        "Δv = v_E - v_A"
+      ],
+      "correct": 3,
+      "explanation": "Die Geschwindigkeitsänderung ergibt sich aus Endgeschwindigkeit minus Anfangsgeschwindigkeit.",
+      "image": ""
+    },
+    {
+      "id": 8010,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Ein Körper legt 24 m in 6 s zurück. Wie groß ist seine Geschwindigkeit?",
+      "answers": [
+        "4 m/s",
+        "18 m/s",
+        "3 m/s",
+        "30 m/s"
+      ],
+      "correct": 0,
+      "explanation": "v = Δx / Δt = 24 m / 6 s = 4 m/s.",
+      "image": ""
+    },
+    {
+      "id": 8015,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "In einer Stroboskopaufnahme liegen die Positionen gleich weit auseinander. Was bedeutet das?",
+      "answers": [
+        "Die Geschwindigkeit nimmt zu",
+        "Die Geschwindigkeit bleibt konstant",
+        "Die Richtung ändert sich ständig",
+        "Die Masse wird kleiner"
+      ],
+      "correct": 1,
+      "explanation": "Gleich große Abstände bei gleichen Zeitabständen bedeuten eine konstante Geschwindigkeit.",
+      "image": ""
+    },
+    {
+      "id": 8014,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "In einer Stroboskopaufnahme werden die Abstände zwischen den Positionen größer. Was bedeutet das?",
+      "answers": [
+        "Die Geschwindigkeit bleibt gleich",
+        "Der Körper wird langsamer",
+        "Die Geschwindigkeit nimmt zu",
+        "Der Körper bleibt stehen"
+      ],
+      "correct": 2,
+      "explanation": "Größere Abstände bei gleichen Zeitabständen bedeuten: Der Körper legt mehr Weg zurück und wird schneller.",
+      "image": ""
+    },
+    {
+      "id": 8009,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Was bedeutet Δx?",
+      "answers": [
+        "Die Masse eines Körpers",
+        "Die Richtungsänderung",
+        "Die Zeitspanne",
+        "Die Ortsänderung bzw. Wegstrecke zwischen zwei Positionen"
+      ],
+      "correct": 3,
+      "explanation": "Δx beschreibt die Änderung der Position, also die Ortsänderung zwischen zwei Zeitpunkten.",
+      "image": ""
+    },
+    {
+      "id": 8008,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Was beschreibt die Position x?",
+      "answers": [
+        "Den Ort zu einem bestimmten Zeitpunkt",
+        "Die Geschwindigkeit",
+        "Die Masse",
+        "Die Zeitdauer"
+      ],
+      "correct": 0,
+      "explanation": "Die Position x gibt an, wo sich ein Körper zu einem bestimmten Zeitpunkt befindet.",
+      "image": ""
+    },
+    {
+      "id": 8012,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Was zeigt die Länge eines Geschwindigkeitspfeils an?",
+      "answers": [
+        "Die Richtung der Bewegung",
+        "Den Betrag der Geschwindigkeit",
+        "Die Masse",
+        "Die Zeitdauer"
+      ],
+      "correct": 1,
+      "explanation": "Je länger der Geschwindigkeitspfeil ist, desto größer ist der Betrag der Geschwindigkeit.",
+      "image": ""
+    },
+    {
+      "id": 8013,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Was zeigt die Richtung eines Geschwindigkeitspfeils an?",
+      "answers": [
+        "Die Länge des Pfeils",
+        "Die Bewegungsrichtung",
+        "Die zurückgelegte Strecke",
+        "Die Masse"
+      ],
+      "correct": 1,
+      "explanation": "Die Pfeilrichtung zeigt, in welche Richtung sich der Körper bewegt.",
+      "image": ""
+    },
+    {
+      "id": 8007,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Welche Formel gilt für den Betrag der Geschwindigkeit?",
+      "answers": [
+        "v = Δt / Δx",
+        "v = Δx · Δt",
+        "v = Δx / Δt",
+        "v = x / t"
+      ],
+      "correct": 2,
+      "explanation": "Der Geschwindigkeitsbetrag ergibt sich aus Wegstrecke geteilt durch Zeitintervall.",
+      "image": ""
+    },
+    {
+      "id": 8011,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "geschwindigkeitsbetrag-und-richtung",
+      "topicLabel": "Geschwindigkeitsbetrag und -richtung",
+      "question": "Wie bestimmt man die mittlere Geschwindigkeit?",
+      "answers": [
+        "Gesamtzeit durch Gesamtstrecke",
+        "Einzelstrecke minus Einzelzeit",
+        "Gesamtstrecke mal Gesamtzeit",
+        "Gesamtstrecke durch Gesamtzeit"
+      ],
+      "correct": 3,
+      "explanation": "Die mittlere Geschwindigkeit erhält man aus Gesamtstrecke geteilt durch Gesamtzeit.",
+      "image": ""
+    },
+    {
+      "id": 8002,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "grundlagen-und-einheit",
+      "topicLabel": "Grundlagen und Einheit",
+      "question": "In welcher Einheit wird die Geschwindigkeit im Physikunterricht meist angegeben?",
+      "answers": [
+        "m/s",
+        "kg",
+        "N",
+        "J"
+      ],
+      "correct": 0,
+      "explanation": "Die Grundeinheit der Geschwindigkeit ist Meter pro Sekunde (m/s).",
+      "image": ""
+    },
+    {
+      "id": 8003,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "grundlagen-und-einheit",
+      "topicLabel": "Grundlagen und Einheit",
+      "question": "Was bedeutet t in der Physik?",
+      "answers": [
+        "Die Wegstrecke",
+        "Die Geschwindigkeitsänderung",
+        "Ein Zeitpunkt",
+        "Die Masse"
+      ],
+      "correct": 2,
+      "explanation": "t bezeichnet einen Zeitpunkt.",
+      "image": ""
+    },
+    {
+      "id": 8004,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "grundlagen-und-einheit",
+      "topicLabel": "Grundlagen und Einheit",
+      "question": "Was bedeutet Δt?",
+      "answers": [
+        "Die Position eines Körpers",
+        "Ein Zeitintervall",
+        "Die Kraft auf den Körper",
+        "Die Richtung der Bewegung"
+      ],
+      "correct": 1,
+      "explanation": "Δt ist ein Zeitintervall, also eine Zeitspanne zwischen zwei Zeitpunkten.",
+      "image": ""
+    },
+    {
+      "id": 8001,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "grundlagen-und-einheit",
+      "topicLabel": "Grundlagen und Einheit",
+      "question": "Was beschreibt die Geschwindigkeit eines Körpers?",
+      "answers": [
+        "Nur seine Masse",
+        "Wie schnell er sich bewegt und in welche Richtung",
+        "Nur seinen Ort",
+        "Nur die benötigte Zeit"
+      ],
+      "correct": 1,
+      "explanation": "Die Geschwindigkeit beschreibt, wie schnell sich ein Körper bewegt und in welche Richtung er sich bewegt.",
+      "image": ""
+    },
+    {
+      "id": 8006,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "grundlagen-und-einheit",
+      "topicLabel": "Grundlagen und Einheit",
+      "question": "Wie rechnet man von km/h in m/s um?",
+      "answers": [
+        "Mit 3,6 multiplizieren",
+        "Durch 60 teilen",
+        "Durch 3,6 teilen",
+        "Mit 1000 teilen"
+      ],
+      "correct": 0,
+      "explanation": "Von km/h in m/s rechnet man, indem man durch 3,6 teilt.",
+      "image": ""
+    },
+    {
+      "id": 8005,
+      "grade": "8",
+      "chapter": "geschwindigkeit-und-geschwindigkeitsaenderung",
+      "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
+      "topic": "grundlagen-und-einheit",
+      "topicLabel": "Grundlagen und Einheit",
+      "question": "Wie rechnet man von m/s in km/h um?",
+      "answers": [
+        "Durch 3,6 teilen",
+        "Mit 1000 multiplizieren",
+        "Mit 60 multiplizieren",
+        "Mit 3,6 multiplizieren"
+      ],
+      "correct": 3,
+      "explanation": "Von m/s in km/h rechnet man, indem man mit 3,6 multipliziert.",
+      "image": ""
+    }
+  ]
+}
+</script>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+const CONFIG = {
+    grades: ['8', '9', '10', '11', '12', '13'],
+    defaultQuestions: 10,
+    maxQuestions: 40,
+    soundEnabled: true,
+    teacherPassword: 'Heisenberg'
+};
+
+const state = {
+    bank: [],
+    editing: [],
+    selectedGrade: '',
+    selectedChapter: '',
+    selectedTopics: new Set(),
+    questionCount: 0,
+    mode: 'solo',
+    quizQuestions: [],
+    currentIndex: 0,
+    score: 0,
+    streak: 0,
+    maxStreak: 0,
+    currentPlayer: 1,
+    playerScores: {1: 0, 2: 0},
+    playerTurns: {1: 0, 2: 0},
+    activeSelection: {grade: '', chapterLabel: ''},
+    teacherFilterGrade: 'all',
+    teacherFilterChapter: 'all',
+    selectedTeacherIds: new Set(),
+    pendingImportMode: 'replace',
+    soundEnabled: CONFIG.soundEnabled,
+    audioContext: null
+};
+
+const el = {
+    embeddedBank: $('embedded-question-bank'),
+    screens: {
+        config: $('screen-config'),
+        quiz: $('screen-quiz'),
+        result: $('screen-result'),
+        teacher: $('screen-teacher')
+    },
+    gradeChips: $('grade-chips'),
+    chapterCard: $('chapter-card'),
+    chapterChips: $('chapter-chips'),
+    chapterHelper: $('chapter-helper'),
+    topicCard: $('topic-card'),
+    topicChips: $('topic-chips'),
+    topicHelper: $('topic-helper'),
+    topicError: $('topic-error'),
+    btnSelectAllTopics: $('btn-select-all-topics'),
+    btnClearTopics: $('btn-clear-topics'),
+    summaryTag: $('summary-tag'),
+    summaryText: $('summary-text'),
+    summaryStats: $('summary-stats'),
+    questionRange: $('q-count'),
+    questionOutput: $('q-count-output'),
+    questionHelp: $('q-count-help'),
+    modeButtons: Array.from(document.querySelectorAll('.mode-btn')),
+    soundButtons: Array.from(document.querySelectorAll('.sound-toggle')),
+    btnStart: $('btn-start'),
+    btnTeacher: $('btn-teacher'),
+    progressBar: $('progress-bar'),
+    currentIndex: $('current-index'),
+    totalCount: $('total-count'),
+    quizSelection: $('quiz-selection'),
+    duelIndicator: $('duel-indicator'),
+    duelP1: $('duel-p1'),
+    duelP2: $('duel-p2'),
+    duelScore: $('duel-score'),
+    streak: $('streak'),
+    currentChapter: $('current-chapter'),
+    currentTopic: $('current-topic'),
+    questionText: $('question-text'),
+    imageWrap: $('image-wrap'),
+    questionImage: $('question-image'),
+    answers: $('answers'),
+    classroomControls: $('classroom-controls'),
+    btnMarkCorrect: $('btn-mark-correct'),
+    btnMarkWrong: $('btn-mark-wrong'),
+    partnerControls: $('partner-controls'),
+    btnShowSolution: $('btn-show-solution'),
+    feedback: $('feedback'),
+    feedbackIcon: $('feedback-icon'),
+    feedbackTitle: $('feedback-title'),
+    feedbackText: $('feedback-text'),
+    btnNext: $('btn-next'),
+    btnAbort: $('btn-abort'),
+    resultTitle: $('result-title'),
+    resultSelection: $('result-selection'),
+    normalResult: $('normal-result'),
+    duelResult: $('duel-result'),
+    resultPercent: $('result-percent'),
+    resultFraction: $('result-fraction'),
+    resultCorrect: $('result-correct'),
+    resultStreak: $('result-streak'),
+    resultMessage: $('result-message'),
+    duelP1Percent: $('duel-p1-percent'),
+    duelP1Fraction: $('duel-p1-fraction'),
+    duelP2Percent: $('duel-p2-percent'),
+    duelP2Fraction: $('duel-p2-fraction'),
+    resultP1: $('result-p1'),
+    resultP2: $('result-p2'),
+    btnRestart: $('btn-restart'),
+    btnAddQuestion: $('btn-add-question'),
+    btnExportJson: $('btn-export-json'),
+    btnImportReplace: $('btn-import-replace'),
+    btnImportAdd: $('btn-import-add'),
+    importJson: $('import-json'),
+    teacherFilterGrade: $('teacher-filter-grade'),
+    teacherFilterChapter: $('teacher-filter-chapter'),
+    teacherCount: $('teacher-count'),
+    teacherList: $('teacher-list'),
+    btnSelectVisible: $('btn-select-visible'),
+    btnClearSelection: $('btn-clear-selection'),
+    btnDeleteSelected: $('btn-delete-selected'),
+    btnTeacherBack: $('btn-teacher-back'),
+    btnSaveAll: $('btn-save-all')
+};
+
+function cloneData(value) {
+    return JSON.parse(JSON.stringify(value));
+}
+
+function escapeHtml(value = '') {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function safeJsonForHtml(text) {
+    return text.replace(/</g, '\\u003C');
+}
+
+function compare(a = '', b = '') {
+    return String(a).localeCompare(String(b), 'de', {numeric: true, sensitivity: 'base'});
+}
+
+function slug(value = '') {
+    return String(value)
+        .trim()
+        .toLowerCase()
+        .replace(/ä/g, 'ae')
+        .replace(/ö/g, 'oe')
+        .replace(/ü/g, 'ue')
+        .replace(/ß/g, 'ss')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+function shuffle(items) {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+}
+
+function deriveGrade(rawGrade, chapterLabel) {
+    const explicit = String(rawGrade ?? '').trim();
+    if (explicit) return explicit;
+    const match = String(chapterLabel ?? '').match(/^(\d{1,2})/);
+    return match ? match[1] : '9';
+}
+
+function normalizeQuestion(raw, index) {
+    const chapterLabel = String(raw.chapterLabel ?? raw.chapterName ?? raw.chapter ?? 'Kapitel').trim() || 'Kapitel';
+    const topicLabel = String(raw.topicLabel ?? raw.topicName ?? raw.topic ?? 'Allgemein').trim() || 'Allgemein';
+    const grade = deriveGrade(raw.grade ?? raw.klassenstufe ?? raw.classLevel, chapterLabel);
+    let answers = Array.isArray(raw.answers)
+        ? raw.answers.slice(0, 4)
+        : [raw.ans0, raw.ans1, raw.ans2, raw.ans3].filter((entry) => entry !== undefined);
+    while (answers.length < 4) answers.push(`Antwort ${answers.length + 1}`);
+    answers = answers.map((entry) => String(entry ?? '').trim() || '—');
+    let correct = Number(raw.correct);
+    if (!Number.isInteger(correct) || correct < 0 || correct > 3) correct = 0;
+
+    return {
+        id: raw.id ?? Date.now() + index,
+        grade,
+        chapter: slug(raw.chapter ?? chapterLabel) || 'kapitel',
+        chapterLabel,
+        topic: slug(raw.topic ?? topicLabel) || 'allgemein',
+        topicLabel,
+        question: String(raw.question ?? 'Neue Frage?').trim() || 'Neue Frage?',
+        answers,
+        correct,
+        explanation: String(raw.explanation ?? '').trim(),
+        image: String(raw.image ?? '').trim()
+    };
+}
+
+function normalizeBank(raw) {
+    const list = Array.isArray(raw) ? raw : raw?.questions;
+    if (!Array.isArray(list)) {
+        throw new Error('Die JSON-Datei muss ein Array oder ein Objekt mit dem Feld "questions" enthalten.');
+    }
+    return list
+        .map((entry, index) => normalizeQuestion(entry, index))
+        .sort((a, b) => compare(a.grade, b.grade) || compare(a.chapterLabel, b.chapterLabel) || compare(a.topicLabel, b.topicLabel) || compare(a.question, b.question));
+}
+
+function readEmbeddedBank() {
+    return normalizeBank(JSON.parse(el.embeddedBank.textContent));
+}
+
+function loadBank() {
+    return readEmbeddedBank();
+}
+
+function initAudio() {
+    if (!state.audioContext) {
+        state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+}
+
+function playTone(start, end, duration) {
+    if (!state.soundEnabled || !state.audioContext) return;
+    const osc = state.audioContext.createOscillator();
+    const gain = state.audioContext.createGain();
+    osc.connect(gain);
+    gain.connect(state.audioContext.destination);
+    osc.frequency.setValueAtTime(start, state.audioContext.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(end, state.audioContext.currentTime + duration);
+    gain.gain.setValueAtTime(0.08, state.audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, state.audioContext.currentTime + duration);
+    osc.start();
+    osc.stop(state.audioContext.currentTime + duration);
+}
+
+function playClick() { playTone(800, 120, 0.08); }
+function playSuccess() { playTone(520, 660, 0.25); }
+function playError() { playTone(180, 100, 0.2); }
+
+function syncSoundButtons() {
+    el.soundButtons.forEach((button) => {
+        button.classList.toggle('active', state.soundEnabled);
+        const icon = button.querySelector('.sound-icon');
+        if (icon) icon.textContent = state.soundEnabled ? '🔊' : '🔇';
+    });
+}
+
+function setScreen(name) {
+    Object.entries(el.screens).forEach(([key, node]) => {
+        const active = key === name;
+        node.hidden = !active;
+        node.classList.toggle('active', active);
+    });
+}
+
+function gradeQuestionCount(grade) {
+    return state.bank.filter((question) => question.grade === grade).length;
+}
+
+function chaptersForGrade(grade) {
+    const map = new Map();
+    state.bank.filter((question) => question.grade === grade).forEach((question) => {
+        if (!map.has(question.chapter)) {
+            map.set(question.chapter, {id: question.chapter, label: question.chapterLabel, count: 0});
+        }
+        map.get(question.chapter).count += 1;
+    });
+    return [...map.values()].sort((a, b) => compare(a.label, b.label));
+}
+
+function topicsForSelection(grade, chapter) {
+    const map = new Map();
+    state.bank.filter((question) => question.grade === grade && question.chapter === chapter).forEach((question) => {
+        if (!map.has(question.topic)) {
+            map.set(question.topic, {id: question.topic, label: question.topicLabel, count: 0});
+        }
+        map.get(question.topic).count += 1;
+    });
+    return [...map.values()].sort((a, b) => compare(a.label, b.label));
+}
+
+function currentChapterLabel() {
+    return chaptersForGrade(state.selectedGrade).find((entry) => entry.id === state.selectedChapter)?.label || '';
+}
+
+function chapterQuestions() {
+    return state.bank.filter((question) => question.grade === state.selectedGrade && question.chapter === state.selectedChapter);
+}
+
+function selectedPool() {
+    return chapterQuestions().filter((question) => state.selectedTopics.has(question.topic));
+}
+
+function sanitizeSelection() {
+    if (!state.selectedGrade || gradeQuestionCount(state.selectedGrade) === 0) {
+        state.selectedGrade = '';
+        state.selectedChapter = '';
+        state.selectedTopics.clear();
+        return;
+    }
+    const chapters = new Set(chaptersForGrade(state.selectedGrade).map((entry) => entry.id));
+    if (!chapters.has(state.selectedChapter)) {
+        state.selectedChapter = '';
+        state.selectedTopics.clear();
+        return;
+    }
+    const topics = new Set(topicsForSelection(state.selectedGrade, state.selectedChapter).map((entry) => entry.id));
+    state.selectedTopics = new Set([...state.selectedTopics].filter((topic) => topics.has(topic)));
+}
+
+function renderGrades() {
+    el.gradeChips.innerHTML = CONFIG.grades.map((grade) => {
+        const count = gradeQuestionCount(grade);
+        const active = state.selectedGrade === grade ? 'active' : '';
+        const disabled = count === 0 ? 'disabled' : '';
+        return `<button class="chip ${active}" type="button" data-grade="${grade}" ${disabled}>Klasse ${grade}<span class="count">${count}</span></button>`;
+    }).join('');
+}
+
+function renderChapters() {
+    if (!state.selectedGrade) {
+        el.chapterCard.classList.add('disabled', 'hidden-step');
+        el.chapterChips.innerHTML = '';
+        el.chapterHelper.textContent = 'Bitte zuerst eine Klassenstufe wählen.';
+        return;
+    }
+    el.chapterCard.classList.remove('hidden-step');
+    const chapters = chaptersForGrade(state.selectedGrade);
+    if (!chapters.length) {
+        el.chapterCard.classList.add('disabled');
+        el.chapterChips.innerHTML = '';
+        el.chapterHelper.textContent = 'Für diese Klassenstufe gibt es aktuell keine Kapitel im Katalog.';
+        return;
+    }
+    el.chapterCard.classList.remove('disabled');
+    el.chapterHelper.textContent = `${chapters.length} Kapitel verfügbar.`;
+    el.chapterChips.innerHTML = chapters.map((entry) => {
+        const active = state.selectedChapter === entry.id ? 'active' : '';
+        return `<button class="chip ${active}" type="button" data-chapter="${escapeHtml(entry.id)}">${escapeHtml(entry.label)}<span class="count">${entry.count}</span></button>`;
+    }).join('');
+}
+
+function renderTopics() {
+    if (!state.selectedGrade || !state.selectedChapter) {
+        el.topicCard.classList.add('disabled', 'hidden-step');
+        el.topicChips.innerHTML = '';
+        el.topicHelper.textContent = 'Bitte zuerst ein Kapitel wählen.';
+        el.btnSelectAllTopics.disabled = true;
+        el.btnClearTopics.disabled = true;
+        el.topicError.classList.add('hidden');
+        return;
+    }
+    el.topicCard.classList.remove('hidden-step');
+    const topics = topicsForSelection(state.selectedGrade, state.selectedChapter);
+    if (!topics.length) {
+        el.topicCard.classList.add('disabled');
+        el.topicChips.innerHTML = '';
+        el.topicHelper.textContent = 'Für dieses Kapitel sind aktuell keine Unterthemen vorhanden.';
+        el.btnSelectAllTopics.disabled = true;
+        el.btnClearTopics.disabled = true;
+        return;
+    }
+    el.topicCard.classList.remove('disabled');
+    el.topicHelper.textContent = `${topics.length} Unterthemen verfügbar. Mehrfachauswahl ist möglich.`;
+    el.btnSelectAllTopics.disabled = false;
+    el.btnClearTopics.disabled = state.selectedTopics.size === 0;
+    el.topicChips.innerHTML = topics.map((entry) => {
+        const active = state.selectedTopics.has(entry.id) ? 'active' : '';
+        return `<button class="chip ${active}" type="button" data-topic="${escapeHtml(entry.id)}">${escapeHtml(entry.label)}<span class="count">${entry.count}</span></button>`;
+    }).join('');
+}
+
+function updateSummary() {
+    if (!state.selectedGrade) {
+        el.summaryTag.textContent = 'Schritt 1';
+        el.summaryText.textContent = 'Bitte wählen Sie zunächst eine Klassenstufe.';
+        el.summaryStats.textContent = 'Danach werden passende Kapitel und Unterthemen eingeblendet.';
+        return;
+    }
+    if (!state.selectedChapter) {
+        el.summaryTag.textContent = 'Schritt 2';
+        const chapterTotal = chaptersForGrade(state.selectedGrade).length;
+        el.summaryText.textContent = `Klasse ${state.selectedGrade} ausgewählt.`;
+        el.summaryStats.textContent = `${gradeQuestionCount(state.selectedGrade)} Fragen in ${chapterTotal} ${chapterTotal === 1 ? 'Kapitel' : 'Kapiteln'} verfügbar.`;
+        return;
+    }
+    const chapterCount = chapterQuestions().length;
+    const chapterLabel = currentChapterLabel();
+    if (state.selectedTopics.size === 0) {
+        el.summaryTag.textContent = 'Schritt 3';
+        el.summaryText.textContent = `${chapterLabel} ausgewählt.`;
+        el.summaryStats.textContent = `${chapterCount} Fragen im Kapitel vorhanden. Bitte jetzt Unterthemen auswählen.`;
+        return;
+    }
+    el.summaryTag.textContent = 'Bereit';
+    el.summaryText.textContent = `Klasse ${state.selectedGrade} · ${chapterLabel}`;
+    el.summaryStats.textContent = `${state.selectedTopics.size} ${state.selectedTopics.size === 1 ? 'Unterthema' : 'Unterthemen'} · ${selectedPool().length} verfügbare Fragen.`;
+}
+
+function updateQuestionRange() {
+    if (!state.selectedGrade || !state.selectedChapter || state.selectedTopics.size === 0) {
+        state.questionCount = 0;
+        el.questionRange.disabled = true;
+        el.questionRange.min = '1';
+        el.questionRange.max = '1';
+        el.questionRange.value = '1';
+        el.questionOutput.textContent = '0';
+        el.questionHelp.textContent = 'Wählen Sie zuerst mindestens ein Unterthema aus.';
+        return;
+    }
+    const available = selectedPool();
+    const max = Math.max(1, Math.min(CONFIG.maxQuestions, available.length));
+    if (state.questionCount < 1 || state.questionCount > max) {
+        state.questionCount = Math.min(CONFIG.defaultQuestions, max);
+    }
+    el.questionRange.disabled = available.length === 0;
+    el.questionRange.min = '1';
+    el.questionRange.max = String(max);
+    el.questionRange.value = String(state.questionCount);
+    el.questionOutput.textContent = String(state.questionCount);
+    el.questionHelp.textContent = available.length > CONFIG.maxQuestions
+        ? `${available.length} Fragen verfügbar – pro Quiz werden maximal ${CONFIG.maxQuestions} genutzt.`
+        : `${available.length} Fragen mit aktueller Auswahl verfügbar.`;
+}
+
+function updateModeButtons() {
+    el.modeButtons.forEach((button) => button.classList.toggle('active', button.dataset.mode === state.mode));
+}
+
+function updateStartButton() {
+    el.btnStart.disabled = !(state.selectedGrade && state.selectedChapter && state.selectedTopics.size > 0 && selectedPool().length > 0);
+}
+
+function refreshConfig() {
+    sanitizeSelection();
+    renderGrades();
+    renderChapters();
+    renderTopics();
+    updateSummary();
+    updateQuestionRange();
+    updateModeButtons();
+    updateStartButton();
+}
+
+function currentQuestion() {
+    return state.quizQuestions[state.currentIndex];
+}
+
+function hideFeedback() {
+    el.feedback.className = 'card feedback hidden';
+}
+
+function showFeedback(kind, title, text, icon) {
+    el.feedback.className = `card feedback show ${kind}`;
+    el.feedbackIcon.textContent = icon;
+    el.feedbackTitle.textContent = title;
+    el.feedbackText.textContent = text || 'Keine Erklärung hinterlegt.';
+}
+
+function updateDuelIndicator() {
+    el.duelScore.textContent = `${state.playerScores[1]} : ${state.playerScores[2]}`;
+    el.duelP1.classList.toggle('active', state.currentPlayer === 1);
+    el.duelP2.classList.toggle('active', state.currentPlayer === 2);
+}
+
+function renderAnswers(question) {
+    el.answers.classList.remove('hidden');
+    el.answers.innerHTML = question.answers.map((answer, index) => `<button class="answer" type="button" data-answer="${index}">${escapeHtml(answer)}</button>`).join('');
+}
+
+function renderPartnerView(question) {
+    el.partnerControls.classList.remove('hidden');
+    el.classroomControls.classList.add('hidden');
+    el.answers.classList.add('hidden');
+    hideFeedback();
+    el.btnShowSolution.classList.remove('hidden');
+    el.btnShowSolution.disabled = false;
+}
+
+function renderQuestion() {
+    const question = currentQuestion();
+    if (!question) return;
+    const progress = Math.round((state.currentIndex / Math.max(1, state.quizQuestions.length)) * 100);
+    el.progressBar.style.width = `${progress}%`;
+    el.currentIndex.textContent = String(state.currentIndex + 1);
+    el.totalCount.textContent = String(state.quizQuestions.length);
+    el.streak.textContent = `🔥 ${state.streak}`;
+    el.currentChapter.textContent = question.chapterLabel;
+    el.currentTopic.textContent = question.topicLabel;
+    el.questionText.textContent = question.question;
+
+    if (question.image) {
+        el.questionImage.src = question.image;
+        el.imageWrap.classList.remove('hidden');
+    } else {
+        el.questionImage.src = '';
+        el.imageWrap.classList.add('hidden');
+    }
+
+    hideFeedback();
+    el.partnerControls.classList.add('hidden');
+    el.classroomControls.classList.add('hidden');
+
+    if (state.mode === 'partner') {
+        renderPartnerView(question);
+    } else if (state.mode === 'classroom') {
+        el.answers.classList.add('hidden');
+        el.answers.innerHTML = '';
+        el.classroomControls.classList.remove('hidden');
+    } else {
+        renderAnswers(question);
+    }
+
+    if (state.mode === 'duel') {
+        el.duelIndicator.classList.remove('hidden');
+        updateDuelIndicator();
+    } else {
+        el.duelIndicator.classList.add('hidden');
+    }
+}
+
+function prepareQuiz() {
+    el.quizSelection.textContent = `Klasse ${state.activeSelection.grade} · ${state.activeSelection.chapterLabel}`;
+    hideFeedback();
+    renderQuestion();
+}
+
+function answerQuestion(index) {
+    const question = currentQuestion();
+    const buttons = Array.from(el.answers.querySelectorAll('.answer'));
+    buttons.forEach((button) => { button.disabled = true; });
+    const correct = index === question.correct;
+    if (state.mode === 'duel') state.playerTurns[state.currentPlayer] += 1;
+
+    if (correct) {
+        buttons[index]?.classList.add('correct');
+        if (state.mode === 'duel') state.playerScores[state.currentPlayer] += 1;
+        else state.score += 1;
+        state.streak += 1;
+        state.maxStreak = Math.max(state.maxStreak, state.streak);
+        playSuccess();
+    } else {
+        buttons[index]?.classList.add('wrong');
+        buttons[question.correct]?.classList.add('correct');
+        state.streak = 0;
+        playError();
+    }
+
+    if (state.mode === 'duel') {
+        updateDuelIndicator();
+        window.setTimeout(() => {
+            state.currentPlayer = state.currentPlayer === 1 ? 2 : 1;
+            nextQuestion();
+        }, 1200);
+        return;
+    }
+
+    showFeedback(correct ? 'ok' : 'bad', correct ? 'Richtig!' : 'Leider falsch', question.explanation || 'Keine Erklärung hinterlegt.', correct ? '✓' : '✗');
+}
+
+function scoreClassroom(correct) {
+    const question = currentQuestion();
+    if (correct) {
+        state.score += 1;
+        state.streak += 1;
+        state.maxStreak = Math.max(state.maxStreak, state.streak);
+        playSuccess();
+    } else {
+        state.streak = 0;
+        playError();
+    }
+    showFeedback(correct ? 'ok' : 'bad', correct ? 'Als richtig gewertet' : 'Als falsch gewertet', question.explanation || 'Keine Erklärung hinterlegt.', correct ? '✓' : '✗');
+}
+
+function showPartnerSolution() {
+    const question = currentQuestion();
+    el.answers.classList.remove('hidden');
+    el.answers.innerHTML = question.answers.map((answer, index) => `<div class="answer ${index === question.correct ? 'correct' : ''}">${escapeHtml(answer)}</div>`).join('');
+    el.btnShowSolution.classList.add('hidden');
+    showFeedback('info', 'Musterlösung & Erklärung', question.explanation || 'Keine Erklärung hinterlegt.', '💡');
+}
+
+function nextQuestion() {
+    state.currentIndex += 1;
+    if (state.currentIndex < state.quizQuestions.length) {
+        renderQuestion();
+    } else {
+        showResults();
+    }
+}
+
+function resultMessage(percent) {
+    const label = state.activeSelection.chapterLabel;
+    if (percent >= 90) return `Sehr stark – ${label} sitzt schon richtig gut.`;
+    if (percent >= 75) return `Gute Leistung in ${label}. Ein paar Details lassen sich noch festigen.`;
+    if (percent >= 50) return `Solide Basis in ${label}. Eine kurze Wiederholung lohnt sich.`;
+    return `${label} eignet sich gut für eine weitere Übungsrunde.`;
+}
+
+function showResults() {
+    setScreen('result');
+    el.resultSelection.textContent = `Klasse ${state.activeSelection.grade} · ${state.activeSelection.chapterLabel}`;
+
+    if (state.mode === 'duel') {
+        el.resultTitle.textContent = '⚔️ Duell beendet!';
+        el.normalResult.classList.add('hidden');
+        el.duelResult.classList.remove('hidden');
+        const p1Turns = Math.max(1, state.playerTurns[1]);
+        const p2Turns = Math.max(1, state.playerTurns[2]);
+        const p1 = state.playerScores[1];
+        const p2 = state.playerScores[2];
+        el.duelP1Percent.textContent = `${Math.round((p1 / p1Turns) * 100)}%`;
+        el.duelP2Percent.textContent = `${Math.round((p2 / p2Turns) * 100)}%`;
+        el.duelP1Fraction.textContent = `${p1}/${p1Turns}`;
+        el.duelP2Fraction.textContent = `${p2}/${p2Turns}`;
+        el.resultP1.classList.toggle('winner', p1 > p2);
+        el.resultP1.classList.toggle('loser', p1 < p2);
+        el.resultP2.classList.toggle('winner', p2 > p1);
+        el.resultP2.classList.toggle('loser', p2 < p1);
+        el.resultMessage.textContent = p1 > p2
+            ? `Spieler 1 gewinnt im Kapitel ${state.activeSelection.chapterLabel}! 🏆`
+            : p2 > p1
+                ? `Spieler 2 gewinnt im Kapitel ${state.activeSelection.chapterLabel}! 🏆`
+                : `Unentschieden im Kapitel ${state.activeSelection.chapterLabel}. 🤝`;
+        return;
+    }
+
+    const percent = Math.round((state.score / Math.max(1, state.quizQuestions.length)) * 100);
+    el.resultTitle.textContent = '🎉 Quiz beendet!';
+    el.normalResult.classList.remove('hidden');
+    el.duelResult.classList.add('hidden');
+    el.resultPercent.textContent = `${percent}%`;
+    el.resultFraction.textContent = `${state.score}/${state.quizQuestions.length}`;
+    el.resultCorrect.textContent = String(state.score);
+    el.resultStreak.textContent = `${state.maxStreak} 🔥`;
+    el.resultMessage.textContent = resultMessage(percent);
+}
+
+function resetRound() {
+    state.quizQuestions = [];
+    state.currentIndex = 0;
+    state.score = 0;
+    state.streak = 0;
+    state.maxStreak = 0;
+    state.currentPlayer = 1;
+    state.playerScores = {1: 0, 2: 0};
+    state.playerTurns = {1: 0, 2: 0};
+    hideFeedback();
+    setScreen('config');
+    refreshConfig();
+}
+
+function syncBankFromEditing() {
+    state.bank = cloneData(state.editing);
+    refreshConfig();
+}
+
+function suggestedQuizFilename() {
+    return decodeURIComponent(window.location.pathname.split('/').pop() || 'quiz.html');
+}
+
+function suggestedJsonFilename() {
+    const base = suggestedQuizFilename().replace(/\.html?$/i, '') || 'quiz';
+    return `${base}-Fragenkatalog.json`;
+}
+
+function mergeImportedQuestions(baseQuestions, importedQuestions) {
+    const merged = cloneData(baseQuestions);
+    const indexById = new Map(merged.map((question, index) => [String(question.id), index]));
+    let added = 0;
+    let updated = 0;
+
+    importedQuestions.forEach((question) => {
+        const key = String(question.id);
+        if (indexById.has(key)) {
+            merged[indexById.get(key)] = question;
+            updated += 1;
+        } else {
+            indexById.set(key, merged.length);
+            merged.push(question);
+            added += 1;
+        }
+    });
+
+    return {questions: normalizeBank({questions: merged}), added, updated};
+}
+
+function clearTeacherSelection() {
+    state.selectedTeacherIds.clear();
+}
+
+function openImportDialog(mode) {
+    state.pendingImportMode = mode;
+    el.importJson.click();
+}
+
+function deleteSelectedQuestions() {
+    const selectedIds = new Set(state.selectedTeacherIds);
+    const count = selectedIds.size;
+    if (!count) return;
+    const label = count === 1 ? 'Frage' : 'Fragen';
+    if (!window.confirm(`${count} ausgewählte ${label} wirklich löschen?`)) return;
+    state.editing = state.editing.filter((question) => !selectedIds.has(String(question.id)));
+    clearTeacherSelection();
+    renderTeacherFilters();
+    renderTeacherList();
+    syncBankFromEditing();
+}
+
+function teacherEntries() {
+    return state.editing
+        .map((question, index) => ({question, index}))
+        .filter(({question}) => {
+            const matchesGrade = state.teacherFilterGrade === 'all' || question.grade === state.teacherFilterGrade;
+            const matchesChapter = state.teacherFilterChapter === 'all' || question.chapter === state.teacherFilterChapter;
+            return matchesGrade && matchesChapter;
+        });
+}
+
+function gradeOptions(selected) {
+    return CONFIG.grades.map((grade) => `<option value="${grade}" ${selected === grade ? 'selected' : ''}>${grade}</option>`).join('');
+}
+
+function renderTeacherFilters() {
+    const grades = [...new Set(state.editing.map((question) => question.grade))].sort(compare);
+    if (state.teacherFilterGrade !== 'all' && !grades.includes(state.teacherFilterGrade)) state.teacherFilterGrade = 'all';
+    el.teacherFilterGrade.innerHTML = ['<option value="all">Alle Klassenstufen</option>', ...grades.map((grade) => `<option value="${grade}">Klasse ${grade}</option>`)].join('');
+    el.teacherFilterGrade.value = state.teacherFilterGrade;
+
+    const source = state.teacherFilterGrade === 'all'
+        ? state.editing
+        : state.editing.filter((question) => question.grade === state.teacherFilterGrade);
+    const chapterMap = new Map();
+    source.forEach((question) => {
+        if (!chapterMap.has(question.chapter)) chapterMap.set(question.chapter, question.chapterLabel);
+    });
+    if (state.teacherFilterChapter !== 'all' && !chapterMap.has(state.teacherFilterChapter)) state.teacherFilterChapter = 'all';
+    const chapterOptions = [...chapterMap.entries()].sort((a, b) => compare(a[1], b[1]));
+    el.teacherFilterChapter.innerHTML = ['<option value="all">Alle Kapitel</option>', ...chapterOptions.map(([chapter, label]) => `<option value="${escapeHtml(chapter)}">${escapeHtml(label)}</option>`)].join('');
+    el.teacherFilterChapter.value = state.teacherFilterChapter;
+}
+
+function renderTeacherList() {
+    const entries = teacherEntries();
+    const visibleIds = new Set(entries.map(({question}) => String(question.id)));
+    state.selectedTeacherIds = new Set([...state.selectedTeacherIds].filter((id) => visibleIds.has(String(id))));
+    const selectedCount = state.selectedTeacherIds.size;
+
+    el.teacherCount.textContent = `${entries.length} von ${state.editing.length} Fragen sichtbar${selectedCount ? ` · ${selectedCount} ausgewählt` : ''}`;
+    el.btnSelectVisible.disabled = entries.length === 0;
+    el.btnClearSelection.disabled = selectedCount === 0;
+    el.btnDeleteSelected.disabled = selectedCount === 0;
+
+    if (!entries.length) {
+        el.teacherList.innerHTML = '<div class="empty">Für den aktuellen Filter gibt es keine Fragen.</div>';
+        return;
+    }
+    el.teacherList.innerHTML = entries.map(({question, index}) => `
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse ${escapeHtml(question.grade)}</span>
+                <span class="meta-badge chapter">${escapeHtml(question.chapterLabel)}</span>
+                <span class="meta-badge topic">${escapeHtml(question.topicLabel)}</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="${escapeHtml(String(question.id))}" ${state.selectedTeacherIds.has(String(question.id)) ? 'checked' : ''}>
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>${escapeHtml(question.question)}</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(${index})">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-${index}" onsubmit="saveQuestion(event, ${index})">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade">${gradeOptions(question.grade)}</select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="${escapeHtml(question.chapterLabel)}" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="${escapeHtml(question.topicLabel)}" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="${question.correct}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">${escapeHtml(question.question)}</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="${escapeHtml(question.image)}" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="${escapeHtml(question.answers[0])}"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="${escapeHtml(question.answers[1])}"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="${escapeHtml(question.answers[2])}"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="${escapeHtml(question.answers[3])}"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">${escapeHtml(question.explanation)}</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    `).join('');
+}
+
+window.toggleEditor = (index) => {
+    document.getElementById(`form-${index}`)?.classList.toggle('visible');
+};
+
+window.saveQuestion = (event, index) => {
+    event.preventDefault();
+    const data = new FormData(event.target);
+    state.editing[index] = normalizeQuestion({
+        id: state.editing[index].id,
+        grade: data.get('grade'),
+        chapterLabel: data.get('chapterLabel'),
+        topicLabel: data.get('topicLabel'),
+        question: data.get('question'),
+        answers: [data.get('ans0'), data.get('ans1'), data.get('ans2'), data.get('ans3')],
+        correct: data.get('correct'),
+        explanation: data.get('explanation'),
+        image: data.get('image')
+    }, index);
+    renderTeacherFilters();
+    renderTeacherList();
+    syncBankFromEditing();
+    alert('Änderung übernommen. Dauerhaft wird sie erst mit „quiz.html speichern“.');
+};
+
+function openTeacherMode() {
+    clearTeacherSelection();
+    renderTeacherFilters();
+    renderTeacherList();
+    setScreen('teacher');
+}
+
+function requestTeacherAccess() {
+    const input = window.prompt('Passwort für den Fragenkatalog eingeben:');
+    if (input === null) return;
+    if (String(input).trim() !== CONFIG.teacherPassword) {
+        alert('Falsches Passwort. Der Fragenkatalog bleibt gesperrt.');
+        return;
+    }
+    openTeacherMode();
+}
+
+function addQuestion() {
+    const grade = state.teacherFilterGrade !== 'all' ? state.teacherFilterGrade : '9';
+    const chapterLabel = state.teacherFilterChapter !== 'all'
+        ? (state.editing.find((question) => question.chapter === state.teacherFilterChapter)?.chapterLabel || `${grade}.x Neues Kapitel`)
+        : `${grade}.x Neues Kapitel`;
+    state.editing.push(normalizeQuestion({
+        id: Date.now(),
+        grade,
+        chapterLabel,
+        topicLabel: 'Neues Unterthema',
+        question: 'Neue Frage?',
+        answers: ['Antwort A', 'Antwort B', 'Antwort C', 'Antwort D'],
+        correct: 0,
+        explanation: '',
+        image: ''
+    }, state.editing.length));
+    renderTeacherFilters();
+    renderTeacherList();
+    syncBankFromEditing();
+    document.getElementById(`form-${state.editing.length - 1}`)?.classList.add('visible');
+}
+
+function downloadBlob(blob, filename) {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(link.href), 500);
+}
+
+function importJson(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const mode = state.pendingImportMode || 'replace';
+    const reader = new FileReader();
+    reader.onload = (loadEvent) => {
+        try {
+            const rawText = String(loadEvent.target?.result ?? '').replace(/^\uFEFF/, '');
+            const imported = normalizeBank(JSON.parse(rawText));
+            if (mode === 'add') {
+                const merged = mergeImportedQuestions(state.editing, imported);
+                state.editing = merged.questions;
+                alert(`${merged.added} Fragen hinzugefügt, ${merged.updated} vorhandene Fragen anhand ihrer ID aktualisiert. Bitte jetzt „quiz.html speichern“.`);
+            } else {
+                state.editing = imported;
+                clearTeacherSelection();
+                alert('Der Fragenkatalog im Editor wurde ersetzt. Bitte jetzt „quiz.html speichern“.');
+            }
+            renderTeacherFilters();
+            renderTeacherList();
+            syncBankFromEditing();
+        } catch (error) {
+            alert(`Import fehlgeschlagen: ${error.message}`);
+        } finally {
+            state.pendingImportMode = 'replace';
+            event.target.value = '';
+        }
+    };
+    reader.readAsText(file);
+}
+
+function buildExportHtml(questions) {
+    const normalized = normalizeBank({questions});
+    const clone = document.documentElement.cloneNode(true);
+    const dataNode = clone.querySelector('#embedded-question-bank');
+    const pick = (id) => clone.querySelector(`#${id}`);
+    if (!dataNode) throw new Error('Eingebetteter Fragenkatalog nicht gefunden.');
+    dataNode.textContent = `\n${safeJsonForHtml(JSON.stringify({questions: normalized}, null, 2))}\n`;
+    ['grade-chips', 'chapter-chips', 'topic-chips', 'teacher-list', 'answers'].forEach((id) => {
+        const node = pick(id);
+        if (node) node.innerHTML = '';
+    });
+    const teacherCount = pick('teacher-count');
+    if (teacherCount) teacherCount.textContent = '0 Fragen sichtbar';
+    const summaryTag = pick('summary-tag');
+    if (summaryTag) summaryTag.textContent = 'Schritt 1';
+    const summaryText = pick('summary-text');
+    if (summaryText) summaryText.textContent = 'Bitte wählen Sie zunächst eine Klassenstufe.';
+    const summaryStats = pick('summary-stats');
+    if (summaryStats) summaryStats.textContent = 'Danach werden passende Kapitel und Unterthemen eingeblendet.';
+    const qCount = pick('q-count');
+    if (qCount) {
+        qCount.disabled = true;
+        qCount.min = '1';
+        qCount.max = '1';
+        qCount.value = '1';
+    }
+    const qCountOutput = pick('q-count-output');
+    if (qCountOutput) qCountOutput.textContent = '0';
+    const qCountHelp = pick('q-count-help');
+    if (qCountHelp) qCountHelp.textContent = 'Wählen Sie zuerst mindestens ein Unterthema aus.';
+    const startButton = pick('btn-start');
+    if (startButton) startButton.disabled = true;
+    const clearSelectionButton = pick('btn-clear-selection');
+    if (clearSelectionButton) clearSelectionButton.disabled = true;
+    const deleteSelectedButton = pick('btn-delete-selected');
+    if (deleteSelectedButton) deleteSelectedButton.disabled = true;
+    ['config', 'quiz', 'result', 'teacher'].forEach((name) => {
+        const section = clone.querySelector(`#screen-${name}`);
+        if (!section) return;
+        const active = name === 'config';
+        section.hidden = !active;
+        section.classList.toggle('active', active);
+    });
+    return `<!DOCTYPE html>\n${clone.outerHTML}`;
+}
+
+async function exportHtml(questions) {
+    const html = buildExportHtml(questions);
+    const filename = suggestedQuizFilename();
+
+    if ('showSaveFilePicker' in window) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: filename,
+                types: [{description: 'HTML-Datei', accept: {'text/html': ['.html']}}]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(html);
+            await writable.close();
+            return true;
+        } catch (error) {
+            if (error?.name === 'AbortError') return false;
+            console.warn('Direktes Speichern war nicht möglich, verwende Download-Fallback.', error);
+        }
+    }
+
+    downloadBlob(new Blob([html], {type: 'text/html'}), filename);
+    return true;
+}
+
+async function exportQuestionBank(questions) {
+    const normalized = normalizeBank({questions});
+    const json = `${JSON.stringify({questions: normalized}, null, 2)}\n`;
+    const filename = suggestedJsonFilename();
+
+    if ('showSaveFilePicker' in window) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: filename,
+                types: [{description: 'JSON-Datei', accept: {'application/json': ['.json']}}]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(json);
+            await writable.close();
+            return true;
+        } catch (error) {
+            if (error?.name === 'AbortError') return false;
+            console.warn('Direktes Speichern war nicht möglich, verwende Download-Fallback.', error);
+        }
+    }
+
+    downloadBlob(new Blob([json], {type: 'application/json'}), filename);
+    return true;
+}
+
+async function saveAllChanges() {
+    const normalized = normalizeBank({questions: state.editing});
+    const saved = await exportHtml(normalized);
+    if (!saved) return;
+    state.editing = cloneData(normalized);
+    clearTeacherSelection();
+    state.bank = cloneData(normalized);
+    renderTeacherFilters();
+    renderTeacherList();
+    refreshConfig();
+    alert('Die aktualisierte quiz.html wurde erstellt. Nutzen Sie diese Datei ab jetzt als Ihren aktuellen Fragenstand.');
+}
+
+function bindEvents() {
+    el.gradeChips.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-grade]');
+        if (!button || button.disabled) return;
+        const next = button.dataset.grade;
+        state.selectedGrade = state.selectedGrade === next ? '' : next;
+        state.selectedChapter = '';
+        state.selectedTopics.clear();
+        playClick();
+        refreshConfig();
+    });
+
+    el.chapterChips.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-chapter]');
+        if (!button) return;
+        const next = button.dataset.chapter;
+        state.selectedChapter = state.selectedChapter === next ? '' : next;
+        state.selectedTopics.clear();
+        playClick();
+        refreshConfig();
+    });
+
+    el.topicChips.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-topic]');
+        if (!button) return;
+        const topic = button.dataset.topic;
+        if (state.selectedTopics.has(topic)) state.selectedTopics.delete(topic);
+        else state.selectedTopics.add(topic);
+        el.topicError.classList.add('hidden');
+        playClick();
+        refreshConfig();
+    });
+
+    el.btnSelectAllTopics.addEventListener('click', () => {
+        state.selectedTopics = new Set(topicsForSelection(state.selectedGrade, state.selectedChapter).map((entry) => entry.id));
+        playClick();
+        refreshConfig();
+    });
+
+    el.btnClearTopics.addEventListener('click', () => {
+        state.selectedTopics.clear();
+        playClick();
+        refreshConfig();
+    });
+
+    el.questionRange.addEventListener('input', (event) => {
+        state.questionCount = Number(event.target.value);
+        el.questionOutput.textContent = String(state.questionCount);
+    });
+
+    el.modeButtons.forEach((button) => button.addEventListener('click', () => {
+        state.mode = button.dataset.mode;
+        playClick();
+        updateModeButtons();
+    }));
+
+    el.soundButtons.forEach((button) => button.addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        if (state.soundEnabled) initAudio();
+        syncSoundButtons();
+    }));
+
+    el.btnStart.addEventListener('click', () => {
+        const pool = shuffle(selectedPool());
+        if (!pool.length) {
+            el.topicError.classList.remove('hidden');
+            return;
+        }
+        initAudio();
+        state.quizQuestions = pool.slice(0, Math.min(state.questionCount, pool.length));
+        state.currentIndex = 0;
+        state.score = 0;
+        state.streak = 0;
+        state.maxStreak = 0;
+        state.currentPlayer = 1;
+        state.playerScores = {1: 0, 2: 0};
+        state.playerTurns = {1: 0, 2: 0};
+        state.activeSelection = {grade: state.selectedGrade, chapterLabel: currentChapterLabel()};
+        setScreen('quiz');
+        prepareQuiz();
+    });
+
+    el.answers.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-answer]');
+        if (!button) return;
+        answerQuestion(Number(button.dataset.answer));
+    });
+
+    el.btnNext.addEventListener('click', nextQuestion);
+    el.btnMarkCorrect.addEventListener('click', () => scoreClassroom(true));
+    el.btnMarkWrong.addEventListener('click', () => scoreClassroom(false));
+    el.btnShowSolution.addEventListener('click', showPartnerSolution);
+    el.btnAbort.addEventListener('click', resetRound);
+    el.btnRestart.addEventListener('click', resetRound);
+
+    el.btnTeacher.addEventListener('click', requestTeacherAccess);
+    el.btnTeacherBack.addEventListener('click', () => setScreen('config'));
+    el.btnAddQuestion.addEventListener('click', addQuestion);
+    el.btnExportJson.addEventListener('click', () => {
+        void exportQuestionBank(state.editing);
+    });
+    el.btnImportReplace.addEventListener('click', () => openImportDialog('replace'));
+    el.btnImportAdd.addEventListener('click', () => openImportDialog('add'));
+    el.importJson.addEventListener('change', importJson);
+    el.btnSelectVisible.addEventListener('click', () => {
+        state.selectedTeacherIds = new Set(teacherEntries().map(({question}) => String(question.id)));
+        renderTeacherList();
+    });
+    el.btnClearSelection.addEventListener('click', () => {
+        clearTeacherSelection();
+        renderTeacherList();
+    });
+    el.btnDeleteSelected.addEventListener('click', deleteSelectedQuestions);
+    el.teacherList.addEventListener('change', (event) => {
+        const checkbox = event.target.closest('[data-select-question]');
+        if (!checkbox) return;
+        const id = String(checkbox.dataset.selectQuestion);
+        if (checkbox.checked) state.selectedTeacherIds.add(id);
+        else state.selectedTeacherIds.delete(id);
+        renderTeacherList();
+    });
+    el.btnSaveAll.addEventListener('click', () => {
+        void saveAllChanges();
+    });
+    el.teacherFilterGrade.addEventListener('change', (event) => {
+        state.teacherFilterGrade = event.target.value;
+        state.teacherFilterChapter = 'all';
+        renderTeacherFilters();
+        renderTeacherList();
+    });
+    el.teacherFilterChapter.addEventListener('change', (event) => {
+        state.teacherFilterChapter = event.target.value;
+        renderTeacherList();
+    });
+}
+
+function init() {
+    state.bank = loadBank();
+    state.editing = cloneData(state.bank);
+    bindEvents();
+    syncSoundButtons();
+    refreshConfig();
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+
+</body></html>
