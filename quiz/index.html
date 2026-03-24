@@ -1,6 +1,6 @@
 <!DOCTYPE html>
-<html lang="de"><head>
-<meta charset="UTF-8">
+<html lang="de"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Physik Quiz – zentrale quiz.html</title>
 <style>
@@ -138,7 +138,7 @@ input[type="range"]:disabled{opacity:.45}
 </head>
 <body>
 <div class="app">
-    <section id="screen-config" class="screen active" aria-label="Konfiguration">
+    <section id="screen-config" class="screen" aria-label="Konfiguration" hidden="">
         <header class="header">
             <div>
                 <h1 class="title">⚛️ Physik Quiz</h1>
@@ -154,7 +154,7 @@ input[type="range"]:disabled{opacity:.45}
                 <div class="flow-shell">
                     <fieldset class="flow-step">
                         <legend><span class="step-number">1</span><span>Klassenstufe</span></legend>
-                        <div id="grade-chips" class="chips"></div>
+                        <div id="grade-chips" class="chips"><button class="chip " type="button" data-grade="8">Klasse 8<span class="count">50</span></button><button class="chip " type="button" data-grade="9" disabled="">Klasse 9<span class="count">0</span></button><button class="chip " type="button" data-grade="10" disabled="">Klasse 10<span class="count">0</span></button><button class="chip " type="button" data-grade="11" disabled="">Klasse 11<span class="count">0</span></button><button class="chip " type="button" data-grade="12" disabled="">Klasse 12<span class="count">0</span></button><button class="chip " type="button" data-grade="13" disabled="">Klasse 13<span class="count">0</span></button></div>
                     </fieldset>
 
                     <fieldset id="chapter-card" class="flow-step hidden-step disabled">
@@ -242,7 +242,7 @@ input[type="range"]:disabled{opacity:.45}
                     <span id="current-topic" class="badge">Unterthema</span>
                 </div>
                 <h2 id="question-text" class="question-title">Frage lädt …</h2>
-                <div id="image-wrap" class="image-wrap hidden"><img id="question-image" src="" alt="Fragenbild"></div>
+                <div id="image-wrap" class="image-wrap hidden"><img id="question-image" src="file:///Users/matthias/Desktop/Coding/Quiz%20-%20Original/GPT5.4_quiz_Klasse%208%20(Geschwindigkeit).html" alt="Fragenbild"></div>
                 <div id="answers" class="answers"></div>
                 <div id="classroom-controls" class="grid-2 hidden" style="margin-top:1rem">
                     <button id="btn-mark-correct" class="class-btn ok" type="button">✓ Richtig</button>
@@ -301,7 +301,7 @@ input[type="range"]:disabled{opacity:.45}
         </main>
     </section>
 
-    <section id="screen-teacher" class="screen" aria-label="Lehrerbereich" hidden="">
+    <section id="screen-teacher" class="screen active" aria-label="Lehrerbereich">
         <header class="header">
             <div>
                 <h1 class="title">📝 Fragenkatalog bearbeiten</h1>
@@ -329,9 +329,9 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-group">
                     <label for="teacher-filter-chapter">Kapitel filtern</label>
-                    <select id="teacher-filter-chapter"><option value="all">Alle Kapitel</option><option value="geschwindigkeit-und-geschwindigkeitsaenderung">Geschwindigkeit und Geschwindigkeitsänderung</option></select>
+                    <select id="teacher-filter-chapter"><option value="all">Alle Kapitel</option><option value="geschwindigkeit-und-geschwindigkeitsaenderung">Geschwindigkeit und Geschwindigkeitsänderung</option><option value="newtonsches-grundgesetz">Newtonsches Grundgesetz</option></select>
                 </div>
-                <div id="teacher-count" class="muted" style="padding-bottom:.25rem">0 Fragen sichtbar</div>
+                <div id="teacher-count" class="muted" style="padding-bottom:.25rem">50 von 50 Fragen sichtbar</div>
                 <div class="selection-tools">
                     <button id="btn-select-visible" class="btn secondary small" type="button">☑️ Alle sichtbaren auswählen</button>
                     <button id="btn-clear-selection" class="btn secondary small" type="button" disabled="">Auswahl aufheben</button>
@@ -339,7 +339,3157 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
             </div>
 
-            <div id="teacher-list" class="list"></div>
+            <div id="teacher-list" class="list">
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsänderung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8019">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Puck prallt an einer Bande ab und fährt danach gleich schnell, aber in einer anderen Richtung weiter. Was hat sich geändert?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(0)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-0" onsubmit="saveQuestion(event, 0)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsänderung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Puck prallt an einer Bande ab und fährt danach gleich schnell, aber in einer anderen Richtung weiter. Was hat sich geändert?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Nur die Masse des Pucks"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Nur die Zeit"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Nur die Richtung der Geschwindigkeit"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Gar nichts"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Bei gleichem Betrag, aber anderer Richtung, hat sich nur die Richtung der Geschwindigkeit geändert.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsänderung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8020">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Je größer die Kraft und je länger die Einwirkung bei einem Stoß dauert, desto ...</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(1)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-1" onsubmit="saveQuestion(event, 1)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsänderung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Je größer die Kraft und je länger die Einwirkung bei einem Stoß dauert, desto ...</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="kleiner ist die Geschwindigkeitsänderung"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="kleiner ist die Masse"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="größer ist die Position"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="größer ist die Geschwindigkeitsänderung"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Eine größere Kraft und eine längere Einwirkdauer führen zu einer größeren Geschwindigkeitsänderung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsänderung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8018">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Kann sich die Geschwindigkeit ändern, obwohl der Betrag gleich bleibt?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(2)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-2" onsubmit="saveQuestion(event, 2)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsänderung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Kann sich die Geschwindigkeit ändern, obwohl der Betrag gleich bleibt?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Nein, dann bleibt sie immer gleich"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Ja, aber nur bei größerer Masse"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Ja, wenn sich nur die Richtung ändert"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Nein, weil nur die Zeit zählt"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Auch eine Richtungsänderung ist eine Geschwindigkeitsänderung, selbst wenn der Betrag gleich bleibt.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsänderung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8016">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet die Schreibweise Δv?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(3)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-3" onsubmit="saveQuestion(event, 3)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsänderung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet die Schreibweise Δv?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Geschwindigkeitsänderung"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die zurückgelegte Strecke"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Der Zeitpunkt"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Kraft"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv steht für die Änderung der Geschwindigkeit.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsänderung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8017">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Wie berechnet man die Geschwindigkeitsänderung aus Anfangs- und Endgeschwindigkeit?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(4)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-4" onsubmit="saveQuestion(event, 4)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsänderung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Wie berechnet man die Geschwindigkeitsänderung aus Anfangs- und Endgeschwindigkeit?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Δv = v_A + v_E"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Δv = v_A - v_E"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Δv = v_E / v_A"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Δv = v_E - v_A"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Geschwindigkeitsänderung ergibt sich aus Endgeschwindigkeit minus Anfangsgeschwindigkeit.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8010">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper legt 24 m in 6 s zurück. Wie groß ist seine Geschwindigkeit?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(5)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-5" onsubmit="saveQuestion(event, 5)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper legt 24 m in 6 s zurück. Wie groß ist seine Geschwindigkeit?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="4 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="18 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="3 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="30 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">v = Δx / Δt = 24 m / 6 s = 4 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8015">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>In einer Stroboskopaufnahme liegen die Positionen gleich weit auseinander. Was bedeutet das?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(6)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-6" onsubmit="saveQuestion(event, 6)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">In einer Stroboskopaufnahme liegen die Positionen gleich weit auseinander. Was bedeutet das?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Geschwindigkeit nimmt zu"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Geschwindigkeit bleibt konstant"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Richtung ändert sich ständig"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Masse wird kleiner"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Gleich große Abstände bei gleichen Zeitabständen bedeuten eine konstante Geschwindigkeit.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8014">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>In einer Stroboskopaufnahme werden die Abstände zwischen den Positionen größer. Was bedeutet das?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(7)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-7" onsubmit="saveQuestion(event, 7)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">In einer Stroboskopaufnahme werden die Abstände zwischen den Positionen größer. Was bedeutet das?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Geschwindigkeit bleibt gleich"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Der Körper wird langsamer"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Geschwindigkeit nimmt zu"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Der Körper bleibt stehen"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Größere Abstände bei gleichen Zeitabständen bedeuten: Der Körper legt mehr Weg zurück und wird schneller.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8009">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet Δx?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(8)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-8" onsubmit="saveQuestion(event, 8)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet Δx?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Masse eines Körpers"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Richtungsänderung"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Zeitspanne"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Ortsänderung bzw. Wegstrecke zwischen zwei Positionen"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δx beschreibt die Änderung der Position, also die Ortsänderung zwischen zwei Zeitpunkten.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8008">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was beschreibt die Position x?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(9)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-9" onsubmit="saveQuestion(event, 9)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was beschreibt die Position x?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Den Ort zu einem bestimmten Zeitpunkt"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Geschwindigkeit"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Masse"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Zeitdauer"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Position x gibt an, wo sich ein Körper zu einem bestimmten Zeitpunkt befindet.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8012">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was zeigt die Länge eines Geschwindigkeitspfeils an?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(10)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-10" onsubmit="saveQuestion(event, 10)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was zeigt die Länge eines Geschwindigkeitspfeils an?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Richtung der Bewegung"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Den Betrag der Geschwindigkeit"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Masse"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Zeitdauer"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Je länger der Geschwindigkeitspfeil ist, desto größer ist der Betrag der Geschwindigkeit.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8013">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was zeigt die Richtung eines Geschwindigkeitspfeils an?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(11)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-11" onsubmit="saveQuestion(event, 11)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was zeigt die Richtung eines Geschwindigkeitspfeils an?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Länge des Pfeils"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Bewegungsrichtung"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die zurückgelegte Strecke"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Masse"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Pfeilrichtung zeigt, in welche Richtung sich der Körper bewegt.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8007">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Welche Formel gilt für den Betrag der Geschwindigkeit?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(12)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-12" onsubmit="saveQuestion(event, 12)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Welche Formel gilt für den Betrag der Geschwindigkeit?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="v = Δt / Δx"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="v = Δx · Δt"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="v = Δx / Δt"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="v = x / t"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Der Geschwindigkeitsbetrag ergibt sich aus Wegstrecke geteilt durch Zeitintervall.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Geschwindigkeitsbetrag und -richtung</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8011">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Wie bestimmt man die mittlere Geschwindigkeit?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(13)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-13" onsubmit="saveQuestion(event, 13)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Geschwindigkeitsbetrag und -richtung" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Wie bestimmt man die mittlere Geschwindigkeit?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Gesamtzeit durch Gesamtstrecke"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Einzelstrecke minus Einzelzeit"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Gesamtstrecke mal Gesamtzeit"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Gesamtstrecke durch Gesamtzeit"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die mittlere Geschwindigkeit erhält man aus Gesamtstrecke geteilt durch Gesamtzeit.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Grundlagen und Einheit</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8002">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>In welcher Einheit wird die Geschwindigkeit im Physikunterricht meist angegeben?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(14)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-14" onsubmit="saveQuestion(event, 14)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Grundlagen und Einheit" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">In welcher Einheit wird die Geschwindigkeit im Physikunterricht meist angegeben?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="kg"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="N"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="J"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Grundeinheit der Geschwindigkeit ist Meter pro Sekunde (m/s).</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Grundlagen und Einheit</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8003">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet t in der Physik?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(15)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-15" onsubmit="saveQuestion(event, 15)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Grundlagen und Einheit" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet t in der Physik?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Wegstrecke"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Geschwindigkeitsänderung"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Ein Zeitpunkt"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Masse"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">t bezeichnet einen Zeitpunkt.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Grundlagen und Einheit</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8004">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet Δt?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(16)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-16" onsubmit="saveQuestion(event, 16)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Grundlagen und Einheit" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet Δt?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Position eines Körpers"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Ein Zeitintervall"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Kraft auf den Körper"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Richtung der Bewegung"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δt ist ein Zeitintervall, also eine Zeitspanne zwischen zwei Zeitpunkten.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Grundlagen und Einheit</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8001">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was beschreibt die Geschwindigkeit eines Körpers?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(17)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-17" onsubmit="saveQuestion(event, 17)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Grundlagen und Einheit" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was beschreibt die Geschwindigkeit eines Körpers?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Nur seine Masse"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Wie schnell er sich bewegt und in welche Richtung"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Nur seinen Ort"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Nur die benötigte Zeit"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Geschwindigkeit beschreibt, wie schnell sich ein Körper bewegt und in welche Richtung er sich bewegt.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Grundlagen und Einheit</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8006">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Wie rechnet man von km/h in m/s um?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(18)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-18" onsubmit="saveQuestion(event, 18)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Grundlagen und Einheit" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Wie rechnet man von km/h in m/s um?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Mit 3,6 multiplizieren"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Durch 60 teilen"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Durch 3,6 teilen"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Mit 1000 teilen"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Von km/h in m/s rechnet man, indem man durch 3,6 teilt.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Geschwindigkeit und Geschwindigkeitsänderung</span>
+                <span class="meta-badge topic">Grundlagen und Einheit</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8005">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Wie rechnet man von m/s in km/h um?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(19)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-19" onsubmit="saveQuestion(event, 19)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Geschwindigkeit und Geschwindigkeitsänderung" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Grundlagen und Einheit" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Wie rechnet man von m/s in km/h um?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Durch 3,6 teilen"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Mit 1000 multiplizieren"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Mit 60 multiplizieren"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Mit 3,6 multiplizieren"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Von m/s in km/h rechnet man, indem man mit 3,6 multipliziert.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8129">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Auto fährt mit konstanter Geschwindigkeit geradeaus. Was gilt für a?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(20)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-20" onsubmit="saveQuestion(event, 20)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Auto fährt mit konstanter Geschwindigkeit geradeaus. Was gilt für a?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="a = 0"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="a wird größer"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="a ist immer 1 m/s²"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="a ist unendlich"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Bei konstanter Geschwindigkeit ohne Richtungsänderung ist a = 0.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8124">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper ändert seine Geschwindigkeit von 2 m/s auf 8 m/s in 3 s. Wie groß ist a?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(21)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-21" onsubmit="saveQuestion(event, 21)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper ändert seine Geschwindigkeit von 2 m/s auf 8 m/s in 3 s. Wie groß ist a?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="1 m/s²"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="3 m/s²"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="6 m/s²"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="2 m/s²"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">a = Δv / Δt = (8 m/s - 2 m/s) / 3 s = 2 m/s².</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8125">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper mit m = 4 kg erfährt a = 3 m/s². Wie groß ist F?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(22)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-22" onsubmit="saveQuestion(event, 22)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper mit m = 4 kg erfährt a = 3 m/s². Wie groß ist F?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="12 N"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="7 N"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="1,3 N"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="24 N"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">F = m * a = 4 kg * 3 m/s² = 12 N.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8128">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Kann ein Körper beschleunigt sein, obwohl der Betrag seiner Geschwindigkeit gleich bleibt?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(23)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-23" onsubmit="saveQuestion(event, 23)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Kann ein Körper beschleunigt sein, obwohl der Betrag seiner Geschwindigkeit gleich bleibt?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Nein, dann ist a immer null"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Nur wenn die Masse kleiner wird"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Nur beim Bremsen"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Ja, wenn sich nur die Richtung ändert"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Ja, denn auch eine Richtungsänderung ist eine Geschwindigkeitsänderung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8126">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was passiert mit der Beschleunigung, wenn bei gleicher Kraft die Masse größer wird?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(24)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-24" onsubmit="saveQuestion(event, 24)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was passiert mit der Beschleunigung, wenn bei gleicher Kraft die Masse größer wird?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Sie wird größer"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Sie bleibt gleich"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Sie wird kleiner"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Sie wird null"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Bei gleicher Kraft gilt: größere Masse -&gt; kleinere Beschleunigung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8127">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was passiert mit der Beschleunigung, wenn bei gleicher Masse die Kraft größer wird?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(25)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-25" onsubmit="saveQuestion(event, 25)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was passiert mit der Beschleunigung, wenn bei gleicher Masse die Kraft größer wird?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Sie wird kleiner"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Sie wird größer"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Sie bleibt gleich"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Sie wechselt die Richtung"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Bei gleicher Masse gilt: größere Kraft -&gt; größere Beschleunigung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8121">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was versteht man unter Beschleunigung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(26)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-26" onsubmit="saveQuestion(event, 26)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was versteht man unter Beschleunigung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Änderung der Geschwindigkeit pro Zeit"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Zurückgelegte Strecke pro Zeit"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Masse eines Körpers"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die wirkende Kraft pro Weg"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Beschleunigung ist die Änderung der Geschwindigkeit pro Zeit.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8130">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Welche Aussage passt zum Zusammenhang zwischen Kraft und Beschleunigung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(27)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-27" onsubmit="saveQuestion(event, 27)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Welche Aussage passt zum Zusammenhang zwischen Kraft und Beschleunigung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Je größer die Kraft, desto kleiner die Beschleunigung"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Je größer die Masse, desto größer die Beschleunigung"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Je größer die Kraft, desto größer die Beschleunigung"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Je größer die Zeit, desto kleiner die Beschleunigung"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Bei gleicher Masse führt mehr Kraft zu größerer Beschleunigung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8123">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Welche Einheit hat die Beschleunigung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(28)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-28" onsubmit="saveQuestion(event, 28)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Welche Einheit hat die Beschleunigung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="m/s²"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="N"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="kg"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Einheit der Beschleunigung ist m/s².</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Beschleunigung und Newton</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8122">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Wie lautet die Formel für die Beschleunigung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(29)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-29" onsubmit="saveQuestion(event, 29)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Beschleunigung und Newton" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Wie lautet die Formel für die Beschleunigung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="a = Δt / Δv"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="a = F * Δt"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="a = Δv / Δt"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="a = m / Δv"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Beschleunigung ergibt sich aus Geschwindigkeitsänderung geteilt durch Zeitintervall.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8109">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>In welche Richtung zeigt Δv bei einer Krafteinwirkung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(30)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-30" onsubmit="saveQuestion(event, 30)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">In welche Richtung zeigt Δv bei einer Krafteinwirkung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Immer senkrecht zur Kraft"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Immer entgegen der Bewegung"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="In Richtung der Kraft"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Gar nicht in eine Richtung"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Kraft und Geschwindigkeitsänderung zeigen in dieselbe Richtung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8106">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Je größer die Kraft F bei gleicher Masse und gleicher Einwirkdauer ist, desto ...</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(31)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-31" onsubmit="saveQuestion(event, 31)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Je größer die Kraft F bei gleicher Masse und gleicher Einwirkdauer ist, desto ...</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Größer ist Δv"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Kleiner ist Δv"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Kleiner ist m"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Länger ist Δt"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Mehr Kraft bewirkt bei gleichem Körper und gleicher Zeit eine größere Geschwindigkeitsänderung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8108">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Je größer die Masse m bei gleicher Kraft und gleicher Einwirkdauer ist, desto ...</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(32)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-32" onsubmit="saveQuestion(event, 32)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Je größer die Masse m bei gleicher Kraft und gleicher Einwirkdauer ist, desto ...</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Größer ist Δv"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Kleiner ist Δv"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Größer ist F"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Länger ist Δt"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Eine größere Masse ist träger, daher wird Δv kleiner.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8107">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Je länger die Einwirkdauer Δt bei gleicher Kraft und gleicher Masse ist, desto ...</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(33)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-33" onsubmit="saveQuestion(event, 33)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Je länger die Einwirkdauer Δt bei gleicher Kraft und gleicher Masse ist, desto ...</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Kleiner ist Δv"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Kleiner ist F"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Größer ist m"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Größer ist Δv"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Wirkt die Kraft länger, wird die Geschwindigkeitsänderung größer.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8102">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet F in der Gleichung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(34)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-34" onsubmit="saveQuestion(event, 34)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet F in der Gleichung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die wirkende Kraft"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Masse"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Geschwindigkeit"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Der Weg"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">F steht für die wirkende Kraft.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8103">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet Δt in der Gleichung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(35)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-35" onsubmit="saveQuestion(event, 35)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet Δt in der Gleichung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die Geschwindigkeitsänderung"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Das Zeitintervall oder die Einwirkdauer"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Der Weg"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Masse"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δt ist die Zeit, in der die Kraft wirkt.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8105">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was bedeutet Δv?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(36)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-36" onsubmit="saveQuestion(event, 36)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was bedeutet Δv?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die zurückgelegte Strecke"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Zeitdauer"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Geschwindigkeitsänderung"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Richtung der Kraft"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv ist die Geschwindigkeitsänderung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8101">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was beschreibt die Gleichung F * Δt = m * Δv?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(37)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-37" onsubmit="saveQuestion(event, 37)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was beschreibt die Gleichung F * Δt = m * Δv?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Nur der Weg eines Körpers"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Nur die Masse eines Körpers"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Eine Kraft, die über Zeit wirkt, ändert die Geschwindigkeit"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Geschwindigkeit bleibt immer gleich"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Gleichung beschreibt den Zusammenhang zwischen Kraft, Einwirkdauer und Geschwindigkeitsänderung.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8104">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Was sagt die Masse m im Newtonschen Grundgesetz aus?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(38)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-38" onsubmit="saveQuestion(event, 38)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Was sagt die Masse m im Newtonschen Grundgesetz aus?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Wie schnell ein Körper ist"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Wie lange die Kraft wirkt"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Wie groß die Kraft ist"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Sie ist ein Maß für die Trägheit eines Körpers"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Masse ist ein Maß für die Trägheit eines Körpers.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Newtonsches Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8110">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Welche Aussage zur Einheit der Kraft stimmt?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(39)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-39" onsubmit="saveQuestion(event, 39)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Newtonsches Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Welche Aussage zur Einheit der Kraft stimmt?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Newton; 1 N = 1 kg · m/s²"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Joule; 1 J = 1 kg · m/s²"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Volt; 1 V = 1 kg · m/s²"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Ampere; 1 A = 1 kg · m/s²"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Die Kraft wird in Newton angegeben; 1 N entspricht 1 kg · m/s².</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8114">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Auf einen Körper wirken 9 N über 2 s. Die Masse beträgt 3 kg. Wie groß ist Δv?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(40)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-40" onsubmit="saveQuestion(event, 40)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Auf einen Körper wirken 9 N über 2 s. Die Masse beträgt 3 kg. Wie groß ist Δv?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="3 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="9 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="6 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="12 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv = F * Δt / m = 9 N * 2 s / 3 kg = 6 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8119">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Auto beschleunigt von 0 auf 72 km/h. Wie groß ist Δv in m/s?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(41)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-41" onsubmit="saveQuestion(event, 41)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Auto beschleunigt von 0 auf 72 km/h. Wie groß ist Δv in m/s?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="10 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="20 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="54 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="72 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">72 km/h entsprechen 20 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8116">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Ball mit m = 0,5 kg erfährt in 0,4 s eine Geschwindigkeitsänderung von 8 m/s. Wie groß ist die Kraft?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(42)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-42" onsubmit="saveQuestion(event, 42)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Ball mit m = 0,5 kg erfährt in 0,4 s eine Geschwindigkeitsänderung von 8 m/s. Wie groß ist die Kraft?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="2 N"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="8 N"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="12 N"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="10 N"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">F = m * Δv / Δt = 0,5 kg * 8 m/s / 0,4 s = 10 N.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8111">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper mit m = 2 kg erfährt in Δt = 3 s eine Geschwindigkeitsänderung von Δv = 6 m/s. Wie groß ist die Kraft?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(43)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-43" onsubmit="saveQuestion(event, 43)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper mit m = 2 kg erfährt in Δt = 3 s eine Geschwindigkeitsänderung von Δv = 6 m/s. Wie groß ist die Kraft?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="2 N"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="4 N"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="6 N"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="12 N"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">F = m * Δv / Δt = 2 kg * 6 m/s / 3 s = 4 N.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8113">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper mit m = 5 kg erfährt eine Geschwindigkeitsänderung von 10 m/s in 2 s. Wie groß ist F?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(44)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-44" onsubmit="saveQuestion(event, 44)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper mit m = 5 kg erfährt eine Geschwindigkeitsänderung von 10 m/s in 2 s. Wie groß ist F?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="25 N"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="5 N"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="50 N"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="20 N"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">F = m * Δv / Δt = 5 kg * 10 m/s / 2 s = 25 N.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8120">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper mit m = 8 kg soll Δv = 4 m/s erhalten. Die Kraft beträgt 16 N. Wie lange wirkt sie?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(45)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-45" onsubmit="saveQuestion(event, 45)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper mit m = 8 kg soll Δv = 4 m/s erhalten. Die Kraft beträgt 16 N. Wie lange wirkt sie?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="1 s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="3 s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="4 s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="2 s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δt = m * Δv / F = 8 kg * 4 m/s / 16 N = 2 s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8115">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Körper mit m = 10 kg erfährt bei F = 20 N in 5 s eine Geschwindigkeitsänderung. Wie groß ist sie?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(46)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-46" onsubmit="saveQuestion(event, 46)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="1">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Körper mit m = 10 kg erfährt bei F = 20 N in 5 s eine Geschwindigkeitsänderung. Wie groß ist sie?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="5 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="10 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="2 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="20 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv = F * Δt / m = 20 N * 5 s / 10 kg = 10 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8117">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Schlitten mit m = 4 kg wird durch 8 N über 2 s beeinflusst. Wie groß ist Δv?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(47)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-47" onsubmit="saveQuestion(event, 47)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Schlitten mit m = 4 kg wird durch 8 N über 2 s beeinflusst. Wie groß ist Δv?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="4 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="2 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="8 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="16 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv = F * Δt / m = 8 N * 2 s / 4 kg = 4 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8118">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Ein Wagen hat m = 1 000 kg. Bei F = 2 500 N und Δt = 2 s: Wie groß ist die Geschwindigkeitsänderung?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(48)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-48" onsubmit="saveQuestion(event, 48)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Ein Wagen hat m = 1 000 kg. Bei F = 2 500 N und Δt = 2 s: Wie groß ist die Geschwindigkeitsänderung?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="2 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="10 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="5 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="0,5 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv = F * Δt / m = 2 500 N * 2 s / 1 000 kg = 5 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    
+        <div class="item">
+            <div class="badges">
+                <span class="meta-badge">Klasse 8</span>
+                <span class="meta-badge chapter">Newtonsches Grundgesetz</span>
+                <span class="meta-badge topic">Rechnen mit dem Newtonschen Grundgesetz</span>
+            </div>
+            <div class="item-head">
+                <div class="item-head-main">
+                    <label class="select-box">
+                        <input type="checkbox" data-select-question="8112">
+                        <span>Auswählen</span>
+                    </label>
+                    <div style="flex:1"><strong>Eine Kraft von 12 N wirkt 4 s lang auf einen Körper der Masse 6 kg. Wie groß ist Δv?</strong></div>
+                </div>
+                <div class="controls">
+                    <button class="icon-btn" type="button" onclick="toggleEditor(49)">✏️</button>
+                </div>
+            </div>
+            <form class="form" id="form-49" onsubmit="saveQuestion(event, 49)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Klassenstufe</label>
+                        <select name="grade"><option value="8" selected="">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Kapitel / Thema</label>
+                        <input name="chapterLabel" value="Newtonsches Grundgesetz" placeholder="z. B. 9.1 Mechanische Energie">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Unterthema</label>
+                        <input name="topicLabel" value="Rechnen mit dem Newtonschen Grundgesetz" placeholder="z. B. Energieumwandlung">
+                    </div>
+                    <div class="form-group">
+                        <label>Index richtige Antwort (0–3)</label>
+                        <input type="number" name="correct" min="0" max="3" value="3">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Frage</label>
+                    <textarea name="question">Eine Kraft von 12 N wirkt 4 s lang auf einen Körper der Masse 6 kg. Wie groß ist Δv?</textarea>
+                </div>
+                <div class="form-group">
+                    <label>Bild-Pfad (optional)</label>
+                    <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="2 m/s"></div>
+                    <div class="form-group"><label>Antwort 2</label><input name="ans1" value="6 m/s"></div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label>Antwort 3</label><input name="ans2" value="4 m/s"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="8 m/s"></div>
+                </div>
+                <div class="form-group">
+                    <label>Musterlösung / Erklärung</label>
+                    <textarea name="explanation">Δv = F * Δt / m = 12 N * 4 s / 6 kg = 8 m/s.</textarea>
+                </div>
+                <button class="btn primary small" type="submit">Übernehmen</button>
+            </form>
+        </div>
+    </div>
 
             <div class="actions">
                 <button id="btn-teacher-back" class="btn secondary" type="button">Zurück zum Menü</button>
