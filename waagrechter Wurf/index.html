@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Waagrechter Wurf – Rettungspaket</title>
+    <style>
+        /* =====================================================
+           DESIGN-SYSTEM
+           ===================================================== */
+        :root {
+            --color-accent:       #1976d2;
+            --color-accent-dk:    #1565c0;
+            --color-border:       #cfd8dc;
+            --color-panel-bg:     #ffffff;
+            --color-body-bg:      #f1f8ff;
+            --color-text:         #1a237e;
+            --color-text-light:   #546e7a;
+            --color-success:      #2e7d32;
+            --color-danger:       #c62828;
+            --color-warn:         #e65100;
+            --radius-btn:         10px;
+            --shadow-btn:         0 2px 6px rgba(0,0,0,0.12);
+            --shadow-panel:       0 -2px 16px rgba(21,101,192,0.10);
+            --font:               -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        *, *::before, *::after {
+            margin: 0; padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--color-body-bg);
+            color: var(--color-text);
+            overflow: hidden;
+            touch-action: manipulation;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* ---- APP-LAYOUT ---- */
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* ---- Header ---- */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: var(--color-panel-bg);
+            border-bottom: 1px solid var(--color-border);
+            flex-shrink: 0;
+        }
+
+        .header-title    { font-size: 1rem; font-weight: 700; color: var(--color-accent); }
+        .header-subtitle { font-size: 0.72rem; color: var(--color-text-light); }
+
+        /* ---- Canvas ---- */
+        .canvas-wrap {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        #simCanvas { width: 100%; height: 100%; display: block; }
+
+        /* Landing-Banner */
+        #landing-banner {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            background: white;
+            border-radius: 14px;
+            padding: 0.9rem 1.5rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            z-index: 10;
+        }
+        #landing-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        #landing-banner.hit  { border-left: 5px solid var(--color-success); color: var(--color-success); }
+        #landing-banner.miss { border-left: 5px solid var(--color-danger);  color: var(--color-danger);  }
+
+        /* ---- Panel ---- */
+        .panel {
+            background: var(--color-panel-bg);
+            border-top: 1px solid var(--color-border);
+            box-shadow: var(--shadow-panel);
+            padding: 0.75rem 1rem 0.7rem;
+            flex-shrink: 0;
+            overflow-y: auto;
+            max-height: 46vh;
+        }
+
+        /* Slider-Grid: 2 Spalten, bei breiteren Screens 3 */
+        .slider-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1rem;
+            margin-bottom: 0.75rem;
+        }
+        @media (min-width: 560px) { .slider-grid { grid-template-columns: 1fr 1fr 1fr; } }
+        @media (min-width: 760px) { .slider-grid { grid-template-columns: repeat(5, 1fr); } }
+
+        .slider-row { display: flex; flex-direction: column; gap: 0.22rem; }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--color-text-light);
+        }
+        .slider-label strong { color: var(--color-text); font-size: 0.85rem; }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right,
+                var(--color-accent) var(--pct, 50%),
+                var(--color-border) var(--pct, 50%));
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px; height: 24px;
+            background: var(--color-panel-bg);
+            border: 2.5px solid var(--color-accent);
+            border-radius: 50%;
+            box-shadow: var(--shadow-btn);
+            cursor: pointer;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 22px; height: 22px;
+            background: var(--color-panel-bg);
+            border: 2.5px solid var(--color-accent);
+            border-radius: 50%; cursor: pointer;
+        }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+
+        .btn {
+            flex: 1; min-width: 76px;
+            padding: 0.65rem 0.7rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border: none;
+            border-radius: var(--radius-btn);
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            box-shadow: var(--shadow-btn);
+            white-space: nowrap;
+        }
+        .btn:active { transform: scale(0.96); }
+
+        .btn-primary   { background: var(--color-accent); color: white; }
+        .btn-secondary { background: #eceff1; color: var(--color-text); }
+        .btn-active    { background: var(--color-accent); color: white; }
+        .btn-warn      { background: #fff3e0; color: var(--color-warn); border: 1px solid #ffcc80; }
+        .btn-warn.slo-active { background: var(--color-warn); color: white; border-color: var(--color-warn); }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <div>
+            <div class="header-title">✈️ Waagrechter Wurf</div>
+            <div class="header-subtitle">Rettungspaket-Abwurf</div>
+        </div>
+        <button class="btn btn-secondary" id="btn-reset-hdr"
+                style="flex:none;padding:0.45rem 0.85rem;font-size:0.82rem;">↺ Reset</button>
+    </div>
+
+    <div class="canvas-wrap">
+        <canvas id="simCanvas"></canvas>
+        <div id="landing-banner"></div>
+    </div>
+
+    <div class="panel">
+        <div class="slider-grid">
+            <!-- Höhe -->
+            <div class="slider-row">
+                <div class="slider-label">
+                    <span>Höhe <em>h</em></span>
+                    <strong id="lbl-h">80 m</strong>
+                </div>
+                <input type="range" id="sl-h" min="10" max="300" step="1" value="80">
+            </div>
+            <!-- Abwurfposition x -->
+            <div class="slider-row">
+                <div class="slider-label">
+                    <span>Abwurf <em>x₀</em></span>
+                    <strong id="lbl-xs">0 m</strong>
+                </div>
+                <input type="range" id="sl-xs" min="-150" max="150" step="5" value="0">
+            </div>
+            <!-- Geschwindigkeit -->
+            <div class="slider-row">
+                <div class="slider-label">
+                    <span>Geschw. <em>v₀</em></span>
+                    <strong id="lbl-v0">25 m/s</strong>
+                </div>
+                <input type="range" id="sl-v0" min="5" max="120" step="1" value="25">
+            </div>
+            <!-- g -->
+            <div class="slider-row">
+                <div class="slider-label">
+                    <span>Fallbeschl. <em>g</em></span>
+                    <strong id="lbl-g">9.81 m/s²</strong>
+                </div>
+                <input type="range" id="sl-g" min="1.62" max="9.81" step="0.01" value="9.81">
+            </div>
+            <!-- Insel -->
+            <div class="slider-row">
+                <div class="slider-label">
+                    <span>🏝 Insel <em>x</em></span>
+                    <strong id="lbl-xi">150 m</strong>
+                </div>
+                <input type="range" id="sl-xi" min="50" max="400" step="5" value="150">
+            </div>
+        </div>
+
+        <div class="btn-row">
+            <button class="btn btn-primary"   id="btn-play">▶ Start</button>
+            <button class="btn btn-secondary" id="btn-reset">↺ Reset</button>
+            <button class="btn btn-warn"      id="btn-slo">🐢 Slo-Mo</button>
+            <button class="btn btn-secondary" id="btn-vec">📐 Vektoren</button>
+            <button class="btn btn-secondary" id="btn-traj">〰 Parabel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =====================================================
+   PHYSICS – rein mathematisch
+   ===================================================== */
+class Physics {
+    constructor(g = 9.81) { this.g = g; }
+
+    /** Zustand zum Zeitpunkt t: x, y, vx, vy */
+    getState(h, v0, g, xStart, t) {
+        return {
+            x:  xStart + v0 * t,
+            y:  Math.max(0, h - 0.5 * g * t * t),
+            vx: v0,
+            vy: -g * t
+        };
+    }
+
+    /** t_flight = sqrt(2h / g) */
+    flightTime(h, g) {
+        if (g <= 0 || h <= 0) return 0;
+        return Math.sqrt(2 * h / g);
+    }
+
+    /** Reichweite x beim Aufprall */
+    range(h, v0, g, xStart) {
+        return xStart + v0 * this.flightTime(h, g);
+    }
+
+    /** Vorberechnete Trajektorie als Punktarray */
+    trajectory(h, v0, g, xStart, steps = 90) {
+        const tF  = this.flightTime(h, g);
+        const pts = [];
+        for (let i = 0; i <= steps; i++) {
+            const t = (i / steps) * tF;
+            pts.push(this.getState(h, v0, g, xStart, t));
+        }
+        return pts;
+    }
+}
+
+/* =====================================================
+   SCALER – Koordinatentransformation
+   ===================================================== */
+class Scaler {
+    constructor() {
+        this.xMin = 0; this.xMax = 250;
+        this.yMin = 0; this.yMax = 120;
+        this.logW = 1; this.logH = 1;
+        this.pad  = 46;
+    }
+
+    fit(xStart, xMax, yTop, extraX = 0.20, extraY = 0.18) {
+        const xL   = Math.min(xStart - 30, 0);
+        const xR   = xMax;
+        const dx   = xR - xL || 100;
+        this.xMin  = xL  - dx * extraX;
+        this.xMax  = xR  + dx * extraX;
+        this.yMin  = -yTop * 0.06;
+        this.yMax  = yTop + yTop * extraY;
+    }
+
+    setLogical(w, h) { this.logW = w; this.logH = h; }
+
+    toCanvasX(x) {
+        return this.pad + (x - this.xMin) / (this.xMax - this.xMin) * (this.logW - 2 * this.pad);
+    }
+    toCanvasY(y) {
+        return this.logH - this.pad - (y - this.yMin) / (this.yMax - this.yMin) * (this.logH - 2 * this.pad);
+    }
+    niceStep(range, n) {
+        const r = range / n;
+        const m = Math.pow(10, Math.floor(Math.log10(r)));
+        const f = r / m;
+        return (f <= 1.5 ? 1 : f <= 3 ? 2 : f <= 7 ? 5 : 10) * m;
+    }
+}
+
+/* =====================================================
+   RENDERER – zeichnet deterministisch aus Snapshot
+   ===================================================== */
+class Renderer {
+    constructor(canvas, scaler) {
+        this.canvas = canvas;
+        this.ctx    = canvas.getContext('2d');
+        this.scaler = scaler;
+        this._wOff  = 0; // Wellen-Offset
+    }
+
+    resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        const dpr  = window.devicePixelRatio || 1;
+        this.canvas.width  = rect.width  * dpr;
+        this.canvas.height = rect.height * dpr;
+        this.canvas.style.width  = rect.width  + 'px';
+        this.canvas.style.height = rect.height + 'px';
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.scale(dpr, dpr);
+        this.scaler.setLogical(rect.width, rect.height);
+    }
+
+    /**
+     * Haupt-Zeichenfunktion
+     * snap = {
+     *   plane, planeOnly, pkg, island,
+     *   preTrajectory, trail,
+     *   showVectors, vectors, overlay
+     * }
+     */
+    draw(snap) {
+        const W = this.scaler.logW;
+        const H = this.scaler.logH;
+        const ctx = this.ctx;
+
+        ctx.clearRect(0, 0, W, H);
+        this._drawSky(W, H);
+        this._drawOcean(W, H);
+        this._drawAxes(W, H);
+        this._drawIsland(snap.island);
+
+        // Gestrichelte Parabel (nur wenn explizit an)
+        if (snap.preTrajectory && snap.preTrajectory.length > 1) {
+            this._drawPreTrajectory(snap.preTrajectory);
+        }
+
+        // Flugbahn-Spur (während / nach Animation)
+        if (snap.trail && snap.trail.length > 1) {
+            this._drawTrail(snap.trail);
+        }
+
+        // Flugzeug
+        if (snap.plane) this._drawPlane(snap.plane.x, snap.plane.y, snap.plane.opacity);
+
+        // Paket (nur wenn nicht im Einflug)
+        if (snap.pkg) this._drawPackage(snap.pkg.x, snap.pkg.y);
+
+        // Vektorpfeile
+        if (snap.showVectors && snap.pkg && snap.vectors) {
+            this._drawVectors(snap.pkg.x, snap.pkg.y, snap.vectors.vx, snap.vectors.vy);
+        }
+
+        // Info-Overlay
+        if (snap.overlay) this._drawInfoOverlay(snap.overlay, W);
+    }
+
+    /* ---- Himmel ---- */
+    _drawSky(W, H) {
+        const seaY = this.scaler.toCanvasY(0);
+        const ctx  = this.ctx;
+        const g    = ctx.createLinearGradient(0, 0, 0, seaY);
+        g.addColorStop(0,   '#78b9e6');
+        g.addColorStop(0.55,'#b8d9f0');
+        g.addColorStop(1,   '#dff0fb');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, seaY);
+        this._cloud(ctx, W * 0.12, H * 0.07, 52);
+        this._cloud(ctx, W * 0.52, H * 0.04, 38);
+        this._cloud(ctx, W * 0.80, H * 0.10, 46);
+    }
+
+    _cloud(ctx, cx, cy, r) {
+        ctx.save();
+        ctx.globalAlpha = 0.80;
+        ctx.fillStyle   = '#ffffff';
+        [[0,0,r],[-.7,.2,.65],[.7,.2,.65],[.35,-.28,.5]].forEach(
+            ([ox,oy,s]) => { ctx.beginPath(); ctx.arc(cx+ox*r,cy+oy*r,s*r,0,Math.PI*2); ctx.fill(); }
+        );
+        ctx.restore();
+    }
+
+    /* ---- Ozean ---- */
+    _drawOcean(W, H) {
+        const ctx  = this.ctx;
+        const seaY = this.scaler.toCanvasY(0);
+        const seaH = H - seaY;
+
+        const g = ctx.createLinearGradient(0, seaY, 0, H);
+        g.addColorStop(0,   '#1e88e5');
+        g.addColorStop(0.4, '#1565c0');
+        g.addColorStop(1,   '#0d47a1');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, seaY, W, seaH);
+
+        // Wellen (3 Schichten, animiert)
+        this._wOff = (this._wOff + 0.35) % (Math.PI * 2);
+        const layers = [
+            { amp: 3.5, freq: 0.018, phase: this._wOff,        a: 0.30, lw: 2.5 },
+            { amp: 2.0, freq: 0.030, phase: this._wOff * 1.4,  a: 0.18, lw: 1.5 },
+            { amp: 1.2, freq: 0.050, phase: this._wOff * 0.7,  a: 0.12, lw: 1.0 }
+        ];
+        for (const l of layers) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(255,255,255,${l.a})`;
+            ctx.lineWidth   = l.lw;
+            for (let x = 0; x <= W; x += 4) {
+                const y = seaY + 10 + Math.sin(x * l.freq + l.phase) * l.amp;
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        // Lichtreflexe
+        ctx.save();
+        ctx.globalAlpha = 0.06;
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth   = 14;
+        for (let i = 0; i < 5; i++) {
+            const rx = W * (0.08 + i * 0.18);
+            ctx.beginPath(); ctx.moveTo(rx, seaY+4); ctx.lineTo(rx+28, seaY + seaH*0.65); ctx.stroke();
+        }
+        ctx.restore();
+    }
+
+    /* ---- Koordinatenachsen ---- */
+    _drawAxes(W, H) {
+        const ctx = this.ctx;
+        const sc  = this.scaler;
+        const oX  = sc.toCanvasX(0);
+        const oY  = sc.toCanvasY(0);
+        const font = 'bold 11px ' + getComputedStyle(document.body).fontFamily;
+
+        ctx.save();
+
+        // Gitterlinien (zuerst, im Hintergrund)
+        const xStep = sc.niceStep(sc.xMax - sc.xMin, 6);
+        const yStep = sc.niceStep(sc.yMax - sc.yMin, 5);
+        ctx.strokeStyle = 'rgba(25,25,80,0.09)';
+        ctx.lineWidth   = 1;
+        for (let x = Math.ceil(sc.xMin / xStep) * xStep; x <= sc.xMax; x += xStep) {
+            const cx = sc.toCanvasX(x);
+            if (cx < 6 || cx > W - 6) continue;
+            ctx.beginPath(); ctx.moveTo(cx, Math.max(4, sc.toCanvasY(sc.yMax))); ctx.lineTo(cx, oY); ctx.stroke();
+        }
+        for (let y = Math.ceil(sc.yMin / yStep) * yStep; y <= sc.yMax; y += yStep) {
+            if (Math.abs(y) < 0.01) continue;
+            const cy = sc.toCanvasY(y);
+            if (cy < 6 || cy > H - 6) continue;
+            ctx.beginPath(); ctx.moveTo(sc.toCanvasX(sc.xMin), cy); ctx.lineTo(Math.min(W - 4, sc.toCanvasX(sc.xMax)), cy); ctx.stroke();
+        }
+
+        // Haupt-Achsen (dicker, kontrastreicher)
+        ctx.strokeStyle = 'rgba(20,20,75,0.85)';
+        ctx.lineWidth   = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(sc.toCanvasX(sc.xMin), oY);
+        ctx.lineTo(Math.min(W - 4, sc.toCanvasX(sc.xMax)), oY);
+        ctx.stroke();
+        if (sc.xMin <= 0 && oX > 0 && oX < W) {
+            ctx.beginPath();
+            ctx.moveTo(oX, sc.toCanvasY(sc.yMin));
+            ctx.lineTo(oX, Math.max(4, sc.toCanvasY(sc.yMax)));
+            ctx.stroke();
+        }
+
+        // Achsen-Pfeilspitzen
+        this._axisArrow(ctx, Math.min(W - 4, sc.toCanvasX(sc.xMax)), oY, 'right');
+        if (sc.xMin <= 0 && oX > 0 && oX < W) {
+            this._axisArrow(ctx, oX, Math.max(4, sc.toCanvasY(sc.yMax)), 'up');
+        }
+
+        // Tick-Marks & Beschriftung
+        ctx.strokeStyle = 'rgba(20,20,75,0.70)';
+        ctx.lineWidth   = 1.8;
+        ctx.fillStyle   = 'rgba(15,15,65,0.85)';
+        ctx.font        = font;
+
+        ctx.textAlign = 'center';
+        for (let x = Math.ceil(sc.xMin / xStep) * xStep; x <= sc.xMax; x += xStep) {
+            const cx = sc.toCanvasX(x);
+            if (cx < 6 || cx > W - 6) continue;
+            ctx.beginPath(); ctx.moveTo(cx, oY - 6); ctx.lineTo(cx, oY + 6); ctx.stroke();
+            ctx.fillText(Math.round(x) + ' m', cx, oY + 18);
+        }
+
+        ctx.textAlign = 'right';
+        for (let y = Math.ceil(sc.yMin / yStep) * yStep; y <= sc.yMax; y += yStep) {
+            if (Math.abs(y) < 0.01) continue;
+            const cy = sc.toCanvasY(y);
+            if (cy < 6 || cy > H - 6) continue;
+            if (sc.xMin <= 0 && oX > 44) {
+                ctx.beginPath(); ctx.moveTo(oX - 6, cy); ctx.lineTo(oX + 6, cy); ctx.stroke();
+                ctx.fillText(Math.round(y) + ' m', oX - 9, cy + 4);
+            }
+        }
+
+        ctx.restore();
+    }
+
+    _axisArrow(ctx, x, y, dir) {
+        const s = 8;
+        ctx.fillStyle = 'rgba(20,20,75,0.85)';
+        ctx.beginPath();
+        if (dir === 'right') {
+            ctx.moveTo(x, y); ctx.lineTo(x - s, y - s * 0.45); ctx.lineTo(x - s, y + s * 0.45);
+        } else {
+            ctx.moveTo(x, y); ctx.lineTo(x - s * 0.45, y + s); ctx.lineTo(x + s * 0.45, y + s);
+        }
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* ---- Insel ---- */
+    _drawIsland(island) {
+        if (!island) return;
+        const ctx  = this.ctx;
+        const sc   = this.scaler;
+        const cx   = sc.toCanvasX((island.x1 + island.x2) / 2);
+        const seaY = sc.toCanvasY(0);
+        const x1c  = sc.toCanvasX(island.x1);
+        const x2c  = sc.toCanvasX(island.x2);
+
+        // Zielzone
+        ctx.save();
+        ctx.fillStyle = island.hit === true
+            ? 'rgba(46,125,50,0.40)'
+            : island.hit === false
+            ? 'rgba(198,40,40,0.28)'
+            : 'rgba(255,255,255,0.15)';
+        ctx.fillRect(x1c, seaY - 2, x2c - x1c, 6);
+
+        // Insel-Emoji
+        const sz = Math.max(34, Math.min(54, (x2c - x1c) * 0.75));
+        ctx.font = `${sz}px serif`;
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('🏝️', cx, seaY + 3);
+
+        // Pylonen
+        this._pylon(ctx, x1c, seaY);
+        this._pylon(ctx, x2c, seaY);
+        ctx.restore();
+    }
+
+    _pylon(ctx, cx, seaY) {
+        ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(cx, seaY); ctx.lineTo(cx, seaY - 16); ctx.stroke();
+        ctx.fillStyle = '#f9a825';
+        ctx.beginPath();
+        ctx.moveTo(cx, seaY - 16); ctx.lineTo(cx + 9, seaY - 11); ctx.lineTo(cx, seaY - 6);
+        ctx.closePath(); ctx.fill();
+    }
+
+    /* -------------------------------------------------------
+       Flugzeug – echter Seitenriss
+       Koordinaten-Ursprung = Cockpit-Mitte
+       Flugrichtung: nach rechts (+x)
+       ------------------------------------------------------- */
+    _drawPlane(x, y, opacity = 1) {
+        const ctx = this.ctx;
+        const cx  = this.scaler.toCanvasX(x);
+        const cy  = this.scaler.toCanvasY(y);
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
+        ctx.translate(cx, cy);
+
+        // ---- Rumpf ----
+        // Langes, leicht sich verjüngendes Rohr
+        ctx.beginPath();
+        ctx.moveTo(44, 0);          // Nasenspitze
+        ctx.bezierCurveTo(44, -7, 28, -8, 10, -8);   // Oberkante Cockpit-Bereich
+        ctx.lineTo(-44, -5);        // Oberkante Heck
+        ctx.lineTo(-48, 0);         // Heckspitze
+        ctx.lineTo(-44,  5);        // Unterkante Heck
+        ctx.lineTo(10,   8);        // Unterkante Rumpf
+        ctx.bezierCurveTo(28, 8, 44, 7, 44, 0); // Nase unten
+        ctx.closePath();
+        ctx.fillStyle   = '#dce9f9';
+        ctx.strokeStyle = '#1a237e';
+        ctx.lineWidth   = 1.5;
+        ctx.fill();
+        ctx.stroke();
+
+        // ---- Cockpit-Verglasung (Kappe oben) ----
+        ctx.beginPath();
+        ctx.moveTo(28, -8);
+        ctx.bezierCurveTo(30, -16, 15, -16, 10, -8);
+        ctx.closePath();
+        ctx.fillStyle   = 'rgba(100,180,240,0.55)';
+        ctx.strokeStyle = '#1565c0';
+        ctx.lineWidth   = 1.2;
+        ctx.fill();
+        ctx.stroke();
+
+        // ---- Hauptflügel (swept, unter dem Rumpf-Bauch) ----
+        // Seitenansicht: nur ein sichtbarer Flügel nach unten
+        ctx.beginPath();
+        ctx.moveTo( 6,  8);    // Flügelwurzel vorne
+        ctx.lineTo(-24, 36);   // Flügelspitze (rechts-unten)
+        ctx.lineTo(-34, 32);   // Flügelspitze Hinterkante
+        ctx.lineTo(-10,  8);   // Flügelwurzel hinten
+        ctx.closePath();
+        ctx.fillStyle   = '#90caf9';
+        ctx.strokeStyle = '#1565c0';
+        ctx.lineWidth   = 1.2;
+        ctx.fill();
+        ctx.stroke();
+
+        // ---- Triebwerk (unterm Flügel) ----
+        ctx.beginPath();
+        ctx.ellipse(-12, 22, 12, 5, 0.15, 0, Math.PI * 2);
+        ctx.fillStyle   = '#607d8b';
+        ctx.strokeStyle = '#37474f';
+        ctx.lineWidth   = 1;
+        ctx.fill();
+        ctx.stroke();
+        // Triebwerk-Einlass (dunklerer Kreis)
+        ctx.beginPath();
+        ctx.ellipse(-22, 22, 5, 4.5, 0.15, 0, Math.PI * 2);
+        ctx.fillStyle = '#37474f';
+        ctx.fill();
+
+        // ---- Seitenleitwerk (vertikal, oben am Heck) ----
+        ctx.beginPath();
+        ctx.moveTo(-36, -5);    // Rumpf-Ansatz
+        ctx.lineTo(-46, -22);   // Leitwerk-Spitze
+        ctx.lineTo(-38, -20);   // Vorderkante
+        ctx.lineTo(-30, -5);    // Rumpf-Ansatz vorne
+        ctx.closePath();
+        ctx.fillStyle   = '#bbdefb';
+        ctx.strokeStyle = '#1a237e';
+        ctx.lineWidth   = 1.2;
+        ctx.fill();
+        ctx.stroke();
+
+        // ---- Höhenleitwerk (horizontal, nur nach unten sichtbar) ----
+        ctx.beginPath();
+        ctx.moveTo(-34,  5);
+        ctx.lineTo(-46, 18);
+        ctx.lineTo(-50, 14);
+        ctx.lineTo(-38,  5);
+        ctx.closePath();
+        ctx.fillStyle   = '#90caf9';
+        ctx.strokeStyle = '#1565c0';
+        ctx.lineWidth   = 1.2;
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    /* ---- Paket ---- */
+    _drawPackage(x, y) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.font = '24px serif';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('📦', this.scaler.toCanvasX(x), this.scaler.toCanvasY(y));
+        ctx.restore();
+    }
+
+    /* ---- Vorberechnete Parabel ---- */
+    _drawPreTrajectory(pts) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(90,120,210,0.42)';
+        ctx.lineWidth   = 2;
+        ctx.setLineDash([7, 5]);
+        ctx.beginPath();
+        pts.forEach((p, i) => {
+            const cx = this.scaler.toCanvasX(p.x);
+            const cy = this.scaler.toCanvasY(p.y);
+            i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+
+    /* ---- Flugbahn-Spur ---- */
+    _drawTrail(trail) {
+        const ctx = this.ctx;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(239,83,80,0.65)';
+        ctx.lineWidth   = 2.5;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        trail.forEach((p, i) => {
+            const cx = this.scaler.toCanvasX(p.x);
+            const cy = this.scaler.toCanvasY(p.y);
+            i === 0 ? ctx.moveTo(cx, cy) : ctx.lineTo(cx, cy);
+        });
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+    }
+
+    /* ---- Vektorpfeile (proportional skaliert) ---- */
+    _drawVectors(x, y, vx, vy) {
+        const sc       = this.scaler;
+        const cx       = sc.toCanvasX(x);
+        const cy       = sc.toCanvasY(y);
+        const physW    = sc.xMax - sc.xMin;
+        const pixPer   = (sc.logW - 2 * sc.pad) / physW;
+        const scale    = Math.max(1.2, Math.min(5.0, pixPer * 0.85));
+
+        const vxPx = vx * scale;
+        const vyPx = -vy * scale;  // Canvas y ist invertiert
+
+        if (Math.abs(vxPx) > 5)
+            this._arrow(cx, cy, cx + vxPx, cy, '#1565c0', `vx = ${Math.abs(vx).toFixed(1)} m/s`);
+        if (Math.abs(vyPx) > 5)
+            this._arrow(cx, cy, cx, cy + vyPx, '#c62828', `vy = ${vy.toFixed(1)} m/s`);
+    }
+
+    _arrow(x1, y1, x2, y2, color, label) {
+        const ctx     = this.ctx;
+        const hLen    = 10;
+        const angle   = Math.atan2(y2 - y1, x2 - x1);
+
+        ctx.save();
+        ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x2, y2);
+        ctx.lineTo(x2 - hLen * Math.cos(angle - 0.42), y2 - hLen * Math.sin(angle - 0.42));
+        ctx.lineTo(x2 - hLen * Math.cos(angle + 0.42), y2 - hLen * Math.sin(angle + 0.42));
+        ctx.closePath(); ctx.fill();
+
+        const lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 - 12;
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        const tw = ctx.measureText(label).width;
+        ctx.fillStyle = 'rgba(255,255,255,0.78)';
+        ctx.fillRect(lx - tw/2 - 3, ly - 11, tw + 6, 15);
+        ctx.fillStyle = color;
+        ctx.fillText(label, lx, ly);
+        ctx.restore();
+    }
+
+    /* ---- Info-Overlay ---- */
+    _drawInfoOverlay(data, W) {
+        const ctx   = this.ctx;
+        const lines = [
+            `t  = ${data.t.toFixed(2)} s`,
+            `x  = ${data.x.toFixed(1)} m`,
+            `y  = ${data.y.toFixed(1)} m`,
+            `vx = ${data.vx.toFixed(1)} m/s`,
+            `vy = ${data.vy.toFixed(1)} m/s`
+        ];
+        const lh = 15, pad = 8, bw = 130, bh = lines.length * lh + pad * 2;
+        const bx = W - bw - 10, by = 10;
+
+        ctx.save();
+        ctx.fillStyle   = 'rgba(255,255,255,0.88)';
+        ctx.strokeStyle = 'rgba(21,101,192,0.25)';
+        ctx.lineWidth   = 1;
+        this._rRect(ctx, bx, by, bw, bh, 8);
+        ctx.fill(); ctx.stroke();
+
+        ctx.font = '11px monospace'; ctx.fillStyle = '#1a237e'; ctx.textAlign = 'left';
+        lines.forEach((l, i) => ctx.fillText(l, bx + pad, by + pad + 11 + i * lh));
+        ctx.restore();
+    }
+
+    _rRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x+r, y); ctx.lineTo(x+w-r,y);
+        ctx.arcTo(x+w,y,  x+w,y+r,    r);
+        ctx.lineTo(x+w,y+h-r);
+        ctx.arcTo(x+w,y+h, x+w-r,y+h, r);
+        ctx.lineTo(x+r,y+h);
+        ctx.arcTo(x,y+h, x,y+h-r,     r);
+        ctx.lineTo(x,y+r);
+        ctx.arcTo(x,y,   x+r,y,        r);
+        ctx.closePath();
+    }
+}
+
+/* =====================================================
+   ANIMATOR – Delta-Zeit-basiert
+   ===================================================== */
+class Animator {
+    constructor(onFrame, onEnd) {
+        this._onFrame = onFrame;
+        this._onEnd   = onEnd;
+        this._rafId   = null;
+        this._lastTs  = null;
+        this.running  = false;
+        this.paused   = false;
+        this.t        = 0;
+        this.speed    = 1.0;
+        this.tMax     = Infinity;
+    }
+
+    start(tMax) {
+        this.tMax = tMax; this.t = 0;
+        this.running = true; this.paused = false;
+        this._lastTs = null;
+        this._tick();
+    }
+
+    pause() {
+        if (!this.running) return;
+        this.paused = !this.paused;
+        if (!this.paused) { this._lastTs = null; this._tick(); }
+    }
+
+    stop() {
+        this.running = false; this.paused = false;
+        if (this._rafId) { cancelAnimationFrame(this._rafId); this._rafId = null; }
+    }
+
+    _tick() {
+        this._rafId = requestAnimationFrame(ts => {
+            if (!this.running || this.paused) return;
+            if (this._lastTs !== null) {
+                const dt = Math.min((ts - this._lastTs) / 1000, 0.05);
+                this.t  += dt * this.speed;
+            }
+            this._lastTs = ts;
+
+            if (this.t >= this.tMax) {
+                this.t = this.tMax;
+                this._onFrame(this.t);
+                this.running = false;
+                this._onEnd();
+                return;
+            }
+            this._onFrame(this.t);
+            this._tick();
+        });
+    }
+}
+
+/* =====================================================
+   APP – Controller, zentraler Zustand
+   ===================================================== */
+class App {
+    constructor() {
+        /* ---- Zustand ---- */
+        this.state = {
+            h:  80,    // Abwurfhöhe [m]
+            xs: 0,     // Abwurf-Position x [m]
+            v0: 25,    // Anfangsgeschwindigkeit [m/s]
+            g:  9.81,  // Erdbeschleunigung [m/s²]
+            xi: 150,   // Insel-Mittelpunkt [m]
+            iw: 30     // Inselbreite [m]
+        };
+
+        this.showVectors = true;
+        this.showPreTraj = false;   // ← standardmäßig AUS
+        this.trail       = [];
+
+        /* ---- Einflug-Phase (vor Abwurf) ---- */
+        // Das Flugzeug fliegt von weit links nach xStart, dann wird abgeworfen.
+        // Danach fliegt das Flugzeug weiter nach rechts (Ausflugs-Phase).
+        this._phase = 'idle';     // 'idle' | 'entry' | 'drop' | 'exit'
+        this._planeX = 0;         // aktuelle Flugzeug-X während entry/exit
+
+        /* ---- Module ---- */
+        this.physics  = new Physics();
+        this.scaler   = new Scaler();
+        this.renderer = new Renderer(
+            document.getElementById('simCanvas'), this.scaler
+        );
+
+        this.animator = new Animator(
+            t => this._onAnimFrame(t),
+            ()  => this._onAnimEnd()
+        );
+
+        /* ---- Einflug-Animator (separater RAF-Loop) ---- */
+        this._entryRaf    = null;
+        this._entryLastTs = null;
+
+        /* ---- Init ---- */
+        this.renderer.resize();
+        this._fitScaler();
+        this._bindUI();
+        this._updateAllSliderFills();
+        this._drawStatic();
+    }
+
+    /* ---- Scaler konfigurieren ---- */
+    _fitScaler() {
+        const { h, v0, g, xs, xi, iw } = this.state;
+        const rangeEnd = this.physics.range(h, v0, g, xs);
+        const xMax     = Math.max(xi + iw / 2 + 30, rangeEnd + 30);
+        // Linker Rand: genug Platz für den Einflug
+        this.scaler.fit(xs, xMax, h);
+    }
+
+    /* ---- Statisches Startbild ---- */
+    _drawStatic(overrideHit = null) {
+        const { h, xs, v0, g, xi, iw } = this.state;
+        this.renderer.draw({
+            plane:         { x: xs, y: h, opacity: 1 },
+            pkg:           { x: xs, y: h },
+            island:        { x1: xi - iw/2, x2: xi + iw/2, hit: overrideHit },
+            preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs) : null,
+            trail:         [],
+            showVectors:   false,
+            vectors:       null,
+            overlay:       null
+        });
+    }
+
+    /* =================================================
+       EINFLUG-ANIMATION
+       Phase 1: Flugzeug kommt von links ins Bild
+       Das Plane fährt von xStart - Einflugdistanz → xStart
+       Geschwindigkeit: v0 (physikalisch sinnvoll)
+       ================================================= */
+    _startEntryPhase() {
+        const { h, xs } = this.state;
+        // Einflug-Startposition: weit links außerhalb des sichtbaren Bereichs
+        const entryDist  = (this.scaler.xMax - this.scaler.xMin) * 0.55;
+        this._planeX     = xs - entryDist;
+        this._phase      = 'entry';
+        this._entryLastTs = null;
+
+        const tick = (ts) => {
+            if (this._phase !== 'entry') return;
+
+            if (this._entryLastTs !== null) {
+                const dt = Math.min((ts - this._entryLastTs) / 1000, 0.05);
+                // Plane fliegt mit v0*2.5 (wirkt flüssig und zügig)
+                const planeSpeed = Math.max(60, this.state.v0 * 2.5);
+                this._planeX += planeSpeed * dt;
+            }
+            this._entryLastTs = ts;
+
+            // Partielles Zeichnen: Nur Flugzeug, noch kein Paket
+            const { v0, g, xi, iw } = this.state;
+            this.renderer.draw({
+                plane:         { x: this._planeX, y: h, opacity: 1 },
+                pkg:           null, // Paket noch nicht sichtbar
+                island:        { x1: xi - iw/2, x2: xi + iw/2, hit: null },
+                preTrajectory: null,
+                trail:         [],
+                showVectors:   false,
+                vectors:       null,
+                overlay:       null
+            });
+
+            if (this._planeX >= this.state.xs) {
+                // Abwurf-Moment: Phase 2 starten
+                this._planeX = this.state.xs;
+                this._phase  = 'drop';
+                this._startDropPhase();
+                return;
+            }
+            this._entryRaf = requestAnimationFrame(tick);
+        };
+
+        this._entryRaf = requestAnimationFrame(tick);
+    }
+
+    /* =================================================
+       ABWURF-PHASE (Phase 2)
+       Flugzeug fliegt weiter, Paket fällt
+       ================================================= */
+    _startDropPhase() {
+        const { h, xs, v0, g } = this.state;
+        const tFlight = this.physics.flightTime(h, g);
+        this.trail    = [];
+
+        // Paket-Animator starten
+        this.animator.start(tFlight);
+
+        // Flugzeug fliegt parallel weiter (exit-Phase, eigener kleiner RAF)
+        this._phase      = 'exit';
+        this._exitLastTs = null;
+
+        // Plane startet beim Abwurfpunkt und fliegt nach rechts aus dem Bild
+        const exitTick = (ts) => {
+            if (this._phase !== 'exit') return;
+
+            if (this._exitLastTs !== null) {
+                const dt = Math.min((ts - this._exitLastTs) / 1000, 0.05);
+                const planeSpeed = Math.max(60, this.state.v0 * 2.5);
+                this._planeX += planeSpeed * dt;
+            }
+            this._exitLastTs = ts;
+
+            // Sobald Plane rechts außerhalb → opacity fade
+            const opacity = Math.max(0, 1 - (this._planeX - this.state.xs) / (this.scaler.xMax - this.state.xs + 10));
+            this._planeOpacity = opacity;
+
+            if (this._planeX > this.scaler.xMax + 50) {
+                this._phase = 'drop'; // Plane unsichtbar
+                return;
+            }
+            if (!this.animator.running) { this._phase = 'idle'; return; }
+            this._exitRaf = requestAnimationFrame(exitTick);
+        };
+        this._exitRaf  = requestAnimationFrame(exitTick);
+        this._planeOpacity = 1;
+    }
+
+    /* =================================================
+       ANIMATIONS-FRAME (Paket fällt)
+       ================================================= */
+    _onAnimFrame(t) {
+        const { h, xs, v0, g, xi, iw } = this.state;
+        const pos = this.physics.getState(h, v0, g, xs, t);
+
+        // Trail mit Decimation
+        this.trail.push({ x: pos.x, y: pos.y });
+        if (this.trail.length > 300) {
+            this.trail = this.trail.filter((_, i) => i % 2 === 0);
+        }
+
+        // Plane-Position für diese Phase
+        const planeVisible = this._phase === 'exit' && this._planeX <= this.scaler.xMax + 40;
+
+        this.renderer.draw({
+            plane:         planeVisible ? { x: this._planeX, y: h, opacity: this._planeOpacity ?? 1 } : null,
+            pkg:           { x: pos.x, y: pos.y },
+            island:        { x1: xi - iw/2, x2: xi + iw/2, hit: null },
+            preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs) : null,
+            trail:         this.trail,
+            showVectors:   this.showVectors,
+            vectors:       { vx: pos.vx, vy: pos.vy },
+            overlay:       { t, x: pos.x, y: pos.y, vx: pos.vx, vy: pos.vy }
+        });
+    }
+
+    /* =================================================
+       ANIMATIONS-ENDE
+       ================================================= */
+    _onAnimEnd() {
+        const { h, xs, v0, g, xi, iw } = this.state;
+        const tF    = this.physics.flightTime(h, g);
+        const range = this.physics.range(h, v0, g, xs);
+        const hit   = range >= xi - iw/2 && range <= xi + iw/2;
+        const pos   = this.physics.getState(h, v0, g, xs, tF);
+
+        this._phase = 'idle';
+
+        this.renderer.draw({
+            plane:         null,
+            pkg:           { x: pos.x, y: 0 },
+            island:        { x1: xi - iw/2, x2: xi + iw/2, hit },
+            preTrajectory: null,
+            trail:         this.trail,
+            showVectors:   false,
+            vectors:       null,
+            overlay:       { t: tF, x: pos.x, y: 0, vx: pos.vx, vy: pos.vy }
+        });
+
+        document.getElementById('btn-play').textContent = '▶ Start';
+
+        const banner = document.getElementById('landing-banner');
+        banner.className = 'show ' + (hit ? 'hit' : 'miss');
+        banner.textContent = hit
+            ? '🎯 Treffer! Paket landet auf der Insel!'
+            : `❌ Daneben! Reichweite: ${range.toFixed(0)} m`;
+        setTimeout(() => { banner.className = ''; }, 3200);
+    }
+
+    /* =================================================
+       UI EVENTS
+       ================================================= */
+    _bindUI() {
+        const sliders = [
+            { id: 'sl-h',  key: 'h',  lbl: 'lbl-h',  fmt: v => `${v} m`     },
+            { id: 'sl-xs', key: 'xs', lbl: 'lbl-xs', fmt: v => `${v} m`     },
+            { id: 'sl-v0', key: 'v0', lbl: 'lbl-v0', fmt: v => `${v} m/s`   },
+            { id: 'sl-g',  key: 'g',  lbl: 'lbl-g',  fmt: v => `${parseFloat(v).toFixed(2)} m/s²` },
+            { id: 'sl-xi', key: 'xi', lbl: 'lbl-xi', fmt: v => `${v} m`     }
+        ];
+
+        sliders.forEach(({ id, key, lbl, fmt }) => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', () => {
+                this.state[key] = parseFloat(el.value);
+                document.getElementById(lbl).textContent = fmt(el.value);
+                this._onSliderChange();
+                this._updateSliderFill(el);
+            });
+        });
+
+        document.getElementById('btn-play').addEventListener('click',     () => this._onPlayPause());
+        document.getElementById('btn-reset').addEventListener('click',    () => this._onReset());
+        document.getElementById('btn-reset-hdr').addEventListener('click',() => this._onReset());
+        document.getElementById('btn-slo').addEventListener('click',      () => this._onSloMo());
+        document.getElementById('btn-vec').addEventListener('click',      () => this._onToggleVectors());
+        document.getElementById('btn-traj').addEventListener('click',     () => this._onToggleTraj());
+
+        window.addEventListener('resize', () => {
+            this.renderer.resize();
+            this._fitScaler();
+            if (this._phase === 'idle') this._drawStatic();
+        });
+    }
+
+    _onSliderChange() {
+        if (this._phase !== 'idle') return; // Keine Unterbrechung während Animation
+        this._fitScaler();
+        this._drawStatic();
+    }
+
+    _onPlayPause() {
+        const btn = document.getElementById('btn-play');
+
+        if (this._phase === 'idle' && !this.animator.running) {
+            // Neu starten → Einflug-Phase
+            this._fitScaler();
+            this._startEntryPhase();
+            btn.textContent = '⏸ Pause';
+        } else if (this.animator.running) {
+            this.animator.pause();
+            btn.textContent = this.animator.paused ? '▶ Weiter' : '⏸ Pause';
+        }
+    }
+
+    _onReset() {
+        // Alle Animationen stoppen
+        this.animator.stop();
+        if (this._entryRaf) { cancelAnimationFrame(this._entryRaf); this._entryRaf = null; }
+        if (this._exitRaf)  { cancelAnimationFrame(this._exitRaf);  this._exitRaf  = null; }
+        this._phase = 'idle';
+        this.trail  = [];
+        document.getElementById('btn-play').textContent = '▶ Start';
+        document.getElementById('landing-banner').className = '';
+        this._fitScaler();
+        this._drawStatic();
+    }
+
+    _onSloMo() {
+        const isSlo = this.animator.speed === 0.2;
+        this.animator.speed = isSlo ? 1.0 : 0.2;
+        const btn = document.getElementById('btn-slo');
+        btn.textContent = isSlo ? '🐢 Slo-Mo' : '🐇 Normal';
+        btn.classList.toggle('slo-active', !isSlo);
+    }
+
+    _onToggleVectors() {
+        this.showVectors = !this.showVectors;
+        const btn = document.getElementById('btn-vec');
+        btn.className = 'btn ' + (this.showVectors ? 'btn-active' : 'btn-secondary');
+    }
+
+    _onToggleTraj() {
+        this.showPreTraj = !this.showPreTraj;
+        const btn = document.getElementById('btn-traj');
+        btn.className = 'btn ' + (this.showPreTraj ? 'btn-active' : 'btn-secondary');
+        if (this._phase === 'idle') this._drawStatic();
+    }
+
+    _updateSliderFill(el) {
+        const pct = ((el.value - el.min) / (el.max - el.min)) * 100;
+        el.style.setProperty('--pct', pct + '%');
+    }
+
+    _updateAllSliderFills() {
+        ['sl-h','sl-xs','sl-v0','sl-g','sl-xi'].forEach(id =>
+            this._updateSliderFill(document.getElementById(id))
+        );
+    }
+}
+
+/* =====================================================
+   START
+   ===================================================== */
+const app = new App();
+</script>
+</body>
+</html>
