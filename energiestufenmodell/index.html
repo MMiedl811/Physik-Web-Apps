@@ -616,6 +616,9 @@
                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                     <polygon points="0 0, 10 3.5, 0 7" fill="context-stroke" />
                 </marker>
+                <marker id="arrowhead-excite" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1" />
+                </marker>
             </defs>
             <g id="ladder-group"></g>
             <g id="arrows-group"></g>
@@ -1224,16 +1227,17 @@ function pulseAbsorptionLine(index) {
 /* === LOGIC === */
 
 function updateValidation() {
-    if (state.currentLevelIndex !== 0) return;
-
     const el = getElementData();
+    const currentEv = el.levels[state.currentLevelIndex].ev;
     const displayValue = getDisplayedInputValue();
     const inputEv = getInputEnergyEv();
     const tolerance = 0.005;
     let matchIndex = -1;
 
-    for (let i = 1; i < el.levels.length; i++) {
-        if (Math.abs(displayValueFromEv(el.levels[i].ev) - displayValue) < tolerance) {
+    // Only match levels strictly above the current level
+    for (let i = state.currentLevelIndex + 1; i < el.levels.length; i++) {
+        const deltaEv = el.levels[i].ev - currentEv;
+        if (Math.abs(displayValueFromEv(deltaEv) - displayValue) < tolerance) {
             matchIndex = i;
             break;
         }
@@ -1244,46 +1248,58 @@ function updateValidation() {
 
     if (displayValue < tolerance) {
         dom.btnExcite.classList.remove('ready');
-        setFeedback('neutral', 'Wähle eine Energie, die genau zu einem Energieniveau passt.');
+        if (state.currentLevelIndex === 0) {
+            setFeedback('neutral', 'Wähle eine Energie, die genau zu einem Energieniveau passt.');
+        } else {
+            const curLevel = el.levels[state.currentLevelIndex];
+            setFeedback('neutral', `Atom in ${curLevel.id} · Energie für Weiteranregung eingeben oder Rücksprung wählen.`);
+        }
         return;
     }
 
     if (matchIndex !== -1) {
         const level = el.levels[matchIndex];
+        const deltaEv = level.ev - currentEv;
         dom.btnExcite.classList.add('ready');
-        setFeedback('valid', `✓ Treffer: ${level.id} · ${formatEnergy(level.ev)} · ${getPhotonHint(level.ev)}`);
+        const fromLabel = state.currentLevelIndex === 0 ? '' : ` (von ${el.levels[state.currentLevelIndex].id})`;
+        setFeedback('valid', `✓ Treffer: ${level.id}${fromLabel} · ${formatEnergy(deltaEv)} · ${getPhotonHint(deltaEv)}`);
         return;
     }
 
     dom.btnExcite.classList.remove('ready');
 
-    if (inputEv > el.levels[el.levels.length - 1].ev + tolerance) {
+    const maxDeltaEv = el.levels[el.levels.length - 1].ev - currentEv;
+    if (inputEv > maxDeltaEv + tolerance) {
         setFeedback('invalid', 'Energie zu hoch (Ionisierung).');
     } else {
-        setFeedback('invalid', `${formatEnergy(inputEv)} passt zu keinem Energieniveau.`);
+        const fromLabel = state.currentLevelIndex === 0 ? '' : ` von ${el.levels[state.currentLevelIndex].id}`;
+        setFeedback('invalid', `${formatEnergy(inputEv)} passt zu keinem Energieniveau${fromLabel}.`);
     }
 }
 
 function excite() {
-    if (state.targetLevelIndex === null || state.currentLevelIndex !== 0) return;
+    if (state.targetLevelIndex === null) return;
 
     const el = getElementData();
+    const fromIdx = state.currentLevelIndex;
+    const toIdx = state.targetLevelIndex;
+    const deltaE = el.levels[toIdx].ev - el.levels[fromIdx].ev;
 
-    state.energyIn += el.levels[state.targetLevelIndex].ev;
-    state.absorbedLevelIndex = state.targetLevelIndex;
-    state.currentLevelIndex = state.targetLevelIndex;
+    state.energyIn += deltaE;
+    state.absorbedLevelIndex = toIdx;
+    state.currentLevelIndex = toIdx;
 
     dom.btnExcite.classList.remove('ready');
-    dom.input.disabled = true;
-    dom.slider.disabled = true;
+    // Select bleibt gesperrt solange Atom angeregt – select wird in relax() / updateRelaxationOptions() freigegeben
     dom.select.disabled = true;
 
+    drawExcitationArrow(fromIdx, toIdx);
     renderAbsorptionSpectrum();
-    pulseAbsorptionLine(state.targetLevelIndex);
+    pulseAbsorptionLine(toIdx);
     moveElectron(state.currentLevelIndex);
     updateCounter();
     updateRelaxationOptions();
-    setFeedback('neutral', 'Angeregt! Wähle jetzt einen möglichen Rücksprung.');
+    setFeedback('neutral', `Angeregt! In ${el.levels[toIdx].id} · Weiteres Photon eingeben oder Rücksprung wählen.`);
 }
 
 function updateRelaxationOptions() {
@@ -1291,19 +1307,24 @@ function updateRelaxationOptions() {
     const el = getElementData();
     const currentIdx = state.currentLevelIndex;
 
+    // Input and slider are always active (for further excitation from any level)
+    dom.input.disabled = false;
+    dom.slider.disabled = false;
+
     if (currentIdx === 0) {
+        dom.select.disabled = false;
         dom.relaxHint.style.display = 'block';
         dom.relaxHint.innerHTML = state.energyIn > 0
             ? 'Grundzustand (E₀).<br>Neue Anregung oder Reset möglich.'
             : 'Grundzustand (E₀).<br>Führe Energie zu.';
-        dom.input.disabled = false;
-        dom.slider.disabled = false;
-        dom.select.disabled = false;
         updateValidation();
         return;
     }
 
     dom.relaxHint.style.display = 'none';
+
+    // Always call validation so "Anregen" button reacts to current input
+    updateValidation();
 
     for (let i = currentIdx - 1; i >= 0; i--) {
         const targetLvl = el.levels[i];
@@ -1342,10 +1363,32 @@ function relax(targetIndex, energyDiff) {
     updateRelaxationOptions();
 
     if (targetIndex === 0) {
+        dom.select.disabled = false;
         setFeedback('neutral', 'Grundzustand erreicht. Du kannst erneut anregen oder resetten.');
     } else {
         setFeedback('neutral', `Photon abgegeben: ${formatEnergy(energyDiff)} · ${getPhotonHint(energyDiff)}`);
     }
+}
+
+function drawExcitationArrow(fromIdx, toIdx) {
+    const el = getElementData();
+    // y1 is the lower (source) level, y2 is the higher (target) level
+    const y1 = getY(fromIdx, el.levels.length);
+    const y2 = getY(toIdx, el.levels.length);
+
+    // Count existing excitation arrows to stagger them slightly
+    const existingCount = dom.arrowsGroup.querySelectorAll('.arrow-excite').length;
+    const x = 68 + existingCount * 6;
+
+    const path = createSvgEl('path', {
+        d: `M ${x} ${y1} L ${x} ${y2}`,
+        stroke: 'var(--primary)',
+        class: 'arrow-path arrow-excite',
+        'stroke-dasharray': '6 3',
+        'marker-end': 'url(#arrowhead-excite)'
+    });
+
+    dom.arrowsGroup.appendChild(path);
 }
 
 function drawArrow(fromIdx, toIdx, color, x) {
