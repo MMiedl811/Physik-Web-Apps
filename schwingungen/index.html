@@ -233,6 +233,18 @@
     .model-note { color: #cbd5e1; font-size: 11px; line-height: 1.3; }
     .advanced-controls summary { color: #cbd5e1; cursor: pointer; font-size: 12px; font-weight: bold; }
     .advanced-controls[open] summary { margin-bottom: 7px; }
+
+    @media (max-width: 900px) {
+      body { height: 100dvh; max-width: 100%; }
+      .topbar { padding: 8px 10px; gap: 7px; max-height: 52dvh; overflow-y: auto; overflow-x: hidden; }
+      .topbar-row { gap: 7px; min-width: 0; }
+      #springParams, #pendulumParams { width: 100%; min-width: 0; flex-wrap: wrap; gap: 6px !important; }
+      .control-group { min-width: 0; flex-wrap: wrap; gap: 5px; padding: 4px 7px; }
+      input[type="range"] { width: min(100px, 28vw); }
+      .main-content, #canvas-container { min-width: 0; max-width: 100%; }
+      #canvas-container { overflow: hidden; }
+      .info-footer { padding: 7px 10px; }
+    }
   </style>
 </head>
 <body>
