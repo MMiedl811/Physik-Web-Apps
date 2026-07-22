@@ -127,26 +127,6 @@
             border: 1px solid #c7d2fe;
         }
 
-        .model-note {
-            font-size: 0.72rem;
-            line-height: 1.35;
-            color: var(--text-muted);
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: var(--radius);
-            padding: 8px 10px;
-        }
-
-        .quick-steps {
-            font-size: 0.78rem;
-            line-height: 1.5;
-            color: var(--text-main);
-            background: #eef2ff;
-            border-left: 4px solid var(--primary);
-            border-radius: 8px;
-            padding: 8px 10px 8px 12px;
-        }
-
         .unit-toggle {
             display: flex;
             background: #f1f5f9;
@@ -430,11 +410,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
-            min-height: 52px;
-            font-family: var(--font);
-            color: inherit;
-            text-align: left;
         }
         
         .relax-item:hover {
@@ -614,7 +589,7 @@
         .spectrum-mode-badge.full { background: #ede9fe; color: #6d28d9; }
 
         /* Responsive */
-        @media (max-width: 1180px) {
+        @media (max-width: 1000px) {
             body { height: auto; overflow: auto; padding: 10px; }
             .app-container {
                 display: flex;
@@ -630,17 +605,8 @@
                 width: 100%;
                 justify-content: flex-start;
             }
-            .stage { min-height: 460px; }
-            .spectra { min-height: 220px; }
-            .controls, .relaxation { min-height: 0; }
-        }
-
-        @media (max-width: 700px) {
-            .header-note { width: 100%; border-radius: var(--radius); }
-            .stage { min-height: 390px; }
-            .spectra { display: flex; flex-direction: column; min-height: 420px; }
-            .spectrum-card { min-height: 200px; }
-            .energy-counter { top: 8px; right: 8px; }
+            .stage { min-height: 400px; order: -1; }
+            .spectra { height: 200px; }
         }
     </style>
 </head>
@@ -655,7 +621,7 @@
             <h1>Quanten-Labor</h1>
         </div>
         <div class="header-actions">
-            <div class="header-note">Gerundete Modellgrenzen: IR &lt; 1,6 eV · sichtbar ≈ 1,6–3,3 eV · UV &gt; 3,3 eV</div>
+            <div class="header-note">Spektren in eV · IR &lt; 1,6 · UV &gt; 3,3</div>
             <div class="unit-toggle">
                 <button class="unit-btn active" id="btn-ev">Elektronenvolt</button>
                 <button class="unit-btn" id="btn-j">Joule</button>
@@ -667,7 +633,6 @@
     <aside class="card controls">
         <div class="card-header">Steuerung</div>
         <div class="card-body">
-            <div class="quick-steps"><strong>So geht’s:</strong><br>1. Element wählen · 2. passende ΔE einstellen und anregen · 3. Rücksprung beobachten.</div>
             
             <div class="input-group">
                 <label>Element</label>
@@ -689,8 +654,6 @@
                 Wähle eine Energie
             </div>
 
-            <div class="model-note">Vereinfachtes Atommodell: Gezeigt werden nur ausgewählte Energieniveaus. Ihre vertikalen Abstände sind zur Lesbarkeit <strong>schematisch</strong>; entscheidend sind die angegebenen Energiewerte.</div>
-
             <button id="btn-excite" class="btn btn-excite">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 Anregen
@@ -708,7 +671,7 @@
             </label>
 
             <button id="btn-reset" class="btn btn-reset">
-                Alles zurücksetzen
+                Reset
             </button>
 
         </div>
@@ -716,7 +679,7 @@
 
     <!-- STAGE -->
     <main class="card stage">
-        <div class="card-header">Energieniveau-Diagramm · schematische Abstände</div>
+        <div class="card-header">Energieniveau-Diagramm</div>
         
         <!-- Minimalist Energy Counter -->
         <div class="energy-counter" id="energy-counter">
@@ -787,7 +750,6 @@ const ELEMENTS = {
     H: {
         name: "Wasserstoff (H)",
         maxSlider: 14.00,
-        ionizationEv: 13.60,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 10.20 }, { id: "E₂", ev: 12.09 }, { id: "E₃", ev: 12.75 }, { id: "E₄", ev: 13.06 }
         ]
@@ -795,7 +757,6 @@ const ELEMENTS = {
     He: {
         name: "Helium (He)",
         maxSlider: 25.00,
-        ionizationEv: 24.59,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 19.82 }, { id: "E₂", ev: 20.61 }, { id: "E₃", ev: 21.22 }, { id: "E₄", ev: 23.00 }
         ]
@@ -803,7 +764,6 @@ const ELEMENTS = {
     Li: {
         name: "Lithium (Li)",
         maxSlider: 6.00,
-        ionizationEv: 5.39,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.85 }, { id: "E₂", ev: 3.83 }, { id: "E₃", ev: 4.54 }, { id: "E₄", ev: 4.80 }
         ]
@@ -811,7 +771,6 @@ const ELEMENTS = {
     Na: {
         name: "Natrium (Na)",
         maxSlider: 6.00,
-        ionizationEv: 5.14,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 2.10 }, { id: "E₂", ev: 3.19 }, { id: "E₃", ev: 3.61 }, { id: "E₄", ev: 4.11 }
         ]
@@ -819,7 +778,6 @@ const ELEMENTS = {
     K: {
         name: "Kalium (K)",
         maxSlider: 5.00,
-        ionizationEv: 4.34,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.61 }, { id: "E₂", ev: 2.60 }, { id: "E₃", ev: 3.06 }, { id: "E₄", ev: 3.40 }
         ]
@@ -827,7 +785,6 @@ const ELEMENTS = {
     Sr: {
         name: "Strontium (Sr)",
         maxSlider: 5.00,
-        ionizationEv: 5.69,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.80 }, { id: "E₂", ev: 2.30 }, { id: "E₃", ev: 2.69 }, { id: "E₄", ev: 3.00 }
         ]
@@ -835,7 +792,6 @@ const ELEMENTS = {
     Ba: {
         name: "Barium (Ba)",
         maxSlider: 6.00,
-        ionizationEv: 5.21,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 2.24 }, { id: "E₂", ev: 2.80 }, { id: "E₃", ev: 3.50 }, { id: "E₄", ev: 4.00 }
         ]
@@ -843,7 +799,6 @@ const ELEMENTS = {
     Cu: {
         name: "Kupfer (Cu)",
         maxSlider: 8.00,
-        ionizationEv: 7.73,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 1.39 }, { id: "E₂", ev: 3.79 }, { id: "E₃", ev: 5.00 }, { id: "E₄", ev: 6.00 }
         ]
@@ -851,7 +806,6 @@ const ELEMENTS = {
     Hg: {
         name: "Quecksilber (Hg)",
         maxSlider: 10.00,
-        ionizationEv: 10.44,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 4.67 }, { id: "E₂", ev: 4.89 }, { id: "E₃", ev: 6.70 }, { id: "E₄", ev: 8.84 }
         ]
@@ -859,7 +813,6 @@ const ELEMENTS = {
     Ne: {
         name: "Neon (Ne)",
         maxSlider: 22.00,
-        ionizationEv: 21.56,
         levels: [
             { id: "E₀", ev: 0.00 }, { id: "E₁", ev: 16.62 }, { id: "E₂", ev: 18.38 }, { id: "E₃", ev: 19.80 }, { id: "E₄", ev: 20.05 }
         ]
@@ -1487,12 +1440,12 @@ function updateValidation() {
 
     dom.btnExcite.classList.remove('ready');
 
-    const ionizationDeltaEv = el.ionizationEv - currentEv;
-    if (inputEv + tolerance >= ionizationDeltaEv) {
-        setFeedback('invalid', `Ionisierung: Ab ${formatEnergy(ionizationDeltaEv)} reicht die Photonenergie aus, um das Elektron aus diesem Zustand zu lösen.`);
+    const maxDeltaEv = el.levels[el.levels.length - 1].ev - currentEv;
+    if (inputEv > maxDeltaEv + tolerance) {
+        setFeedback('invalid', 'Energie zu hoch (Ionisierung).');
     } else {
         const fromLabel = state.currentLevelIndex === 0 ? '' : ` von ${el.levels[state.currentLevelIndex].id}`;
-        setFeedback('invalid', `${formatEnergy(inputEv)} passt zu keinem der ausgewählten Energieniveaus${fromLabel}; die Ionisierungsgrenze ist noch nicht erreicht.`);
+        setFeedback('invalid', `${formatEnergy(inputEv)} passt zu keinem Energieniveau${fromLabel}.`);
     }
 }
 
@@ -1551,20 +1504,16 @@ function updateRelaxationOptions() {
         const regionClass = region.toLowerCase();
 
         const li = document.createElement('li');
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = `relax-item ${regionClass}`;
-        button.setAttribute('aria-label', `Rücksprung nach ${targetLvl.id}, Photonenergie ${formatEnergy(deltaE)}`);
-        button.innerHTML = `
+        li.className = `relax-item ${regionClass}`;
+        li.innerHTML = `
             <div class="relax-content">
-                <span class="relax-to">Rücksprung nach ${targetLvl.id}</span>
+                <span class="relax-to">nach ${targetLvl.id}</span>
                 <div class="relax-val">${formatEnergy(deltaE)}</div>
             </div>
             <span class="relax-badge">${region}</span>
         `;
 
-        button.addEventListener('click', () => relax(i, deltaE));
-        li.appendChild(button);
+        li.onclick = () => relax(i, deltaE);
         dom.relaxList.appendChild(li);
     }
 }

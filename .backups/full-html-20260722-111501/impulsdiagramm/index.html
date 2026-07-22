@@ -443,27 +443,10 @@
             border-radius: 4px;
             line-height: 1.4;
         }
-
-        .advanced-settings {
-            margin: 10px 0 15px;
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            background: #f7fafc;
-        }
-        .advanced-settings summary {
-            cursor: pointer;
-            padding: 10px 12px;
-            font-weight: 600;
-            color: #4a5568;
-        }
-        .advanced-settings-body { padding: 0 12px 2px; }
-        .model-assumptions { margin: 0 0 15px; }
-        .input-error { border-color: var(--secondary) !important; background: #fff5f5 !important; }
     </style>
 </head>
 <body>
     <h1>🎯 Stoß-Diagramm Generator Pro</h1>
-    <div class="info-box model-assumptions"><strong>Modell:</strong> eindimensionaler, kurzer Stoß in einem abgeschlossenen System. Positive Geschwindigkeit zeigt zu größeren x-Werten; negative Impulse zeigen in Gegenrichtung. Erhalten bleibt der Gesamtimpuls. Nur beim elastischen Stoß bleibt auch die <em>kinetische</em> Energie erhalten; sonst wird ein Teil in innere Energie (z. B. Wärme und Verformung) umgewandelt.</div>
     
     <div class="container">
         <div class="controls">
@@ -503,14 +486,11 @@
                 </div>
             </div>
 
-            <details class="advanced-settings">
-                <summary>Erweiterte Startbedingungen Wagen 1</summary>
-                <div class="advanced-settings-body">
             <div class="form-group">
                 <label for="x1start">Startposition (m)</label>
                 <div class="input-combined">
                     <input type="number" id="x1start" value="0" step="0.1" oninput="syncRange('x1start')">
-                    <input type="range" id="x1start-range" value="0" step="0.1" min="-10" max="10" oninput="syncNumber('x1start')">
+                    <input type="range" id="x1start-range" value="0" step="0.1" min="0" max="10" oninput="syncNumber('x1start')">
                 </div>
             </div>
 
@@ -521,8 +501,6 @@
                     <input type="range" id="t1start-range" value="0" step="0.1" min="0" max="5" oninput="syncNumber('t1start')">
                 </div>
             </div>
-                </div>
-            </details>
 
             <div style="margin-top: 20px; border-top: 1px solid var(--grid); padding-top: 10px; margin-bottom: 10px; font-weight: bold; color: var(--secondary);">Wagen 2</div>
             
@@ -542,14 +520,11 @@
                 </div>
             </div>
             
-            <details class="advanced-settings">
-                <summary>Erweiterte Startbedingungen Wagen 2</summary>
-                <div class="advanced-settings-body">
             <div class="form-group">
                 <label for="x2start">Startposition (m)</label>
                 <div class="input-combined">
                     <input type="number" id="x2start" value="4" step="0.1" oninput="syncRange('x2start')">
-                    <input type="range" id="x2start-range" value="4" step="0.1" min="-10" max="10" oninput="syncNumber('x2start')">
+                    <input type="range" id="x2start-range" value="4" step="0.1" min="0" max="10" oninput="syncNumber('x2start')">
                 </div>
             </div>
 
@@ -560,13 +535,11 @@
                     <input type="range" id="t2start-range" value="0" step="0.1" min="0" max="5" oninput="syncNumber('t2start')">
                 </div>
             </div>
-                </div>
-            </details>
             
             <button onclick="resetToDefaults()">↺ Zurücksetzen</button>
             
             <div class="info-box">
-                <strong>Vorzeichen-Tipp:</strong> Lege zuerst die positive x-Richtung fest. Nutze dann negative v-Werte für Bewegung in Gegenrichtung.
+                <strong>Tipp:</strong> Nutze die Slider für Live-Updates! Die drei Analysen zeigen dir sofort die physikalischen Größen.
             </div>
         </div>
         
@@ -675,7 +648,7 @@
             };
         }
 
-        function generateSVG(data, tMax, xMin, xMax, title, isComparison = false) {
+        function generateSVG(data, tMax, xMax, title, isComparison = false) {
             const { tStoss, xStoss, v1n, v2n } = data;
             const { m1, m2, v1, v2, x1start, x2start, t1start, t2start, k } = data.inputs;
             
@@ -684,11 +657,10 @@
             const m = CONFIG.margin;
             const plotW = w - m.left - m.right;
             const plotH = h - m.top - m.bottom;
-            const xSpan = Math.max(xMax - xMin, 1e-9);
             
             const toPx = (t, x) => ({
                 x: m.left + (t / tMax) * plotW,
-                y: h - m.bottom - ((x - xMin) / xSpan) * plotH
+                y: h - m.bottom - (x / xMax) * plotH
             });
             
             const p0_1 = toPx(0, x1start);
@@ -709,9 +681,8 @@
                 gridLines += `<line x1="${x.toFixed(1)}" y1="${m.top}" x2="${x.toFixed(1)}" y2="${h-m.bottom}" stroke="${color}" stroke-width="${isMain?1.5:1}"/>`;
             }
             
-            const firstGridX = Math.ceil(xMin / CONFIG.gridStep) * CONFIG.gridStep;
-            for (let x = firstGridX; x <= xMax + 0.01; x += CONFIG.gridStep) {
-                const y = h - m.bottom - ((x - xMin) / xSpan) * plotH;
+            for (let x = 0; x <= xMax + 0.01; x += CONFIG.gridStep) {
+                const y = h - m.bottom - (x / xMax) * plotH;
                 const isMain = Math.abs(x - Math.round(x)) < 0.01;
                 const color = isMain ? '#cbd5e0' : '#e2e8f0';
                 gridLines += `<line x1="${m.left}" y1="${y.toFixed(1)}" x2="${w-m.right}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="${isMain?1.5:1}"/>`;
@@ -724,9 +695,8 @@
             }
             
             let xLabels = '';
-            const firstLabelX = Math.ceil(xMin);
-            for (let x = firstLabelX; x <= xMax; x += 1) {
-                const y = h - m.bottom - ((x - xMin) / xSpan) * plotH;
+            for (let x = 0; x <= xMax; x += 1) {
+                const y = h - m.bottom - (x / xMax) * plotH;
                 xLabels += `<text x="${m.left-10}" y="${(y+4).toFixed(1)}" font-family="Arial" font-size="12" text-anchor="end" fill="#4a5568">${x}</text>`;
             }
             
@@ -734,16 +704,13 @@
             const colorAfter = isVerhakt ? '#7D3C98' : null;
             const strokeDash = isVerhakt ? '' : '8,4';
             
-            const zeroY = h - m.bottom - ((0 - xMin) / xSpan) * plotH;
-            const timeAxisY = (zeroY >= m.top && zeroY <= h - m.bottom) ? zeroY : h - m.bottom;
-
             let svg = `<svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
                 ${title ? `<text x="${w/2}" y="25" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#2d3748">${title}</text>` : ''}
                 <g id="grid">${gridLines}</g>
                 <g stroke="#2d3748" stroke-width="2">
-                    <line x1="${m.left}" y1="${timeAxisY}" x2="${w-m.right}" y2="${timeAxisY}"/>
+                    <line x1="${m.left}" y1="${h-m.bottom}" x2="${w-m.right}" y2="${h-m.bottom}"/>
                     <line x1="${m.left}" y1="${h-m.bottom}" x2="${m.left}" y2="${m.top}"/>
-                    <polygon points="${w-m.right},${timeAxisY} ${w-m.right-8},${timeAxisY-5} ${w-m.right-8},${timeAxisY+5}" fill="#2d3748"/>
+                    <polygon points="${w-m.right},${h-m.bottom} ${w-m.right-8},${h-m.bottom-5} ${w-m.right-8},${h-m.bottom+5}" fill="#2d3748"/>
                     <polygon points="${m.left},${m.top} ${m.left-5},${m.top+8} ${m.left+5},${m.top+8}" fill="#2d3748"/>
                 </g>
                 <text x="${w-m.right}" y="${h-m.bottom+35}" font-family="Arial" font-size="14" font-weight="bold" text-anchor="end">t in s</text>
@@ -934,7 +901,7 @@
                                 <div class="bar-fill bar-nach" style="width:${percent(data2.EkinNach, maxE)}%">Nachher: ${formatE(data2.EkinNach)} J</div>
                             </div>
                             <div style="text-align:center; margin-top:5px; font-size:0.85rem; color:#e53e3e;">
-                                ⚡ ${Math.abs(data2.deltaEPercent)}% in innere Energie umgewandelt
+                                ⚡ Verlust: ${Math.abs(data2.deltaEPercent)}%
                             </div>
                         </div>
                     </div>
@@ -971,9 +938,9 @@
                     
                     ${hasLoss ? `
                     <div style="margin-top:10px; padding:10px; background:#fff5f5; border-left:3px solid var(--secondary); border-radius:4px; font-size:0.875rem;">
-                        <strong>Umwandlung:</strong> ${Math.abs(d.deltaE).toFixed(1)} J kinetische Energie (${Math.abs(d.deltaEPercent)}%) werden zu innerer Energie, z. B. Wärme/Verformung. Die Gesamtenergie bleibt erhalten.
+                        <strong>Energieverlust:</strong> ${Math.abs(d.deltaE).toFixed(1)} J (${Math.abs(d.deltaEPercent)}% → Wärme/Deformation)
                     </div>
-                    ` : '<div style="margin-top:10px; color:#48bb78; font-size:0.875rem;">✓ Elastischer Stoß: Die kinetische Energie bleibt erhalten.</div>'}
+                    ` : '<div style="margin-top:10px; color:#48bb78; font-size:0.875rem;">✓ Elastischer Stoß: Energie bleibt erhalten</div>'}
                 `;
             }
         }
@@ -989,21 +956,6 @@
                 const x2start = parseFloat(document.getElementById('x2start').value);
                 const t1start = parseFloat(document.getElementById('t1start').value);
                 const t2start = parseFloat(document.getElementById('t2start').value);
-
-                document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-                const requireValid = (id, condition, message) => {
-                    if (condition) return;
-                    document.getElementById(id).classList.add('input-error');
-                    throw new Error(message);
-                };
-                [m1, m2, v1, v2, x1start, x2start, t1start, t2start].forEach((value, index) => {
-                    const ids = ['m1', 'm2', 'v1', 'v2', 'x1start', 'x2start', 't1start', 't2start'];
-                    requireValid(ids[index], Number.isFinite(value), 'Alle Eingaben müssen gültige Zahlen sein.');
-                });
-                requireValid('m1', m1 > 0, 'Masse 1 muss größer als 0 kg sein.');
-                requireValid('m2', m2 > 0, 'Masse 2 muss größer als 0 kg sein.');
-                requireValid('t1start', t1start >= 0, 'Die Startzeit von Wagen 1 darf nicht negativ sein.');
-                requireValid('t2start', t2start >= 0, 'Die Startzeit von Wagen 2 darf nicht negativ sein.');
                 
                 const container = document.getElementById('view-container');
                 
@@ -1022,27 +974,23 @@
                     dataElastic.inputs = {m1, m2, v1, v2, x1start, x2start, t1start, t2start, k: 1};
                     dataInelastic.inputs = {m1, m2, v1, v2, x1start, x2start, t1start, t2start, k: 0};
                     
-                    const tMax = Math.max(3, Math.max(dataElastic.tStoss, dataInelastic.tStoss, t1start, t2start) * 1.3);
-                    const xEndElastic1 =
-                        dataElastic.xStoss + dataElastic.v1n * (tMax - dataElastic.tStoss);
-                    const xEndElastic2 = dataElastic.xStoss + dataElastic.v2n * (tMax - dataElastic.tStoss);
+                    const tMax = Math.max(dataElastic.tStoss, dataInelastic.tStoss, t1start, t2start) * 1.3;
+                    const xEndElastic = Math.max(
+                        dataElastic.xStoss + dataElastic.v1n * (tMax - dataElastic.tStoss),
+                        dataElastic.xStoss + dataElastic.v2n * (tMax - dataElastic.tStoss)
+                    );
                     const xEndInelastic = dataInelastic.xStoss + dataInelastic.v1n * (tMax - dataInelastic.tStoss);
-                    const xValues = [x1start, x2start, dataElastic.xStoss, xEndElastic1, xEndElastic2, xEndInelastic];
-                    const rawMin = Math.min(...xValues);
-                    const rawMax = Math.max(...xValues);
-                    const xPad = Math.max(0.5, (rawMax - rawMin) * 0.1);
-                    const xMin = rawMin - xPad;
-                    const xMax = rawMax + xPad;
+                    const xMax = Math.max(x1start, x2start, xEndElastic, xEndInelastic, 3) * 1.1;
                     
                     const leftPanel = document.createElement('div');
                     leftPanel.className = 'split-panel';
                     leftPanel.innerHTML = '<div class="split-label elastic">Elastisch (k=1)</div>' + 
-                        generateSVG(dataElastic, tMax, xMin, xMax, null, true);
+                        generateSVG(dataElastic, tMax, xMax, null, true);
                     
                     const rightPanel = document.createElement('div');
                     rightPanel.className = 'split-panel';
                     rightPanel.innerHTML = '<div class="split-label inelastic">Verhakt (k=0)</div>' + 
-                        generateSVG(dataInelastic, tMax, xMin, xMax, null, true);
+                        generateSVG(dataInelastic, tMax, xMax, null, true);
                     
                     splitContainer.appendChild(leftPanel);
                     splitContainer.appendChild(rightPanel);
@@ -1057,23 +1005,18 @@
                 } else {
                     container.innerHTML = '<div id="canvas-container"></div>';
                     const k = (typ === 'elastisch') ? 1 : (typ === 'verhakt') ? 0 : parseFloat(document.getElementById('k').value);
-                    requireValid('k', Number.isFinite(k) && k >= 0 && k <= 1, 'Die Stoßzahl k muss zwischen 0 und 1 liegen.');
                     
                     const data = calculateCollision(m1, m2, v1, v2, x1start, x2start, t1start, t2start, k);
                     data.inputs = {m1, m2, v1, v2, x1start, x2start, t1start, t2start, k};
                     
                     const tMax = Math.max(3, data.tStoss * 1.5, t1start, t2start);
-                    const xEnd1 =
-                        data.xStoss + data.v1n * (tMax - data.tStoss);
-                    const xEnd2 = data.xStoss + data.v2n * (tMax - data.tStoss);
-                    const xValues = [x1start, x2start, data.xStoss, xEnd1, xEnd2];
-                    const rawMin = Math.min(...xValues);
-                    const rawMax = Math.max(...xValues);
-                    const xPad = Math.max(0.5, (rawMax - rawMin) * 0.1);
-                    const xMin = rawMin - xPad;
-                    const xMax = rawMax + xPad;
+                    const xEnd = Math.max(
+                        data.xStoss + data.v1n * (tMax - data.tStoss),
+                        data.xStoss + data.v2n * (tMax - data.tStoss)
+                    );
+                    const xMax = Math.max(x1start, x2start, xEnd, 3) * 1.1;
                     
-                    document.getElementById('canvas-container').innerHTML = generateSVG(data, tMax, xMin, xMax);
+                    document.getElementById('canvas-container').innerHTML = generateSVG(data, tMax, xMax);
                     
                     // Drei Analysen aktualisieren
                     updateVelocityPanel(data, typ);
@@ -1086,7 +1029,7 @@
                 document.getElementById('view-container').innerHTML = 
                     `<div style="color:#e53e3e; padding:20px; text-align:center;">
                         <strong>Fehler:</strong> ${e.message}<br>
-                        <small>Prüfe markierte Eingaben, Startorte, Startzeiten und Bewegungsrichtungen.</small>
+                        <small>Prüfe die Geschwindigkeiten (v₁ darf nicht gleich v₂ sein bei gleicher Richtung)</small>
                      </div>`;
             }
         }

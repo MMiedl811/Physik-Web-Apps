@@ -38,11 +38,9 @@
             background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.035)), var(--panel); box-shadow: var(--shadow); backdrop-filter: blur(14px); transition: transform .25s ease, border-color .25s ease, background .25s ease; }
         .card::after { content: ""; position: absolute; width: 120px; height: 120px; right: -45px; bottom: -55px; border-radius: 50%; background: var(--violet); filter: blur(32px); opacity: .28; transition: opacity .25s ease; }
         .card:hover { transform: translateY(-7px) rotate(-.4deg); border-color: var(--cyan); background: linear-gradient(145deg, rgba(94,231,247,.18), rgba(255,255,255,.04)), var(--panel); }
-        .card:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; border-color: var(--cyan); }
         .card:hover::after { opacity: .6; }
         .card-icon { font-size: 2.4rem; margin-bottom: 44px; }
         .card-title { position: relative; z-index: 1; max-width: 210px; font-size: 1.14rem; font-weight: 750; line-height: 1.25; }
-        .card-meta { position: relative; z-index: 1; margin-top: 8px; color: var(--muted); font-size: .78rem; line-height: 1.35; }
         .arrow { position: absolute; right: 23px; top: 23px; color: var(--cyan); font-size: 1.45rem; }
         footer { padding: 44px 0 18px; color: #71809a; font-size: .85rem; }
         @media (max-width: 560px) { body { padding: 18px; } header { padding-top: 55px; } .card { min-height: 170px; } }
@@ -56,21 +54,30 @@
             <h1>Physik<br><span>zum Abheben.</span></h1>
             <p class="intro">Digitale Lernumgebungen für das iPad — zum Erkunden, Ausprobieren und Durchblicken.</p>
         </header>
-        <main class="grid" id="app-grid" aria-label="Physik-Anwendungen">
-            <a class="card" href="quiz/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧩</div><div class="card-title">Klasse 8 Quiz zu Geschwindigkeit</div><div class="card-meta">Klasse 8 · Begriffe sicher anwenden</div></a>
-            <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta">Klasse 8–9 · Beschleunigung erkunden</div></a>
-            <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta">Sekundarstufe I · Energieübertragungen deuten</div></a>
-            <a class="card" href="impuls/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta">Sekundarstufe I · Impuls als Vektor</div></a>
-            <a class="card" href="impulsdiagramm/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Größe Impuls</div><div class="card-meta">Sekundarstufe I · Impuls vergleichen</div></a>
-            <a class="card" href="diagramme/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta">Klasse 8–10 · Diagramme lesen und verknüpfen</div></a>
-            <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta">Klasse 10–11 · Teilbewegungen überlagern</div></a>
-            <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta">Klasse 10–12 · Feder- und Fadenpendel</div></a>
-        </main>
+        <main class="grid" id="app-grid" aria-label="Physik-Anwendungen"></main>
         <footer>&copy; <span id="year"></span> · mmiedl811.github.io</footer>
     </div>
     <script>
+        const myApps = [
+            { title: "Klasse 8 Quiz zu Geschwindigkeit", path: "quiz", icon: "🧩" },
+            { title: "Geschwindigkeitsänderung", path: "v_aenderung", icon: "🏒" },
+            { title: "Energiestufenmodell", path: "energiestufenmodell", icon: "⚛️" },
+            { title: "Richtungsänderung nach Stoß", path: "impuls", icon: "↗️" },
+            { title: "Größe Impuls", path: "impulsdiagramm", icon: "💥" },
+            { title: "Bewegungsdiagramme", path: "diagramme", icon: "📈" },
+            { title: "Waagrechter Abwurf auf Insel", path: "waagrechter Wurf", icon: "🏝️" },
+            { title: "Schwingungen", path: "schwingungen", icon: "🪶" }
+        ];
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('year').textContent = new Date().getFullYear();
+            const grid = document.getElementById('app-grid');
+            myApps.forEach(app => {
+                const card = document.createElement('a');
+                card.href = app.path + "/";
+                card.className = 'card';
+                card.innerHTML = `<span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">${app.icon}</div><div class="card-title">${app.title}</div>`;
+                grid.appendChild(card);
+            });
         });
     </script>
 </body>

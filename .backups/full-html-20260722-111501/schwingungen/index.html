@@ -2,8 +2,8 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Schwingungen – Feder- &amp; Fadenpendel (p5.js)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Schwingungen – Feder- & Fadenpendel (p5.js)</title>
   
   <!-- p5.js CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
@@ -229,10 +229,6 @@
     .error-hint.show {
       display: block;
     }
-
-    .model-note { color: #cbd5e1; font-size: 11px; line-height: 1.3; }
-    .advanced-controls summary { color: #cbd5e1; cursor: pointer; font-size: 12px; font-weight: bold; }
-    .advanced-controls[open] summary { margin-bottom: 7px; }
   </style>
 </head>
 <body>
@@ -259,17 +255,17 @@
         <div class="control-group">
           <label>Amplitude (cm):</label>
           <input type="range" id="ampSliderSpring" min="1" max="30" step="0.5" value="10">
-          <input type="number" id="ampInputSpring" min="1" max="30" value="10" step="0.5">
+          <input type="number" id="ampInputSpring" value="10" step="0.5">
         </div>
         <div class="control-group">
           <label>Masse (g):</label>
           <input type="range" id="massSliderSpring" min="50" max="200" step="1" value="100">
-          <input type="number" id="massInputSpring" min="50" max="200" value="100" step="1">
+          <input type="number" id="massInputSpring" value="100" step="1">
         </div>
         <div class="control-group">
           <label>D (N/m):</label>
           <input type="range" id="kSlider" min="1" max="10" step="0.1" value="4">
-          <input type="number" id="kInput" min="1" max="10" value="4" step="0.1">
+          <input type="number" id="kInput" value="4" step="0.1">
         </div>
       </div>
       <div id="pendulumParams" style="display: none; gap: 15px; align-items: center;">
@@ -277,37 +273,31 @@
         <div class="control-group">
           <label>Auslenkung (°):</label>
           <input type="range" id="ampSliderPend" min="1" max="30" step="0.5" value="15">
-          <input type="number" id="ampInputPend" min="1" max="30" value="15" step="0.5">
+          <input type="number" id="ampInputPend" value="15" step="0.5">
         </div>
         <div class="control-group">
           <label>Masse (kg):</label>
           <input type="range" id="massSliderPend" min="0.5" max="1.5" step="0.05" value="1.0">
-          <input type="number" id="massInputPend" min="0.5" max="1.5" value="1.0" step="0.05">
+          <input type="number" id="massInputPend" value="1.0" step="0.05">
         </div>
         <div class="control-group">
           <label>L (m):</label>
           <input type="range" id="lSlider" min="0.5" max="2.5" step="0.05" value="1.0">
-          <input type="number" id="lInput" min="0.5" max="2.5" value="1.0" step="0.05">
+          <input type="number" id="lInput" value="1.0" step="0.05">
         </div>
-        <span class="model-note">Kleinwinkelnäherung: harmonisches Modell bis 30°.</span>
       </div>
     </div>
 
-    <div class="topbar-row" aria-label="Grundlegende Visualisierungen">
-      <span class="category-label">Grundlagen:</span>
+    <div class="topbar-row">
+      <span class="category-label">Visualisierung:</span>
+      <div class="control-group"><label><input type="checkbox" id="energyToggle"> Energie-Balken</label></div>
+      <div class="control-group"><label><input type="checkbox" id="forceSplitToggle"> Kräfte-Zerlegung (Feder)</label></div>
       <div class="control-group"><label><input type="checkbox" id="forceVectorToggle" checked> Kraft-Vektoren</label></div>
+      <div class="control-group"><label><input type="checkbox" id="vToggle"> t-v Diagramm</label></div>
+      <div class="control-group"><label><input type="checkbox" id="aToggle"> t-a Diagramm</label></div>
+      <div class="control-group"><label><input type="checkbox" id="combinedToggle"> Kombiniertes Diagramm</label></div>
       <div class="control-group"><label><input type="checkbox" id="cursorToggle"> Cursor mit Werten</label></div>
     </div>
-    <details class="advanced-controls">
-      <summary>Weitere Visualisierungen</summary>
-      <div class="topbar-row">
-        <div class="control-group"><label><input type="checkbox" id="energyToggle"> Energie-Balken</label></div>
-        <div class="control-group"><label><input type="checkbox" id="forceSplitToggle"> Kräfte-Zerlegung (Feder)</label></div>
-        <div class="control-group"><label><input type="checkbox" id="vToggle"> t-v Diagramm</label></div>
-        <div class="control-group"><label><input type="checkbox" id="aToggle"> t-a Diagramm</label></div>
-        <div class="control-group"><label><input type="checkbox" id="combinedToggle"> Kombiniertes Diagramm</label></div>
-      </div>
-    </details>
   </header>
 
   <main class="main-content">
@@ -398,13 +388,6 @@
       }
     }
 
-    let lastFormulaTex = '';
-    function updateFormula(tex) {
-      if (tex === lastFormulaTex) return;
-      lastFormulaTex = tex;
-      safeKatexRender(tex, document.getElementById('formulaBox'));
-    }
-
     function showCenterHint(text, durationMs = 3500) {
       const el = document.getElementById('centerHint');
       if (!el) return;
@@ -488,39 +471,29 @@
         }
       };
 
-      // Slider und Zahleneingabe robust synchronisieren; ungültige Werte werden begrenzt.
-      const syncPair = (s, i, state) => {
-        const commit = () => {
-          const previous = Number(s.value);
-          const parsed = Number(i.value);
-          const min = Number(s.min), max = Number(s.max);
-          const safe = Number.isFinite(parsed) ? Math.min(max, Math.max(min, parsed)) : previous;
-          s.value = String(safe); // Range-Input richtet zusätzlich am step-Raster aus.
-          i.value = s.value;
-          i.setCustomValidity('');
-          resetState(state);
-        };
-        s.oninput = () => { i.value = s.value; resetState(state); };
-        i.onchange = commit;
-        i.onblur = commit;
+      // Synchronisation für Federpendel-Slider
+      const syncSpring = (s, i) => {
+        s.oninput = () => { i.value = s.value; resetState(springState); };
+        i.onchange = () => { s.value = i.value; resetState(springState); };
       };
-      const syncSpring = (s, i) => syncPair(s, i, springState);
       syncSpring(ampSliderSpring, ampInputSpring);
       syncSpring(massSliderSpring, massInputSpring);
       syncSpring(kSlider, kInput);
 
       // Synchronisation für Fadenpendel-Slider
-      const syncPend = (s, i) => syncPair(s, i, pendulumState);
+      const syncPend = (s, i) => {
+        s.oninput = () => { i.value = s.value; resetState(pendulumState); };
+        i.onchange = () => { s.value = i.value; resetState(pendulumState); };
+      };
       syncPend(ampSliderPend, ampInputPend);
       syncPend(massSliderPend, massInputPend);
       syncPend(lSlider, lInput);
 
       // Maus- und Touch-Events für Cursor
       canvas.mouseMoved(handleMouseMoved);
-      canvas.touchStarted(handleTouchMoved);
       canvas.touchMoved(handleTouchMoved);
       canvas.mouseOut(() => { cursorX = -1; cursorY = -1; });
-      canvas.touchEnded(() => { if (!document.getElementById('cursorToggle').checked) { cursorX = -1; cursorY = -1; } });
+      canvas.touchEnded(() => { cursorX = -1; cursorY = -1; });
 
       // Cursor-Toggle mit Auto-Pause
       document.getElementById('cursorToggle').addEventListener('change', function() {
@@ -577,18 +550,18 @@
       
       if (system === 'spring') {
         plotPos = pos; plotVel = vel; plotAcc = acc;
-        updateFormula(`T = 2\\pi \\sqrt{\\frac{m}{D}} \\approx ${T.toFixed(2)}\\text{ s}`);
+        safeKatexRender(`T = 2\\pi \\sqrt{\\frac{m}{D}} \\approx ${T.toFixed(2)}\\text{ s}`, document.getElementById('formulaBox'));
       } else {
         // Diagramme zeigen den linearen Weg s = L·θ (und die linearen Ableitungen)
         plotPos = currentState.L * pos;
         plotVel = currentState.L * vel;
         plotAcc = currentState.L * acc;
-        updateFormula(`T = 2\\pi \\sqrt{\\frac{l}{g}} \\approx ${T.toFixed(2)}\\text{ s}`);
+        safeKatexRender(`T = 2\\pi \\sqrt{\\frac{l}{g}} \\approx ${T.toFixed(2)}\\text{ s}`, document.getElementById('formulaBox'));
       }
 
       if (isRunning && !isDragging) {
-        currentState.history.push({t: currentState.t, pos: plotPos, vel: plotVel, acc: plotAcc});
         currentState.t += effectiveDt;
+        currentState.history.push({t: currentState.t, pos: plotPos, vel: plotVel, acc: plotAcc});
 
         // WICHTIG: History zeitbasiert beschneiden (stabil bei Slow‑Mo an/aus)
         // Sonst bleiben nach einem Moduswechsel viele "zu alte" Punkte übrig,
@@ -835,25 +808,26 @@
         tickCount++;
       }
       
-      // Markiere echte Zeitstempel T, 2T, ... im sichtbaren Bereich.
+      // Markiere Perioden T, 2T, ... solange sie im sichtbaren Bereich sind
       stroke(255, 165, 0, 200); strokeWeight(2.4);
       fill(255, 165, 0); noStroke(); textSize(10);
       textAlign(CENTER, BOTTOM);
-      const firstPeriod = Math.max(1, Math.ceil(timeMin / T));
-      const lastPeriod = Math.floor(timeMax / T);
-      for (let n = firstPeriod; n <= lastPeriod; n++) {
-        const periodTime = n * T;
-        const periodX = map(periodTime, timeMin, timeMax, margin, w - margin);
-        line(periodX, margin, periodX, h - margin);
-        if (n === lastPeriod && T > 0.1) text(`${n}T`, periodX, margin - 8);
+      for (let n = 1; n <= 5; n++) {
+        let periodTime = timeMax - n * T;
+        if (periodTime >= timeMin) {
+          let periodX = map(periodTime, timeMin, timeMax, margin, w - margin);
+          line(periodX, margin, periodX, h - margin);
+          // Nur die erste Periode beschriften, wenn T nicht zu klein ist (mehr als 20 Pixel Abstand)
+          if (n === 1 && T > 0.1) {
+            text(`T ≈ ${T.toFixed(2)} s`, periodX, margin - 8);
+          }
+        }
       }
-      // t = 0 nur zeichnen, solange dieser Zeitstempel tatsächlich sichtbar ist.
-      if (timeMin === 0) {
-        stroke(150, 150, 150, 210); strokeWeight(1.4);
-        line(margin, margin, margin, h - margin);
-        fill(150); textAlign(LEFT, TOP);
-        text("t = 0", margin + 3, h - margin - 15);
-      }
+      // Füge auch eine horizontale Linie bei t = 0 ein (Start der Aufzeichnung)
+      stroke(150, 150, 150, 210); strokeWeight(1.4);
+      line(map(timeMax - visibleTime, timeMin, timeMax, margin, w - margin), margin, map(timeMax - visibleTime, timeMin, timeMax, margin, w - margin), h - margin);
+      fill(150); textAlign(CENTER, TOP);
+      text("t = 0", map(timeMax - visibleTime, timeMin, timeMax, margin, w - margin), h - margin - 15);
 
       types.forEach((tName, idx) => {
         let range;
@@ -1006,7 +980,6 @@
         cursorY = touches[0].y;
         updateCursorValues();
       }
-      return false;
     }
 
     function updateCursorValues() {

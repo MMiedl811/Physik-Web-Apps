@@ -176,10 +176,6 @@
     .panel__section:last-child{ margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
 
     .panel__title{ margin: 0 0 12px; font-size: 16px; font-weight: 800; }
-    .model-note{
-      margin-top: 10px; padding: 10px 12px; border-radius: 10px;
-      background: var(--c-surface-2); color: var(--c-muted); font-size: 12px;
-    }
     .coin-config{ margin-bottom: 16px; }
 
     .control-group{ margin-bottom: 12px; }
@@ -281,7 +277,6 @@
   <header class="app__header">
     <h1 class="app__title">Impuls – Elastischer Stoß (2D)</h1>
     <p class="app__subtitle">Ziehe an den <strong>Kugeln</strong> (Position) oder an den <strong>Pfeilspitzen</strong> (Richtung & Geschwindigkeit). Beobachte die Vektoraddition unten.</p>
-    <p class="model-note"><strong>Modell:</strong> Die Körper stoßen ideal elastisch; Impuls und kinetische Energie bleiben erhalten. Impuls ist <em>p = m · v</em> und daher nicht dasselbe wie Geschwindigkeit. Die gezeichnete Kugelgröße symbolisiert die Masse und ist kein Längenmaßstab.</p>
   </header>
 
   <main class="app__main">
@@ -345,7 +340,6 @@
         <button class="ext-modebar__btn ext-modebar__btn--active" id="modeMomentumBtn" type="button">Impuls (p)</button>
         <button class="ext-modebar__btn" id="modeVelocityBtn" type="button">Geschwindigkeit (v)</button>
       </div>
-      <p class="model-note" id="energyDisplay" aria-live="polite">Kinetische Energie: vor dem Stoß 0,16 J · nach dem Stoß noch nicht bestimmt</p>
 
       <!-- Vector Views -->
       <div class="vector-views">
@@ -419,14 +413,14 @@
             <div class="control-label"><span>Masse</span><span class="control-value" id="val-m1">20 g</span></div>
             <div class="control-row">
               <input type="range" id="range-m1" min="10" max="100" step="5" value="20">
-              <input type="number" id="num-m1" min="10" max="100" step="5" value="20" inputmode="decimal">
+              <input type="number" id="num-m1" value="20">
             </div>
           </div>
           <div class="control-group">
             <div class="control-label"><span>Geschwindigkeit</span><span class="control-value" id="val-v1">4,0 m/s</span></div>
             <div class="control-row">
               <input type="range" id="range-v1" min="0" max="10" step="0.5" value="4">
-              <input type="number" id="num-v1" min="0" max="10" step="0.5" value="4" inputmode="decimal">
+              <input type="number" id="num-v1" value="4">
             </div>
           </div>
         </div>
@@ -439,14 +433,14 @@
             <div class="control-label"><span>Masse</span><span class="control-value" id="val-m2">20 g</span></div>
             <div class="control-row">
               <input type="range" id="range-m2" min="10" max="100" step="5" value="20">
-              <input type="number" id="num-m2" min="10" max="100" step="5" value="20" inputmode="decimal">
+              <input type="number" id="num-m2" value="20">
             </div>
           </div>
           <div class="control-group">
             <div class="control-label"><span>Geschwindigkeit</span><span class="control-value" id="val-v2">0,0 m/s</span></div>
             <div class="control-row">
               <input type="range" id="range-v2" min="0" max="10" step="0.5" value="0">
-              <input type="number" id="num-v2" min="0" max="10" step="0.5" value="0" inputmode="decimal">
+              <input type="number" id="num-v2" value="0">
             </div>
           </div>
         </div>
@@ -532,7 +526,6 @@
       dP1: document.getElementById('disp-p1'),
       dP2: document.getElementById('disp-p2'),
       dPTot: document.getElementById('disp-ptot'),
-      dEnergy: document.getElementById('energyDisplay'),
       
       // Vector Views
       svgBefore: document.getElementById('svgBefore'),
@@ -597,16 +590,12 @@
       const dx = state.sim.p2.x - state.sim.p1.x;
       const dy = state.sim.p2.y - state.sim.p1.y;
       const dist = Math.hypot(dx, dy);
+      
+      if(dist === 0) return; // Prevent div by zero
 
       // Normalen- und Tangentialvektor
-      let nx = dist > 0.0001 ? dx / dist : 1;
-      let ny = dist > 0.0001 ? dy / dist : 0;
-      if(dist <= 0.0001) {
-        const relX = state.sim.v1.x - state.sim.v2.x;
-        const relY = state.sim.v1.y - state.sim.v2.y;
-        const relLength = Math.hypot(relX, relY);
-        if(relLength > 0.0001) { nx = relX / relLength; ny = relY / relLength; }
-      }
+      const nx = dx / dist;
+      const ny = dy / dist;
       const tx = -ny;
       const ty = nx;
 
@@ -615,9 +604,6 @@
       const v1t = state.sim.v1.x * tx + state.sim.v1.y * ty;
       const v2n = state.sim.v2.x * nx + state.sim.v2.y * ny;
       const v2t = state.sim.v2.x * tx + state.sim.v2.y * ty;
-
-      // Nur aufeinander zulaufende Körper stoßen; so gibt es keinen Doppelstoß.
-      if(v1n - v2n <= 0.0001) return false;
 
       // 1D Stoß entlang der Normalen
       const m1 = state.m1;
@@ -633,7 +619,6 @@
       state.sim.resV2.y = v2n_new * ny + v2t * ty;
       
       state.sim.collided = true;
-      return true;
     }
 
     // --- RENDERER ---
@@ -702,14 +687,6 @@
       D.dP1.textContent = fmt(p1Abs) + " Ns";
       D.dP2.textContent = fmt(p2Abs) + " Ns";
       D.dPTot.textContent = fmt(pTotAbs) + " Ns";
-
-      const energyBefore = 0.5 * state.m1 * state.v1 ** 2 + 0.5 * state.m2 * state.v2 ** 2;
-      const energyAfter = state.sim.collided
-        ? 0.5 * state.m1 * Math.hypot(state.sim.resV1.x, state.sim.resV1.y) ** 2
-          + 0.5 * state.m2 * Math.hypot(state.sim.resV2.x, state.sim.resV2.y) ** 2
-        : null;
-      D.dEnergy.textContent = `Kinetische Energie: vor dem Stoß ${fmt(energyBefore, 3)} J · `
-        + (energyAfter === null ? 'nach dem Stoß noch nicht bestimmt' : `nach dem Stoß ${fmt(energyAfter, 3)} J`);
     }
 
     function renderVectorDiagrams() {
@@ -805,15 +782,15 @@
       const dy = state.sim.p2.y - state.sim.p1.y;
       const dist = Math.hypot(dx, dy);
 
-      if(dist < (r1 + r2) && !state.sim.collided && calculateCollision()) {
-        // Setze neue Geschwindigkeiten nur bei einem echten, zulaufenden Stoß.
+      if(dist < (r1 + r2) && !state.sim.collided) {
+        calculateCollision();
+        // Setze neue Geschwindigkeiten
         state.sim.v1 = { ...state.sim.resV1 };
         state.sim.v2 = { ...state.sim.resV2 };
       }
 
       // Bounds Check (Stop Animation)
-      const outside = [state.sim.p1, state.sim.p2].some((p) => p.x < -50 || p.x > 850 || p.y < -50 || p.y > 450);
-      if(outside) {
+      if(state.sim.p1.x < -50 || state.sim.p1.x > 850 || state.sim.p2.x < -50 || state.sim.p2.x > 850) {
         state.isPlaying = false;
         state.isPaused = false;
         D.btnPlay.textContent = "▶ Nochmal";
@@ -879,16 +856,10 @@
       updateStateFromInputs();
     });
 
-    function endDrag(e) {
+    D.svg.addEventListener('pointerup', e => {
       dragTarget = null;
       D.svg.classList.remove('grabbing-cursor');
-      if(D.svg.hasPointerCapture?.(e.pointerId)) D.svg.releasePointerCapture(e.pointerId);
-    }
-    D.svg.addEventListener('pointerup', endDrag);
-    D.svg.addEventListener('pointercancel', endDrag);
-    D.svg.addEventListener('lostpointercapture', () => {
-      dragTarget = null;
-      D.svg.classList.remove('grabbing-cursor');
+      D.svg.releasePointerCapture(e.pointerId);
     });
 
     function getSvgPoint(e) {
@@ -898,49 +869,18 @@
     }
 
     // Input Bindings
-    function boundedValue(input, fallback) {
-      const parsed = Number.parseFloat(String(input.value).replace(',', '.'));
-      if(!Number.isFinite(parsed)) return fallback;
-      const min = Number.parseFloat(input.min);
-      const max = Number.parseFloat(input.max);
-      const step = Number.parseFloat(input.step);
-      let value = clamp(parsed, Number.isFinite(min) ? min : parsed, Number.isFinite(max) ? max : parsed);
-      if(Number.isFinite(step) && step > 0 && Number.isFinite(min)) {
-        value = min + Math.round((value - min) / step) * step;
-      }
-      return Number(value.toFixed(6));
-    }
-
-    function resetRuntimeToConfiguredPositions() {
-      state.isPlaying = false;
-      state.isPaused = false;
-      lastTime = 0;
-      D.btnPlay.textContent = "▶ Play";
-      state.sim.p1 = {...state.pos1};
-      state.sim.p2 = {...state.pos2};
-      state.sim.collided = false;
-      state.sim.resV1 = {x:0, y:0};
-      state.sim.resV2 = {x:0, y:0};
-    }
-
     function bindInput(key, stateKey, scale=1) {
       const el = D[key];
       const handler = (e) => {
-        const currentDisplayValue = state[stateKey] * scale;
-        if(e.target === el.n && e.type === 'input' && e.target.value.trim() === '') return;
-        const value = boundedValue(e.target, currentDisplayValue);
-        state[stateKey] = value / scale;
-        el.r.value = String(value);
-        el.n.value = String(value);
-        if(key.includes('M')) el.v.textContent = value + " g";
-        else el.v.textContent = value.toFixed(1) + " m/s";
-        resetRuntimeToConfiguredPositions();
+        state[stateKey] = parseFloat(e.target.value) / scale;
+        el.r.value = e.target.value;
+        el.n.value = e.target.value;
+        if(key.includes('M')) el.v.textContent = e.target.value + " g";
+        else el.v.textContent = parseFloat(e.target.value).toFixed(1) + " m/s";
         updateStateFromInputs();
       };
       el.r.addEventListener('input', handler);
       el.n.addEventListener('input', handler);
-      el.n.addEventListener('change', handler);
-      el.n.addEventListener('blur', handler);
     }
 
     bindInput('inM1', 'm1', 1000);
@@ -961,17 +901,14 @@
         state.isPaused = true;
         D.btnPlay.textContent = "▶ Weiter";
       } else {
-        const resumesPausedRun = state.isPaused;
         state.isPlaying = true;
         state.isPaused = false;
         lastTime = 0;
         D.btnPlay.textContent = "⏸ Pause";
-        // Nach einem beendeten Lauf oder bei ungültiger Position sauber neu starten.
-        const outside = [state.sim.p1, state.sim.p2].some((p) => p.x < 0 || p.x > 800 || p.y < 0 || p.y > 400);
-        if(outside || (state.sim.collided && !resumesPausedRun)) {
-           resetRuntimeToConfiguredPositions();
-           state.isPlaying = true;
-           D.btnPlay.textContent = "⏸ Pause";
+        // Wenn Reset nötig war (Kugeln out of bounds), resetten wir implizit
+        if(state.sim.p1.x < 0 || state.sim.p1.x > 800) {
+           state.sim.p1 = {...state.pos1}; state.sim.p2 = {...state.pos2};
+           state.sim.collided = false;
            updateStateFromInputs();
         }
         requestAnimationFrame(loop);
@@ -979,24 +916,14 @@
     });
 
     D.btnResetPos.addEventListener('click', () => {
+      state.isPlaying = false; state.isPaused = false;
+      D.btnPlay.textContent = "▶ Play";
       state.pos1 = {x:200, y:200}; state.pos2 = {x:500, y:200};
-      resetRuntimeToConfiguredPositions();
       updateStateFromInputs();
     });
 
     D.btnResetAll.addEventListener('click', () => {
-      state.m1 = 0.02; state.m2 = 0.02;
-      state.v1 = 4; state.v2 = 0;
-      state.angle1 = 0; state.angle2 = 0;
-      state.pos1 = {x:200, y:200}; state.pos2 = {x:500, y:200};
-      state.timeScale = 0.25;
-      D.inpSpeed.value = "0.25";
-      D.valSpeed.textContent = "25%";
-      resetRuntimeToConfiguredPositions();
-      updateInputsFromState();
-      D.inM1.r.value = D.inM1.n.value = "20"; D.inM1.v.textContent = "20 g";
-      D.inM2.r.value = D.inM2.n.value = "20"; D.inM2.v.textContent = "20 g";
-      updateStateFromInputs();
+      location.reload(); // Hard Reset ist hier am saubersten
     });
 
     // Mode Toggle

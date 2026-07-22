@@ -194,6 +194,22 @@
       margin-top: 8px;
     }
 
+    .readout--error{
+      color: var(--secondary);
+      background: #fff5f5;
+      border-color: rgba(229,62,62,0.45);
+    }
+
+    .quickstart{
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-left: 4px solid var(--primary);
+      border-radius: 8px;
+      background: #ebf8ff;
+      font-size: 0.8rem;
+      line-height: 1.45;
+    }
+
     .details{
       border: 1px solid var(--border);
       border-radius: 10px;
@@ -434,6 +450,7 @@
     .chart-cell__canvas{
       width: 100%;
       display: block;
+      touch-action: pan-y;
     }
 
     .chart-cell__canvas--single{
@@ -552,6 +569,16 @@
         <div class="app-helper">
           Split-Logik: A und B werden <strong>nebeneinander</strong> gezeichnet (keine Kurven-Überlagerung).
         </div>
+
+        <div class="quickstart"><strong>Schnelleinstieg:</strong> Szenario laden, ▶ starten, dann im Diagramm mit Maus oder Finger ablesen.</div>
+        <div style="height:8px;"></div>
+        <label class="app-label" for="scenarioSelect">Geführtes Szenario</label>
+        <select class="app-select" id="scenarioSelect">
+          <option value="smooth">Anfahren → gleichförmig</option>
+          <option value="brake">Fahren → gleichmäßig bremsen</option>
+          <option value="reverse">Richtungswechsel (negative Werte)</option>
+        </select>
+        <button class="btn" id="loadScenarioBtn" type="button">Szenario laden</button>
       </div>
 
       <div class="controls__section">
@@ -738,6 +765,21 @@
         single: { w: 800, h: 600, m: { top: 34, right: 26, bottom: 56, left: 70 }, font: { tick: 12, axis: 13 } },
         grid:   { w: 520, h: 340, m: { top: 28, right: 18, bottom: 44, left: 58 }, font: { tick: 12, axis: 13 } },
         track:  { w: 800, h: 180, m: { top: 18, right: 30, bottom: 44, left: 70 }, car: { w: 56, h: 28 } }
+      };
+
+      const SCENARIOS = {
+        smooth: { x0: 0, segments: [
+          { type: "acc", duration: 5, v0: 2, a: 1 },
+          { type: "const", duration: 7.5, v0: 7, a: 0 }
+        ] },
+        brake: { x0: 0, segments: [
+          { type: "const", duration: 4, v0: 6, a: 0 },
+          { type: "acc", duration: 3, v0: 6, a: -2 }
+        ] },
+        reverse: { x0: 6, segments: [
+          { type: "const", duration: 3, v0: -2, a: 0 },
+          { type: "acc", duration: 4, v0: -2, a: 1 }
+        ] }
       };
 
       function clamp(v, min, max){ return Math.min(max, Math.max(min, v)); }
@@ -1291,7 +1333,8 @@
           rafId: null,
           lastPerf: 0,
 
-          recomputeToken: null
+          recomputeToken: null,
+          recomputeHardPending: false
         },
 
         motions: {
@@ -1322,6 +1365,8 @@
           const $ = (id) => document.getElementById(id);
           this.dom = {
             viewMode: $("viewMode"),
+            scenarioSelect: $("scenarioSelect"),
+            loadScenarioBtn: $("loadScenarioBtn"),
             chartTypeWrap: $("chartTypeWrap"),
             chartType: $("chartType"),
 
@@ -1384,6 +1429,8 @@
 
         _bindEvents(){
           const d = this.dom;
+
+          d.loadScenarioBtn.addEventListener("click", () => this.loadScenario(d.scenarioSelect.value));
 
           d.viewMode.addEventListener("change", () => {
             this.pause();
@@ -1470,8 +1517,9 @@
           this._bindSegmentEvents(d.segmentsA, "A");
           this._bindSegmentEvents(d.segmentsB, "B");
 
-          d.chartsArea.addEventListener("mousemove", (e) => this.onChartsMouseMove(e));
-          d.chartsArea.addEventListener("mouseleave", () => this.onChartsMouseLeave());
+          d.chartsArea.addEventListener("pointerdown", (e) => this.onChartsPointerMove(e));
+          d.chartsArea.addEventListener("pointermove", (e) => this.onChartsPointerMove(e));
+          d.chartsArea.addEventListener("pointerleave", () => this.onChartsPointerLeave());
         },
 
         _bindSegmentEvents(container, motionKey){
@@ -1484,7 +1532,7 @@
           this.motions.A.x0 = 0;
           this.motions.A.segments = [
             { id: this._newSegId(), type: "acc", duration: 5, v0: 2, a: 1 },
-            { id: this._newSegId(), type: "const", duration: 7.5, v0: 6, a: 0 }
+            { id: this._newSegId(), type: "const", duration: 7.5, v0: 7, a: 0 }
           ];
 
           this.motions.B.x0 = 0;
@@ -1492,6 +1540,20 @@
             { id: this._newSegId(), type: "acc", duration: 5, v0: 1, a: 0.5 },
             { id: this._newSegId(), type: "const", duration: 7.5, v0: 3.5, a: 0 }
           ];
+        },
+
+        loadScenario(key){
+          const preset = SCENARIOS[key] || SCENARIOS.smooth;
+          this.pause();
+          this.resetTime();
+          this.motions.A.x0 = preset.x0;
+          this.motions.A.segments = preset.segments.map(seg => ({ ...seg, id: this._newSegId() }));
+          this.dom.x0A.value = String(preset.x0);
+          this.state.highlight = null;
+          this.dom.deltaResult.classList.add("hidden");
+          this.dom.deltaResult.classList.remove("readout--error");
+          this._renderSegments("A", new Set([this.motions.A.segments[0].id]));
+          this.recomputeAll(true);
         },
 
         _newSegId(){
@@ -1546,10 +1608,13 @@
         },
 
         _scheduleRecompute(hard){
+          this.state.recomputeHardPending = this.state.recomputeHardPending || !!hard;
           if (this.state.recomputeToken) return;
           this.state.recomputeToken = requestAnimationFrame(() => {
             this.state.recomputeToken = null;
-            this.recomputeAll(!!hard);
+            const hardRequested = this.state.recomputeHardPending;
+            this.state.recomputeHardPending = false;
+            this.recomputeAll(hardRequested);
           });
         },
 
@@ -1562,16 +1627,18 @@
           if (Number.isFinite(x0A)) this.motions.A.x0 = x0A;
           if (Number.isFinite(x0B)) this.motions.B.x0 = x0B;
 
-          // Compile
+          // Erst kompilieren, um sinnvolle rasterabhängige Schrittweiten zu bestimmen.
           this.compiled.A = MotionEngine.rebuild(this.motions.A);
           this.compiled.B = MotionEngine.rebuild(this.motions.B);
 
           // Scales
           this.scales = this._computeScales();
 
-          // Snap some inputs on hard recompute
+          // Beim harten Recompute rastern und anschließend zwingend neu kompilieren.
           if (hard && this.state.snap){
             const stepX = this.scales.x.minorStep || 0.5;
+            const stepV = this.scales.v.minorStep || 0.5;
+            const stepA = this.scales.a.minorStep || 0.25;
             const stepT = this.scales.time.minorStep || 0.5;
 
             this.motions.A.x0 = roundToStep(this.motions.A.x0, stepX);
@@ -1583,6 +1650,29 @@
             const t2 = roundToStep(parseFloat(d.t2.value) || 0, stepT);
             d.t1.value = String(t1);
             d.t2.value = String(t2);
+
+            ["A", "B"].forEach(motionKey => {
+              const container = motionKey === "A" ? d.segmentsA : d.segmentsB;
+              this.motions[motionKey].segments.forEach((seg, index) => {
+                seg.duration = Math.max(0.1, roundToStep(parseFloat(seg.duration) || 0.1, stepT));
+                seg.v0 = roundToStep(parseFloat(seg.v0) || 0, stepV);
+                seg.a = seg.type === "const" ? 0 : roundToStep(parseFloat(seg.a) || 0, stepA);
+                const card = container.querySelector(`[data-seg-id="${seg.id}"]`);
+                if (!card) return;
+                const durationInput = card.querySelector('[data-field="duration"]');
+                const velocityInput = card.querySelector('[data-field="v0"]');
+                const accelerationInput = card.querySelector('[data-field="a"]');
+                const summaryText = card.querySelector('[data-role="summaryText"]');
+                if (durationInput) durationInput.value = String(seg.duration);
+                if (velocityInput) velocityInput.value = String(seg.v0);
+                if (accelerationInput) accelerationInput.value = String(seg.a);
+                if (summaryText) summaryText.textContent = this._segmentSummary(seg, index);
+              });
+            });
+
+            this.compiled.A = MotionEngine.rebuild(this.motions.A);
+            this.compiled.B = MotionEngine.rebuild(this.motions.B);
+            this.scales = this._computeScales();
           }
 
           // Apply step attributes
@@ -1834,7 +1924,7 @@
 
                     <div>
                       <label class="app-label">Info</label>
-                      <div class="readout readout--sub">Sprünge in v sind erlaubt</div>
+                      <div class="readout readout--sub">v₀ wird beim Hinzufügen stetig fortgesetzt; hier bewusst änderbar.</div>
                     </div>
                   </div>
 
@@ -2217,7 +2307,11 @@
           }
 
           if (t1 < 0 || t2 < 0 || t1 > tMax || t2 > tMax){
-            alert("t₁ und t₂ müssen zwischen 0 und Gesamtzeit liegen.");
+            this.dom.deltaResult.textContent = `Bitte Zeiten zwischen 0 und ${formatDE(tMax, 2)} s eingeben.`;
+            this.dom.deltaResult.classList.remove("hidden");
+            this.dom.deltaResult.classList.add("readout--error");
+            this.state.highlight = null;
+            this.updateOverlays();
             return;
           }
 
@@ -2236,15 +2330,18 @@
 
           this.dom.deltaResult.textContent = out;
           this.dom.deltaResult.classList.remove("hidden");
+          this.dom.deltaResult.classList.remove("readout--error");
 
           this.state.highlight = { t1, t2 };
           this.updateOverlays();
         },
 
-        onChartsMouseMove(e){
+        onChartsPointerMove(e){
           if (!this.state.readMode) return;
           if (this.state.playing) return;
           if (!this.scales) return;
+
+          if (e.pointerType === "touch") e.preventDefault();
 
           const cell = e.target.closest(".chart-cell");
           if (!cell) return;
@@ -2275,7 +2372,7 @@
           this._showTooltip(e.clientX, e.clientY, t);
         },
 
-        onChartsMouseLeave(){
+        onChartsPointerLeave(){
           this.state.hoverActive = false;
           this._hideTooltip();
           this.updateOverlays();

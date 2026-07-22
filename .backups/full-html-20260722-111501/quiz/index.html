@@ -138,7 +138,7 @@ input[type="range"]:disabled{opacity:.45}
 </head>
 <body>
 <div class="app">
-    <section id="screen-config" class="screen active" aria-label="Konfiguration">
+    <section id="screen-config" class="screen" aria-label="Konfiguration" hidden="">
         <header class="header">
             <div>
                 <h1 class="title">⚛️ Physik Quiz</h1>
@@ -154,7 +154,7 @@ input[type="range"]:disabled{opacity:.45}
                 <div class="flow-shell">
                     <fieldset class="flow-step">
                         <legend><span class="step-number">1</span><span>Klassenstufe</span></legend>
-                        <div id="grade-chips" class="chips"><span class="muted">Fragenkatalog wird geladen …</span></div>
+                        <div id="grade-chips" class="chips"><button class="chip " type="button" data-grade="8">Klasse 8<span class="count">50</span></button><button class="chip " type="button" data-grade="9" disabled="">Klasse 9<span class="count">0</span></button><button class="chip " type="button" data-grade="10" disabled="">Klasse 10<span class="count">0</span></button><button class="chip " type="button" data-grade="11" disabled="">Klasse 11<span class="count">0</span></button><button class="chip " type="button" data-grade="12" disabled="">Klasse 12<span class="count">0</span></button><button class="chip " type="button" data-grade="13" disabled="">Klasse 13<span class="count">0</span></button></div>
                     </fieldset>
 
                     <fieldset id="chapter-card" class="flow-step hidden-step disabled">
@@ -301,7 +301,7 @@ input[type="range"]:disabled{opacity:.45}
         </main>
     </section>
 
-    <section id="screen-teacher" class="screen" hidden aria-label="Lehrerbereich">
+    <section id="screen-teacher" class="screen active" aria-label="Lehrerbereich">
         <header class="header">
             <div>
                 <h1 class="title">📝 Fragenkatalog bearbeiten</h1>
@@ -331,7 +331,7 @@ input[type="range"]:disabled{opacity:.45}
                     <label for="teacher-filter-chapter">Kapitel filtern</label>
                     <select id="teacher-filter-chapter"><option value="all">Alle Kapitel</option><option value="geschwindigkeit-und-geschwindigkeitsaenderung">Geschwindigkeit und Geschwindigkeitsänderung</option><option value="newtonsches-grundgesetz">Newtonsches Grundgesetz</option></select>
                 </div>
-                <div id="teacher-count" class="muted" style="padding-bottom:.25rem">Fragenkatalog wird geladen …</div>
+                <div id="teacher-count" class="muted" style="padding-bottom:.25rem">50 von 50 Fragen sichtbar</div>
                 <div class="selection-tools">
                     <button id="btn-select-visible" class="btn secondary small" type="button">☑️ Alle sichtbaren auswählen</button>
                     <button id="btn-clear-selection" class="btn secondary small" type="button" disabled="">Auswahl aufheben</button>
@@ -730,7 +730,7 @@ input[type="range"]:disabled{opacity:.45}
                         <input type="checkbox" data-select-question="8015">
                         <span>Auswählen</span>
                     </label>
-                    <div style="flex:1"><strong>In einer Stroboskopaufnahme mit gleichen Zeitabständen liegen die Positionen gleich weit auseinander. Was bedeutet das?</strong></div>
+                    <div style="flex:1"><strong>In einer Stroboskopaufnahme liegen die Positionen gleich weit auseinander. Was bedeutet das?</strong></div>
                 </div>
                 <div class="controls">
                     <button class="icon-btn" type="button" onclick="toggleEditor(6)">✏️</button>
@@ -759,7 +759,7 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-group">
                     <label>Frage</label>
-                    <textarea name="question">In einer Stroboskopaufnahme mit gleichen Zeitabständen liegen die Positionen gleich weit auseinander. Was bedeutet das?</textarea>
+                    <textarea name="question">In einer Stroboskopaufnahme liegen die Positionen gleich weit auseinander. Was bedeutet das?</textarea>
                 </div>
                 <div class="form-group">
                     <label>Bild-Pfad (optional)</label>
@@ -793,7 +793,7 @@ input[type="range"]:disabled{opacity:.45}
                         <input type="checkbox" data-select-question="8014">
                         <span>Auswählen</span>
                     </label>
-                    <div style="flex:1"><strong>In einer Stroboskopaufnahme mit gleichen Zeitabständen werden die Abstände zwischen den Positionen größer. Was bedeutet das?</strong></div>
+                    <div style="flex:1"><strong>In einer Stroboskopaufnahme werden die Abstände zwischen den Positionen größer. Was bedeutet das?</strong></div>
                 </div>
                 <div class="controls">
                     <button class="icon-btn" type="button" onclick="toggleEditor(7)">✏️</button>
@@ -822,7 +822,7 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-group">
                     <label>Frage</label>
-                    <textarea name="question">In einer Stroboskopaufnahme mit gleichen Zeitabständen werden die Abstände zwischen den Positionen größer. Was bedeutet das?</textarea>
+                    <textarea name="question">In einer Stroboskopaufnahme werden die Abstände zwischen den Positionen größer. Was bedeutet das?</textarea>
                 </div>
                 <div class="form-group">
                     <label>Bild-Pfad (optional)</label>
@@ -897,11 +897,11 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-grid">
                     <div class="form-group"><label>Antwort 3</label><input name="ans2" value="Die Zeitspanne"></div>
-                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die gerichtete Ortsänderung zwischen zwei Positionen"></div>
+                    <div class="form-group"><label>Antwort 4</label><input name="ans3" value="Die Ortsänderung bzw. Wegstrecke zwischen zwei Positionen"></div>
                 </div>
                 <div class="form-group">
                     <label>Musterlösung / Erklärung</label>
-                    <textarea name="explanation">Δx = x₂ − x₁ beschreibt die gerichtete Ortsänderung. Sie ist nicht immer gleich der zurückgelegten Wegstrecke.</textarea>
+                    <textarea name="explanation">Δx beschreibt die Änderung der Position, also die Ortsänderung zwischen zwei Zeitpunkten.</textarea>
                 </div>
                 <button class="btn primary small" type="submit">Übernehmen</button>
             </form>
@@ -1108,7 +1108,7 @@ input[type="range"]:disabled{opacity:.45}
                         <input type="checkbox" data-select-question="8007">
                         <span>Auswählen</span>
                     </label>
-                    <div style="flex:1"><strong>Welche Formel gilt für die mittlere Geschwindigkeit bei geradliniger Bewegung?</strong></div>
+                    <div style="flex:1"><strong>Welche Formel gilt für den Betrag der Geschwindigkeit?</strong></div>
                 </div>
                 <div class="controls">
                     <button class="icon-btn" type="button" onclick="toggleEditor(12)">✏️</button>
@@ -1137,7 +1137,7 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-group">
                     <label>Frage</label>
-                    <textarea name="question">Welche Formel gilt für die mittlere Geschwindigkeit bei geradliniger Bewegung?</textarea>
+                    <textarea name="question">Welche Formel gilt für den Betrag der Geschwindigkeit?</textarea>
                 </div>
                 <div class="form-group">
                     <label>Bild-Pfad (optional)</label>
@@ -1153,7 +1153,7 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-group">
                     <label>Musterlösung / Erklärung</label>
-                    <textarea name="explanation">Die mittlere Geschwindigkeit ergibt sich aus der gerichteten Ortsänderung Δx geteilt durch das Zeitintervall Δt.</textarea>
+                    <textarea name="explanation">Der Geschwindigkeitsbetrag ergibt sich aus Wegstrecke geteilt durch Zeitintervall.</textarea>
                 </div>
                 <button class="btn primary small" type="submit">Übernehmen</button>
             </form>
@@ -2530,7 +2530,7 @@ input[type="range"]:disabled{opacity:.45}
                     <input name="image" value="" placeholder="z. B. Bilder/pendel.png">
                 </div>
                 <div class="form-grid">
-                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die resultierende Kraft"></div>
+                    <div class="form-group"><label>Antwort 1</label><input name="ans0" value="Die wirkende Kraft"></div>
                     <div class="form-group"><label>Antwort 2</label><input name="ans1" value="Die Masse"></div>
                 </div>
                 <div class="form-grid">
@@ -2539,7 +2539,7 @@ input[type="range"]:disabled{opacity:.45}
                 </div>
                 <div class="form-group">
                     <label>Musterlösung / Erklärung</label>
-                    <textarea name="explanation">F steht für die resultierende Kraft, also die Vektorsumme aller auf den Körper wirkenden Kräfte.</textarea>
+                    <textarea name="explanation">F steht für die wirkende Kraft.</textarea>
                 </div>
                 <button class="btn primary small" type="submit">Übernehmen</button>
             </form>
@@ -3617,7 +3617,7 @@ input[type="range"]:disabled{opacity:.45}
       "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
       "topic": "geschwindigkeitsbetrag-und-richtung",
       "topicLabel": "Geschwindigkeitsbetrag und -richtung",
-      "question": "In einer Stroboskopaufnahme mit gleichen Zeitabständen liegen die Positionen gleich weit auseinander. Was bedeutet das?",
+      "question": "In einer Stroboskopaufnahme liegen die Positionen gleich weit auseinander. Was bedeutet das?",
       "answers": [
         "Die Geschwindigkeit nimmt zu",
         "Die Geschwindigkeit bleibt konstant",
@@ -3635,7 +3635,7 @@ input[type="range"]:disabled{opacity:.45}
       "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
       "topic": "geschwindigkeitsbetrag-und-richtung",
       "topicLabel": "Geschwindigkeitsbetrag und -richtung",
-      "question": "In einer Stroboskopaufnahme mit gleichen Zeitabständen werden die Abstände zwischen den Positionen größer. Was bedeutet das?",
+      "question": "In einer Stroboskopaufnahme werden die Abstände zwischen den Positionen größer. Was bedeutet das?",
       "answers": [
         "Die Geschwindigkeit bleibt gleich",
         "Der Körper wird langsamer",
@@ -3658,10 +3658,10 @@ input[type="range"]:disabled{opacity:.45}
         "Die Masse eines Körpers",
         "Die Richtungsänderung",
         "Die Zeitspanne",
-        "Die gerichtete Ortsänderung zwischen zwei Positionen"
+        "Die Ortsänderung bzw. Wegstrecke zwischen zwei Positionen"
       ],
       "correct": 3,
-      "explanation": "Δx = x₂ − x₁ beschreibt die gerichtete Ortsänderung. Sie ist nicht immer gleich der zurückgelegten Wegstrecke.",
+      "explanation": "Δx beschreibt die Änderung der Position, also die Ortsänderung zwischen zwei Zeitpunkten.",
       "image": ""
     },
     {
@@ -3725,7 +3725,7 @@ input[type="range"]:disabled{opacity:.45}
       "chapterLabel": "Geschwindigkeit und Geschwindigkeitsänderung",
       "topic": "geschwindigkeitsbetrag-und-richtung",
       "topicLabel": "Geschwindigkeitsbetrag und -richtung",
-      "question": "Welche Formel gilt für die mittlere Geschwindigkeit bei geradliniger Bewegung?",
+      "question": "Welche Formel gilt für den Betrag der Geschwindigkeit?",
       "answers": [
         "v = Δt / Δx",
         "v = Δx · Δt",
@@ -3733,7 +3733,7 @@ input[type="range"]:disabled{opacity:.45}
         "v = x / t"
       ],
       "correct": 2,
-      "explanation": "Die mittlere Geschwindigkeit ergibt sich aus der gerichteten Ortsänderung Δx geteilt durch das Zeitintervall Δt.",
+      "explanation": "Der Geschwindigkeitsbetrag ergibt sich aus Wegstrecke geteilt durch Zeitintervall.",
       "image": ""
     },
     {
@@ -3840,7 +3840,7 @@ input[type="range"]:disabled{opacity:.45}
         "Durch 3,6 teilen",
         "Mit 1000 teilen"
       ],
-      "correct": 2,
+      "correct": 0,
       "explanation": "Von km/h in m/s rechnet man, indem man durch 3,6 teilt.",
       "image": ""
     },
@@ -4078,42 +4078,13 @@ function readEmbeddedBank() {
     return normalizeBank(JSON.parse(el.embeddedBank.textContent));
 }
 
-function readLegacyTeacherBank() {
-    return Array.from(document.querySelectorAll('#teacher-list .item')).map((item, index) => {
-        const form = item.querySelector('form');
-        if (!form) return null;
-        const data = new FormData(form);
-        const checkbox = item.querySelector('[data-select-question]');
-        return normalizeQuestion({
-            id: checkbox?.dataset.selectQuestion || `legacy-${index}`,
-            grade: data.get('grade'),
-            chapterLabel: data.get('chapterLabel'),
-            topicLabel: data.get('topicLabel'),
-            question: data.get('question'),
-            answers: [data.get('ans0'), data.get('ans1'), data.get('ans2'), data.get('ans3')],
-            correct: data.get('correct'),
-            explanation: data.get('explanation'),
-            image: data.get('image')
-        }, index);
-    }).filter(Boolean);
-}
-
 function loadBank() {
-    const embedded = readEmbeddedBank();
-    const knownQuestions = new Set(embedded.map((question) => question.question));
-    const missingLegacyQuestions = readLegacyTeacherBank().filter((question) => !knownQuestions.has(question.question));
-    return normalizeBank({questions: [...embedded, ...missingLegacyQuestions]});
+    return readEmbeddedBank();
 }
 
 function initAudio() {
     if (!state.audioContext) {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContextClass) {
-            state.soundEnabled = false;
-            syncSoundButtons();
-            return;
-        }
-        state.audioContext = new AudioContextClass();
+        state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
     }
 }
 
@@ -5066,21 +5037,11 @@ function bindEvents() {
 }
 
 function init() {
-    try {
-        state.bank = loadBank();
-        state.editing = cloneData(state.bank);
-        bindEvents();
-        syncSoundButtons();
-        setScreen('config');
-        refreshConfig();
-    } catch (error) {
-        console.error('Quiz konnte nicht initialisiert werden:', error);
-        setScreen('config');
-        el.summaryTag.textContent = 'Fehler';
-        el.summaryText.textContent = 'Der Fragenkatalog konnte nicht geladen werden.';
-        el.summaryStats.textContent = error.message;
-        el.btnStart.disabled = true;
-    }
+    state.bank = loadBank();
+    state.editing = cloneData(state.bank);
+    bindEvents();
+    syncSoundButtons();
+    refreshConfig();
 }
 
 document.addEventListener('DOMContentLoaded', init);

@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Waagrechter Wurf – Rettungspaket</title>
     <style>
         /* =====================================================
@@ -116,6 +116,8 @@
         @media (min-width: 760px) { .slider-grid { grid-template-columns: repeat(5, 1fr); } }
 
         .slider-row { display: flex; flex-direction: column; gap: 0.22rem; }
+        .slider-row input:disabled { opacity: 0.5; cursor: not-allowed; }
+        .model-note { margin: -0.15rem 0 0.65rem; color: var(--color-text-light); font-size: 0.72rem; line-height: 1.35; }
 
         .slider-label {
             display: flex;
@@ -237,10 +239,11 @@
             </div>
         </div>
 
+        <p class="model-note"><strong>Modell:</strong> Ursprung bei <em>x = 0</em> auf Meereshöhe, <em>y</em> nach oben. Ohne Luftwiderstand: <em>x = x₀ + v₀t</em>, <em>y = h − ½gt²</em>.</p>
         <div class="btn-row">
             <button class="btn btn-primary"   id="btn-play">▶ Start</button>
             <button class="btn btn-secondary" id="btn-reset">↺ Reset</button>
-            <button class="btn btn-warn"      id="btn-slo">🐢 Slo-Mo</button>
+            <button class="btn btn-warn"      id="btn-slo">🐢 Tempo: 100 %</button>
             <button class="btn btn-secondary" id="btn-vec">📐 Vektoren</button>
             <button class="btn btn-secondary" id="btn-traj">〰 Parabel</button>
         </div>
@@ -889,6 +892,7 @@ class App {
         this.showVectors = true;
         this.showPreTraj = false;   // ← standardmäßig AUS
         this.trail       = [];
+        this._paused     = false;
 
         /* ---- Einflug-Phase (vor Abwurf) ---- */
         // Das Flugzeug fliegt von weit links nach xStart, dann wird abgeworfen.
@@ -934,7 +938,7 @@ class App {
         const { h, xs, v0, g, xi, iw } = this.state;
         this.renderer.draw({
             plane:         { x: xs, y: h, opacity: 1 },
-            pkg:           { x: xs, y: h },
+            pkg:           null,
             island:        { x1: xi - iw/2, x2: xi + iw/2, hit: overrideHit },
             preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs) : null,
             trail:         [],
@@ -961,10 +965,16 @@ class App {
         const tick = (ts) => {
             if (this._phase !== 'entry') return;
 
+            if (this._paused) {
+                this._entryLastTs = null;
+                this._entryRaf = requestAnimationFrame(tick);
+                return;
+            }
+
             if (this._entryLastTs !== null) {
                 const dt = Math.min((ts - this._entryLastTs) / 1000, 0.05);
                 // Plane fliegt mit v0*2.5 (wirkt flüssig und zügig)
-                const planeSpeed = Math.max(60, this.state.v0 * 2.5);
+                const planeSpeed = Math.max(60, this.state.v0 * 2.5) * this.animator.speed;
                 this._planeX += planeSpeed * dt;
             }
             this._entryLastTs = ts;
@@ -1015,9 +1025,15 @@ class App {
         const exitTick = (ts) => {
             if (this._phase !== 'exit') return;
 
+            if (this._paused) {
+                this._exitLastTs = null;
+                this._exitRaf = requestAnimationFrame(exitTick);
+                return;
+            }
+
             if (this._exitLastTs !== null) {
                 const dt = Math.min((ts - this._exitLastTs) / 1000, 0.05);
-                const planeSpeed = Math.max(60, this.state.v0 * 2.5);
+                const planeSpeed = Math.max(60, this.state.v0 * 2.5) * this.animator.speed;
                 this._planeX += planeSpeed * dt;
             }
             this._exitLastTs = ts;
@@ -1076,6 +1092,8 @@ class App {
         const pos   = this.physics.getState(h, v0, g, xs, tF);
 
         this._phase = 'idle';
+        this._paused = false;
+        this._setParameterLock(false);
 
         this.renderer.draw({
             plane:         null,
@@ -1109,6 +1127,7 @@ class App {
             { id: 'sl-g',  key: 'g',  lbl: 'lbl-g',  fmt: v => `${parseFloat(v).toFixed(2)} m/s²` },
             { id: 'sl-xi', key: 'xi', lbl: 'lbl-xi', fmt: v => `${v} m`     }
         ];
+        this._sliders = sliders.map(({ id }) => document.getElementById(id));
 
         sliders.forEach(({ id, key, lbl, fmt }) => {
             const el = document.getElementById(id);
@@ -1135,9 +1154,12 @@ class App {
     }
 
     _onSliderChange() {
-        if (this._phase !== 'idle') return; // Keine Unterbrechung während Animation
         this._fitScaler();
         this._drawStatic();
+    }
+
+    _setParameterLock(locked) {
+        (this._sliders || []).forEach(el => { el.disabled = locked; });
     }
 
     _onPlayPause() {
@@ -1146,11 +1168,15 @@ class App {
         if (this._phase === 'idle' && !this.animator.running) {
             // Neu starten → Einflug-Phase
             this._fitScaler();
+            this._paused = false;
+            this._setParameterLock(true);
+            document.getElementById('landing-banner').className = '';
             this._startEntryPhase();
             btn.textContent = '⏸ Pause';
-        } else if (this.animator.running) {
-            this.animator.pause();
-            btn.textContent = this.animator.paused ? '▶ Weiter' : '⏸ Pause';
+        } else if (this._phase !== 'idle') {
+            this._paused = !this._paused;
+            if (this.animator.running && this.animator.paused !== this._paused) this.animator.pause();
+            btn.textContent = this._paused ? '▶ Fortsetzen' : '⏸ Pause';
         }
     }
 
@@ -1160,7 +1186,9 @@ class App {
         if (this._entryRaf) { cancelAnimationFrame(this._entryRaf); this._entryRaf = null; }
         if (this._exitRaf)  { cancelAnimationFrame(this._exitRaf);  this._exitRaf  = null; }
         this._phase = 'idle';
+        this._paused = false;
         this.trail  = [];
+        this._setParameterLock(false);
         document.getElementById('btn-play').textContent = '▶ Start';
         document.getElementById('landing-banner').className = '';
         this._fitScaler();
@@ -1171,7 +1199,7 @@ class App {
         const isSlo = this.animator.speed === 0.2;
         this.animator.speed = isSlo ? 1.0 : 0.2;
         const btn = document.getElementById('btn-slo');
-        btn.textContent = isSlo ? '🐢 Slo-Mo' : '🐇 Normal';
+        btn.textContent = isSlo ? '🐢 Tempo: 100 %' : '🐢 Tempo: 20 %';
         btn.classList.toggle('slo-active', !isSlo);
     }
 
