@@ -1,0 +1,5 @@
+# macOS
+.DS_Store
+
+# Lokale Sicherungen vor HTML-Änderungen
+.backups/

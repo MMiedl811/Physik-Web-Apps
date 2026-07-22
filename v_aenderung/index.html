@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Physik Applet: Geschwindigkeit vs. Geschwindigkeitsänderung</title>
     
     <!-- Code Beginn: p5.js CDN Einbindung -->
@@ -204,7 +204,12 @@
             #sidebar h1 { margin: 0 0 14px; }
             .control-group { margin-bottom: 16px; }
             .checkbox-group { margin-bottom: 14px; }
-            #main-area { min-height: 54vh; height: 54vh; flex: none; }
+            #main-area {
+                min-height: 420px;
+                height: 42dvh;
+                max-height: 470px;
+                flex: none;
+            }
         }
 
         /* Game Overlay Styles */
