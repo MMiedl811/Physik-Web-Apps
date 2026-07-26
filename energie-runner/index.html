@@ -123,31 +123,22 @@
       font-weight: 700;
     }
     .status-chip strong { color: var(--ink); }
+    .status-chip--score { border-color: #dfc57a; background: #fff8dd; color: #806114; }
     #event-message { margin-left: auto; color: var(--petrol-dark); }
 
     .canvas-wrap {
       position: relative;
-      min-height: 460px;
-      border: 6px solid #2d453d;
-      border-width: 6px 0;
-      background: #c7dfd4;
-      box-shadow: inset 0 0 0 3px rgba(255, 253, 248, 0.30);
-    }
-    .canvas-wrap::after {
-      content: "";
-      position: absolute;
-      z-index: 2;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.12;
-      background: repeating-linear-gradient(to bottom, transparent 0 3px, #243a33 3px 4px);
+      min-height: 500px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+      background: #cfe8ef;
     }
     #game-canvas {
       display: block;
       width: 100%;
       height: 100%;
-      min-height: 460px;
-      image-rendering: pixelated;
+      min-height: 500px;
+      image-rendering: auto;
       touch-action: none;
     }
     .game-over {
@@ -374,7 +365,7 @@
       .topbar { align-items: flex-start; flex-direction: column; }
       .top-actions { width: 100%; justify-content: stretch; }
       .top-actions .button { flex: 1; }
-      .canvas-wrap, #game-canvas { min-height: 390px; }
+      .canvas-wrap, #game-canvas { min-height: 420px; }
       .controls-strip { grid-template-columns: 1fr; }
       .touch-controls { justify-content: stretch; }
       .touch-button { flex: 1; }
@@ -406,10 +397,11 @@
           <div class="status-chip">Zeit <strong id="time-readout">0,0 s</strong></div>
           <div class="status-chip">Höhe <strong id="height-readout">0,0 m</strong></div>
           <div class="status-chip">Tempo <strong id="speed-readout">0,0 m/s</strong></div>
+          <div class="status-chip status-chip--score">Münzen <strong id="score-readout">0</strong></div>
           <div class="status-chip" id="event-message" aria-live="polite">Bewege Mario und beobachte die Energiebalken.</div>
         </div>
         <div class="canvas-wrap" id="canvas-wrap">
-          <canvas id="game-canvas" aria-label="Mario läuft und springt durch eine schematische Plattformwelt"></canvas>
+          <canvas id="game-canvas" aria-label="Mario läuft über eine Brücke, sammelt Münzen und springt über Bowser"></canvas>
           <div class="game-over" id="game-over" hidden>
             <div class="game-over__panel">
               <h2>Chemische Energie aufgebraucht</h2>
@@ -419,7 +411,7 @@
           </div>
         </div>
         <div class="controls-strip">
-          <div class="instructions"><strong>Tastatur:</strong> A/D oder ←/→ zum Laufen · W/↑/Leertaste zum Springen. Nach einigen Sekunden fliegt ein Muffin mit neuer chemischer Energie vorbei.</div>
+          <div class="instructions"><strong>Ziel:</strong> Überquere die Brücke, sammle Münzen und springe über Bowser. Münzen geben nur Punkte; der Muffin bringt chemische Energie. <strong>Steuerung:</strong> A/D oder ←/→ · W/↑/Leertaste.</div>
           <div class="touch-controls" aria-label="Touch-Steuerung">
             <button class="touch-button" id="left-button" type="button" aria-label="Nach links laufen">←</button>
             <button class="touch-button touch-button--jump" id="jump-button" type="button" aria-label="Springen">↑ Sprung</button>
@@ -507,7 +499,7 @@
         <div class="formula-box"><strong>Mechanische Energie</strong><math display="block" aria-label="E mechanisch gleich E kin plus E pot"><msub><mi>E</mi><mtext>mech</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub></math></div>
         <div class="formula-box"><strong>Energiebilanz</strong><math display="block" aria-label="E System gleich E chemisch plus E kin plus E pot plus E thermisch"><msub><mi>E</mi><mtext>sys</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>chem</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>th</mtext></msub></math></div>
       </div>
-      <p class="model-note">Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie erhalten. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung und unelastische Landungen wandeln mechanische Energie ebenfalls in innere Energie um. Deshalb bleibt die gesamte Systemenergie erhalten, nicht in jeder Phase die mechanische Energie allein. Der Muffin führt dem System Energie von außen zu. Die Spielfigur ist selbst gezeichnet und verwendet keine Originalgrafik.</p>
+      <p class="model-note">Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie erhalten. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung, unelastische Landungen und der Rückprall an Bowser wandeln mechanische Energie in innere Energie um. Münzen verändern nur den Punktestand und sind ausdrücklich keine Energieform. Der Muffin führt dem System dagegen chemische Energie von außen zu. Alle Figuren und Spielelemente sind eigenständig gezeichnet; es werden keine Originalgrafiken verwendet.</p>
     </details>
   </div>
 
@@ -529,7 +521,10 @@
         maxSpeed: 6.2,
         groundResistance: 68,
         muffinDelay: 7,
-        muffinSpeed: 1.65
+        muffinSpeed: 1.65,
+        bowserX: 28,
+        bowserRestitution: 0.42,
+        bowserCollisionHeight: 1.25
       });
 
       const canvas = document.getElementById('game-canvas');
@@ -545,6 +540,7 @@
         time: document.getElementById('time-readout'),
         height: document.getElementById('height-readout'),
         speed: document.getElementById('speed-readout'),
+        score: document.getElementById('score-readout'),
         chemical: document.getElementById('chemical-value'),
         kinetic: document.getElementById('kinetic-value'),
         potential: document.getElementById('potential-value'),
@@ -582,6 +578,17 @@
         platformPattern.forEach(p => platforms.push({ x: origin + p.offset, width: p.width, height: p.height }));
       }
 
+      const coinPattern = Object.freeze([
+        { x: 5, y: 0.85 }, { x: 8, y: 1.45 }, { x: 11, y: 2.20 },
+        { x: 14, y: 1.35 }, { x: 20, y: 0.85 }, { x: 23, y: 1.55 },
+        { x: 26, y: 2.25 }, { x: 32, y: 0.85 }, { x: 36, y: 1.45 },
+        { x: 40, y: 0.85 }
+      ]);
+
+      function freshCoins() {
+        return coinPattern.map((coin, index) => ({ ...coin, id: index, collected: false }));
+      }
+
       let state;
       let running = true;
       let lastTimestamp = 0;
@@ -600,10 +607,13 @@
           chemical: CONFIG.initialChemical,
           thermal: 0,
           externalAdded: 0,
+          score: 0,
           time: 0,
           gameOver: false,
           cameraX: -1,
           muffin: { active: false, x: 0, y: 2, phase: 0, nextAt: CONFIG.muffinDelay },
+          coins: freshCoins(),
+          bowser: { x: CONFIG.bowserX, collisionCooldown: 0, passed: false },
           messageUntil: 0,
           balanceCorrection: 0
         };
@@ -614,7 +624,7 @@
         pauseButton.disabled = false;
         pauseButton.textContent = '⏸ Pause';
         gameOverOverlay.hidden = true;
-        setMessage('Bewege Mario und beobachte die Energiebalken.', 2.5);
+        setMessage('Überquere die Brücke, sammle Münzen und springe über Bowser.', 3.5);
         reconcileEnergy();
         updateUI();
         draw();
@@ -737,6 +747,43 @@
         return added;
       }
 
+      function collectCoin(coin) {
+        if (!coin || coin.collected) return false;
+        coin.collected = true;
+        state.score += 1;
+        setMessage('Münze gesammelt: +1 Punkt – keine Energiezufuhr', 2.4);
+        return true;
+      }
+
+      function updateCoins() {
+        for (const coin of state.coins) {
+          if (coin.collected) continue;
+          const touchesMario = Math.abs(coin.x - state.x) < 0.55
+            && Math.abs(coin.y - (state.y + 0.68)) < 0.72;
+          if (touchesMario) collectCoin(coin);
+        }
+      }
+
+      function collideWithBowser(force = false) {
+        if (state.bowser.collisionCooldown > 0) return false;
+        const distance = state.bowser.x - state.x;
+        const approaching = distance * state.vx > 0;
+        const touching = Math.abs(distance) < 0.78 && state.y < CONFIG.bowserCollisionHeight;
+        if (!force && (!touching || !approaching)) return false;
+        if (Math.abs(state.vx) < 0.05) return false;
+
+        const incomingVx = state.vx;
+        const oldHorizontalK = 0.5 * CONFIG.mass * incomingVx * incomingVx;
+        state.vx = -incomingVx * CONFIG.bowserRestitution;
+        const newHorizontalK = 0.5 * CONFIG.mass * state.vx * state.vx;
+        state.thermal += oldHorizontalK - newHorizontalK;
+        state.x = state.bowser.x - Math.sign(incomingVx) * 0.88;
+        state.bowser.collisionCooldown = 0.9;
+        setMessage('Bowser-Kollision: Bewegungsenergie → innere Energie', 3.1);
+        reconcileEnergy();
+        return true;
+      }
+
       function physicsStep(dt, forcedInput = null) {
         if (state.gameOver) return;
         const controls = forcedInput || input;
@@ -776,6 +823,14 @@
           state.vy = 0;
         }
 
+        state.bowser.collisionCooldown = Math.max(0, state.bowser.collisionCooldown - dt);
+        collideWithBowser();
+        updateCoins();
+        if (!state.bowser.passed && state.x > state.bowser.x + 1.8) {
+          state.bowser.passed = true;
+          state.score += 5;
+          setMessage('Bowser übersprungen: Brücke geschafft! +5 Punkte', 3.2);
+        }
         updateMuffin(dt);
         reconcileEnergy();
 
@@ -805,6 +860,7 @@
           thermal: +state.thermal.toFixed(6),
           systemEnergy: +systemEnergy().toFixed(6),
           externalAdded: +state.externalAdded.toFixed(6),
+          score: state.score,
           balanceError: +(systemEnergy() - energySum()).toFixed(9),
           x: +state.x.toFixed(4),
           y: +state.y.toFixed(4),
@@ -815,7 +871,8 @@
           onGround: state.onGround,
           muffinActive: state.muffin.active,
           muffinX: +state.muffin.x.toFixed(4),
-          muffinY: +state.muffin.y.toFixed(4)
+          muffinY: +state.muffin.y.toFixed(4),
+          bowserX: +state.bowser.x.toFixed(4)
         };
       }
 
@@ -874,6 +931,7 @@
         readouts.time.textContent = `${formatNumber(s.time)} s`;
         readouts.height.textContent = `${formatNumber(s.y)} m`;
         readouts.speed.textContent = `${formatNumber(Math.hypot(s.vx, s.vy))} m/s`;
+        readouts.score.textContent = String(s.score);
         readouts.system.textContent = formatKJ(s.systemEnergy);
         readouts.external.textContent = `+${formatKJ(s.externalAdded)}`;
         readouts.balance.textContent = `${formatNumber(Math.abs(s.balanceError), 0)} J`;
@@ -902,68 +960,229 @@
       }
 
       function drawMario(screenX, footY, scale) {
-        const pixel = Math.max(3, Math.round((0.72 * scale) / 8));
-        const x = Math.round(screenX - 4 * pixel);
-        const y = Math.round(footY - 12 * pixel);
-        const block = (gx, gy, gw, gh, color) => {
-          ctx.fillStyle = color;
-          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
-        };
-        ctx.save();
-        ctx.translate(x, y);
-        if (state.vx < -0.08) { ctx.translate(8 * pixel, 0); ctx.scale(-1, 1); }
+        const unit = Math.max(0.78, Math.min(1.18, scale / 58));
+        const running = state.onGround && Math.abs(state.vx) > 0.25;
+        const stride = running ? Math.sin(state.time * 11) * 8 : 0;
+        const bob = running ? Math.abs(Math.sin(state.time * 11)) * 2 : (!state.onGround ? -3 : 0);
 
-        block(2, 0, 5, 1, '#a93432');
-        block(1, 1, 7, 1, '#a93432');
-        block(2, 2, 5, 3, '#efc296');
-        block(1, 2, 2, 2, '#49342b');
-        block(6, 2, 2, 2, '#efc296');
-        block(5, 2, 1, 1, '#25332f');
-        block(5, 4, 2, 1, '#49342b');
-        block(1, 5, 6, 2, '#a93432');
-        block(0, 6, 2, 3, '#efc296');
-        block(6, 6, 2, 3, '#efc296');
-        block(2, 6, 4, 4, '#245b9d');
-        block(3, 5, 1, 2, '#245b9d');
-        block(5, 5, 1, 2, '#245b9d');
-        block(3, 7, 1, 1, '#f0c94d');
-        block(5, 7, 1, 1, '#f0c94d');
-        const runningFrame = Math.abs(state.vx) > 0.3 && Math.floor(state.time * 10) % 2 === 0;
-        if (runningFrame && state.onGround) {
-          block(2, 10, 2, 1, '#245b9d');
-          block(5, 10, 2, 1, '#245b9d');
-          block(1, 11, 3, 1, '#49342b');
-          block(5, 11, 3, 1, '#49342b');
-        } else {
-          block(2, 10, 2, 1, '#245b9d');
-          block(4, 10, 2, 1, '#245b9d');
-          block(1, 11, 3, 1, '#49342b');
-          block(4, 11, 3, 1, '#49342b');
-        }
+        ctx.save();
+        ctx.translate(screenX, footY + bob - 2);
+        if (state.vx < -0.08) ctx.scale(-1, 1);
+        ctx.scale(unit, unit);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.fillStyle = 'rgba(30, 48, 52, 0.20)';
+        ctx.beginPath(); ctx.ellipse(0, 3, 25, 7, 0, 0, Math.PI * 2); ctx.fill();
+
+        ctx.strokeStyle = '#245b8f';
+        ctx.lineWidth = 11;
+        ctx.beginPath(); ctx.moveTo(-9, -34); ctx.lineTo(-11 + stride, -9); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(9, -34); ctx.lineTo(11 - stride, -9); ctx.stroke();
+        ctx.fillStyle = '#45382f';
+        ctx.beginPath(); ctx.ellipse(-11 + stride, -5, 14, 7, -0.08, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(11 - stride, -5, 14, 7, 0.08, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#b9433f';
+        drawRoundedRect(-22, -63, 44, 35, 13); ctx.fill();
+        ctx.strokeStyle = '#edbd91';
+        ctx.lineWidth = 10;
+        ctx.beginPath(); ctx.moveTo(-18, -54); ctx.lineTo(-29, -37 + stride * 0.25); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(18, -54); ctx.lineTo(29, -38 - stride * 0.25); ctx.stroke();
+
+        ctx.fillStyle = '#246aa3';
+        drawRoundedRect(-17, -56, 34, 34, 10); ctx.fill();
+        ctx.fillStyle = '#f4cf55';
+        ctx.beginPath(); ctx.arc(-9, -48, 3.3, 0, Math.PI * 2); ctx.arc(9, -48, 3.3, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#efbf93';
+        ctx.beginPath(); ctx.ellipse(0, -81, 19, 20, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#4a342d';
+        ctx.beginPath(); ctx.ellipse(-15, -82, 7, 14, -0.3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(8, -72, 10, 4, 0.1, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#25332f';
+        ctx.beginPath(); ctx.arc(8, -84, 2.2, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#b9433f';
+        ctx.beginPath(); ctx.ellipse(-2, -98, 20, 9, -0.06, Math.PI, Math.PI * 2); ctx.fill();
+        drawRoundedRect(-21, -99, 38, 9, 5); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(12, -91, 13, 4, 0, 0, Math.PI * 2); ctx.fill();
         ctx.restore();
       }
 
       function drawMuffin(screenX, screenY, scale) {
-        const pixel = Math.max(3, Math.round((0.55 * scale) / 7));
-        const block = (gx, gy, gw, gh, color) => {
-          ctx.fillStyle = color;
-          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
-        };
+        const size = Math.max(0.8, scale / 62);
         ctx.save();
-        ctx.translate(Math.round(screenX - 3.5 * pixel), Math.round(screenY - 3.5 * pixel));
-        block(2, 0, 3, 1, '#f3d8a4');
-        block(1, 1, 5, 1, '#f3d8a4');
-        block(0, 2, 7, 2, '#f3d8a4');
-        block(1, 4, 5, 1, '#a86424');
-        block(2, 5, 3, 2, '#a86424');
-        block(4, 0, 1, 1, '#b64a45');
+        ctx.translate(screenX, screenY);
+        ctx.scale(size, size);
+        ctx.shadowColor = 'rgba(91, 64, 34, .20)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 5;
+        ctx.fillStyle = '#a86424';
+        ctx.beginPath(); ctx.moveTo(-16, 3); ctx.lineTo(15, 3); ctx.lineTo(11, 25); ctx.quadraticCurveTo(0, 31, -11, 25); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#f1cf91';
+        ctx.beginPath();
+        ctx.arc(-10, 1, 12, Math.PI * .85, Math.PI * 2.15);
+        ctx.arc(3, -5, 15, Math.PI, Math.PI * 2.1);
+        ctx.arc(14, 2, 10, Math.PI * .8, Math.PI * 2);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#b64a45';
+        ctx.beginPath(); ctx.arc(5, -12, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+
+      function drawCoin(screenX, screenY, scale, phase) {
+        const radius = Math.max(10, scale * 0.2);
+        const width = Math.max(4, Math.abs(Math.cos(phase)) * radius);
+        ctx.save();
+        ctx.translate(screenX, screenY);
+        ctx.shadowColor = 'rgba(169, 118, 20, .32)';
+        ctx.shadowBlur = 12;
+        const gradient = ctx.createLinearGradient(-width, 0, width, 0);
+        gradient.addColorStop(0, '#d89b1d');
+        gradient.addColorStop(.48, '#ffe07a');
+        gradient.addColorStop(1, '#c78311');
+        ctx.fillStyle = gradient;
+        ctx.beginPath(); ctx.ellipse(0, 0, width, radius, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#9f6a0c'; ctx.lineWidth = 2; ctx.stroke();
+        ctx.fillStyle = '#9f6a0c';
+        ctx.font = `800 ${Math.round(radius * 1.05)}px system-ui`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('1', 0, 1);
+        ctx.restore();
+      }
+
+      function drawBowser(screenX, footY, scale) {
+        const unit = Math.max(0.78, Math.min(1.16, scale / 58));
+        const bob = Math.sin(state.time * 3.2) * 2;
+        ctx.save();
+        ctx.translate(screenX, footY + bob - 2);
+        ctx.scale(unit, unit);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.fillStyle = 'rgba(30, 48, 52, .22)';
+        ctx.beginPath(); ctx.ellipse(0, 3, 34, 8, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#b85836';
+        ctx.beginPath(); ctx.ellipse(-13, -12, 14, 10, -.2, 0, Math.PI * 2); ctx.ellipse(16, -12, 14, 10, .2, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#356f51';
+        ctx.beginPath(); ctx.ellipse(7, -50, 31, 38, -.08, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#214c3d'; ctx.lineWidth = 5; ctx.stroke();
+        ctx.fillStyle = '#f3eee4';
+        for (const [x, y, a] of [[-11,-78,-.6],[8,-89,0],[28,-73,.6]]) {
+          ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(-7, 8); ctx.lineTo(0, -11); ctx.lineTo(7, 8); ctx.closePath(); ctx.fill(); ctx.restore();
+        }
+
+        ctx.fillStyle = '#d67a3d';
+        ctx.beginPath(); ctx.ellipse(-12, -54, 25, 31, .18, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#f1c66f';
+        ctx.beginPath(); ctx.ellipse(-18, -48, 15, 21, .2, 0, Math.PI * 2); ctx.fill();
+
+        ctx.fillStyle = '#d67a3d';
+        ctx.beginPath(); ctx.ellipse(-23, -86, 22, 19, -.08, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.ellipse(-38, -79, 18, 11, -.1, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#f3eee4';
+        ctx.beginPath(); ctx.moveTo(-33, -99); ctx.lineTo(-42, -114); ctx.lineTo(-25, -102); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-10, -99); ctx.lineTo(-7, -116); ctx.lineTo(1, -98); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#25332f';
+        ctx.beginPath(); ctx.arc(-31, -89, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#91412f'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(-44, -79); ctx.quadraticCurveTo(-33, -72, -21, -77); ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.font = '800 11px system-ui';
+        const label = 'BOWSER';
+        const width = ctx.measureText(label).width + 22;
+        ctx.fillStyle = 'rgba(255, 253, 248, .94)';
+        drawRoundedRect(screenX - width / 2, footY - scale * 2.05, width, 25, 12); ctx.fill();
+        ctx.strokeStyle = 'rgba(37, 51, 47, .20)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#8d3f35'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, screenX, footY - scale * 2.05 + 13);
+        ctx.restore();
+      }
+
+      function drawCloud(x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = 'rgba(255, 253, 248, .78)';
+        ctx.beginPath();
+        ctx.arc(-size * .34, 0, size * .28, 0, Math.PI * 2);
+        ctx.arc(0, -size * .15, size * .4, 0, Math.PI * 2);
+        ctx.arc(size * .38, 0, size * .3, 0, Math.PI * 2);
+        ctx.ellipse(0, size * .13, size * .72, size * .28, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawBridge(groundY, scale) {
+        const water = ctx.createLinearGradient(0, groundY, 0, viewHeight);
+        water.addColorStop(0, '#75b9c4');
+        water.addColorStop(1, '#28798b');
+        ctx.fillStyle = water;
+        ctx.fillRect(0, groundY, viewWidth, viewHeight - groundY);
+        ctx.strokeStyle = 'rgba(255,255,255,.38)';
+        ctx.lineWidth = 2;
+        for (let y = groundY + 42; y < viewHeight; y += 28) {
+          ctx.beginPath();
+          for (let x = -20; x <= viewWidth + 20; x += 24) {
+            const waveY = y + Math.sin((x + state.time * 30) * .045) * 3;
+            if (x === -20) ctx.moveTo(x, waveY); else ctx.lineTo(x, waveY);
+          }
+          ctx.stroke();
+        }
+
+        const firstPier = Math.floor(state.cameraX / 7) * 7;
+        for (let worldX = firstPier; worldX < state.cameraX + viewWidth / scale + 8; worldX += 7) {
+          const x = (worldX - state.cameraX) * scale;
+          ctx.fillStyle = '#b86e45';
+          drawRoundedRect(x - 14, groundY + 24, 28, viewHeight - groundY + 30, 8); ctx.fill();
+          ctx.fillStyle = '#d9945c';
+          ctx.fillRect(x - 8, groundY + 30, 8, viewHeight - groundY);
+        }
+
+        ctx.strokeStyle = 'rgba(53, 83, 76, .48)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(0, groundY - 34); ctx.lineTo(viewWidth, groundY - 34); ctx.stroke();
+        const firstPost = Math.floor(state.cameraX / 2) * 2;
+        for (let worldX = firstPost; worldX < state.cameraX + viewWidth / scale + 3; worldX += 2) {
+          const x = (worldX - state.cameraX) * scale;
+          ctx.beginPath(); ctx.moveTo(x, groundY - 36); ctx.lineTo(x, groundY + 3); ctx.stroke();
+        }
+
+        ctx.fillStyle = '#9e583a';
+        ctx.fillRect(0, groundY, viewWidth, 32);
+        ctx.fillStyle = '#e3a762';
+        ctx.fillRect(0, groundY, viewWidth, 9);
+        ctx.strokeStyle = 'rgba(93, 55, 38, .42)';
+        ctx.lineWidth = 1.5;
+        const firstPlank = Math.floor(state.cameraX) - 1;
+        for (let worldX = firstPlank; worldX < state.cameraX + viewWidth / scale + 2; worldX += 1) {
+          const x = (worldX - state.cameraX) * scale;
+          ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, groundY + 31); ctx.stroke();
+        }
+      }
+
+      function drawPlatform(x, y, width) {
+        ctx.save();
+        ctx.shadowColor = 'rgba(40, 56, 49, .16)';
+        ctx.shadowBlur = 10;
+        ctx.shadowOffsetY = 6;
+        ctx.fillStyle = '#b86e45';
+        drawRoundedRect(x, y, width, 22, 8); ctx.fill();
+        ctx.fillStyle = '#e7b66e';
+        drawRoundedRect(x, y - 5, width, 10, 5); ctx.fill();
+        ctx.strokeStyle = 'rgba(93, 55, 38, .28)';
+        ctx.lineWidth = 1.5;
+        for (let segment = x + 24; segment < x + width; segment += 32) {
+          ctx.beginPath(); ctx.moveTo(segment, y + 5); ctx.lineTo(segment, y + 19); ctx.stroke();
+        }
         ctx.restore();
       }
 
       function draw() {
         if (!state || !ctx) return;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.imageSmoothingEnabled = false;
+        ctx.imageSmoothingEnabled = true;
         ctx.clearRect(0, 0, viewWidth, viewHeight);
 
         const scale = Math.max(45, Math.min(70, viewWidth / 14.5));
@@ -971,63 +1190,84 @@
         const worldToX = x => (x - state.cameraX) * scale;
         const worldToY = y => groundY - y * scale;
 
-        ctx.fillStyle = '#c7dfd4';
+        const sky = ctx.createLinearGradient(0, 0, 0, groundY);
+        sky.addColorStop(0, '#b9dfe7');
+        sky.addColorStop(.62, '#e8e2bd');
+        sky.addColorStop(1, '#f5c98f');
+        ctx.fillStyle = sky;
         ctx.fillRect(0, 0, viewWidth, groundY);
 
-        ctx.fillStyle = '#e9f0d2';
-        for (let i = -1; i < 7; i += 1) {
-          const x = Math.round((((i * 230 - state.cameraX * 11) % (viewWidth + 260)) - 80) / 8) * 8;
-          const y = Math.round((70 + (i % 3) * 38) / 8) * 8;
-          ctx.fillRect(x + 16, y, 56, 16);
-          ctx.fillRect(x, y + 16, 96, 24);
+        const sunX = viewWidth * .78 - state.cameraX * 2;
+        const sunY = 74;
+        const sun = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, 55);
+        sun.addColorStop(0, 'rgba(255, 239, 167, .95)');
+        sun.addColorStop(1, 'rgba(255, 239, 167, 0)');
+        ctx.fillStyle = sun; ctx.beginPath(); ctx.arc(sunX, sunY, 55, 0, Math.PI * 2); ctx.fill();
+
+        for (let i = -1; i < 6; i += 1) {
+          const span = viewWidth + 300;
+          const x = ((i * 260 - state.cameraX * 9) % span + span) % span - 120;
+          drawCloud(x, 72 + (i % 3) * 46, 54 + (i % 2) * 12);
         }
 
-        ctx.strokeStyle = 'rgba(37, 51, 47, 0.10)';
-        ctx.lineWidth = 1;
-        for (let m = Math.floor(state.cameraX); m < state.cameraX + viewWidth / scale + 2; m += 2) {
-          const x = worldToX(m);
-          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, groundY); ctx.stroke();
+        ctx.fillStyle = '#87aa8a';
+        ctx.beginPath(); ctx.moveTo(0, groundY);
+        for (let x = -80; x <= viewWidth + 100; x += 150) {
+          const shifted = x - ((state.cameraX * 13) % 150);
+          ctx.quadraticCurveTo(shifted + 75, groundY - 125 - (Math.floor(x / 150) % 2) * 28, shifted + 150, groundY);
         }
+        ctx.lineTo(viewWidth, groundY); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#668d78';
+        ctx.beginPath(); ctx.moveTo(0, groundY);
+        for (let x = -100; x <= viewWidth + 120; x += 190) {
+          const shifted = x - ((state.cameraX * 23) % 190);
+          ctx.quadraticCurveTo(shifted + 95, groundY - 74 - (Math.floor(x / 190) % 2) * 18, shifted + 190, groundY);
+        }
+        ctx.lineTo(viewWidth, groundY); ctx.closePath(); ctx.fill();
+
+        ctx.save();
+        ctx.setLineDash([5, 7]);
+        ctx.strokeStyle = 'rgba(37, 51, 47, .15)';
+        ctx.lineWidth = 1;
         for (let h = 1; h <= 5; h += 1) {
           const y = worldToY(h);
           ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(viewWidth, y); ctx.stroke();
-          ctx.fillStyle = '#6b736f'; ctx.font = '12px system-ui'; ctx.fillText(`${h} m`, 7, y - 5);
+          ctx.fillStyle = 'rgba(255, 253, 248, .84)';
+          drawRoundedRect(8, y - 20, 42, 18, 9); ctx.fill();
+          ctx.fillStyle = '#52655f'; ctx.font = '700 11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${h} m`, 29, y - 11);
         }
+        ctx.restore();
 
-        ctx.fillStyle = '#88a85d';
-        ctx.fillRect(0, groundY, viewWidth, viewHeight - groundY);
-        ctx.fillStyle = '#5d7741';
-        ctx.fillRect(0, groundY, viewWidth, 8);
-        ctx.fillStyle = '#8d6a43';
-        ctx.fillRect(0, groundY + 8, viewWidth, viewHeight - groundY - 8);
-        for (let x = -24; x < viewWidth + 24; x += 24) {
-          const shifted = x - ((state.cameraX * 8) % 24);
-          ctx.fillStyle = (Math.floor(x / 24) % 2 === 0) ? '#7d5c3d' : '#9b744b';
-          ctx.fillRect(Math.round(shifted), groundY + 18, 12, 12);
-        }
+        drawBridge(groundY, scale);
 
         for (const p of platforms) {
           const x = worldToX(p.x);
-          const w = p.width * scale;
-          if (x + w < -20 || x > viewWidth + 20) continue;
-          const y = worldToY(p.height);
-          ctx.fillStyle = '#8d6a43';
-          ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), 22);
-          ctx.fillStyle = '#5d7741';
-          ctx.fillRect(Math.round(x), Math.round(y - 5), Math.round(w), 10);
+          const width = p.width * scale;
+          if (x + width < -30 || x > viewWidth + 30) continue;
+          drawPlatform(x, worldToY(p.height), width);
         }
 
+        for (const coin of state.coins) {
+          if (coin.collected) continue;
+          const x = worldToX(coin.x);
+          if (x < -40 || x > viewWidth + 40) continue;
+          drawCoin(x, worldToY(coin.y), scale, state.time * 5 + coin.id * .7);
+        }
+
+        const bowserX = worldToX(state.bowser.x);
+        if (bowserX > -100 && bowserX < viewWidth + 100) drawBowser(bowserX, groundY, scale);
         if (state.muffin.active) drawMuffin(worldToX(state.muffin.x), worldToY(state.muffin.y), scale);
         drawMario(worldToX(state.x), worldToY(state.y), scale);
 
-        ctx.fillStyle = '#fffdf8';
-        ctx.fillRect(14, 14, 188, 34);
-        ctx.strokeStyle = '#2d453d';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(14, 14, 188, 34);
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 253, 248, .92)';
+        drawRoundedRect(14, 14, 178, 36, 18); ctx.fill();
+        ctx.strokeStyle = 'rgba(37, 51, 47, .18)'; ctx.lineWidth = 1; ctx.stroke();
         ctx.fillStyle = '#25332f';
-        ctx.font = '700 13px system-ui';
-        ctx.fillText(`x = ${formatNumber(state.x)} m`, 28, 36);
+        ctx.font = '750 13px system-ui';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        ctx.fillText(`Brückenweg  ${formatNumber(state.x)} m`, 29, 32);
+        ctx.restore();
       }
 
       function animationFrame(timestamp) {
@@ -1104,6 +1344,27 @@
         debugAdvance,
         debugJump() { return jump(); },
         collectMuffinForTest() { collectMuffin(); updateUI(); return snapshot(); },
+        collectCoinForTest() {
+          const coin = state.coins.find(candidate => !candidate.collected);
+          collectCoin(coin);
+          updateUI();
+          draw();
+          return snapshot();
+        },
+        collideBowserForTest() {
+          state.bowser.x = state.x + Math.sign(state.vx || 1) * 0.4;
+          collideWithBowser(true);
+          updateUI();
+          draw();
+          return snapshot();
+        },
+        showBowserForTest() {
+          state.x = state.bowser.x - 2.4;
+          state.cameraX = state.x - 3.1;
+          updateUI();
+          draw();
+          return snapshot();
+        },
         placeMuffinForTest() {
           state.muffin.active = true;
           state.muffin.x = state.x;

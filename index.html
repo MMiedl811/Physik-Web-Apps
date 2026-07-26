@@ -3,61 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#08111f">
+    <meta name="theme-color" content="#f3eee4">
     <title>Physik Interaktiv – Matthias Miedl</title>
     <style>
         :root {
-            --bg: #08111f;
-            --panel: rgba(16, 31, 53, .76);
-            --text: #f5f7fb;
-            --muted: #9eacc2;
-            --cyan: #5ee7f7;
-            --violet: #a78bfa;
-            --line: rgba(255,255,255,.12);
-            --shadow: 0 24px 70px rgba(0,0,0,.28);
+            --paper: #f3eee4;
+            --paper-deep: #e8dfd1;
+            --surface: #fffdf8;
+            --surface-soft: #f8f2e9;
+            --ink: #25332f;
+            --muted: #68716d;
+            --petrol: #0f766e;
+            --petrol-dark: #0b5d57;
+            --line: #d9cfbf;
+            --sand: #c99b61;
+            --clay: #b9644f;
+            --violet: #72558f;
+            --shadow: 0 16px 42px rgba(71, 57, 40, .10);
             --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         * { box-sizing: border-box; }
+        html { background: var(--paper); }
         body {
-            min-height: 100vh; margin: 0; padding: 28px;
-            color: var(--text); font-family: var(--font);
-            background: radial-gradient(circle at 15% 5%, #173763 0, transparent 34%),
-                        radial-gradient(circle at 90% 15%, #3d226d 0, transparent 30%), var(--bg);
+            min-height: 100vh;
+            margin: 0;
+            padding: clamp(18px, 4vw, 48px);
+            color: var(--ink);
+            font-family: var(--font);
+            background:
+                radial-gradient(circle at 8% 2%, rgba(15, 118, 110, .11), transparent 30rem),
+                radial-gradient(circle at 92% 8%, rgba(201, 155, 97, .14), transparent 28rem),
+                var(--paper);
         }
-        body::before { content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .22;
-            background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-            background-size: 44px 44px; mask-image: linear-gradient(to bottom, black, transparent 80%); }
-        .shell { width: min(1120px, 100%); margin: auto; position: relative; }
-        header { padding: clamp(48px, 10vw, 108px) 0 54px; max-width: 760px; }
-        .eyebrow { color: var(--cyan); font-size: .78rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-        h1 { font-size: clamp(3.2rem, 9vw, 7.6rem); line-height: .88; letter-spacing: -.08em; margin: 18px 0 26px; }
-        h1 span { color: var(--cyan); text-shadow: 0 0 34px rgba(94,231,247,.28); }
-        .intro { color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.3rem); line-height: 1.55; margin: 0; max-width: 600px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(245px, 1fr)); gap: 16px; }
-        .card { position: relative; overflow: hidden; min-height: 205px; padding: 25px; border: 1px solid var(--line); border-radius: 24px; color: var(--text); text-decoration: none;
-            background: linear-gradient(145deg, rgba(255,255,255,.12), rgba(255,255,255,.035)), var(--panel); box-shadow: var(--shadow); backdrop-filter: blur(14px); transition: transform .25s ease, border-color .25s ease, background .25s ease; }
-        .card::after { content: ""; position: absolute; width: 120px; height: 120px; right: -45px; bottom: -55px; border-radius: 50%; background: var(--violet); filter: blur(32px); opacity: .28; transition: opacity .25s ease; }
-        .card:hover { transform: translateY(-7px) rotate(-.4deg); border-color: var(--cyan); background: linear-gradient(145deg, rgba(94,231,247,.18), rgba(255,255,255,.04)), var(--panel); }
-        .card:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; border-color: var(--cyan); }
-        .card:hover::after { opacity: .6; }
-        .card-icon { font-size: 2.4rem; margin-bottom: 44px; }
-        .card-title { position: relative; z-index: 1; max-width: 210px; font-size: 1.14rem; font-weight: 750; line-height: 1.25; }
-        .card-meta { position: relative; z-index: 1; margin-top: 8px; color: var(--muted); font-size: .78rem; line-height: 1.35; }
-        .arrow { position: absolute; right: 23px; top: 23px; color: var(--cyan); font-size: 1.45rem; }
-        footer { padding: 44px 0 18px; color: #71809a; font-size: .85rem; }
-        @media (max-width: 560px) { body { padding: 18px; } header { padding-top: 55px; } .card { min-height: 170px; } }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .28;
+            background-image: linear-gradient(rgba(91, 74, 53, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(91, 74, 53, .035) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: linear-gradient(to bottom, black, transparent 72%);
+        }
+        .shell { position: relative; width: min(1160px, 100%); margin: auto; }
+        header {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
+            gap: clamp(28px, 6vw, 76px);
+            align-items: end;
+            padding: clamp(46px, 8vw, 96px) 0 clamp(34px, 6vw, 62px);
+        }
+        .eyebrow {
+            color: var(--petrol);
+            font-size: .78rem;
+            font-weight: 850;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+        }
+        h1 {
+            max-width: 760px;
+            margin: 16px 0 0;
+            font-size: clamp(3.25rem, 8vw, 7rem);
+            line-height: .92;
+            letter-spacing: -.072em;
+        }
+        h1 span { color: var(--petrol); }
+        .intro {
+            margin: 0 0 8px;
+            padding: 18px 0 3px 20px;
+            border-left: 3px solid var(--sand);
+            color: var(--muted);
+            font-size: clamp(1rem, 1.7vw, 1.16rem);
+            line-height: 1.55;
+        }
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: baseline;
+            margin: 0 0 16px;
+        }
+        .section-head h2 { margin: 0; font-size: 1.1rem; letter-spacing: -.02em; }
+        .section-head span { color: var(--muted); font-size: .82rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        .card {
+            position: relative;
+            min-height: 216px;
+            overflow: hidden;
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 22px;
+            background: rgba(255, 253, 248, .95);
+            color: var(--ink);
+            text-decoration: none;
+            box-shadow: var(--shadow);
+            transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+        }
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 4px;
+            background: var(--card-accent, var(--petrol));
+        }
+        .card:nth-child(4n + 2) { --card-accent: var(--sand); }
+        .card:nth-child(4n + 3) { --card-accent: var(--violet); }
+        .card:nth-child(4n + 4) { --card-accent: var(--clay); }
+        .card:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--card-accent) 64%, var(--line)); box-shadow: 0 22px 50px rgba(71, 57, 40, .15); }
+        .card:focus-visible { outline: 3px solid rgba(15, 118, 110, .34); outline-offset: 4px; }
+        .card-icon {
+            display: grid;
+            width: 52px;
+            height: 52px;
+            place-items: center;
+            margin-bottom: 42px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: var(--surface-soft);
+            font-size: 1.75rem;
+        }
+        .card-title { max-width: 220px; font-size: 1.12rem; font-weight: 800; line-height: 1.27; letter-spacing: -.015em; }
+        .card-meta { max-width: 230px; margin-top: 8px; color: var(--muted); font-size: .8rem; line-height: 1.4; }
+        .arrow {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border: 1px solid var(--line);
+            border-radius: 50%;
+            background: var(--surface);
+            color: var(--petrol);
+            font-size: 1.1rem;
+        }
+        footer { padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
+        @media (max-width: 760px) {
+            header { grid-template-columns: 1fr; align-items: start; }
+            .intro { max-width: 560px; }
+        }
+        @media (max-width: 560px) {
+            body { padding: 16px; }
+            header { padding-top: 48px; }
+            .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
+            .card { min-height: 190px; }
+        }
         @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
     </style>
 </head>
 <body>
     <div class="shell">
         <header>
-            <div class="eyebrow">Physik · interaktiv · direkt</div>
-            <h1>Physik<br><span>zum Abheben.</span></h1>
-            <p class="intro">Digitale Lernumgebungen für das iPad — zum Erkunden, Ausprobieren und Durchblicken.</p>
+            <div>
+                <div class="eyebrow">Physik · interaktiv · direkt</div>
+                <h1>Physik<br><span>zum Abheben.</span></h1>
+            </div>
+            <p class="intro">Digitale Lernumgebungen für das iPad – zum Erkunden, Ausprobieren und Durchblicken.</p>
         </header>
+
+        <div class="section-head"><h2>Interaktive Anwendungen</h2><span>Auswählen und direkt starten</span></div>
         <main class="grid" id="app-grid" aria-label="Physik-Anwendungen">
-            <a class="card" href="quiz/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧩</div><div class="card-title">Klasse 8 Quiz zu Geschwindigkeit</div><div class="card-meta">Klasse 8 · Begriffe sicher anwenden</div></a>
             <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta">Klasse 8–9 · Beschleunigung erkunden</div></a>
             <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta">Sekundarstufe I · Energieübertragungen deuten</div></a>
             <a class="card" href="energie-runner/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta">Klasse 9 · Energieumwandlungen im Jump-and-Run</div></a>
@@ -67,6 +173,7 @@
             <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta">Klasse 10–11 · Teilbewegungen überlagern</div></a>
             <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta">Klasse 10–12 · Feder- und Fadenpendel</div></a>
         </main>
+
         <footer>&copy; <span id="year"></span> · mmiedl811.github.io</footer>
     </div>
     <script>
