@@ -178,8 +178,9 @@
         .btn-warn      { background: #fff3e0; color: var(--color-warn); border: 1px solid #ffcc80; }
         .btn-warn.slo-active { background: var(--color-warn); color: white; border-color: var(--color-warn); }
     </style>
+    <link rel="stylesheet" href="../shared/atelier.css">
 </head>
-<body>
+<body data-physik-app="waagrechter-wurf">
 <div id="app">
     <div class="header">
         <div>
@@ -582,9 +583,9 @@ class Renderer {
     }
 
     _pylon(ctx, cx, seaY) {
-        ctx.strokeStyle = '#f9a825'; ctx.lineWidth = 3;
+        ctx.strokeStyle = '#a86424'; ctx.lineWidth = 3;
         ctx.beginPath(); ctx.moveTo(cx, seaY); ctx.lineTo(cx, seaY - 16); ctx.stroke();
-        ctx.fillStyle = '#f9a825';
+        ctx.fillStyle = '#a86424';
         ctx.beginPath();
         ctx.moveTo(cx, seaY - 16); ctx.lineTo(cx + 9, seaY - 11); ctx.lineTo(cx, seaY - 6);
         ctx.closePath(); ctx.fill();
@@ -704,7 +705,7 @@ class Renderer {
     _drawPreTrajectory(pts) {
         const ctx = this.ctx;
         ctx.save();
-        ctx.strokeStyle = 'rgba(90,120,210,0.42)';
+        ctx.strokeStyle = 'rgba(49,83,156,0.92)';
         ctx.lineWidth   = 2;
         ctx.setLineDash([7, 5]);
         ctx.beginPath();
@@ -722,7 +723,7 @@ class Renderer {
     _drawTrail(trail) {
         const ctx = this.ctx;
         ctx.save();
-        ctx.strokeStyle = 'rgba(239,83,80,0.65)';
+        ctx.strokeStyle = 'rgba(152,59,55,0.95)';
         ctx.lineWidth   = 2.5;
         ctx.setLineDash([6, 4]);
         ctx.beginPath();

@@ -1,0 +1,922 @@
+/*
+ * Atelier UI for the interactive physics applications.
+ * Visual overrides only: no model, content, DOM or JavaScript behavior lives here.
+ */
+
+/* ---------- Shared tokens and interaction states ---------- */
+body[data-physik-app] {
+  --atelier-canvas: #eee9df;
+  --atelier-canvas-soft: #f4f0e8;
+  --atelier-surface: #fffdfa;
+  --atelier-surface-soft: #f7f3eb;
+  --atelier-surface-strong: #ebe5d9;
+  --atelier-ink: #292a26;
+  --atelier-muted: #6e7068;
+  --atelier-faint: #929188;
+  --atelier-line: #d9d2c6;
+  --atelier-line-strong: #c9c0b2;
+  --atelier-accent: #0f766e;
+  --atelier-accent-hover: #0b625c;
+  --atelier-accent-soft: #e3f0ec;
+  --atelier-accent-softer: #f0f6f3;
+  --atelier-secondary: #b86d43;
+  --atelier-secondary-soft: #f8ece3;
+  --atelier-success: #2f7d5a;
+  --atelier-success-soft: #e7f2eb;
+  --atelier-warning: #a86424;
+  --atelier-warning-soft: #fbf0df;
+  --atelier-danger: #b64a45;
+  --atelier-danger-soft: #f8e9e7;
+  --atelier-info: #4d6f8f;
+  --atelier-info-soft: #e9f0f6;
+  --atelier-radius-sm: 10px;
+  --atelier-radius: 16px;
+  --atelier-radius-lg: 20px;
+  --atelier-shadow: 0 10px 28px rgba(66, 55, 39, 0.07);
+  --atelier-shadow-raised: 0 16px 42px rgba(66, 55, 39, 0.11);
+  --atelier-font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --atelier-mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+  font-family: var(--atelier-font);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+body[data-physik-app] ::selection {
+  background: rgba(15, 118, 110, 0.2);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app] :where(button, input, select, textarea, summary) {
+  font-family: inherit;
+}
+
+body[data-physik-app] :where(button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid rgba(15, 118, 110, 0.34);
+  outline-offset: 2px;
+}
+
+body[data-physik-app] :where(button, select, input[type="checkbox"], input[type="radio"], input[type="range"], summary) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body[data-physik-app] :where(button, select, summary) {
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 100ms ease;
+}
+
+body[data-physik-app] :where(button):active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+body[data-physik-app] :where(button, input, select):disabled {
+  cursor: not-allowed;
+  filter: saturate(0.45);
+}
+
+body[data-physik-app] :where(input[type="number"], input[type="text"], select, textarea) {
+  border-color: var(--atelier-line);
+  background-color: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app] :where(input[type="number"], input[type="text"], select, textarea):focus {
+  border-color: var(--atelier-accent);
+}
+
+body[data-physik-app] input[type="range"] {
+  accent-color: var(--atelier-accent);
+}
+
+body[data-physik-app] input[type="checkbox"],
+body[data-physik-app] input[type="radio"] {
+  accent-color: var(--atelier-accent);
+}
+
+body[data-physik-app] :where(output, .readout, .value-display, .control-value, .counter-val, .v-value) {
+  font-variant-numeric: tabular-nums;
+}
+
+body[data-physik-app] ::-webkit-scrollbar { width: 10px; height: 10px; }
+body[data-physik-app] ::-webkit-scrollbar-track { background: transparent; }
+body[data-physik-app] ::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgba(110, 112, 104, 0.35);
+  background-clip: padding-box;
+}
+
+/* ---------- Diagram builder ---------- */
+body[data-physik-app="diagramme"].app {
+  /* High-contrast, color-blind-conscious plot roles: A / B / time marker. */
+  --primary: #0f766e;
+  --accent: #6d4aa2;
+  --secondary: #b64a45;
+  --motion-a: #0f766e;
+  --motion-b: #6d4aa2;
+  --time-marker: #b64a45;
+  --grid: #d8d1c5;
+  --grid-minor: #ebe6dc;
+
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+  font-family: var(--atelier-font);
+}
+
+body[data-physik-app="diagramme"] .app__title {
+  color: var(--atelier-ink);
+  letter-spacing: -0.025em;
+}
+
+body[data-physik-app="diagramme"] .panel,
+body[data-physik-app="diagramme"] .stage__panel,
+body[data-physik-app="diagramme"] .chart-cell {
+  border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface);
+  box-shadow: var(--atelier-shadow);
+}
+
+body[data-physik-app="diagramme"] .controls {
+  scrollbar-color: var(--atelier-line-strong) transparent;
+}
+
+body[data-physik-app="diagramme"] .controls__section {
+  border-bottom-color: var(--atelier-line);
+}
+
+body[data-physik-app="diagramme"] :where(.app-label, .motion-tabs__tab, .details__summary, .chart-cell__title, .stage__headline) {
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="diagramme"] :where(.app-helper, .chart-row__label) {
+  color: var(--atelier-muted);
+}
+
+body[data-physik-app="diagramme"] :where(.app-select, .app-input) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="diagramme"] .btn {
+  border: 1px solid var(--atelier-accent);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+body[data-physik-app="diagramme"] .btn:hover { background: var(--atelier-accent-hover); opacity: 1; }
+body[data-physik-app="diagramme"] .btn--warning { border-color: var(--atelier-warning); background: var(--atelier-warning); }
+body[data-physik-app="diagramme"] .btn--danger { border-color: var(--atelier-danger); background: var(--atelier-danger); }
+
+body[data-physik-app="diagramme"] .motion-tabs__tab {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface-soft);
+}
+
+body[data-physik-app="diagramme"] .motion-tabs__tab--active {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent-soft);
+  color: var(--atelier-accent);
+}
+
+body[data-physik-app="diagramme"] .quickstart {
+  border-left-color: var(--atelier-accent);
+  background: var(--atelier-accent-softer);
+  color: var(--atelier-muted);
+}
+
+body[data-physik-app="diagramme"] .details {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface-soft);
+}
+
+body[data-physik-app="diagramme"] .details__summary {
+  background: var(--atelier-surface-strong);
+}
+
+body[data-physik-app="diagramme"] .readout {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-ink);
+  font-family: var(--atelier-mono);
+}
+
+body[data-physik-app="diagramme"] .readout--error {
+  border-color: rgba(182, 74, 69, 0.45);
+  background: var(--atelier-danger-soft);
+  color: var(--atelier-danger);
+}
+
+body[data-physik-app="diagramme"] :where(.charts, .charts-area, .stage) {
+  border-radius: var(--atelier-radius);
+}
+
+body[data-physik-app="diagramme"] :where(.chart-cell__header, .chart-row__label) {
+  border-color: var(--atelier-line);
+  background: var(--atelier-surface-soft);
+}
+
+body[data-physik-app="diagramme"] .chart-tooltip {
+  border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: rgba(255, 253, 250, 0.96);
+  color: var(--atelier-ink);
+  box-shadow: var(--atelier-shadow-raised);
+}
+
+/* Keep both compared SVG charts readable beside the 360 px control column on iPads. */
+@media (max-width: 1180px) {
+  body[data-physik-app="diagramme"] .chart-split--compare {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Quantum energy-level model ---------- */
+body[data-physik-app="energiestufenmodell"] {
+  /* Preserve IR / visible / UV meaning, but darken line colors for white plot surfaces. */
+  --spec-ir: #c2413b;
+  --spec-vis: #23824f;
+  --spec-uv: #7045a5;
+
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="energiestufenmodell"] .header,
+body[data-physik-app="energiestufenmodell"] .card,
+body[data-physik-app="energiestufenmodell"] .spectrum-card {
+  border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-lg);
+  background: rgba(255, 253, 250, 0.94);
+  box-shadow: var(--atelier-shadow);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body[data-physik-app="energiestufenmodell"] .brand-icon {
+  border-radius: 50%;
+  background: var(--atelier-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+body[data-physik-app="energiestufenmodell"] .brand h1 {
+  background: none;
+  color: var(--atelier-ink);
+  -webkit-text-fill-color: currentColor;
+  letter-spacing: -0.02em;
+}
+
+body[data-physik-app="energiestufenmodell"] .header-note {
+  border-color: #c9ddd6;
+  background: var(--atelier-accent-soft);
+  color: var(--atelier-accent);
+}
+
+body[data-physik-app="energiestufenmodell"] :where(.card-header, .spectrum-header) {
+  border-bottom-color: var(--atelier-line);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-muted);
+}
+
+body[data-physik-app="energiestufenmodell"] .card-body { scrollbar-color: var(--atelier-line-strong) transparent; }
+
+body[data-physik-app="energiestufenmodell"] .quick-steps {
+  border-left-color: var(--atelier-accent);
+  background: var(--atelier-accent-softer);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="energiestufenmodell"] .model-note,
+body[data-physik-app="energiestufenmodell"] .slider-container,
+body[data-physik-app="energiestufenmodell"] .energy-counter {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-muted);
+}
+
+body[data-physik-app="energiestufenmodell"] .unit-toggle {
+  border: 1px solid var(--atelier-line);
+  background: var(--atelier-surface-strong);
+}
+
+body[data-physik-app="energiestufenmodell"] .unit-btn { color: var(--atelier-muted); }
+body[data-physik-app="energiestufenmodell"] .unit-btn.active {
+  background: var(--atelier-surface);
+  color: var(--atelier-accent);
+  box-shadow: 0 1px 3px rgba(66,55,39,.1);
+}
+
+body[data-physik-app="energiestufenmodell"] select,
+body[data-physik-app="energiestufenmodell"] input[type="number"] {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background-color: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="energiestufenmodell"] input[type="range"] {
+  background: linear-gradient(90deg, var(--atelier-accent), #68a59b);
+}
+
+body[data-physik-app="energiestufenmodell"] input[type="range"]::-webkit-slider-thumb {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-surface);
+  box-shadow: 0 2px 6px rgba(66,55,39,.16);
+}
+
+body[data-physik-app="energiestufenmodell"] .btn-excite {
+  border-color: var(--atelier-accent);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+body[data-physik-app="energiestufenmodell"] .btn-excite:hover { background: var(--atelier-accent-hover); }
+body[data-physik-app="energiestufenmodell"] .btn-reset {
+  border-color: var(--atelier-line-strong);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="energiestufenmodell"] .stage {
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface);
+}
+
+body[data-physik-app="energiestufenmodell"] .feedback.neutral { background: var(--atelier-info-soft); color: var(--atelier-info); }
+body[data-physik-app="energiestufenmodell"] .feedback.success { background: var(--atelier-success-soft); color: var(--atelier-success); }
+body[data-physik-app="energiestufenmodell"] .feedback.error { background: var(--atelier-danger-soft); color: var(--atelier-danger); }
+
+/* ---------- 2D impulse collision ---------- */
+body[data-physik-app="impuls"].app {
+  /* Keep all vector roles visually distinct on the warm plot surface. */
+  --c-coin1: #1769aa;
+  --c-coin2: #2f7d5a;
+  --c-impulse: #6d4aa2;
+  --c-result: #b64a45;
+  --c-velocity: #a8541f;
+  --c-grid: rgba(41, 42, 38, 0.13);
+
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+  font-family: var(--atelier-font);
+}
+
+body[data-physik-app="impuls"] .app__header {
+  border-bottom-color: var(--atelier-line);
+  background: var(--atelier-surface);
+}
+
+body[data-physik-app="impuls"] .app__title { color: var(--atelier-ink); letter-spacing: -0.02em; }
+body[data-physik-app="impuls"] .app__subtitle { color: var(--atelier-muted); }
+
+body[data-physik-app="impuls"] :where(.stage, .panel, .vector-view) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface);
+  box-shadow: var(--atelier-shadow);
+}
+
+body[data-physik-app="impuls"] #animationSvg { background: var(--atelier-surface); }
+
+body[data-physik-app="impuls"] .stage__controls,
+body[data-physik-app="impuls"] .ext-modebar {
+  border-color: var(--atelier-line);
+  background: rgba(255, 253, 250, 0.94);
+  box-shadow: var(--atelier-shadow);
+  backdrop-filter: blur(10px);
+}
+
+body[data-physik-app="impuls"] .btn {
+  border: 1px solid var(--atelier-accent);
+  border-radius: 999px;
+  background: var(--atelier-accent);
+  color: #fff;
+  box-shadow: none;
+}
+
+body[data-physik-app="impuls"] .btn:hover { background: var(--atelier-accent-hover); }
+body[data-physik-app="impuls"] .btn--secondary {
+  border-color: var(--atelier-line-strong);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-ink);
+}
+body[data-physik-app="impuls"] .btn--play { border-color: var(--atelier-secondary); background: var(--atelier-secondary); }
+
+body[data-physik-app="impuls"] .ext-modebar__btn {
+  border-color: var(--atelier-line);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-ink);
+}
+body[data-physik-app="impuls"] .ext-modebar__btn--active {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent-soft);
+  color: var(--atelier-accent);
+}
+
+body[data-physik-app="impuls"] :where(.panel__section) { border-bottom-color: var(--atelier-line); }
+body[data-physik-app="impuls"] :where(.panel__title, .vector-view__title) { color: var(--atelier-ink); }
+body[data-physik-app="impuls"] :where(.control-label, .ext-speed__label) { color: var(--atelier-muted); }
+body[data-physik-app="impuls"] .model-note {
+  border: 1px solid var(--atelier-line);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-muted);
+}
+
+body[data-physik-app="impuls"] input[type="number"] {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+/* ---------- Impulse diagram generator ---------- */
+body[data-physik-app="impulsdiagramm"] {
+  --primary: #0f766e;
+  --secondary: #b64a45;
+  --accent: #6d4aa2;
+  --success: #2f7d5a;
+  --warning: #a86424;
+  --grid: #d8d1c5;
+  --border: #c9c0b2;
+
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="impulsdiagramm"] h1 { color: var(--atelier-ink); letter-spacing: -0.025em; }
+
+body[data-physik-app="impulsdiagramm"] :where(.controls, .stage) {
+  border: 1px solid var(--atelier-line);
+  border-radius: var(--atelier-radius-lg);
+  background: var(--atelier-surface);
+  box-shadow: var(--atelier-shadow);
+}
+
+body[data-physik-app="impulsdiagramm"] .controls { scrollbar-color: var(--atelier-line-strong) transparent; }
+
+body[data-physik-app="impulsdiagramm"] :where(label, .analysis-title) { color: var(--atelier-ink); }
+body[data-physik-app="impulsdiagramm"] :where(.helper-text, .v-label) { color: var(--atelier-muted); }
+
+body[data-physik-app="impulsdiagramm"] :where(input[type="number"], select) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="impulsdiagramm"] button {
+  border: 1px solid var(--atelier-accent);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-accent);
+  color: #fff;
+}
+body[data-physik-app="impulsdiagramm"] button:hover { background: var(--atelier-accent-hover); opacity: 1; }
+
+body[data-physik-app="impulsdiagramm"] :where(#canvas-container, .split-panel) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface);
+}
+
+body[data-physik-app="impulsdiagramm"] .split-label {
+  border: 1px solid var(--atelier-line);
+  border-radius: 999px;
+  background: rgba(255,253,250,.94);
+  box-shadow: 0 2px 8px rgba(66,55,39,.08);
+}
+
+body[data-physik-app="impulsdiagramm"] .analysis-panel {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface-soft);
+}
+
+body[data-physik-app="impulsdiagramm"] :where(.velocity-card, .info-box, .model-assumptions) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  box-shadow: none;
+}
+
+body[data-physik-app="impulsdiagramm"] :where(.advanced-settings, .advanced-settings-body) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface-soft);
+}
+
+/* ---------- Quiz ---------- */
+body[data-physik-app="quiz"] {
+  --primary: #0f766e;
+  --primary-dark: #0b625c;
+  --success: #2f7d5a;
+  --error: #b64a45;
+  --warning: #a86424;
+  --p1: #1769aa;
+  --p2: #6d4aa2;
+
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="quiz"] .app { max-width: 960px; }
+
+body[data-physik-app="quiz"] .header {
+  border-bottom-color: var(--atelier-line);
+}
+body[data-physik-app="quiz"] .header.sticky { background: rgba(238, 233, 223, 0.94); backdrop-filter: blur(14px); }
+body[data-physik-app="quiz"] .title { color: var(--atelier-ink); letter-spacing: -0.03em; }
+body[data-physik-app="quiz"] :where(.subtitle, .helper, .muted, .feedback-text, .stat-label) { color: var(--atelier-muted); }
+
+body[data-physik-app="quiz"] :where(.card, .flow-shell, .question-card, .stat, .duel-card, .item) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-lg);
+  background: var(--atelier-surface);
+  box-shadow: var(--atelier-shadow);
+}
+
+body[data-physik-app="quiz"] .flow-step { border-top-color: var(--atelier-line); }
+body[data-physik-app="quiz"] .flow-step.disabled,
+body[data-physik-app="quiz"] .card.disabled { background: var(--atelier-surface-soft); }
+
+body[data-physik-app="quiz"] .step-number {
+  background: var(--atelier-accent-soft);
+  color: var(--atelier-accent);
+}
+
+body[data-physik-app="quiz"] .chip {
+  border-color: var(--atelier-line);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+body[data-physik-app="quiz"] .chip:hover:not(:disabled) {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent-softer);
+}
+body[data-physik-app="quiz"] .chip.active {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent);
+  color: #fff;
+}
+
+body[data-physik-app="quiz"] .summary-bar {
+  border-color: #c9ddd6;
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-accent-softer);
+}
+body[data-physik-app="quiz"] :where(.summary-tag, .pill, .badge, .meta-badge) {
+  background: var(--atelier-accent-soft);
+  color: var(--atelier-accent);
+}
+body[data-physik-app="quiz"] :where(.badge.chapter, .meta-badge.chapter) {
+  background: var(--atelier-success-soft);
+  color: var(--atelier-success);
+}
+body[data-physik-app="quiz"] .meta-badge.topic { background: var(--atelier-warning-soft); color: var(--atelier-warning); }
+
+body[data-physik-app="quiz"] .mode-btn {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-ink);
+}
+body[data-physik-app="quiz"] .mode-btn:hover { border-color: var(--atelier-accent); }
+body[data-physik-app="quiz"] .mode-btn.active {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent-soft);
+  color: var(--atelier-accent);
+}
+
+body[data-physik-app="quiz"] .btn { border-radius: 999px; }
+body[data-physik-app="quiz"] .btn.primary {
+  background: var(--atelier-accent);
+  color: #fff;
+}
+body[data-physik-app="quiz"] .btn.primary:hover:not(:disabled) { background: var(--atelier-accent-hover); }
+body[data-physik-app="quiz"] .btn.secondary {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-surface);
+  color: var(--atelier-accent);
+}
+body[data-physik-app="quiz"] .btn.danger { background: var(--atelier-danger); }
+
+body[data-physik-app="quiz"] :where(.sound-toggle, .icon-btn, .ghost-btn) {
+  border-color: var(--atelier-line);
+  background: var(--atelier-surface);
+  color: var(--atelier-muted);
+}
+body[data-physik-app="quiz"] .sound-toggle.active {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent);
+  color: #fff;
+}
+
+body[data-physik-app="quiz"] .progress { background: var(--atelier-line); }
+body[data-physik-app="quiz"] .progress-bar { background: var(--atelier-accent); }
+
+body[data-physik-app="quiz"] .answer {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+body[data-physik-app="quiz"] .answer:hover:not(:disabled) { border-color: var(--atelier-accent); }
+body[data-physik-app="quiz"] .answer.correct { border-color: var(--atelier-success); background: var(--atelier-success); color: #fff; }
+body[data-physik-app="quiz"] .answer.wrong { border-color: var(--atelier-danger); background: var(--atelier-danger); color: #fff; }
+
+body[data-physik-app="quiz"] .feedback.ok { border-color: var(--atelier-success); background: var(--atelier-success-soft); }
+body[data-physik-app="quiz"] .feedback.bad { border-color: var(--atelier-danger); background: var(--atelier-danger-soft); }
+body[data-physik-app="quiz"] .feedback.info { border-color: var(--atelier-warning); background: var(--atelier-warning-soft); }
+body[data-physik-app="quiz"] .partner-hint { border-color: var(--atelier-warning); background: var(--atelier-warning-soft); }
+body[data-physik-app="quiz"] .result-circle { background: var(--atelier-accent); }
+
+body[data-physik-app="quiz"] :where(.form-group input, .form-group textarea, .form-group select) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+body[data-physik-app="quiz"] .empty { border-color: var(--atelier-line); border-radius: var(--atelier-radius); background: var(--atelier-surface); }
+
+/* ---------- Oscillations ---------- */
+body[data-physik-app="schwingungen"] {
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="schwingungen"] .topbar {
+  border-bottom: 1px solid var(--atelier-line);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+  box-shadow: 0 8px 24px rgba(66,55,39,.07);
+}
+
+body[data-physik-app="schwingungen"] .topbar h1 { color: var(--atelier-ink); letter-spacing: -0.02em; }
+body[data-physik-app="schwingungen"] .category-label { color: var(--atelier-muted); }
+
+body[data-physik-app="schwingungen"] .tabs { margin-bottom: -11px; }
+body[data-physik-app="schwingungen"] .tab-btn {
+  border-color: var(--atelier-line);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-muted);
+}
+body[data-physik-app="schwingungen"] .tab-btn.active {
+  border-color: var(--atelier-line);
+  background: var(--atelier-canvas);
+  color: var(--atelier-accent);
+}
+
+body[data-physik-app="schwingungen"] .control-group {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface-soft);
+}
+body[data-physik-app="schwingungen"] .control-group label { color: var(--atelier-ink); }
+
+body[data-physik-app="schwingungen"] :where(input[type="number"], select) {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: var(--atelier-surface);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="schwingungen"] :where(button, select) { border: 1px solid var(--atelier-line); }
+body[data-physik-app="schwingungen"] .btn-primary {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent);
+  color: #fff;
+}
+body[data-physik-app="schwingungen"] .btn-secondary {
+  border-color: var(--atelier-line-strong);
+  background: var(--atelier-surface-strong);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="schwingungen"] .main-content { background: var(--atelier-canvas); }
+body[data-physik-app="schwingungen"] #canvas-container {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-lg);
+  background: var(--atelier-surface);
+  box-shadow: var(--atelier-shadow);
+}
+body[data-physik-app="schwingungen"] .formula-overlay {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius-sm);
+  background: rgba(255,253,250,.9);
+}
+body[data-physik-app="schwingungen"] .info-footer {
+  border-top-color: var(--atelier-line);
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-muted);
+}
+body[data-physik-app="schwingungen"] .model-note,
+body[data-physik-app="schwingungen"] .advanced-controls summary { color: var(--atelier-muted); }
+body[data-physik-app="schwingungen"] .center-hint {
+  border-color: rgba(255,255,255,.25);
+  border-radius: var(--atelier-radius);
+  background: rgba(41,42,38,.94);
+}
+body[data-physik-app="schwingungen"] .error-hint {
+  border-color: rgba(255,255,255,.35);
+  border-radius: var(--atelier-radius-sm);
+  background: rgba(182,74,69,.94);
+}
+
+/* ---------- Velocity-change hockey ---------- */
+body[data-physik-app="v-aenderung"] {
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="v-aenderung"] #sidebar {
+  border-right-color: var(--atelier-line);
+  background: var(--atelier-surface);
+  box-shadow: 8px 0 28px rgba(66,55,39,.07);
+}
+body[data-physik-app="v-aenderung"] #main-area { background: var(--atelier-canvas-soft); }
+body[data-physik-app="v-aenderung"] h1 { color: var(--atelier-ink); letter-spacing: -0.025em; }
+body[data-physik-app="v-aenderung"] label { color: var(--atelier-ink); }
+body[data-physik-app="v-aenderung"] .value-display { color: var(--atelier-muted); }
+
+body[data-physik-app="v-aenderung"] input[type="range"] {
+  background: var(--atelier-line);
+}
+body[data-physik-app="v-aenderung"] input[type="range"]::-webkit-slider-thumb {
+  border-color: var(--atelier-surface);
+  background: var(--atelier-accent);
+  box-shadow: 0 2px 7px rgba(66,55,39,.18);
+}
+
+body[data-physik-app="v-aenderung"] .learning-box {
+  border-color: #c9ddd6;
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-accent-softer);
+}
+body[data-physik-app="v-aenderung"] details.extension {
+  border-color: var(--atelier-line);
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface-soft);
+}
+
+body[data-physik-app="v-aenderung"] #start-reset-btn,
+body[data-physik-app="v-aenderung"] #pause-btn {
+  border: 1px solid var(--atelier-accent);
+  border-radius: 999px;
+  background: var(--atelier-accent);
+  color: #fff;
+  box-shadow: none;
+}
+body[data-physik-app="v-aenderung"] #start-reset-btn:active,
+body[data-physik-app="v-aenderung"] #pause-btn:active { background: var(--atelier-accent-hover); }
+
+body[data-physik-app="v-aenderung"] .scale-hint {
+  border: 1px solid var(--atelier-line);
+  border-radius: 999px;
+  background: rgba(255,253,250,.9);
+  color: var(--atelier-muted);
+}
+body[data-physik-app="v-aenderung"] :where(#game-overlay, #turn-popup, #winner-screen) {
+  border-color: var(--atelier-accent);
+  border-radius: var(--atelier-radius-lg);
+  background: rgba(255,253,250,.97);
+  color: var(--atelier-ink);
+  box-shadow: var(--atelier-shadow-raised);
+}
+body[data-physik-app="v-aenderung"] :where(#game-overlay, #winner-screen) button {
+  border: 1px solid var(--atelier-accent);
+  border-radius: 999px;
+  background: var(--atelier-accent);
+  color: #fff;
+}
+
+/* ---------- Horizontal projectile ---------- */
+body[data-physik-app="waagrechter-wurf"] {
+  background: var(--atelier-canvas);
+  color: var(--atelier-ink);
+}
+
+body[data-physik-app="waagrechter-wurf"] .header {
+  border-bottom-color: var(--atelier-line);
+  background: var(--atelier-surface);
+  box-shadow: 0 7px 22px rgba(66,55,39,.06);
+}
+body[data-physik-app="waagrechter-wurf"] .header-title { color: var(--atelier-ink); letter-spacing: -0.015em; }
+body[data-physik-app="waagrechter-wurf"] .header-subtitle { color: var(--atelier-muted); }
+
+body[data-physik-app="waagrechter-wurf"] .panel {
+  border-top-color: var(--atelier-line);
+  background: var(--atelier-surface);
+  box-shadow: 0 -12px 32px rgba(66,55,39,.08);
+}
+body[data-physik-app="waagrechter-wurf"] .model-note,
+body[data-physik-app="waagrechter-wurf"] .slider-label { color: var(--atelier-muted); }
+body[data-physik-app="waagrechter-wurf"] .slider-label strong { color: var(--atelier-ink); }
+
+body[data-physik-app="waagrechter-wurf"] input[type="range"] {
+  background: linear-gradient(to right, var(--atelier-accent) var(--pct, 50%), var(--atelier-line) var(--pct, 50%));
+}
+body[data-physik-app="waagrechter-wurf"] input[type="range"]::-webkit-slider-thumb {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-surface);
+  box-shadow: 0 2px 6px rgba(66,55,39,.16);
+}
+
+body[data-physik-app="waagrechter-wurf"] .btn {
+  border: 1px solid var(--atelier-line);
+  border-radius: 999px;
+  background: var(--atelier-surface-soft);
+  color: var(--atelier-ink);
+  box-shadow: none;
+}
+body[data-physik-app="waagrechter-wurf"] .btn-primary,
+body[data-physik-app="waagrechter-wurf"] .btn-active {
+  border-color: var(--atelier-accent);
+  background: var(--atelier-accent);
+  color: #fff;
+}
+body[data-physik-app="waagrechter-wurf"] .btn-warn {
+  border-color: #dfbf94;
+  background: var(--atelier-warning-soft);
+  color: var(--atelier-warning);
+}
+body[data-physik-app="waagrechter-wurf"] .btn-warn.slo-active {
+  border-color: var(--atelier-warning);
+  background: var(--atelier-warning);
+  color: #fff;
+}
+body[data-physik-app="waagrechter-wurf"] #landing-banner {
+  border-radius: var(--atelier-radius);
+  background: var(--atelier-surface);
+  box-shadow: var(--atelier-shadow-raised);
+}
+
+/* ---------- Compact viewport adjustments that only affect chrome ---------- */
+@media (max-width: 820px) {
+  body[data-physik-app="v-aenderung"] #sidebar {
+    border-right: 0;
+    border-bottom-color: var(--atelier-line);
+    box-shadow: 0 8px 24px rgba(66,55,39,.07);
+  }
+
+  body[data-physik-app="impulsdiagramm"] { padding: 12px; }
+  body[data-physik-app="diagramme"].app { padding: 12px; }
+}
+
+/* iPad and other coarse-pointer devices: preserve comfortable hit areas without changing desktop density. */
+@media (pointer: coarse) {
+  body[data-physik-app] :where(button, select, input[type="number"], input[type="text"], summary) {
+    min-height: 44px;
+  }
+
+  body[data-physik-app] :where(input[type="checkbox"], input[type="radio"]) {
+    min-width: 24px;
+    min-height: 24px;
+  }
+
+  body[data-physik-app] input[type="range"] {
+    min-height: 32px;
+    touch-action: pan-y;
+  }
+
+  body[data-physik-app] input[type="range"]::-webkit-slider-thumb {
+    width: 26px;
+    height: 26px;
+  }
+
+  body[data-physik-app] :where(button, summary) {
+    touch-action: manipulation;
+  }
+
+  body[data-physik-app="quiz"] :where(.chip, .mode-btn, .answer, .sound-toggle, .icon-btn, .ghost-btn) {
+    min-height: 44px;
+  }
+
+  body[data-physik-app="impuls"] :where(.ext-modebar__btn, .btn),
+  body[data-physik-app="diagramme"] :where(.motion-tabs__tab, .btn),
+  body[data-physik-app="waagrechter-wurf"] .btn,
+  body[data-physik-app="schwingungen"] :where(.tab-btn, button) {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-physik-app] *,
+  body[data-physik-app] *::before,
+  body[data-physik-app] *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

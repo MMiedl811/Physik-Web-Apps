@@ -299,8 +299,9 @@
         }
         /* Code Ende: CSS Grundgerüst & Layout */
     </style>
+    <link rel="stylesheet" href="../shared/atelier.css">
 </head>
-<body>
+<body data-physik-app="v-aenderung">
     <!-- Code Beginn: HTML Struktur -->
     <div id="app-container">
         <aside id="sidebar">
@@ -427,7 +428,7 @@
         const COLOR_PUCK = "#000000";
         const COLOR_GOAL = "#333333";
         const COLOR_VA = "#007aff"; // Blau (Schulbuch)
-        const COLOR_DV = "#34c759"; // Grün
+        const COLOR_DV = "#16824f"; // Grün
         const COLOR_VE = "#ff3b30"; // Rot (Schulbuch)
         // Code Ende: Globale Variablen & Konstanten
 
@@ -503,7 +504,7 @@
             if (isSimulationRunning && currentState !== STATE.STOPPED) {
                 isPaused = !isPaused;
                 pauseBtn.textContent = isPaused ? "Weiter" : "Pause";
-                pauseBtn.style.backgroundColor = isPaused ? "#34c759" : "#8e8e93";
+                pauseBtn.style.backgroundColor = isPaused ? "#16824f" : "#8e8e93";
             }
         });
 

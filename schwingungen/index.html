@@ -246,8 +246,9 @@
       .info-footer { padding: 7px 10px; }
     }
   </style>
+  <link rel="stylesheet" href="../shared/atelier.css">
 </head>
-<body>
+<body data-physik-app="schwingungen">
 
   <header class="topbar">
     <div class="topbar-row">
@@ -491,7 +492,7 @@
       };
       slowBtn.onclick = () => { 
         isSlowMo = !isSlowMo; 
-        slowBtn.style.backgroundColor = isSlowMo ? '#f59e0b' : '#475569'; 
+        slowBtn.style.backgroundColor = isSlowMo ? '#a85a00' : '#475569';
       };
       resetBtn.onclick = () => { 
         resetState(getActiveState());
@@ -848,8 +849,8 @@
       }
       
       // Markiere echte Zeitstempel T, 2T, ... im sichtbaren Bereich.
-      stroke(255, 165, 0, 200); strokeWeight(2.4);
-      fill(255, 165, 0); noStroke(); textSize(10);
+      stroke(168, 90, 0, 230); strokeWeight(2.4);
+      fill(168, 90, 0); noStroke(); textSize(10);
       textAlign(CENTER, BOTTOM);
       const firstPeriod = Math.max(1, Math.ceil(timeMin / T));
       const lastPeriod = Math.floor(timeMax / T);
