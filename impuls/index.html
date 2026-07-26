@@ -276,9 +276,10 @@
     .ext-speed__value{ font-size: 12px; font-weight: 900; min-width: 35px; text-align: right; }
   </style>
   <link rel="stylesheet" href="../shared/atelier.css">
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
 
-<body class="app" data-physik-app="impuls">
+<body class="app" data-physik-app="impuls" data-student-home="../" data-student-title="Impuls beim Stoß" data-student-summary="Du beobachtest einen elastischen Stoß und vergleichst die Impulsvektoren vor und nach dem Stoß." data-student-controls="Stelle Masse und Geschwindigkeit ein. Tippe dann auf „Play“.">
   <header class="app__header">
     <h1 class="app__title">Impuls – Elastischer Stoß (2D)</h1>
     <p class="app__subtitle">Ziehe an den <strong>Kugeln</strong> (Position) oder an den <strong>Pfeilspitzen</strong> (Richtung & Geschwindigkeit). Beobachte die Vektoraddition unten.</p>
@@ -1035,6 +1036,7 @@
     updateStateFromInputs();
 
   </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>
 

@@ -89,10 +89,8 @@
     }
 
     .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 380px;
-      gap: 16px;
-      align-items: start;
+      position: relative;
+      display: block;
     }
     .game-card,
     .energy-card,
@@ -128,22 +126,33 @@
 
     .canvas-wrap {
       position: relative;
-      min-height: 500px;
+      min-height: 460px;
       overflow: hidden;
-      border-bottom: 1px solid var(--line);
-      background: #cfe8ef;
+      border: 6px solid #2d453d;
+      border-width: 6px 0;
+      background: #c7dfd4;
+      box-shadow: inset 0 0 0 3px rgba(255, 253, 248, 0.30);
+    }
+    .canvas-wrap::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.11;
+      background: repeating-linear-gradient(to bottom, transparent 0 3px, #243a33 3px 4px);
     }
     #game-canvas {
       display: block;
       width: 100%;
       height: 100%;
-      min-height: 500px;
-      image-rendering: auto;
+      min-height: 460px;
+      image-rendering: pixelated;
       touch-action: none;
     }
     .game-over {
       position: absolute;
-      z-index: 3;
+      z-index: 6;
       inset: 0;
       display: grid;
       place-items: center;
@@ -192,23 +201,36 @@
     .touch-button--jump { min-width: 96px; border-color: #c9b5db; color: var(--potential); }
 
     .energy-card {
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      padding: 16px;
+      position: absolute;
+      z-index: 4;
+      top: 70px;
+      right: 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 145px;
+      grid-template-areas:
+        "title title"
+        "scale zoom"
+        "scale balance";
+      gap: 7px 10px;
+      width: min(430px, 44vw);
+      padding: 10px;
+      pointer-events: none;
+      background: rgba(255, 253, 248, 0.90);
+      box-shadow: 0 10px 28px rgba(37, 51, 47, 0.16);
+      backdrop-filter: blur(3px);
     }
-    .energy-card h2 { margin: 0; font-size: 1.05rem; }
-    .energy-card__intro { margin: 6px 0 13px; color: var(--muted); font-size: 0.83rem; line-height: 1.4; }
+    .energy-card h2 { grid-area: title; margin: 0; font-size: 0.9rem; }
+    .energy-card__intro { display: none; }
     .energy-scale {
+      grid-area: scale;
       position: relative;
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 7px;
-      flex: 1;
-      min-height: 335px;
-      padding: 26px 0 0;
+      min-height: 150px;
+      padding: 20px 0 0;
       border-bottom: 2px solid var(--line);
-      background: repeating-linear-gradient(to top, transparent 0 63px, rgba(37, 51, 47, 0.07) 63px 64px);
+      background: repeating-linear-gradient(to top, transparent 0 35px, rgba(37, 51, 47, 0.07) 35px 36px);
     }
     .scale-label {
       position: absolute;
@@ -224,7 +246,7 @@
       flex-direction: column;
       justify-content: flex-end;
       align-items: stretch;
-      height: 300px;
+      height: 120px;
       align-self: stretch;
       border: 1px solid var(--line);
       border-radius: 12px 12px 5px 5px;
@@ -248,8 +270,8 @@
       text-shadow: 0 1px var(--surface);
     }
     .energy-label {
-      min-height: 52px;
-      padding-top: 7px;
+      min-height: 34px;
+      padding-top: 4px;
       color: var(--muted);
       font-size: 0.72rem;
       font-weight: 800;
@@ -268,8 +290,9 @@
     }
 
     .mechanics-zoom {
-      margin-top: 12px;
-      padding: 12px;
+      grid-area: zoom;
+      margin: 0;
+      padding: 7px;
       border: 1px solid #d6cbe4;
       border-radius: 14px;
       background: #f8f4fb;
@@ -279,21 +302,21 @@
       justify-content: space-between;
       gap: 10px;
       align-items: baseline;
-      font-size: 0.82rem;
+      font-size: 0.72rem;
     }
-    .mechanics-zoom__header span { color: var(--muted); font-size: 0.73rem; }
-    .mechanics-zoom__note { margin: 5px 0 9px; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
+    .mechanics-zoom__header span { color: var(--muted); font-size: 0.65rem; }
+    .mechanics-zoom__note { display: none; }
     .mechanics-zoom__grid {
       display: grid;
-      grid-template-columns: 62px 62px minmax(0, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
       align-items: end;
     }
     .zoom-item { text-align: center; }
     .zoom-column {
       display: flex;
       align-items: flex-end;
-      height: 104px;
+      height: 50px;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 9px 9px 4px 4px;
@@ -305,27 +328,29 @@
     .zoom-label { margin-top: 5px; color: var(--muted); font-size: 0.68rem; font-weight: 800; line-height: 1.25; }
     .zoom-value { display: block; color: var(--ink); font-size: 0.72rem; }
     .mechanics-zoom__sum {
+      grid-column: 1 / -1;
       align-self: stretch;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 10px;
+      padding: 5px;
       border-radius: 10px;
       background: white;
       color: var(--muted);
-      font-size: 0.73rem;
+      font-size: 0.64rem;
       line-height: 1.35;
     }
-    .mechanics-zoom__sum strong { margin-top: 4px; color: var(--ink); font-size: 1rem; }
+    .mechanics-zoom__sum strong { margin-top: 2px; color: var(--ink); font-size: 0.78rem; }
 
     .balance {
-      margin-top: 12px;
-      padding: 11px;
+      grid-area: balance;
+      margin: 0;
+      padding: 7px;
       border: 1px solid #c9ddd6;
       border-radius: 13px;
       background: #eef7f3;
-      font-size: 0.79rem;
-      line-height: 1.45;
+      font-size: 0.67rem;
+      line-height: 1.3;
     }
     .balance-row { display: flex; justify-content: space-between; gap: 12px; }
     .balance-row + .balance-row { margin-top: 4px; }
@@ -355,10 +380,7 @@
     .model-note { margin: 13px 0 0; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
 
     @media (max-width: 980px) {
-      .layout { grid-template-columns: 1fr; }
-      .energy-card { min-height: 400px; }
-      .energy-scale { min-height: 285px; }
-      .energy-column { height: 250px; }
+      .energy-card { width: min(410px, 44vw); }
     }
     @media (max-width: 680px) {
       .page { padding: 10px; }
@@ -366,18 +388,30 @@
       .top-actions { width: 100%; justify-content: stretch; }
       .top-actions .button { flex: 1; }
       .canvas-wrap, #game-canvas { min-height: 420px; }
+      .energy-card { top: 64px; right: 8px; width: min(360px, 80vw); grid-template-columns: minmax(0, 1fr) 130px; }
       .controls-strip { grid-template-columns: 1fr; }
       .touch-controls { justify-content: stretch; }
       .touch-button { flex: 1; }
       .model-grid { grid-template-columns: 1fr; }
       #event-message { width: 100%; margin-left: 0; }
     }
+    @media (max-height: 820px) and (min-width: 700px) {
+      .page { padding: 8px 12px; }
+      .topbar { margin-bottom: 8px; }
+      .title-block p { display: none; }
+      .game-status { padding: 7px 10px; }
+      .canvas-wrap, #game-canvas { min-height: 430px; height: 430px; }
+      .controls-strip { padding: 8px 10px; }
+      .model-card { margin-top: 8px; padding: 10px 14px; }
+      .energy-card { top: 58px; }
+    }
     @media (prefers-reduced-motion: reduce) {
       .energy-fill { transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body>
+<body data-student-home="../" data-student-title="Energie beim Laufen und Springen" data-student-summary="Du beobachtest, wie chemische Energie in Bewegungs-, Höhen- und innere Energie umgewandelt wird." data-student-controls="Laufe mit den Pfeiltasten oder den Pfeil-Buttons. Springe mit Leertaste, Pfeil nach oben oder „Sprung“.">
   <div class="page">
     <header class="topbar">
       <div class="title-block">
@@ -401,7 +435,7 @@
           <div class="status-chip" id="event-message" aria-live="polite">Bewege Mario und beobachte die Energiebalken.</div>
         </div>
         <div class="canvas-wrap" id="canvas-wrap">
-          <canvas id="game-canvas" aria-label="Mario läuft über eine Brücke, sammelt Münzen und springt über Bowser"></canvas>
+          <canvas id="game-canvas" aria-label="Mario läuft durch eine Retro-Welt mit einzelnen Brücken, sammelt Münzen und springt über Bowser"></canvas>
           <div class="game-over" id="game-over" hidden>
             <div class="game-over__panel">
               <h2>Chemische Energie aufgebraucht</h2>
@@ -411,7 +445,7 @@
           </div>
         </div>
         <div class="controls-strip">
-          <div class="instructions"><strong>Ziel:</strong> Überquere die Brücke, sammle Münzen und springe über Bowser. Münzen geben nur Punkte; der Muffin bringt chemische Energie. <strong>Steuerung:</strong> A/D oder ←/→ · W/↑/Leertaste.</div>
+          <div class="instructions"><strong>Ziel:</strong> Laufe durch die Retro-Welt, überquere einzelne Brücken, sammle Münzen und springe über Bowser. Münzen geben nur Punkte; der Muffin bringt chemische Energie. <strong>Steuerung:</strong> A/D oder ←/→ · W/↑/Leertaste.</div>
           <div class="touch-controls" aria-label="Touch-Steuerung">
             <button class="touch-button" id="left-button" type="button" aria-label="Nach links laufen">←</button>
             <button class="touch-button touch-button--jump" id="jump-button" type="button" aria-label="Springen">↑ Sprung</button>
@@ -960,144 +994,120 @@
       }
 
       function drawMario(screenX, footY, scale) {
-        const unit = Math.max(0.78, Math.min(1.18, scale / 58));
-        const running = state.onGround && Math.abs(state.vx) > 0.25;
-        const stride = running ? Math.sin(state.time * 11) * 8 : 0;
-        const bob = running ? Math.abs(Math.sin(state.time * 11)) * 2 : (!state.onGround ? -3 : 0);
-
+        const pixel = Math.max(3, Math.round((0.72 * scale) / 8));
+        const x = Math.round(screenX - 4 * pixel);
+        const y = Math.round(footY - 12 * pixel);
+        const block = (gx, gy, gw, gh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
+        };
         ctx.save();
-        ctx.translate(screenX, footY + bob - 2);
-        if (state.vx < -0.08) ctx.scale(-1, 1);
-        ctx.scale(unit, unit);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        ctx.translate(x, y);
+        if (state.vx < -0.08) { ctx.translate(8 * pixel, 0); ctx.scale(-1, 1); }
 
-        ctx.fillStyle = 'rgba(30, 48, 52, 0.20)';
-        ctx.beginPath(); ctx.ellipse(0, 3, 25, 7, 0, 0, Math.PI * 2); ctx.fill();
-
-        ctx.strokeStyle = '#245b8f';
-        ctx.lineWidth = 11;
-        ctx.beginPath(); ctx.moveTo(-9, -34); ctx.lineTo(-11 + stride, -9); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(9, -34); ctx.lineTo(11 - stride, -9); ctx.stroke();
-        ctx.fillStyle = '#45382f';
-        ctx.beginPath(); ctx.ellipse(-11 + stride, -5, 14, 7, -0.08, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(11 - stride, -5, 14, 7, 0.08, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#b9433f';
-        drawRoundedRect(-22, -63, 44, 35, 13); ctx.fill();
-        ctx.strokeStyle = '#edbd91';
-        ctx.lineWidth = 10;
-        ctx.beginPath(); ctx.moveTo(-18, -54); ctx.lineTo(-29, -37 + stride * 0.25); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(18, -54); ctx.lineTo(29, -38 - stride * 0.25); ctx.stroke();
-
-        ctx.fillStyle = '#246aa3';
-        drawRoundedRect(-17, -56, 34, 34, 10); ctx.fill();
-        ctx.fillStyle = '#f4cf55';
-        ctx.beginPath(); ctx.arc(-9, -48, 3.3, 0, Math.PI * 2); ctx.arc(9, -48, 3.3, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#efbf93';
-        ctx.beginPath(); ctx.ellipse(0, -81, 19, 20, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#4a342d';
-        ctx.beginPath(); ctx.ellipse(-15, -82, 7, 14, -0.3, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(8, -72, 10, 4, 0.1, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#25332f';
-        ctx.beginPath(); ctx.arc(8, -84, 2.2, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#b9433f';
-        ctx.beginPath(); ctx.ellipse(-2, -98, 20, 9, -0.06, Math.PI, Math.PI * 2); ctx.fill();
-        drawRoundedRect(-21, -99, 38, 9, 5); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(12, -91, 13, 4, 0, 0, Math.PI * 2); ctx.fill();
+        block(2, 0, 5, 1, '#a93432');
+        block(1, 1, 7, 1, '#a93432');
+        block(2, 2, 5, 3, '#efc296');
+        block(1, 2, 2, 2, '#49342b');
+        block(6, 2, 2, 2, '#efc296');
+        block(5, 2, 1, 1, '#25332f');
+        block(5, 4, 2, 1, '#49342b');
+        block(1, 5, 6, 2, '#a93432');
+        block(0, 6, 2, 3, '#efc296');
+        block(6, 6, 2, 3, '#efc296');
+        block(2, 6, 4, 4, '#245b9d');
+        block(3, 5, 1, 2, '#245b9d');
+        block(5, 5, 1, 2, '#245b9d');
+        block(3, 7, 1, 1, '#f0c94d');
+        block(5, 7, 1, 1, '#f0c94d');
+        const runningFrame = Math.abs(state.vx) > 0.3 && Math.floor(state.time * 10) % 2 === 0;
+        if (runningFrame && state.onGround) {
+          block(2, 10, 2, 1, '#245b9d');
+          block(5, 10, 2, 1, '#245b9d');
+          block(1, 11, 3, 1, '#49342b');
+          block(5, 11, 3, 1, '#49342b');
+        } else {
+          block(2, 10, 2, 1, '#245b9d');
+          block(4, 10, 2, 1, '#245b9d');
+          block(1, 11, 3, 1, '#49342b');
+          block(4, 11, 3, 1, '#49342b');
+        }
         ctx.restore();
       }
 
       function drawMuffin(screenX, screenY, scale) {
-        const size = Math.max(0.8, scale / 62);
+        const pixel = Math.max(3, Math.round((0.55 * scale) / 7));
+        const block = (gx, gy, gw, gh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
+        };
         ctx.save();
-        ctx.translate(screenX, screenY);
-        ctx.scale(size, size);
-        ctx.shadowColor = 'rgba(91, 64, 34, .20)';
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetY = 5;
-        ctx.fillStyle = '#a86424';
-        ctx.beginPath(); ctx.moveTo(-16, 3); ctx.lineTo(15, 3); ctx.lineTo(11, 25); ctx.quadraticCurveTo(0, 31, -11, 25); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#f1cf91';
-        ctx.beginPath();
-        ctx.arc(-10, 1, 12, Math.PI * .85, Math.PI * 2.15);
-        ctx.arc(3, -5, 15, Math.PI, Math.PI * 2.1);
-        ctx.arc(14, 2, 10, Math.PI * .8, Math.PI * 2);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#b64a45';
-        ctx.beginPath(); ctx.arc(5, -12, 3.5, 0, Math.PI * 2); ctx.fill();
+        ctx.translate(Math.round(screenX - 3.5 * pixel), Math.round(screenY - 3.5 * pixel));
+        block(2, 0, 3, 1, '#f3d8a4');
+        block(1, 1, 5, 1, '#f3d8a4');
+        block(0, 2, 7, 2, '#f3d8a4');
+        block(1, 4, 5, 1, '#a86424');
+        block(2, 5, 3, 2, '#a86424');
+        block(4, 0, 1, 1, '#b64a45');
         ctx.restore();
       }
 
       function drawCoin(screenX, screenY, scale, phase) {
-        const radius = Math.max(10, scale * 0.2);
-        const width = Math.max(4, Math.abs(Math.cos(phase)) * radius);
+        const pixel = Math.max(3, Math.round(scale / 18));
+        const frame = Math.abs(Math.cos(phase));
+        const halfWidth = frame > 0.66 ? 3 : frame > 0.28 ? 2 : 1;
+        const block = (gx, gy, gw, gh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(Math.round(gx * pixel), Math.round(gy * pixel), Math.round(gw * pixel), Math.round(gh * pixel));
+        };
         ctx.save();
-        ctx.translate(screenX, screenY);
-        ctx.shadowColor = 'rgba(169, 118, 20, .32)';
-        ctx.shadowBlur = 12;
-        const gradient = ctx.createLinearGradient(-width, 0, width, 0);
-        gradient.addColorStop(0, '#d89b1d');
-        gradient.addColorStop(.48, '#ffe07a');
-        gradient.addColorStop(1, '#c78311');
-        ctx.fillStyle = gradient;
-        ctx.beginPath(); ctx.ellipse(0, 0, width, radius, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#9f6a0c'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#9f6a0c';
-        ctx.font = `800 ${Math.round(radius * 1.05)}px system-ui`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('1', 0, 1);
+        ctx.translate(Math.round(screenX), Math.round(screenY));
+        block(-halfWidth, -4, halfWidth * 2, 8, '#a86c0b');
+        block(-halfWidth + 1, -3, Math.max(1, halfWidth * 2 - 2), 6, '#f1bf28');
+        if (halfWidth >= 2) block(-1, -2, 1, 4, '#ffe47a');
         ctx.restore();
       }
 
       function drawBowser(screenX, footY, scale) {
-        const unit = Math.max(0.78, Math.min(1.16, scale / 58));
-        const bob = Math.sin(state.time * 3.2) * 2;
+        const pixel = Math.max(3, Math.round(scale / 12));
+        const bob = Math.round(Math.sin(state.time * 3.2)) * pixel;
+        const block = (gx, gy, gw, gh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
+        };
         ctx.save();
-        ctx.translate(screenX, footY + bob - 2);
-        ctx.scale(unit, unit);
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        ctx.translate(Math.round(screenX - 6 * pixel), Math.round(footY - 15 * pixel + bob));
 
-        ctx.fillStyle = 'rgba(30, 48, 52, .22)';
-        ctx.beginPath(); ctx.ellipse(0, 3, 34, 8, 0, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#b85836';
-        ctx.beginPath(); ctx.ellipse(-13, -12, 14, 10, -.2, 0, Math.PI * 2); ctx.ellipse(16, -12, 14, 10, .2, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#356f51';
-        ctx.beginPath(); ctx.ellipse(7, -50, 31, 38, -.08, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#214c3d'; ctx.lineWidth = 5; ctx.stroke();
-        ctx.fillStyle = '#f3eee4';
-        for (const [x, y, a] of [[-11,-78,-.6],[8,-89,0],[28,-73,.6]]) {
-          ctx.save(); ctx.translate(x, y); ctx.rotate(a); ctx.beginPath(); ctx.moveTo(-7, 8); ctx.lineTo(0, -11); ctx.lineTo(7, 8); ctx.closePath(); ctx.fill(); ctx.restore();
-        }
-
-        ctx.fillStyle = '#d67a3d';
-        ctx.beginPath(); ctx.ellipse(-12, -54, 25, 31, .18, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#f1c66f';
-        ctx.beginPath(); ctx.ellipse(-18, -48, 15, 21, .2, 0, Math.PI * 2); ctx.fill();
-
-        ctx.fillStyle = '#d67a3d';
-        ctx.beginPath(); ctx.ellipse(-23, -86, 22, 19, -.08, 0, Math.PI * 2); ctx.fill();
-        ctx.beginPath(); ctx.ellipse(-38, -79, 18, 11, -.1, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = '#f3eee4';
-        ctx.beginPath(); ctx.moveTo(-33, -99); ctx.lineTo(-42, -114); ctx.lineTo(-25, -102); ctx.closePath(); ctx.fill();
-        ctx.beginPath(); ctx.moveTo(-10, -99); ctx.lineTo(-7, -116); ctx.lineTo(1, -98); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#25332f';
-        ctx.beginPath(); ctx.arc(-31, -89, 3, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#91412f'; ctx.lineWidth = 4;
-        ctx.beginPath(); ctx.moveTo(-44, -79); ctx.quadraticCurveTo(-33, -72, -21, -77); ctx.stroke();
+        block(1, 14, 5, 1, 'rgba(37,51,47,.24)');
+        block(7, 14, 5, 1, 'rgba(37,51,47,.24)');
+        block(1, 12, 4, 2, '#8d4a27');
+        block(8, 12, 4, 2, '#8d4a27');
+        block(3, 6, 8, 7, '#d47a35');
+        block(6, 5, 7, 7, '#397346');
+        block(8, 7, 3, 3, '#79a94f');
+        block(7, 4, 2, 2, '#f4e4b7');
+        block(10, 4, 2, 2, '#f4e4b7');
+        block(12, 6, 2, 2, '#f4e4b7');
+        block(1, 3, 7, 5, '#d47a35');
+        block(-1, 5, 5, 3, '#e49a4d');
+        block(2, 1, 5, 2, '#a93432');
+        block(1, 0, 2, 2, '#a93432');
+        block(5, 0, 2, 2, '#a93432');
+        block(1, 2, 2, 2, '#f4e4b7');
+        block(6, 2, 2, 2, '#f4e4b7');
+        block(2, 4, 1, 1, '#25332f');
+        block(-1, 7, 2, 1, '#f4e4b7');
+        block(3, 8, 4, 3, '#f1c66f');
+        block(0, 9, 3, 2, '#d47a35');
         ctx.restore();
 
         ctx.save();
-        ctx.font = '800 11px system-ui';
-        const label = 'BOWSER';
-        const width = ctx.measureText(label).width + 22;
-        ctx.fillStyle = 'rgba(255, 253, 248, .94)';
-        drawRoundedRect(screenX - width / 2, footY - scale * 2.05, width, 25, 12); ctx.fill();
-        ctx.strokeStyle = 'rgba(37, 51, 47, .20)'; ctx.lineWidth = 1; ctx.stroke();
-        ctx.fillStyle = '#8d3f35'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(label, screenX, footY - scale * 2.05 + 13);
+        ctx.font = '800 11px ui-monospace, monospace';
+        ctx.fillStyle = '#fffdf8';
+        ctx.fillRect(Math.round(screenX - 29), Math.round(footY - 17 * pixel), 58, 20);
+        ctx.strokeStyle = '#25332f'; ctx.lineWidth = 2; ctx.strokeRect(Math.round(screenX - 29), Math.round(footY - 17 * pixel), 58, 20);
+        ctx.fillStyle = '#8d3f35'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('BOWSER', Math.round(screenX), Math.round(footY - 17 * pixel + 10));
         ctx.restore();
       }
 
@@ -1114,75 +1124,71 @@
         ctx.restore();
       }
 
-      function drawBridge(groundY, scale) {
-        const water = ctx.createLinearGradient(0, groundY, 0, viewHeight);
-        water.addColorStop(0, '#75b9c4');
-        water.addColorStop(1, '#28798b');
-        ctx.fillStyle = water;
+      const BRIDGE_PERIOD = 44;
+      const BRIDGE_START = 18;
+      const BRIDGE_LENGTH = 10;
+
+      function isBridgeAt(worldX) {
+        const phase = ((worldX % BRIDGE_PERIOD) + BRIDGE_PERIOD) % BRIDGE_PERIOD;
+        return phase >= BRIDGE_START && phase < BRIDGE_START + BRIDGE_LENGTH;
+      }
+
+      function drawRetroTerrain(groundY, scale) {
+        ctx.fillStyle = '#4f91a3';
         ctx.fillRect(0, groundY, viewWidth, viewHeight - groundY);
-        ctx.strokeStyle = 'rgba(255,255,255,.38)';
-        ctx.lineWidth = 2;
-        for (let y = groundY + 42; y < viewHeight; y += 28) {
-          ctx.beginPath();
-          for (let x = -20; x <= viewWidth + 20; x += 24) {
-            const waveY = y + Math.sin((x + state.time * 30) * .045) * 3;
-            if (x === -20) ctx.moveTo(x, waveY); else ctx.lineTo(x, waveY);
+        for (let y = groundY + 24; y < viewHeight; y += 24) {
+          const offset = Math.round((state.time * 18 + y) % 32);
+          ctx.fillStyle = 'rgba(220,246,241,.42)';
+          for (let x = -32 + offset; x < viewWidth + 32; x += 32) ctx.fillRect(x, y, 16, 4);
+        }
+
+        const firstTile = Math.floor(state.cameraX) - 1;
+        const lastTile = Math.ceil(state.cameraX + viewWidth / scale) + 1;
+        for (let worldX = firstTile; worldX <= lastTile; worldX += 1) {
+          const x = Math.round((worldX - state.cameraX) * scale);
+          const width = Math.ceil(scale) + 1;
+          if (isBridgeAt(worldX + 0.5)) {
+            ctx.fillStyle = '#8d5b35';
+            ctx.fillRect(x, groundY, width, 24);
+            ctx.fillStyle = '#d39a52';
+            ctx.fillRect(x, groundY, width, 7);
+            ctx.fillStyle = '#5e3f2a';
+            ctx.fillRect(x, groundY + 20, width, 4);
+            ctx.fillRect(x, groundY, 2, 24);
+            if (worldX % 2 === 0) {
+              ctx.fillRect(x + 3, groundY - 32, 5, 36);
+              ctx.fillRect(x + 3, groundY - 30, width + 2, 5);
+            }
+            if (worldX % 4 === 0) {
+              ctx.fillStyle = '#70472d';
+              ctx.fillRect(x + Math.round(width / 2) - 4, groundY + 20, 8, viewHeight - groundY);
+            }
+          } else {
+            ctx.fillStyle = '#88a85d';
+            ctx.fillRect(x, groundY, width, 9);
+            ctx.fillStyle = '#8d6a43';
+            ctx.fillRect(x, groundY + 9, width, viewHeight - groundY - 9);
+            ctx.fillStyle = worldX % 2 === 0 ? '#7d5c3d' : '#9b744b';
+            ctx.fillRect(x + 5, groundY + 21, Math.max(8, Math.round(width * 0.35)), 11);
           }
-          ctx.stroke();
-        }
-
-        const firstPier = Math.floor(state.cameraX / 7) * 7;
-        for (let worldX = firstPier; worldX < state.cameraX + viewWidth / scale + 8; worldX += 7) {
-          const x = (worldX - state.cameraX) * scale;
-          ctx.fillStyle = '#b86e45';
-          drawRoundedRect(x - 14, groundY + 24, 28, viewHeight - groundY + 30, 8); ctx.fill();
-          ctx.fillStyle = '#d9945c';
-          ctx.fillRect(x - 8, groundY + 30, 8, viewHeight - groundY);
-        }
-
-        ctx.strokeStyle = 'rgba(53, 83, 76, .48)';
-        ctx.lineWidth = 3;
-        ctx.beginPath(); ctx.moveTo(0, groundY - 34); ctx.lineTo(viewWidth, groundY - 34); ctx.stroke();
-        const firstPost = Math.floor(state.cameraX / 2) * 2;
-        for (let worldX = firstPost; worldX < state.cameraX + viewWidth / scale + 3; worldX += 2) {
-          const x = (worldX - state.cameraX) * scale;
-          ctx.beginPath(); ctx.moveTo(x, groundY - 36); ctx.lineTo(x, groundY + 3); ctx.stroke();
-        }
-
-        ctx.fillStyle = '#9e583a';
-        ctx.fillRect(0, groundY, viewWidth, 32);
-        ctx.fillStyle = '#e3a762';
-        ctx.fillRect(0, groundY, viewWidth, 9);
-        ctx.strokeStyle = 'rgba(93, 55, 38, .42)';
-        ctx.lineWidth = 1.5;
-        const firstPlank = Math.floor(state.cameraX) - 1;
-        for (let worldX = firstPlank; worldX < state.cameraX + viewWidth / scale + 2; worldX += 1) {
-          const x = (worldX - state.cameraX) * scale;
-          ctx.beginPath(); ctx.moveTo(x, groundY); ctx.lineTo(x, groundY + 31); ctx.stroke();
         }
       }
 
       function drawPlatform(x, y, width) {
-        ctx.save();
-        ctx.shadowColor = 'rgba(40, 56, 49, .16)';
-        ctx.shadowBlur = 10;
-        ctx.shadowOffsetY = 6;
-        ctx.fillStyle = '#b86e45';
-        drawRoundedRect(x, y, width, 22, 8); ctx.fill();
-        ctx.fillStyle = '#e7b66e';
-        drawRoundedRect(x, y - 5, width, 10, 5); ctx.fill();
-        ctx.strokeStyle = 'rgba(93, 55, 38, .28)';
-        ctx.lineWidth = 1.5;
-        for (let segment = x + 24; segment < x + width; segment += 32) {
-          ctx.beginPath(); ctx.moveTo(segment, y + 5); ctx.lineTo(segment, y + 19); ctx.stroke();
+        ctx.fillStyle = '#8d6a43';
+        ctx.fillRect(Math.round(x), Math.round(y), Math.round(width), 22);
+        ctx.fillStyle = '#5d7741';
+        ctx.fillRect(Math.round(x), Math.round(y - 5), Math.round(width), 10);
+        ctx.fillStyle = '#a98253';
+        for (let segment = Math.round(x + 18); segment < x + width; segment += 24) {
+          ctx.fillRect(segment, Math.round(y + 8), 10, 8);
         }
-        ctx.restore();
       }
 
       function draw() {
         if (!state || !ctx) return;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingEnabled = false;
         ctx.clearRect(0, 0, viewWidth, viewHeight);
 
         const scale = Math.max(45, Math.min(70, viewWidth / 14.5));
@@ -1190,55 +1196,32 @@
         const worldToX = x => (x - state.cameraX) * scale;
         const worldToY = y => groundY - y * scale;
 
-        const sky = ctx.createLinearGradient(0, 0, 0, groundY);
-        sky.addColorStop(0, '#b9dfe7');
-        sky.addColorStop(.62, '#e8e2bd');
-        sky.addColorStop(1, '#f5c98f');
-        ctx.fillStyle = sky;
+        ctx.fillStyle = '#c7dfd4';
         ctx.fillRect(0, 0, viewWidth, groundY);
 
-        const sunX = viewWidth * .78 - state.cameraX * 2;
-        const sunY = 74;
-        const sun = ctx.createRadialGradient(sunX, sunY, 2, sunX, sunY, 55);
-        sun.addColorStop(0, 'rgba(255, 239, 167, .95)');
-        sun.addColorStop(1, 'rgba(255, 239, 167, 0)');
-        ctx.fillStyle = sun; ctx.beginPath(); ctx.arc(sunX, sunY, 55, 0, Math.PI * 2); ctx.fill();
-
-        for (let i = -1; i < 6; i += 1) {
-          const span = viewWidth + 300;
-          const x = ((i * 260 - state.cameraX * 9) % span + span) % span - 120;
-          drawCloud(x, 72 + (i % 3) * 46, 54 + (i % 2) * 12);
+        ctx.fillStyle = '#e9f0d2';
+        for (let i = -1; i < 7; i += 1) {
+          const x = Math.round((((i * 230 - state.cameraX * 11) % (viewWidth + 260)) - 80) / 8) * 8;
+          const y = Math.round((70 + (i % 3) * 38) / 8) * 8;
+          ctx.fillRect(x + 16, y, 56, 16);
+          ctx.fillRect(x, y + 16, 96, 24);
         }
 
-        ctx.fillStyle = '#87aa8a';
-        ctx.beginPath(); ctx.moveTo(0, groundY);
-        for (let x = -80; x <= viewWidth + 100; x += 150) {
-          const shifted = x - ((state.cameraX * 13) % 150);
-          ctx.quadraticCurveTo(shifted + 75, groundY - 125 - (Math.floor(x / 150) % 2) * 28, shifted + 150, groundY);
-        }
-        ctx.lineTo(viewWidth, groundY); ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#668d78';
-        ctx.beginPath(); ctx.moveTo(0, groundY);
-        for (let x = -100; x <= viewWidth + 120; x += 190) {
-          const shifted = x - ((state.cameraX * 23) % 190);
-          ctx.quadraticCurveTo(shifted + 95, groundY - 74 - (Math.floor(x / 190) % 2) * 18, shifted + 190, groundY);
-        }
-        ctx.lineTo(viewWidth, groundY); ctx.closePath(); ctx.fill();
-
-        ctx.save();
-        ctx.setLineDash([5, 7]);
-        ctx.strokeStyle = 'rgba(37, 51, 47, .15)';
+        ctx.strokeStyle = 'rgba(37, 51, 47, 0.10)';
         ctx.lineWidth = 1;
+        for (let m = Math.floor(state.cameraX); m < state.cameraX + viewWidth / scale + 2; m += 2) {
+          const x = worldToX(m);
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, groundY); ctx.stroke();
+        }
         for (let h = 1; h <= 5; h += 1) {
           const y = worldToY(h);
           ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(viewWidth, y); ctx.stroke();
-          ctx.fillStyle = 'rgba(255, 253, 248, .84)';
-          drawRoundedRect(8, y - 20, 42, 18, 9); ctx.fill();
-          ctx.fillStyle = '#52655f'; ctx.font = '700 11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(`${h} m`, 29, y - 11);
+          ctx.fillStyle = '#6b736f'; ctx.font = '12px ui-monospace, monospace';
+          ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+          ctx.fillText(`${h} m`, 7, y - 5);
         }
-        ctx.restore();
 
-        drawBridge(groundY, scale);
+        drawRetroTerrain(groundY, scale);
 
         for (const p of platforms) {
           const x = worldToX(p.x);
@@ -1259,15 +1242,15 @@
         if (state.muffin.active) drawMuffin(worldToX(state.muffin.x), worldToY(state.muffin.y), scale);
         drawMario(worldToX(state.x), worldToY(state.y), scale);
 
-        ctx.save();
-        ctx.fillStyle = 'rgba(255, 253, 248, .92)';
-        drawRoundedRect(14, 14, 178, 36, 18); ctx.fill();
-        ctx.strokeStyle = 'rgba(37, 51, 47, .18)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.fillStyle = '#fffdf8';
+        ctx.fillRect(14, 14, 164, 34);
+        ctx.strokeStyle = '#2d453d';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(14, 14, 164, 34);
         ctx.fillStyle = '#25332f';
-        ctx.font = '750 13px system-ui';
-        ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
-        ctx.fillText(`Brückenweg  ${formatNumber(state.x)} m`, 29, 32);
-        ctx.restore();
+        ctx.font = '700 13px ui-monospace, monospace';
+        ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+        ctx.fillText(`x = ${formatNumber(state.x)} m`, 28, 36);
       }
 
       function animationFrame(timestamp) {
@@ -1375,6 +1358,7 @@
           return snapshot();
         },
         exhaustForTest,
+        bridgeAt: isBridgeAt,
         config: CONFIG
       };
 
@@ -1383,5 +1367,6 @@
       requestAnimationFrame(animationFrame);
     })();
   </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>

@@ -461,8 +461,9 @@
         .input-error { border-color: var(--secondary) !important; background: #fff5f5 !important; }
     </style>
     <link rel="stylesheet" href="../shared/atelier.css">
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="impulsdiagramm">
+<body data-physik-app="impulsdiagramm" data-student-home="../" data-student-title="Stoß und Impulsdiagramme" data-student-summary="Du vergleichst Bewegungs- und Impulsdiagramme bei verschiedenen Stoßarten." data-student-controls="Wähle Stoßart, Massen und Geschwindigkeiten. Beobachte anschließend die Diagramme.">
     <h1>🎯 Stoß-Diagramm Generator Pro</h1>
     <div class="info-box model-assumptions"><strong>Modell:</strong> eindimensionaler, kurzer Stoß in einem abgeschlossenen System. Positive Geschwindigkeit zeigt zu größeren x-Werten; negative Impulse zeigen in Gegenrichtung. Erhalten bleibt der Gesamtimpuls. Nur beim elastischen Stoß bleibt auch die <em>kinetische</em> Energie erhalten; sonst wird ein Teil in innere Energie (z. B. Wärme und Verformung) umgewandelt.</div>
     
@@ -1111,5 +1112,6 @@
             generate();
         };
     </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>

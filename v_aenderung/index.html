@@ -300,8 +300,9 @@
         /* Code Ende: CSS Grundgerüst & Layout */
     </style>
     <link rel="stylesheet" href="../shared/atelier.css">
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="v-aenderung">
+<body data-physik-app="v-aenderung" data-student-home="../" data-student-title="Geschwindigkeit und Δv" data-student-summary="Du untersuchst, wie Anfangsgeschwindigkeit und Geschwindigkeitsänderung die Endgeschwindigkeit bestimmen." data-student-controls="Stelle Betrag und Winkel von Δv ein. Tippe anschließend auf „Start / Reset“.">
     <!-- Code Beginn: HTML Struktur -->
     <div id="app-container">
         <aside id="sidebar">
@@ -805,6 +806,28 @@
             }
         });
 
+        // Physikalische Winkel werden gegen den Uhrzeigersinn gemessen.
+        // Auf dem Canvas zeigt die positive y-Richtung nach unten, deshalb ist y zu negieren.
+        function vectorForPhysicsAngle(angleDegrees, magnitude = 1) {
+            let angle = radians(Number(angleDegrees));
+            return createVector(cos(angle), -sin(angle)).mult(magnitude);
+        }
+
+        function physicsAngleFromScreenVector(vector) {
+            let angle = -degrees(vector.heading());
+            return (angle % 360 + 360) % 360;
+        }
+
+        window.__vChangeTest = {
+            vectorForAngle(angleDegrees, magnitude = 1) {
+                const vector = vectorForPhysicsAngle(angleDegrees, magnitude);
+                return { x: vector.x, y: vector.y };
+            },
+            angleFromScreenVector(x, y) {
+                return physicsAngleFromScreenVector(createVector(x, y));
+            }
+        };
+
         function updatePhysics() {
             if (currentState === STATE.SETUP || currentState === STATE.STOPPED || isPaused) return;
 
@@ -825,8 +848,7 @@
                 puck.pos.x = impulsePoint.x; // Exakt am Stoßpunkt positionieren
                 
                 let dvMag = parseFloat(dvSlider.value) * 0.4; // Skalierung für Animation (verdoppelt)
-                let angle = radians(parseFloat(angleSlider.value));
-                let dV = createVector(cos(angle), sin(angle)).mult(dvMag);
+                let dV = vectorForPhysicsAngle(angleSlider.value, dvMag);
                 
                 puck.vel.add(dV); // Vektoraddition: vE = vA + dv
                 currentState = STATE.MOVING_VE;
@@ -907,8 +929,7 @@
             if (isSimulationRunning) return;
 
             let dvMag = parseFloat(dvSlider.value) * canvasScale;
-            let angle = radians(parseFloat(angleSlider.value));
-            let dV = createVector(cos(angle), sin(angle)).mult(dvMag);
+            let dV = vectorForPhysicsAngle(angleSlider.value, dvMag);
             let dVEnd = p5.Vector.add(impulsePoint, dV);
 
             // Hitbox-Check (Radius mind. 40px)
@@ -923,10 +944,7 @@
                     // Berechne neuen Vektor basierend auf Maus/Touch-Position
                     let newDV = createVector(mouseX - impulsePoint.x, mouseY - impulsePoint.y);
                     let newMag = newDV.mag() / canvasScale;
-                    let newAngle = degrees(newDV.heading());
-                    
-                    // Normalisiere Winkel auf 0-360
-                    if (newAngle < 0) newAngle += 360;
+                    let newAngle = physicsAngleFromScreenVector(newDV);
                     
                     // Synchronisation mit Sidebar
                     dvSlider.value = constrain(newMag, 0, 25).toFixed(1);
@@ -952,7 +970,7 @@
             let vA_End = createVector(impulsePoint.x + vaMag, impulsePoint.y);
 
             // dv: Startet am Stoßpunkt
-            let dV = createVector(cos(angle), sin(angle)).mult(dvMag);
+            let dV = vectorForPhysicsAngle(angleSlider.value, dvMag);
             let dV_End = p5.Vector.add(impulsePoint, dV);
 
             // Konstruktion: dv verschoben an die Spitze von vA
@@ -977,7 +995,7 @@
                 let vE_Label = "vE";
                 if (showVeMagCheckbox.checked) {
                     let vA_vec = createVector(parseFloat(vaSlider.value), 0);
-                    let dV_vec = createVector(cos(angle), sin(angle)).mult(parseFloat(dvSlider.value));
+                    let dV_vec = vectorForPhysicsAngle(angleSlider.value, parseFloat(dvSlider.value));
                     let vE_vec = p5.Vector.add(vA_vec, dV_vec);
                     vE_Label += " = " + vE_vec.mag().toFixed(1) + " m/s";
                 }
@@ -1157,6 +1175,7 @@
         }
         // Code Ende: p5.js Setup & Statische Umgebung
     </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>
 

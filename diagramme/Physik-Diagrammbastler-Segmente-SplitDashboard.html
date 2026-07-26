@@ -537,9 +537,10 @@
     .legend-line--time{ background: var(--time-marker); }
   </style>
   <link rel="stylesheet" href="../shared/atelier.css">
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
 
-<body class="app" data-physik-app="diagramme">
+<body class="app" data-physik-app="diagramme" data-student-home="../" data-student-title="Bewegungsdiagramme" data-student-summary="Du baust eine Bewegung aus Abschnitten auf und vergleichst Ort, Geschwindigkeit und Beschleunigung." data-student-controls="Wähle ein Szenario oder füge Segmente hinzu. Starte die Bewegung und verschiebe den Zeitregler.">
   <h1 class="app__title">🚗 Diagrammbastler (Segmente): t‑x / t‑v / t‑a – Split-Dashboard</h1>
 
   <div class="app__layout">
@@ -631,7 +632,9 @@
         </div>
       </details>
 
-      <div class="controls__section">
+      <details class="controls__section details student-editor-details">
+        <summary class="details__summary">Eigene Bewegung bearbeiten</summary>
+        <div class="details__body">
         <div class="motion-tabs" id="motionTabs">
           <button class="motion-tabs__tab motion-tabs__tab--active" id="tabA" data-motion="A" aria-label="Bewegung A bearbeiten">Bewegung A</button>
           <button class="motion-tabs__tab hidden" id="tabB" data-motion="B" aria-label="Bewegung B bearbeiten">Bewegung B</button>
@@ -656,7 +659,8 @@
           <div class="segment-list" id="segmentsB"></div>
           <button class="btn" id="addSegB" aria-label="Segment B hinzufügen">+ Segment hinzufügen</button>
         </section>
-      </div>
+        </div>
+      </details>
     </aside>
 
     <main class="panel stage" id="stage">
@@ -2439,5 +2443,6 @@
       document.addEventListener("DOMContentLoaded", () => App.init());
     })();
   </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>

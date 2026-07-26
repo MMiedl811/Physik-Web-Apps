@@ -179,8 +179,9 @@
         .btn-warn.slo-active { background: var(--color-warn); color: white; border-color: var(--color-warn); }
     </style>
     <link rel="stylesheet" href="../shared/atelier.css">
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="waagrechter-wurf">
+<body data-physik-app="waagrechter-wurf" data-student-home="../" data-student-title="Waagrechter Abwurf" data-student-summary="Du beobachtest, wie sich waagrechte und senkrechte Bewegung beim Abwurf überlagern." data-student-controls="Stelle Höhe und Anfangsgeschwindigkeit ein. Tippe anschließend auf „Start“.">
 <div id="app">
     <div class="header">
         <div>
@@ -1234,5 +1235,6 @@ class App {
    ===================================================== */
 const app = new App();
 </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>

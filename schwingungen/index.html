@@ -247,8 +247,9 @@
     }
   </style>
   <link rel="stylesheet" href="../shared/atelier.css">
+  <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="schwingungen">
+<body data-physik-app="schwingungen" data-student-home="../" data-student-title="Feder- und Fadenpendel" data-student-summary="Du vergleichst zwei Schwingungen und beobachtest Auslenkung, Geschwindigkeit und Kräfte." data-student-controls="Wähle das Pendel, ändere die Parameter und nutze Pause, Slow-Mo oder Reset.">
 
   <header class="topbar">
     <div class="topbar-row">
@@ -639,6 +640,61 @@
       stroke(226, 232, 240); strokeWeight(1); line(midX, 0, midX, height);
     }
 
+    function visualPendulumLength(L, h) {
+      const normalized = Math.max(0, Math.min(1, (L - 0.5) / 2));
+      return h * (0.32 + normalized * 0.23);
+    }
+
+    function vectorLength(vector) {
+      return Math.hypot(vector.x, vector.y);
+    }
+
+    function getPendulumForceVectors(theta, mass, w, h) {
+      const weight = mass * g;
+      const restoringMagnitude = -weight * Math.sin(theta);
+      const restoring = {
+        x: restoringMagnitude * Math.cos(theta),
+        y: -restoringMagnitude * Math.sin(theta)
+      };
+      const gravity = { x: 0, y: weight };
+      const tension = {
+        x: restoring.x - gravity.x,
+        y: restoring.y - gravity.y
+      };
+      const maxForce = Math.max(vectorLength(gravity), vectorLength(tension), vectorLength(restoring), 0.001);
+      const maxArrowLength = Math.max(45, Math.min(110, Math.min(w * 0.24, h * 0.18)));
+      const scale = maxArrowLength / maxForce;
+      const toPixels = vector => ({ x: vector.x * scale, y: vector.y * scale });
+      const gravityPx = toPixels(gravity);
+      const tensionPx = toPixels(tension);
+      const restoringPx = toPixels(restoring);
+      return {
+        gravity,
+        tension,
+        restoring,
+        gravityPx,
+        tensionPx,
+        restoringPx,
+        pixelLengths: [vectorLength(gravityPx), vectorLength(tensionPx), vectorLength(restoringPx)],
+        maxArrowLength
+      };
+    }
+
+    function vectorLabelParts(label) {
+      const match = /^F_(.+)$/.exec(label || '');
+      return match
+        ? { base: 'F', subscript: match[1], vector: true }
+        : { base: label || '', subscript: '', vector: false };
+    }
+
+    window.__oscillationTest = {
+      pendulumForces(angleDegrees, mass, w, h) {
+        return getPendulumForceVectors(angleDegrees * Math.PI / 180, mass, w, h);
+      },
+      visualPendulumLength,
+      vectorLabelParts
+    };
+
     function drawAnimationArea(x, y, w, h, pos, vel, acc) {
       push();
       translate(x + w/2, y + 40);
@@ -675,7 +731,7 @@
           }
         }
       } else {
-        let visualL = L * (h * 0.6), px = visualL * Math.sin(pos), py = visualL * Math.cos(pos);
+        let visualL = visualPendulumLength(L, h), px = visualL * Math.sin(pos), py = visualL * Math.cos(pos);
         stroke(150, 150, 150, 150); strokeWeight(1); drawingContext.setLineDash([5, 5]); line(0, 0, 0, visualL + 50); drawingContext.setLineDash([]);
         fill(100); noStroke(); textSize(11); text("Ruhelage (x=0)", 5, visualL + 40);
         fill(37, 99, 235); textAlign(LEFT); textSize(14); text(`s = ${(L * pos * 100).toFixed(1)} cm`, w/2 - 80, 30);
@@ -683,11 +739,10 @@
         stroke(50); strokeWeight(3); line(0, 0, px, py);
         fill(30, 41, 59); noStroke(); circle(px, py, 60);
         if (document.getElementById('forceVectorToggle').checked) {
-          let fScale = 40, F_G = mass * g, F_res_mag = -mass * g * Math.sin(pos);
-          let frx = F_res_mag * Math.cos(pos), fry = -F_res_mag * Math.sin(pos);
-          drawArrow(px, py, 0, F_G * fScale, '#2563eb', 'F_G');
-          drawArrow(px, py, frx * fScale, (fry - F_G) * fScale, '#7c3aed', 'F_Z');
-          drawArrow(px, py, frx * fScale, fry * fScale, '#ef4444', 'F_res');
+          const forces = getPendulumForceVectors(pos, mass, w, h);
+          drawArrow(px, py, forces.gravityPx.x, forces.gravityPx.y, '#2563eb', 'F_G', forces.maxArrowLength);
+          drawArrow(px, py, forces.tensionPx.x, forces.tensionPx.y, '#7c3aed', 'F_Z', forces.maxArrowLength);
+          drawArrow(px, py, forces.restoringPx.x, forces.restoringPx.y, '#ef4444', 'F_res', forces.maxArrowLength);
         }
       }
       pop();
@@ -700,11 +755,35 @@
       vertex(x, y2); endShape();
     }
 
-    function drawArrow(x, y, dx, dy, col, label) {
+    function drawVectorLabel(label, x, y, col) {
+      const parts = vectorLabelParts(label);
+      push();
+      translate(x, y);
+      fill(col); noStroke();
+      textAlign(LEFT, BASELINE);
+      textStyle(ITALIC); textSize(15); text(parts.base, 0, 0);
+      textStyle(NORMAL); textSize(10); text(parts.subscript, 12, 4);
+      if (parts.vector) {
+        stroke(col); strokeWeight(1.5); noFill();
+        line(1, -15, 14, -15);
+        line(14, -15, 10, -18);
+        line(14, -15, 10, -12);
+      }
+      pop();
+    }
+
+    function drawArrow(x, y, dx, dy, col, label, maxLength = Infinity) {
       if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1) return;
       let angle = atan2(dy, dx);
       let len = dist(0, 0, dx, dy);
-      let headSize = 12;
+      const safeLimit = Math.min(maxLength, Math.max(45, Math.min(130, height * 0.22)));
+      if (len > safeLimit) {
+        const factor = safeLimit / len;
+        dx *= factor;
+        dy *= factor;
+        len = safeLimit;
+      }
+      let headSize = Math.min(12, Math.max(7, len * 0.22));
       
       // Draw shaft slightly shorter so it doesn't peek through the tip
       stroke(col); strokeWeight(5); 
@@ -716,12 +795,9 @@
       fill(col); noStroke();
       triangle(0, 0, -headSize, -headSize/2, -headSize, headSize/2); 
       
-      if (label) { 
-        rotate(-angle); 
-        textSize(13); textStyle(BOLD); 
-        textAlign(LEFT, CENTER);
-        text(label, 15, 0); 
-        textStyle(NORMAL); 
+      if (label) {
+        rotate(-angle);
+        drawVectorLabel(label, 14, 4, col);
       }
       pop();
     }
@@ -1079,6 +1155,7 @@
       }
     }
   </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>
 
