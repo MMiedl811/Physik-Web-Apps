@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3eee4">
+  <title>Energie-Runner – Energieumwandlungen</title>
+  <style>
+    :root {
+      --paper: #f3eee4;
+      --surface: #fffdf8;
+      --surface-soft: #f7f1e8;
+      --ink: #25332f;
+      --muted: #6b736f;
+      --line: #d9cfbf;
+      --petrol: #0f766e;
+      --petrol-dark: #0b5d57;
+      --total: #0f766e;
+      --chemical: #a86424;
+      --kinetic: #1769aa;
+      --potential: #6d4aa2;
+      --thermal: #b64a45;
+      --shadow: 0 14px 38px rgba(67, 54, 39, 0.10);
+      --radius: 20px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--paper); }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(15, 118, 110, 0.08), transparent 30rem),
+        var(--paper);
+    }
+    button { font: inherit; }
+
+    .page {
+      width: min(1480px, 100%);
+      margin: 0 auto;
+      padding: clamp(12px, 2vw, 26px);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+    .title-block h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 3vw, 2.25rem);
+      letter-spacing: -0.035em;
+    }
+    .title-block p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 750;
+      text-decoration: none;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .button:hover { border-color: var(--petrol); }
+    .button--primary { border-color: var(--petrol); background: var(--petrol); color: #fff; }
+    .button--primary:hover { background: var(--petrol-dark); }
+    .button:disabled { opacity: 0.58; cursor: not-allowed; }
+    .button:focus-visible,
+    .touch-button:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, 0.30);
+      outline-offset: 3px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 16px;
+      align-items: start;
+    }
+    .game-card,
+    .energy-card,
+    .model-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, 0.96);
+      box-shadow: var(--shadow);
+    }
+
+    .game-card { overflow: hidden; }
+    .game-status {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+    .status-chip {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.83rem;
+      font-weight: 700;
+    }
+    .status-chip strong { color: var(--ink); }
+    #event-message { margin-left: auto; color: var(--petrol-dark); }
+
+    .canvas-wrap {
+      position: relative;
+      min-height: 460px;
+      border: 6px solid #2d453d;
+      border-width: 6px 0;
+      background: #c7dfd4;
+      box-shadow: inset 0 0 0 3px rgba(255, 253, 248, 0.30);
+    }
+    .canvas-wrap::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.12;
+      background: repeating-linear-gradient(to bottom, transparent 0 3px, #243a33 3px 4px);
+    }
+    #game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 460px;
+      image-rendering: pixelated;
+      touch-action: none;
+    }
+    .game-over {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(37, 51, 47, 0.72);
+      backdrop-filter: blur(5px);
+    }
+    .game-over[hidden] { display: none; }
+    .game-over__panel {
+      max-width: 430px;
+      padding: 24px;
+      border-radius: 18px;
+      background: var(--surface);
+      color: var(--ink);
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+    .game-over__panel h2 { margin-top: 0; }
+
+    .controls-strip {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px 14px;
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+    }
+    .instructions { color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+    .touch-controls { display: flex; gap: 9px; }
+    .touch-button {
+      min-width: 62px;
+      min-height: 54px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface-soft);
+      color: var(--ink);
+      font-size: 1.15rem;
+      font-weight: 850;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+    .touch-button.is-active { border-color: var(--petrol); background: var(--petrol); color: white; }
+    .touch-button--jump { min-width: 96px; border-color: #c9b5db; color: var(--potential); }
+
+    .energy-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 16px;
+    }
+    .energy-card h2 { margin: 0; font-size: 1.05rem; }
+    .energy-card__intro { margin: 6px 0 13px; color: var(--muted); font-size: 0.83rem; line-height: 1.4; }
+    .energy-scale {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 7px;
+      flex: 1;
+      min-height: 335px;
+      padding: 26px 0 0;
+      border-bottom: 2px solid var(--line);
+      background: repeating-linear-gradient(to top, transparent 0 63px, rgba(37, 51, 47, 0.07) 63px 64px);
+    }
+    .scale-label {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+    .energy-column {
+      position: relative;
+      display: flex;
+      min-width: 0;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: stretch;
+      height: 300px;
+      align-self: stretch;
+      border: 1px solid var(--line);
+      border-radius: 12px 12px 5px 5px;
+      overflow: hidden;
+      background: rgba(217, 207, 191, 0.32);
+    }
+    .energy-fill {
+      width: 100%;
+      height: 0;
+      transition: height 120ms linear;
+      background: var(--bar-color);
+    }
+    .energy-value {
+      position: absolute;
+      inset: 8px 2px auto;
+      z-index: 2;
+      color: var(--ink);
+      font-size: clamp(0.67rem, 1.2vw, 0.78rem);
+      font-weight: 850;
+      text-align: center;
+      text-shadow: 0 1px var(--surface);
+    }
+    .energy-label {
+      min-height: 52px;
+      padding-top: 7px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1.2;
+      text-align: center;
+    }
+    .energy-label span { display: block; width: 12px; height: 4px; margin: 5px auto 0; border-radius: 999px; background: var(--bar-color); }
+    .energy-item { display: flex; min-width: 0; flex-direction: column; justify-content: flex-end; }
+    .energy-item--total { --bar-color: var(--total); }
+    .energy-item--chemical { --bar-color: var(--chemical); }
+    .energy-item--kinetic { --bar-color: var(--kinetic); }
+    .energy-item--potential { --bar-color: var(--potential); }
+    .energy-item--thermal { --bar-color: var(--thermal); }
+    .energy-item--total .energy-fill {
+      background: repeating-linear-gradient(135deg, var(--total) 0 8px, #4f9b94 8px 14px);
+    }
+
+    .mechanics-zoom {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #d6cbe4;
+      border-radius: 14px;
+      background: #f8f4fb;
+    }
+    .mechanics-zoom__header {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      font-size: 0.82rem;
+    }
+    .mechanics-zoom__header span { color: var(--muted); font-size: 0.73rem; }
+    .mechanics-zoom__note { margin: 5px 0 9px; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
+    .mechanics-zoom__grid {
+      display: grid;
+      grid-template-columns: 62px 62px minmax(0, 1fr);
+      gap: 10px;
+      align-items: end;
+    }
+    .zoom-item { text-align: center; }
+    .zoom-column {
+      display: flex;
+      align-items: flex-end;
+      height: 104px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 9px 9px 4px 4px;
+      background: rgba(255,255,255,0.64);
+    }
+    .zoom-fill { width: 100%; height: 0; transition: height 120ms linear; background: var(--zoom-color); }
+    .zoom-item--kinetic { --zoom-color: var(--kinetic); }
+    .zoom-item--potential { --zoom-color: var(--potential); }
+    .zoom-label { margin-top: 5px; color: var(--muted); font-size: 0.68rem; font-weight: 800; line-height: 1.25; }
+    .zoom-value { display: block; color: var(--ink); font-size: 0.72rem; }
+    .mechanics-zoom__sum {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 10px;
+      border-radius: 10px;
+      background: white;
+      color: var(--muted);
+      font-size: 0.73rem;
+      line-height: 1.35;
+    }
+    .mechanics-zoom__sum strong { margin-top: 4px; color: var(--ink); font-size: 1rem; }
+
+    .balance {
+      margin-top: 12px;
+      padding: 11px;
+      border: 1px solid #c9ddd6;
+      border-radius: 13px;
+      background: #eef7f3;
+      font-size: 0.79rem;
+      line-height: 1.45;
+    }
+    .balance-row { display: flex; justify-content: space-between; gap: 12px; }
+    .balance-row + .balance-row { margin-top: 4px; }
+    .balance-ok { color: var(--petrol-dark); font-weight: 850; }
+
+    .model-card {
+      margin-top: 16px;
+      padding: 15px 17px;
+    }
+    .model-card summary { cursor: pointer; font-weight: 850; }
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 12px;
+      margin-top: 13px;
+    }
+    .formula-box {
+      min-width: 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: var(--surface-soft);
+      line-height: 1.45;
+    }
+    .formula-box strong { display: block; margin-bottom: 7px; color: var(--petrol-dark); }
+    .formula-box math { font-size: 1.08rem; }
+    .model-note { margin: 13px 0 0; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .energy-card { min-height: 400px; }
+      .energy-scale { min-height: 285px; }
+      .energy-column { height: 250px; }
+    }
+    @media (max-width: 680px) {
+      .page { padding: 10px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .top-actions { width: 100%; justify-content: stretch; }
+      .top-actions .button { flex: 1; }
+      .canvas-wrap, #game-canvas { min-height: 390px; }
+      .controls-strip { grid-template-columns: 1fr; }
+      .touch-controls { justify-content: stretch; }
+      .touch-button { flex: 1; }
+      .model-grid { grid-template-columns: 1fr; }
+      #event-message { width: 100%; margin-left: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .energy-fill { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <div class="title-block">
+        <h1>🍄 Energie-Runner</h1>
+        <p>Chemische Energie wird in Bewegung, Höhe und innere Energie umgewandelt.</p>
+      </div>
+      <div class="top-actions">
+        <a class="button" href="../" aria-label="Zurück zur Übersicht">⌂ Übersicht</a>
+        <button class="button" id="pause-button" type="button">⏸ Pause</button>
+        <button class="button button--primary" id="restart-button" type="button">↻ Neustart</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="game-card" aria-label="Spielwelt">
+        <div class="game-status">
+          <div class="status-chip">Zeit <strong id="time-readout">0,0 s</strong></div>
+          <div class="status-chip">Höhe <strong id="height-readout">0,0 m</strong></div>
+          <div class="status-chip">Tempo <strong id="speed-readout">0,0 m/s</strong></div>
+          <div class="status-chip" id="event-message" aria-live="polite">Bewege Mario und beobachte die Energiebalken.</div>
+        </div>
+        <div class="canvas-wrap" id="canvas-wrap">
+          <canvas id="game-canvas" aria-label="Mario läuft und springt durch eine schematische Plattformwelt"></canvas>
+          <div class="game-over" id="game-over" hidden>
+            <div class="game-over__panel">
+              <h2>Chemische Energie aufgebraucht</h2>
+              <p>Mario kann ohne neue chemische Energie nicht erneut beschleunigen oder springen. Die Energie ist nicht verschwunden: Sie steckt jetzt vor allem als innere Energie in Mario und der Umgebung.</p>
+              <button class="button button--primary" id="overlay-restart" type="button">↻ Neu starten</button>
+            </div>
+          </div>
+        </div>
+        <div class="controls-strip">
+          <div class="instructions"><strong>Tastatur:</strong> A/D oder ←/→ zum Laufen · W/↑/Leertaste zum Springen. Nach einigen Sekunden fliegt ein Muffin mit neuer chemischer Energie vorbei.</div>
+          <div class="touch-controls" aria-label="Touch-Steuerung">
+            <button class="touch-button" id="left-button" type="button" aria-label="Nach links laufen">←</button>
+            <button class="touch-button touch-button--jump" id="jump-button" type="button" aria-label="Springen">↑ Sprung</button>
+            <button class="touch-button" id="right-button" type="button" aria-label="Nach rechts laufen">→</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="energy-card" aria-label="Vertikale Energieanzeigen">
+        <h2>Energieformen</h2>
+        <p class="energy-card__intro">Alle Balken haben dieselbe Skala. „Gesamt“ ist eine schraffierte Referenz und wird nicht noch einmal zu den vier Energieformen addiert.</p>
+        <div class="energy-scale">
+          <span class="scale-label" id="scale-label">200 kJ</span>
+
+          <div class="energy-item energy-item--total">
+            <div class="energy-column">
+              <div class="energy-value" id="total-value">150,0 kJ</div>
+              <div class="energy-fill" id="total-fill"></div>
+            </div>
+            <div class="energy-label">Gesamt<br>(Ref.)<span></span></div>
+          </div>
+
+          <div class="energy-item energy-item--chemical">
+            <div class="energy-column">
+              <div class="energy-value" id="chemical-value">150,0 kJ</div>
+              <div class="energy-fill" id="chemical-fill"></div>
+            </div>
+            <div class="energy-label">chemisch<span></span></div>
+          </div>
+
+          <div class="energy-item energy-item--kinetic">
+            <div class="energy-column">
+              <div class="energy-value" id="kinetic-value">0,0 kJ</div>
+              <div class="energy-fill" id="kinetic-fill"></div>
+            </div>
+            <div class="energy-label">kinetisch<span></span></div>
+          </div>
+
+          <div class="energy-item energy-item--potential">
+            <div class="energy-column">
+              <div class="energy-value" id="potential-value">0,0 kJ</div>
+              <div class="energy-fill" id="potential-fill"></div>
+            </div>
+            <div class="energy-label">Höhe<span></span></div>
+          </div>
+
+          <div class="energy-item energy-item--thermal">
+            <div class="energy-column">
+              <div class="energy-value" id="thermal-value">0,0 kJ</div>
+              <div class="energy-fill" id="thermal-fill"></div>
+            </div>
+            <div class="energy-label">innere E.<span></span></div>
+          </div>
+        </div>
+
+        <div class="mechanics-zoom" aria-label="Vergrößerte Darstellung der mechanischen Energieformen">
+          <div class="mechanics-zoom__header"><strong>Mechanischer Zoom</strong><span>Detailmaßstab <b id="mechanics-scale">5 kJ</b></span></div>
+          <p class="mechanics-zoom__note">Dieselben Werte wie oben – nur vergrößert dargestellt, nicht zusätzlich addiert.</p>
+          <div class="mechanics-zoom__grid">
+            <div class="zoom-item zoom-item--kinetic">
+              <div class="zoom-column"><div class="zoom-fill" id="kinetic-zoom-fill"></div></div>
+              <div class="zoom-label">kinetisch <span class="zoom-value" id="kinetic-zoom-value">0,0 kJ</span></div>
+            </div>
+            <div class="zoom-item zoom-item--potential">
+              <div class="zoom-column"><div class="zoom-fill" id="potential-zoom-fill"></div></div>
+              <div class="zoom-label">Höhe <span class="zoom-value" id="potential-zoom-value">0,0 kJ</span></div>
+            </div>
+            <div class="mechanics-zoom__sum">Mechanische Energie<strong id="mechanical-value">0,0 kJ</strong><span>E<sub>kin</sub> + E<sub>pot</sub></span></div>
+          </div>
+        </div>
+
+        <div class="balance">
+          <div class="balance-row"><span>Systemenergie</span><strong id="system-energy">150,0 kJ</strong></div>
+          <div class="balance-row"><span>davon durch Muffins</span><strong id="external-energy">+0,0 kJ</strong></div>
+          <div class="balance-row"><span>Bilanzabweichung</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
+        </div>
+      </aside>
+    </main>
+
+    <details class="model-card">
+      <summary>Physikalisches Modell und Grenzen</summary>
+      <div class="model-grid">
+        <div class="formula-box"><strong>Bewegungsenergie</strong><math display="block" aria-label="E kin gleich ein halb m mal v Quadrat"><msub><mi>E</mi><mtext>kin</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>m</mi><msup><mi>v</mi><mn>2</mn></msup></math></div>
+        <div class="formula-box"><strong>Höhenenergie</strong><math display="block" aria-label="E pot gleich m mal g mal h"><msub><mi>E</mi><mtext>pot</mtext></msub><mo>=</mo><mi>m</mi><mi>g</mi><mi>h</mi></math></div>
+        <div class="formula-box"><strong>Mechanische Energie</strong><math display="block" aria-label="E mechanisch gleich E kin plus E pot"><msub><mi>E</mi><mtext>mech</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub></math></div>
+        <div class="formula-box"><strong>Energiebilanz</strong><math display="block" aria-label="E System gleich E chemisch plus E kin plus E pot plus E thermisch"><msub><mi>E</mi><mtext>sys</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>chem</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>th</mtext></msub></math></div>
+      </div>
+      <p class="model-note">Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie erhalten. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung und unelastische Landungen wandeln mechanische Energie ebenfalls in innere Energie um. Deshalb bleibt die gesamte Systemenergie erhalten, nicht in jeder Phase die mechanische Energie allein. Der Muffin führt dem System Energie von außen zu. Die Spielfigur ist selbst gezeichnet und verwendet keine Originalgrafik.</p>
+    </details>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const CONFIG = Object.freeze({
+        mass: 60,
+        g: 9.81,
+        initialChemical: 150000,
+        chemicalCapacity: 240000,
+        muffinEnergy: 45000,
+        efficiency: 0.25,
+        jumpChemical: 7200,
+        runMetabolicPower: 700,
+        runAcceleration: 8.5,
+        airAcceleration: 2.2,
+        maxSpeed: 6.2,
+        groundResistance: 68,
+        muffinDelay: 7,
+        muffinSpeed: 1.65
+      });
+
+      const canvas = document.getElementById('game-canvas');
+      const wrap = document.getElementById('canvas-wrap');
+      const ctx = canvas.getContext('2d');
+      const pauseButton = document.getElementById('pause-button');
+      const restartButton = document.getElementById('restart-button');
+      const overlayRestart = document.getElementById('overlay-restart');
+      const gameOverOverlay = document.getElementById('game-over');
+      const eventMessage = document.getElementById('event-message');
+
+      const readouts = {
+        time: document.getElementById('time-readout'),
+        height: document.getElementById('height-readout'),
+        speed: document.getElementById('speed-readout'),
+        chemical: document.getElementById('chemical-value'),
+        kinetic: document.getElementById('kinetic-value'),
+        potential: document.getElementById('potential-value'),
+        thermal: document.getElementById('thermal-value'),
+        total: document.getElementById('total-value'),
+        kineticZoom: document.getElementById('kinetic-zoom-value'),
+        potentialZoom: document.getElementById('potential-zoom-value'),
+        mechanical: document.getElementById('mechanical-value'),
+        system: document.getElementById('system-energy'),
+        external: document.getElementById('external-energy'),
+        balance: document.getElementById('balance-error'),
+        scale: document.getElementById('scale-label')
+      };
+      const fills = {
+        total: document.getElementById('total-fill'),
+        chemical: document.getElementById('chemical-fill'),
+        kinetic: document.getElementById('kinetic-fill'),
+        potential: document.getElementById('potential-fill'),
+        thermal: document.getElementById('thermal-fill'),
+        kineticZoom: document.getElementById('kinetic-zoom-fill'),
+        potentialZoom: document.getElementById('potential-zoom-fill')
+      };
+
+      const input = { left: false, right: false, jumpQueued: false };
+      const platforms = [];
+      const platformPattern = [
+        { offset: 7, width: 3.8, height: 1.25 },
+        { offset: 15, width: 4.2, height: 2.15 },
+        { offset: 24, width: 4.8, height: 1.45 },
+        { offset: 34, width: 4.0, height: 2.65 },
+        { offset: 43, width: 5.2, height: 1.75 }
+      ];
+      for (let block = -1; block < 8; block += 1) {
+        const origin = block * 50;
+        platformPattern.forEach(p => platforms.push({ x: origin + p.offset, width: p.width, height: p.height }));
+      }
+
+      let state;
+      let running = true;
+      let lastTimestamp = 0;
+      let accumulator = 0;
+      let viewWidth = 900;
+      let viewHeight = 520;
+      let dpr = 1;
+
+      function resetState() {
+        state = {
+          x: 2,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          onGround: true,
+          chemical: CONFIG.initialChemical,
+          thermal: 0,
+          externalAdded: 0,
+          time: 0,
+          gameOver: false,
+          cameraX: -1,
+          muffin: { active: false, x: 0, y: 2, phase: 0, nextAt: CONFIG.muffinDelay },
+          messageUntil: 0,
+          balanceCorrection: 0
+        };
+        input.left = false;
+        input.right = false;
+        input.jumpQueued = false;
+        running = true;
+        pauseButton.disabled = false;
+        pauseButton.textContent = '⏸ Pause';
+        gameOverOverlay.hidden = true;
+        setMessage('Bewege Mario und beobachte die Energiebalken.', 2.5);
+        reconcileEnergy();
+        updateUI();
+        draw();
+      }
+
+      function kineticEnergy() {
+        return 0.5 * CONFIG.mass * (state.vx * state.vx + state.vy * state.vy);
+      }
+      function potentialEnergy() {
+        return CONFIG.mass * CONFIG.g * Math.max(0, state.y);
+      }
+      function systemEnergy() {
+        return CONFIG.initialChemical + state.externalAdded;
+      }
+      function energySum() {
+        return state.chemical + kineticEnergy() + potentialEnergy() + state.thermal;
+      }
+      function reconcileEnergy() {
+        const error = systemEnergy() - energySum();
+        state.thermal += error;
+        state.balanceCorrection = error;
+        if (state.thermal < -0.01) throw new Error('Negative thermische Energie: Modellbilanz verletzt.');
+        if (state.thermal < 0) state.thermal = 0;
+      }
+
+      function supportHeightAt(x, currentY = Infinity) {
+        let support = 0;
+        for (const p of platforms) {
+          if (x >= p.x && x <= p.x + p.width && p.height <= currentY + 0.08) {
+            support = Math.max(support, p.height);
+          }
+        }
+        return support;
+      }
+
+      function applyHorizontalControl(direction, dt) {
+        if (!direction || state.chemical <= 0.001) return;
+        const oldK = 0.5 * CONFIG.mass * state.vx * state.vx;
+        const accel = state.onGround ? CONFIG.runAcceleration : CONFIG.airAcceleration;
+        const proposed = Math.max(-CONFIG.maxSpeed, Math.min(CONFIG.maxSpeed, state.vx + direction * accel * dt));
+        const proposedK = 0.5 * CONFIG.mass * proposed * proposed;
+        const baseChemical = CONFIG.runMetabolicPower * dt;
+
+        if (proposedK > oldK) {
+          const mechanicalNeed = proposedK - oldK;
+          const chemicalNeed = Math.max(baseChemical, mechanicalNeed / CONFIG.efficiency);
+          const chemicalUsed = Math.min(state.chemical, chemicalNeed);
+          const mechanicalAvailable = Math.min(mechanicalNeed, chemicalUsed * CONFIG.efficiency);
+          const targetK = oldK + mechanicalAvailable;
+          const sign = Math.sign(proposed) || direction;
+          state.vx = sign * Math.sqrt((2 * targetK) / CONFIG.mass);
+          state.chemical -= chemicalUsed;
+          state.thermal += chemicalUsed - mechanicalAvailable;
+        } else {
+          const chemicalUsed = Math.min(state.chemical, baseChemical);
+          state.chemical -= chemicalUsed;
+          state.thermal += chemicalUsed + (oldK - proposedK);
+          state.vx = proposed;
+        }
+      }
+
+      function applyGroundResistance(dt) {
+        if (!state.onGround || Math.abs(state.vx) < 0.001) return;
+        const oldK = 0.5 * CONFIG.mass * state.vx * state.vx;
+        const loss = Math.min(oldK, CONFIG.groundResistance * Math.abs(state.vx) * dt);
+        const newK = oldK - loss;
+        state.vx = Math.sign(state.vx) * Math.sqrt((2 * newK) / CONFIG.mass);
+        state.thermal += loss;
+      }
+
+      function jump() {
+        if (!state.onGround || state.chemical < 350) return false;
+        const chemicalUsed = Math.min(CONFIG.jumpChemical, state.chemical);
+        const mechanicalGain = chemicalUsed * CONFIG.efficiency;
+        state.chemical -= chemicalUsed;
+        state.thermal += chemicalUsed - mechanicalGain;
+        state.vy = Math.sqrt((2 * mechanicalGain) / CONFIG.mass);
+        state.onGround = false;
+        setMessage('Sprung: chemisch → kinetisch → Höhenenergie', 2.6);
+        return true;
+      }
+
+      function updateMuffin(dt) {
+        const muffin = state.muffin;
+        if (!muffin.active && state.time >= muffin.nextAt) {
+          muffin.active = true;
+          muffin.x = state.x + 13;
+          muffin.phase = 0;
+          setMessage('Ein Muffin bringt neue chemische Energie!', 3);
+        }
+        if (!muffin.active) return;
+        muffin.phase += dt;
+        muffin.x -= CONFIG.muffinSpeed * dt;
+        muffin.y = 1.9 + Math.sin(muffin.phase * 2.5) * 0.48;
+        if (!tryCollectMuffin() && muffin.x < state.x - 7) {
+          muffin.active = false;
+          muffin.nextAt = state.time + 5;
+        }
+      }
+
+      function tryCollectMuffin() {
+        const muffin = state.muffin;
+        if (!muffin.active) return false;
+        const touchesMario = Math.abs(muffin.x - state.x) < 0.72
+          && Math.abs(muffin.y - (state.y + 0.72)) < 0.9;
+        if (!touchesMario) return false;
+        collectMuffin();
+        return true;
+      }
+
+      function collectMuffin() {
+        const room = CONFIG.chemicalCapacity - state.chemical;
+        const added = Math.max(0, Math.min(CONFIG.muffinEnergy, room));
+        state.chemical += added;
+        state.externalAdded += added;
+        state.muffin.active = false;
+        state.muffin.nextAt = state.time + 11;
+        setMessage(`Muffin gesammelt: +${formatKJ(added)} chemische Energie`, 3.2);
+        reconcileEnergy();
+        return added;
+      }
+
+      function physicsStep(dt, forcedInput = null) {
+        if (state.gameOver) return;
+        const controls = forcedInput || input;
+        state.time += dt;
+
+        const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
+        if ((controls.jumpQueued || controls.jumpPressed) && state.onGround) jump();
+        input.jumpQueued = false;
+
+        const supportBefore = supportHeightAt(state.x, state.y);
+        if (state.onGround && Math.abs(state.y - supportBefore) > 0.09) state.onGround = false;
+
+        applyHorizontalControl(direction, dt);
+        applyGroundResistance(dt);
+        state.x += state.vx * dt;
+
+        if (!state.onGround) {
+          const yOld = state.y;
+          const vyOld = state.vy;
+          state.y += vyOld * dt - 0.5 * CONFIG.g * dt * dt;
+          state.vy = vyOld - CONFIG.g * dt;
+
+          if (state.vy <= 0) {
+            const landingHeight = supportHeightAt(state.x, yOld);
+            if (yOld >= landingHeight - 0.04 && state.y <= landingHeight) {
+              const mechanicalBefore = kineticEnergy() + potentialEnergy();
+              state.y = landingHeight;
+              state.vy = 0;
+              state.onGround = true;
+              const mechanicalAfter = kineticEnergy() + potentialEnergy();
+              state.thermal += Math.max(0, mechanicalBefore - mechanicalAfter);
+              setMessage('Landung: vertikale Bewegungsenergie → innere Energie', 2.1);
+            }
+          }
+        } else {
+          state.y = supportHeightAt(state.x, state.y);
+          state.vy = 0;
+        }
+
+        updateMuffin(dt);
+        reconcileEnergy();
+
+        if (state.chemical <= 0.05) state.chemical = 0;
+        if (state.chemical === 0 && state.onGround && Math.abs(state.vx) < 0.08) {
+          state.vx = 0;
+          enterGameOver();
+        }
+        state.cameraX += ((state.x - 3.1) - state.cameraX) * Math.min(1, dt * 4.5);
+      }
+
+      function enterGameOver() {
+        state.gameOver = true;
+        running = false;
+        gameOverOverlay.hidden = false;
+        pauseButton.disabled = true;
+        pauseButton.textContent = '■ Ende';
+      }
+
+      function snapshot() {
+        const kinetic = kineticEnergy();
+        const potential = potentialEnergy();
+        return {
+          chemical: +state.chemical.toFixed(6),
+          kinetic: +kinetic.toFixed(6),
+          potential: +potential.toFixed(6),
+          thermal: +state.thermal.toFixed(6),
+          systemEnergy: +systemEnergy().toFixed(6),
+          externalAdded: +state.externalAdded.toFixed(6),
+          balanceError: +(systemEnergy() - energySum()).toFixed(9),
+          x: +state.x.toFixed(4),
+          y: +state.y.toFixed(4),
+          vx: +state.vx.toFixed(4),
+          vy: +state.vy.toFixed(4),
+          time: +state.time.toFixed(4),
+          gameOver: state.gameOver,
+          onGround: state.onGround,
+          muffinActive: state.muffin.active,
+          muffinX: +state.muffin.x.toFixed(4),
+          muffinY: +state.muffin.y.toFixed(4)
+        };
+      }
+
+      function debugAdvance(seconds, controls = {}) {
+        const steps = Math.max(1, Math.ceil(seconds / (1 / 120)));
+        const dt = seconds / steps;
+        for (let i = 0; i < steps; i += 1) physicsStep(dt, controls);
+        updateUI();
+        draw();
+        return snapshot();
+      }
+
+      function exhaustForTest() {
+        state.thermal += state.chemical + kineticEnergy() + potentialEnergy();
+        state.chemical = 0;
+        state.x = 2;
+        state.y = 0;
+        state.vx = 0;
+        state.vy = 0;
+        state.onGround = true;
+        enterGameOver();
+        reconcileEnergy();
+        updateUI();
+        draw();
+        return snapshot();
+      }
+
+      function setMessage(text, duration = 2) {
+        eventMessage.textContent = text;
+        if (state) state.messageUntil = state.time + duration;
+      }
+
+      function formatKJ(value) {
+        return `${(value / 1000).toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })} kJ`;
+      }
+      function formatNumber(value, digits = 1) {
+        return value.toLocaleString('de-DE', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+      }
+
+      function updateUI() {
+        const s = snapshot();
+        const scaleStep = s.systemEnergy >= 100000 ? 50000 : 10000;
+        const maxEnergy = Math.max(40000, (Math.floor(s.systemEnergy / scaleStep) + 1) * scaleStep);
+        const values = { total: s.systemEnergy, chemical: s.chemical, kinetic: s.kinetic, potential: s.potential, thermal: s.thermal };
+        Object.entries(values).forEach(([key, value]) => {
+          fills[key].style.height = `${Math.max(0, Math.min(100, value / maxEnergy * 100))}%`;
+          readouts[key].textContent = formatKJ(value);
+        });
+        const mechanicalScale = 5000;
+        fills.kineticZoom.style.height = `${Math.max(0, Math.min(100, s.kinetic / mechanicalScale * 100))}%`;
+        fills.potentialZoom.style.height = `${Math.max(0, Math.min(100, s.potential / mechanicalScale * 100))}%`;
+        readouts.kineticZoom.textContent = formatKJ(s.kinetic);
+        readouts.potentialZoom.textContent = formatKJ(s.potential);
+        readouts.mechanical.textContent = formatKJ(s.kinetic + s.potential);
+        readouts.scale.textContent = formatKJ(maxEnergy).replace(',0', '');
+        readouts.time.textContent = `${formatNumber(s.time)} s`;
+        readouts.height.textContent = `${formatNumber(s.y)} m`;
+        readouts.speed.textContent = `${formatNumber(Math.hypot(s.vx, s.vy))} m/s`;
+        readouts.system.textContent = formatKJ(s.systemEnergy);
+        readouts.external.textContent = `+${formatKJ(s.externalAdded)}`;
+        readouts.balance.textContent = `${formatNumber(Math.abs(s.balanceError), 0)} J`;
+        if (state.time > state.messageUntil && !state.gameOver) {
+          if (!state.onGround) eventMessage.textContent = 'Im Flug: Bewegungsenergie ↔ Höhenenergie';
+          else if (Math.abs(state.vx) > 0.25) eventMessage.textContent = 'Laufen: chemische Energie → Bewegung + innere Energie';
+          else eventMessage.textContent = 'Stillstand: Die Energiebalken bleiben konstant.';
+        }
+      }
+
+      function resizeCanvas() {
+        const rect = wrap.getBoundingClientRect();
+        dpr = Math.min(2, window.devicePixelRatio || 1);
+        viewWidth = Math.max(320, rect.width);
+        viewHeight = Math.max(390, rect.height);
+        canvas.width = Math.round(viewWidth * dpr);
+        canvas.height = Math.round(viewHeight * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        draw();
+      }
+
+      function drawRoundedRect(x, y, w, h, r) {
+        const radius = Math.min(r, w / 2, h / 2);
+        ctx.beginPath();
+        ctx.roundRect(x, y, w, h, radius);
+      }
+
+      function drawMario(screenX, footY, scale) {
+        const pixel = Math.max(3, Math.round((0.72 * scale) / 8));
+        const x = Math.round(screenX - 4 * pixel);
+        const y = Math.round(footY - 12 * pixel);
+        const block = (gx, gy, gw, gh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
+        };
+        ctx.save();
+        ctx.translate(x, y);
+        if (state.vx < -0.08) { ctx.translate(8 * pixel, 0); ctx.scale(-1, 1); }
+
+        block(2, 0, 5, 1, '#a93432');
+        block(1, 1, 7, 1, '#a93432');
+        block(2, 2, 5, 3, '#efc296');
+        block(1, 2, 2, 2, '#49342b');
+        block(6, 2, 2, 2, '#efc296');
+        block(5, 2, 1, 1, '#25332f');
+        block(5, 4, 2, 1, '#49342b');
+        block(1, 5, 6, 2, '#a93432');
+        block(0, 6, 2, 3, '#efc296');
+        block(6, 6, 2, 3, '#efc296');
+        block(2, 6, 4, 4, '#245b9d');
+        block(3, 5, 1, 2, '#245b9d');
+        block(5, 5, 1, 2, '#245b9d');
+        block(3, 7, 1, 1, '#f0c94d');
+        block(5, 7, 1, 1, '#f0c94d');
+        const runningFrame = Math.abs(state.vx) > 0.3 && Math.floor(state.time * 10) % 2 === 0;
+        if (runningFrame && state.onGround) {
+          block(2, 10, 2, 1, '#245b9d');
+          block(5, 10, 2, 1, '#245b9d');
+          block(1, 11, 3, 1, '#49342b');
+          block(5, 11, 3, 1, '#49342b');
+        } else {
+          block(2, 10, 2, 1, '#245b9d');
+          block(4, 10, 2, 1, '#245b9d');
+          block(1, 11, 3, 1, '#49342b');
+          block(4, 11, 3, 1, '#49342b');
+        }
+        ctx.restore();
+      }
+
+      function drawMuffin(screenX, screenY, scale) {
+        const pixel = Math.max(3, Math.round((0.55 * scale) / 7));
+        const block = (gx, gy, gw, gh, color) => {
+          ctx.fillStyle = color;
+          ctx.fillRect(gx * pixel, gy * pixel, gw * pixel, gh * pixel);
+        };
+        ctx.save();
+        ctx.translate(Math.round(screenX - 3.5 * pixel), Math.round(screenY - 3.5 * pixel));
+        block(2, 0, 3, 1, '#f3d8a4');
+        block(1, 1, 5, 1, '#f3d8a4');
+        block(0, 2, 7, 2, '#f3d8a4');
+        block(1, 4, 5, 1, '#a86424');
+        block(2, 5, 3, 2, '#a86424');
+        block(4, 0, 1, 1, '#b64a45');
+        ctx.restore();
+      }
+
+      function draw() {
+        if (!state || !ctx) return;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+        ctx.clearRect(0, 0, viewWidth, viewHeight);
+
+        const scale = Math.max(45, Math.min(70, viewWidth / 14.5));
+        const groundY = viewHeight * 0.79;
+        const worldToX = x => (x - state.cameraX) * scale;
+        const worldToY = y => groundY - y * scale;
+
+        ctx.fillStyle = '#c7dfd4';
+        ctx.fillRect(0, 0, viewWidth, groundY);
+
+        ctx.fillStyle = '#e9f0d2';
+        for (let i = -1; i < 7; i += 1) {
+          const x = Math.round((((i * 230 - state.cameraX * 11) % (viewWidth + 260)) - 80) / 8) * 8;
+          const y = Math.round((70 + (i % 3) * 38) / 8) * 8;
+          ctx.fillRect(x + 16, y, 56, 16);
+          ctx.fillRect(x, y + 16, 96, 24);
+        }
+
+        ctx.strokeStyle = 'rgba(37, 51, 47, 0.10)';
+        ctx.lineWidth = 1;
+        for (let m = Math.floor(state.cameraX); m < state.cameraX + viewWidth / scale + 2; m += 2) {
+          const x = worldToX(m);
+          ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, groundY); ctx.stroke();
+        }
+        for (let h = 1; h <= 5; h += 1) {
+          const y = worldToY(h);
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(viewWidth, y); ctx.stroke();
+          ctx.fillStyle = '#6b736f'; ctx.font = '12px system-ui'; ctx.fillText(`${h} m`, 7, y - 5);
+        }
+
+        ctx.fillStyle = '#88a85d';
+        ctx.fillRect(0, groundY, viewWidth, viewHeight - groundY);
+        ctx.fillStyle = '#5d7741';
+        ctx.fillRect(0, groundY, viewWidth, 8);
+        ctx.fillStyle = '#8d6a43';
+        ctx.fillRect(0, groundY + 8, viewWidth, viewHeight - groundY - 8);
+        for (let x = -24; x < viewWidth + 24; x += 24) {
+          const shifted = x - ((state.cameraX * 8) % 24);
+          ctx.fillStyle = (Math.floor(x / 24) % 2 === 0) ? '#7d5c3d' : '#9b744b';
+          ctx.fillRect(Math.round(shifted), groundY + 18, 12, 12);
+        }
+
+        for (const p of platforms) {
+          const x = worldToX(p.x);
+          const w = p.width * scale;
+          if (x + w < -20 || x > viewWidth + 20) continue;
+          const y = worldToY(p.height);
+          ctx.fillStyle = '#8d6a43';
+          ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), 22);
+          ctx.fillStyle = '#5d7741';
+          ctx.fillRect(Math.round(x), Math.round(y - 5), Math.round(w), 10);
+        }
+
+        if (state.muffin.active) drawMuffin(worldToX(state.muffin.x), worldToY(state.muffin.y), scale);
+        drawMario(worldToX(state.x), worldToY(state.y), scale);
+
+        ctx.fillStyle = '#fffdf8';
+        ctx.fillRect(14, 14, 188, 34);
+        ctx.strokeStyle = '#2d453d';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(14, 14, 188, 34);
+        ctx.fillStyle = '#25332f';
+        ctx.font = '700 13px system-ui';
+        ctx.fillText(`x = ${formatNumber(state.x)} m`, 28, 36);
+      }
+
+      function animationFrame(timestamp) {
+        if (!lastTimestamp) lastTimestamp = timestamp;
+        const frameTime = Math.min(0.05, (timestamp - lastTimestamp) / 1000);
+        lastTimestamp = timestamp;
+        if (running && !state.gameOver) {
+          accumulator += frameTime;
+          const fixed = 1 / 120;
+          while (accumulator >= fixed) {
+            physicsStep(fixed);
+            accumulator -= fixed;
+          }
+          updateUI();
+        }
+        draw();
+        requestAnimationFrame(animationFrame);
+      }
+
+      function setKey(key, pressed) {
+        if (key === 'ArrowLeft' || key.toLowerCase() === 'a') input.left = pressed;
+        if (key === 'ArrowRight' || key.toLowerCase() === 'd') input.right = pressed;
+        if (pressed && (key === 'ArrowUp' || key.toLowerCase() === 'w' || key === ' ')) input.jumpQueued = true;
+      }
+
+      window.addEventListener('keydown', event => {
+        if (['ArrowLeft', 'ArrowRight', 'ArrowUp', ' '].includes(event.key)) event.preventDefault();
+        setKey(event.key, true);
+      });
+      window.addEventListener('keyup', event => setKey(event.key, false));
+      window.addEventListener('resize', resizeCanvas);
+
+      function bindHoldButton(id, property) {
+        const button = document.getElementById(id);
+        const activate = event => {
+          event.preventDefault();
+          input[property] = true;
+          button.classList.add('is-active');
+          if (button.setPointerCapture && event.pointerId !== undefined) button.setPointerCapture(event.pointerId);
+        };
+        const release = event => {
+          event.preventDefault();
+          input[property] = false;
+          button.classList.remove('is-active');
+        };
+        button.addEventListener('pointerdown', activate);
+        button.addEventListener('pointerup', release);
+        button.addEventListener('pointercancel', release);
+        button.addEventListener('lostpointercapture', release);
+      }
+      bindHoldButton('left-button', 'left');
+      bindHoldButton('right-button', 'right');
+      document.getElementById('jump-button').addEventListener('pointerdown', event => {
+        event.preventDefault();
+        input.jumpQueued = true;
+        event.currentTarget.classList.add('is-active');
+      });
+      document.getElementById('jump-button').addEventListener('pointerup', event => event.currentTarget.classList.remove('is-active'));
+      document.getElementById('jump-button').addEventListener('pointercancel', event => event.currentTarget.classList.remove('is-active'));
+
+      pauseButton.addEventListener('click', () => {
+        if (state.gameOver) return;
+        running = !running;
+        pauseButton.textContent = running ? '⏸ Pause' : '▶ Weiter';
+        setMessage(running ? 'Simulation läuft weiter.' : 'Simulation pausiert.', 1.5);
+      });
+      restartButton.addEventListener('click', resetState);
+      overlayRestart.addEventListener('click', resetState);
+
+      window.__energyRunner = {
+        ready: true,
+        snapshot,
+        resetAndSnapshot() { resetState(); return snapshot(); },
+        debugAdvance,
+        debugJump() { return jump(); },
+        collectMuffinForTest() { collectMuffin(); updateUI(); return snapshot(); },
+        placeMuffinForTest() {
+          state.muffin.active = true;
+          state.muffin.x = state.x;
+          state.muffin.y = state.y + 0.72;
+          tryCollectMuffin();
+          updateUI();
+          draw();
+          return snapshot();
+        },
+        exhaustForTest,
+        config: CONFIG
+      };
+
+      resetState();
+      resizeCanvas();
+      requestAnimationFrame(animationFrame);
+    })();
+  </script>
+</body>
+</html>
