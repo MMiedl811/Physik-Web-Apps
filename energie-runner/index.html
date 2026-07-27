@@ -89,8 +89,10 @@
     }
 
     .layout {
-      position: relative;
-      display: block;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 380px;
+      gap: 16px;
+      align-items: start;
     }
     .game-card,
     .energy-card,
@@ -201,36 +203,23 @@
     .touch-button--jump { min-width: 96px; border-color: #c9b5db; color: var(--potential); }
 
     .energy-card {
-      position: absolute;
-      z-index: 4;
-      top: 70px;
-      right: 12px;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 145px;
-      grid-template-areas:
-        "title title"
-        "scale zoom"
-        "scale balance";
-      gap: 7px 10px;
-      width: min(430px, 44vw);
-      padding: 10px;
-      pointer-events: none;
-      background: rgba(255, 253, 248, 0.90);
-      box-shadow: 0 10px 28px rgba(37, 51, 47, 0.16);
-      backdrop-filter: blur(3px);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      padding: 16px;
     }
-    .energy-card h2 { grid-area: title; margin: 0; font-size: 0.9rem; }
-    .energy-card__intro { display: none; }
+    .energy-card h2 { margin: 0; font-size: 1.05rem; }
+    .energy-card__intro { margin: 6px 0 13px; color: var(--muted); font-size: 0.83rem; line-height: 1.4; }
     .energy-scale {
-      grid-area: scale;
       position: relative;
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 7px;
-      min-height: 150px;
-      padding: 20px 0 0;
+      flex: 1;
+      min-height: 335px;
+      padding: 26px 0 0;
       border-bottom: 2px solid var(--line);
-      background: repeating-linear-gradient(to top, transparent 0 35px, rgba(37, 51, 47, 0.07) 35px 36px);
+      background: repeating-linear-gradient(to top, transparent 0 63px, rgba(37, 51, 47, 0.07) 63px 64px);
     }
     .scale-label {
       position: absolute;
@@ -246,7 +235,7 @@
       flex-direction: column;
       justify-content: flex-end;
       align-items: stretch;
-      height: 120px;
+      height: 300px;
       align-self: stretch;
       border: 1px solid var(--line);
       border-radius: 12px 12px 5px 5px;
@@ -270,8 +259,8 @@
       text-shadow: 0 1px var(--surface);
     }
     .energy-label {
-      min-height: 34px;
-      padding-top: 4px;
+      min-height: 52px;
+      padding-top: 7px;
       color: var(--muted);
       font-size: 0.72rem;
       font-weight: 800;
@@ -290,9 +279,8 @@
     }
 
     .mechanics-zoom {
-      grid-area: zoom;
-      margin: 0;
-      padding: 7px;
+      margin-top: 12px;
+      padding: 12px;
       border: 1px solid #d6cbe4;
       border-radius: 14px;
       background: #f8f4fb;
@@ -302,21 +290,21 @@
       justify-content: space-between;
       gap: 10px;
       align-items: baseline;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
     }
-    .mechanics-zoom__header span { color: var(--muted); font-size: 0.65rem; }
-    .mechanics-zoom__note { display: none; }
+    .mechanics-zoom__header span { color: var(--muted); font-size: 0.73rem; }
+    .mechanics-zoom__note { margin: 5px 0 9px; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
     .mechanics-zoom__grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 6px;
+      grid-template-columns: 62px 62px minmax(0, 1fr);
+      gap: 10px;
       align-items: end;
     }
     .zoom-item { text-align: center; }
     .zoom-column {
       display: flex;
       align-items: flex-end;
-      height: 50px;
+      height: 104px;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 9px 9px 4px 4px;
@@ -328,29 +316,27 @@
     .zoom-label { margin-top: 5px; color: var(--muted); font-size: 0.68rem; font-weight: 800; line-height: 1.25; }
     .zoom-value { display: block; color: var(--ink); font-size: 0.72rem; }
     .mechanics-zoom__sum {
-      grid-column: 1 / -1;
       align-self: stretch;
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 5px;
+      padding: 10px;
       border-radius: 10px;
       background: white;
       color: var(--muted);
-      font-size: 0.64rem;
+      font-size: 0.73rem;
       line-height: 1.35;
     }
-    .mechanics-zoom__sum strong { margin-top: 2px; color: var(--ink); font-size: 0.78rem; }
+    .mechanics-zoom__sum strong { margin-top: 4px; color: var(--ink); font-size: 1rem; }
 
     .balance {
-      grid-area: balance;
-      margin: 0;
-      padding: 7px;
+      margin-top: 12px;
+      padding: 11px;
       border: 1px solid #c9ddd6;
       border-radius: 13px;
       background: #eef7f3;
-      font-size: 0.67rem;
-      line-height: 1.3;
+      font-size: 0.79rem;
+      line-height: 1.45;
     }
     .balance-row { display: flex; justify-content: space-between; gap: 12px; }
     .balance-row + .balance-row { margin-top: 4px; }
@@ -380,7 +366,10 @@
     .model-note { margin: 13px 0 0; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
 
     @media (max-width: 980px) {
-      .energy-card { width: min(410px, 44vw); }
+      .layout { grid-template-columns: 1fr; }
+      .energy-card { min-height: 400px; }
+      .energy-scale { min-height: 285px; }
+      .energy-column { height: 250px; }
     }
     @media (max-width: 680px) {
       .page { padding: 10px; }
@@ -388,7 +377,7 @@
       .top-actions { width: 100%; justify-content: stretch; }
       .top-actions .button { flex: 1; }
       .canvas-wrap, #game-canvas { min-height: 420px; }
-      .energy-card { top: 64px; right: 8px; width: min(360px, 80vw); grid-template-columns: minmax(0, 1fr) 130px; }
+
       .controls-strip { grid-template-columns: 1fr; }
       .touch-controls { justify-content: stretch; }
       .touch-button { flex: 1; }
@@ -403,7 +392,14 @@
       .canvas-wrap, #game-canvas { min-height: 430px; height: 430px; }
       .controls-strip { padding: 8px 10px; }
       .model-card { margin-top: 8px; padding: 10px 14px; }
-      .energy-card { top: 58px; }
+      .energy-card { min-height: 0; padding: 10px; }
+      .energy-card__intro { display: none; }
+      .energy-scale { min-height: 270px; padding-top: 20px; background-size: auto 51px; }
+      .energy-column { height: 235px; }
+      .mechanics-zoom { margin-top: 8px; padding: 8px; }
+      .mechanics-zoom__note { display: none; }
+      .zoom-column { height: 65px; }
+      .balance { margin-top: 8px; padding: 8px; font-size: 0.72rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       .energy-fill { transition: none; }
