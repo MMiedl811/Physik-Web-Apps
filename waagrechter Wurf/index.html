@@ -1035,7 +1035,8 @@ class App {
 
             if (this._exitLastTs !== null) {
                 const dt = Math.min((ts - this._exitLastTs) / 1000, 0.05);
-                const planeSpeed = Math.max(60, this.state.v0 * 2.5) * this.animator.speed;
+                // Während des Paketflugs behalten Flugzeug und Paket dieselbe Horizontalgeschwindigkeit v0.
+                const planeSpeed = this.state.v0 * this.animator.speed;
                 this._planeX += planeSpeed * dt;
             }
             this._exitLastTs = ts;

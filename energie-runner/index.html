@@ -514,9 +514,9 @@
         </div>
 
         <div class="balance">
-          <div class="balance-row"><span>Systemenergie</span><strong id="system-energy">150,0 kJ</strong></div>
+          <div class="balance-row"><span>System: Runner + Erde + Umgebung</span><strong id="system-energy">150,0 kJ</strong></div>
           <div class="balance-row"><span>davon durch Muffins</span><strong id="external-energy">+0,0 kJ</strong></div>
-          <div class="balance-row"><span>Bilanzabweichung</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
+          <div class="balance-row"><span>Automatische Bilanzkorrektur</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
         </div>
       </aside>
     </main>
@@ -529,7 +529,7 @@
         <div class="formula-box"><strong>Mechanische Energie</strong><math display="block" aria-label="E mechanisch gleich E kin plus E pot"><msub><mi>E</mi><mtext>mech</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub></math></div>
         <div class="formula-box"><strong>Energiebilanz</strong><math display="block" aria-label="E System gleich E chemisch plus E kin plus E pot plus E thermisch"><msub><mi>E</mi><mtext>sys</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>chem</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>th</mtext></msub></math></div>
       </div>
-      <p class="model-note">Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie erhalten. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung, unelastische Landungen und der Rückprall an Bowser wandeln mechanische Energie in innere Energie um. Münzen verändern nur den Punktestand und sind ausdrücklich keine Energieform. Der Muffin führt dem System dagegen chemische Energie von außen zu. Alle Figuren und Spielelemente sind eigenständig gezeichnet; es werden keine Originalgrafiken verwendet.</p>
+      <p class="model-note"><strong>Systemgrenze:</strong> Runner + Erde + Umgebung; die Bodenlinie hat das Nullniveau h = 0. Der Muffin liegt vor der Aufnahme außerhalb des Systems und führt bei der Aufnahme chemische Energie zu. Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie erhalten. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung, unelastische Landungen und der Rückprall an Bowser wandeln mechanische Energie in innere Energie um. Die Anzeige „Automatische Bilanzkorrektur“ legt einen numerischen Rest aus jedem Modellschritt offen; sie ist keine unabhängige Messung. Münzen verändern nur den Punktestand und sind keine Energieform.</p>
     </details>
   </div>
 
@@ -892,6 +892,7 @@
           externalAdded: +state.externalAdded.toFixed(6),
           score: state.score,
           balanceError: +(systemEnergy() - energySum()).toFixed(9),
+          balanceCorrection: +state.balanceCorrection.toFixed(9),
           x: +state.x.toFixed(4),
           y: +state.y.toFixed(4),
           vx: +state.vx.toFixed(4),
@@ -964,7 +965,7 @@
         readouts.score.textContent = String(s.score);
         readouts.system.textContent = formatKJ(s.systemEnergy);
         readouts.external.textContent = `+${formatKJ(s.externalAdded)}`;
-        readouts.balance.textContent = `${formatNumber(Math.abs(s.balanceError), 0)} J`;
+        readouts.balance.textContent = `${formatNumber(Math.abs(s.balanceCorrection), 0)} J`;
         if (state.time > state.messageUntil && !state.gameOver) {
           if (!state.onGround) eventMessage.textContent = 'Im Flug: Bewegungsenergie ↔ Höhenenergie';
           else if (Math.abs(state.vx) > 0.25) eventMessage.textContent = 'Laufen: chemische Energie → Bewegung + innere Energie';

@@ -1850,7 +1850,7 @@
                 const prev = compiled.segments[seg.idx - 1];
                 const dv = seg.vStart - prev.vEnd;
                 if (Math.abs(dv) > 1e-6){
-                  warn.textContent = `Hinweis: Sprung in v an Segmentgrenze (Δv = ${formatDE(dv, 2)} m/s).`;
+                  warn.textContent = `Hinweis: Sprung in v an der Segmentgrenze (Δv = ${formatDE(dv, 2)} m/s). Dies ist ein idealisierter instantaner Impuls; die dabei impulsartige Beschleunigung ist im t-a-Diagramm nicht dargestellt.`;
                   warn.classList.add("segment__warn--visible");
                 }
               }
@@ -1929,7 +1929,7 @@
 
                     <div>
                       <label class="app-label">Info</label>
-                      <div class="readout readout--sub">v₀ wird beim Hinzufügen stetig fortgesetzt; hier bewusst änderbar.</div>
+                      <div class="readout readout--sub">v₀ wird beim Hinzufügen stetig fortgesetzt. Eine manuelle Änderung kann einen idealisierten instantanen Impuls erzeugen.</div>
                     </div>
                   </div>
 

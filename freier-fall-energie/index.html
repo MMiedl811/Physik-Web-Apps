@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f3eee4">
+  <title>Freier Fall – Energie in Zeitlupe</title>
+  <style>
+    :root {
+      --paper: #f3eee4;
+      --surface: #fffdf8;
+      --surface-soft: #f8f2e9;
+      --ink: #25332f;
+      --muted: #68716d;
+      --line: #d9cfbf;
+      --petrol: #0f766e;
+      --petrol-dark: #0b5d57;
+      --sand: #c99b61;
+      --clay: #b9644f;
+      --violet: #72558f;
+      --blue: #2b6f9c;
+      --shadow: 0 16px 42px rgba(71, 57, 40, .10);
+      --radius: 20px;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--paper); }
+    body {
+      min-height: 100vh;
+      margin: 0;
+      color: var(--ink);
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at 8% 2%, rgba(15, 118, 110, .11), transparent 30rem),
+        radial-gradient(circle at 92% 8%, rgba(201, 155, 97, .14), transparent 28rem),
+        var(--paper);
+    }
+    button, select { font: inherit; }
+    button { touch-action: manipulation; }
+    .page { width: min(1240px, 100%); margin: auto; padding: 12px; }
+    .topbar {
+      display: flex;
+      min-height: 52px;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .title-block h1 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.35rem); letter-spacing: -.04em; }
+    .title-block p { margin: 3px 0 0; color: var(--muted); font-size: .9rem; }
+    .top-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+    .button {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      padding: 9px 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .button:hover { border-color: var(--petrol); }
+    .button--primary { border-color: var(--petrol); background: var(--petrol); color: #fff; }
+    .button--primary:hover { background: var(--petrol-dark); }
+    .button:focus-visible, .mode-button:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 3px solid rgba(15, 118, 110, .3);
+      outline-offset: 3px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 370px;
+      gap: 14px;
+      align-items: stretch;
+    }
+    .scene-card, .energy-card, .model-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 253, 248, .96);
+      box-shadow: var(--shadow);
+    }
+    .scene-card { min-width: 0; overflow: hidden; }
+    .status-row {
+      display: flex;
+      min-height: 48px;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+    .status-chip {
+      padding: 6px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: .79rem;
+      font-weight: 750;
+    }
+    .status-chip strong { color: var(--ink); }
+    .status-message { margin-left: auto; color: var(--petrol-dark); }
+    .canvas-wrap {
+      position: relative;
+      height: 490px;
+      overflow: hidden;
+      border: 6px solid #2d453d;
+      border-width: 6px 0;
+      background: #b8d8cf;
+      box-shadow: inset 0 0 0 3px rgba(255, 253, 248, .3);
+    }
+    .canvas-wrap::after {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      pointer-events: none;
+      opacity: .11;
+      background: repeating-linear-gradient(to bottom, transparent 0 3px, #243a33 3px 4px);
+    }
+    #fall-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+    }
+    .controls-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      background: var(--surface);
+    }
+    .mode-switch {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 7px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--surface-soft);
+    }
+    .mode-button {
+      min-height: 44px;
+      padding: 7px 10px;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      background: transparent;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 850;
+      cursor: pointer;
+    }
+    .mode-button[aria-pressed="true"] {
+      border-color: var(--petrol);
+      background: var(--surface);
+      color: var(--petrol-dark);
+      box-shadow: 0 5px 14px rgba(37, 51, 47, .08);
+    }
+    .time-control { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: .78rem; font-weight: 800; }
+    .time-control select {
+      min-height: 44px;
+      padding: 7px 28px 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .energy-card { display: flex; min-width: 0; flex-direction: column; padding: 14px; }
+    .energy-card h2 { margin: 0; font-size: 1.05rem; }
+    .energy-intro { margin: 5px 0 10px; color: var(--muted); font-size: .78rem; line-height: 1.38; }
+    .energy-scale {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      flex: 1;
+      min-height: 315px;
+      padding-top: 25px;
+      border-bottom: 2px solid var(--line);
+      background: repeating-linear-gradient(to top, transparent 0 61px, rgba(37, 51, 47, .07) 61px 62px);
+    }
+    .scale-label { position: absolute; top: 2px; right: 2px; color: var(--muted); font-size: .7rem; }
+    .energy-item { display: flex; min-width: 0; flex-direction: column; justify-content: flex-end; }
+    .energy-column {
+      position: relative;
+      display: flex;
+      height: 270px;
+      align-items: flex-end;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 12px 12px 5px 5px;
+      background: rgba(217, 207, 191, .32);
+    }
+    .energy-fill { width: 100%; height: 0; background: var(--bar-color); transition: height 100ms linear; }
+    .energy-value {
+      position: absolute;
+      z-index: 1;
+      inset: 8px 2px auto;
+      color: var(--ink);
+      font-size: clamp(.65rem, 1.1vw, .75rem);
+      font-weight: 850;
+      text-align: center;
+      text-shadow: 0 1px var(--surface);
+    }
+    .energy-label { min-height: 48px; padding-top: 6px; color: var(--muted); font-size: .69rem; font-weight: 850; line-height: 1.2; text-align: center; }
+    .energy-label span { display: block; width: 12px; height: 4px; margin: 5px auto 0; border-radius: 999px; background: var(--bar-color); }
+    .energy-item--total { --bar-color: var(--petrol); }
+    .energy-item--potential { --bar-color: var(--violet); }
+    .energy-item--kinetic { --bar-color: var(--blue); }
+    .energy-item--thermal { --bar-color: var(--clay); }
+    .energy-item--total .energy-fill { background: repeating-linear-gradient(135deg, var(--petrol) 0 8px, #4f9b94 8px 14px); }
+    .balance-box {
+      margin-top: 9px;
+      padding: 9px 10px;
+      border: 1px solid #c9ddd6;
+      border-radius: 13px;
+      background: #eef7f3;
+      font-size: .75rem;
+      line-height: 1.4;
+    }
+    .balance-row { display: flex; justify-content: space-between; gap: 10px; }
+    .balance-row + .balance-row { margin-top: 3px; }
+    .balance-ok { color: var(--petrol-dark); }
+    .observation {
+      min-height: 65px;
+      margin-top: 8px;
+      padding: 9px 10px;
+      border: 1px solid #d6cbe4;
+      border-radius: 13px;
+      background: #f8f4fb;
+      color: #4f4658;
+      font-size: .75rem;
+      line-height: 1.4;
+    }
+    .observation strong { color: var(--violet); }
+
+    .model-card { margin-top: 10px; padding: 11px 14px; }
+    .model-card summary { display: flex; min-height: 44px; align-items: center; cursor: pointer; font-weight: 850; }
+    .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .formula-box { padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); font-size: .8rem; line-height: 1.42; }
+    .formula-box strong { display: block; margin-bottom: 5px; color: var(--petrol-dark); }
+    .formula-box math { font-size: 1rem; }
+    .model-note { margin: 10px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .energy-card { min-height: 510px; }
+    }
+    @media (max-width: 680px) {
+      .page { padding: 8px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .top-actions { width: 100%; justify-content: stretch; }
+      .top-actions .button { flex: 1; }
+      .canvas-wrap { height: 430px; }
+      .controls-strip { grid-template-columns: 1fr; }
+      .model-grid { grid-template-columns: 1fr; }
+      .status-message { width: 100%; margin-left: 0; }
+    }
+    @media (min-width: 900px) and (max-height: 820px) {
+      .page { padding: 8px 12px; }
+      .topbar { min-height: 46px; margin-bottom: 8px; }
+      .title-block p { display: none; }
+      .canvas-wrap { height: 410px; }
+      .status-row { min-height: 43px; padding: 6px 9px; }
+      .controls-strip { padding: 7px 9px; }
+      .energy-card { min-height: 0; padding: 10px; }
+      .energy-intro { display: none; }
+      .energy-scale { min-height: 280px; padding-top: 20px; }
+      .energy-column { height: 238px; }
+      .energy-label { min-height: 42px; }
+      .balance-box, .observation { margin-top: 6px; padding: 7px 8px; }
+      .observation { min-height: 54px; }
+      .model-card { margin-top: 8px; padding: 9px 13px; }
+    }
+    @media (prefers-reduced-motion: reduce) { .energy-fill { transition: none; } }
+  </style>
+  <link rel="stylesheet" href="../shared/student-entry.css">
+</head>
+<body data-physik-app="freier-fall-energie" data-student-home="../" data-student-title="Freier Fall in Zeitlupe" data-student-summary="Du beobachtest, wie Höhenenergie beim Fallen in Bewegungsenergie und mit Luftwiderstand zusätzlich in innere Energie der Luft umgewandelt wird." data-student-controls="Wähle einen Fall mit oder ohne Luftwiderstand. Pausiere, starte neu oder ändere die Zeitlupe.">
+  <div class="page">
+    <header class="topbar">
+      <div class="title-block">
+        <h1>☁️ Freier Fall in Zeitlupe</h1>
+        <p>Vom einfachsten Energieaustausch bis zur realistischen Endgeschwindigkeit.</p>
+      </div>
+      <div class="top-actions">
+        <a class="button" href="../" aria-label="Zurück zur Übersicht">⌂ Übersicht</a>
+        <button class="button" id="play-button" type="button">▶ Start</button>
+        <button class="button button--primary" id="reset-button" type="button">↻ Neu starten</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="scene-card" aria-label="Fallanimation">
+        <div class="status-row">
+          <div class="status-chip">Zeit <strong id="time-readout">0,00 s</strong></div>
+          <div class="status-chip">Höhe <strong id="height-readout">400,0 m</strong></div>
+          <div class="status-chip">Tempo <strong id="speed-readout">0,0 m/s</strong></div>
+          <div class="status-chip">Beschleunigungsbetrag <strong id="acceleration-readout">9,81 m/s²</strong></div>
+          <div class="status-chip status-message" id="status-message" aria-live="polite">Höhenenergie ist gespeichert.</div>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="fall-canvas" aria-label="Ein selbst gezeichneter Energy Runner fällt in einer Retro-Wolkenlandschaft aus 400 Metern Höhe"></canvas>
+        </div>
+        <div class="controls-strip">
+          <div class="mode-switch" role="group" aria-label="Fallmodell wählen">
+            <button class="mode-button" id="ideal-mode" type="button" aria-pressed="true">Ohne Luftwiderstand</button>
+            <button class="mode-button" id="drag-mode" type="button" aria-pressed="false">Mit Luftwiderstand</button>
+          </div>
+          <label class="time-control" for="time-scale">Zeitlupe
+            <select id="time-scale">
+              <option value="0.25">0,25×</option>
+              <option value="0.45" selected>0,45×</option>
+              <option value="0.7">0,70×</option>
+              <option value="1">1,00×</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <aside class="energy-card" aria-label="Energieanzeigen">
+        <h2>Energieformen</h2>
+        <p class="energy-intro">Alle Balken nutzen dieselbe Skala. „Gesamt“ ist eine schraffierte Referenz und keine zusätzliche Energieform.</p>
+        <div class="energy-scale">
+          <span class="scale-label">235,44 kJ</span>
+          <div class="energy-item energy-item--total">
+            <div class="energy-column"><div class="energy-value" id="total-value">235,44 kJ</div><div class="energy-fill" id="total-fill"></div></div>
+            <div class="energy-label">Gesamt<br>(Ref.)<span></span></div>
+          </div>
+          <div class="energy-item energy-item--potential">
+            <div class="energy-column"><div class="energy-value" id="potential-value">235,44 kJ</div><div class="energy-fill" id="potential-fill"></div></div>
+            <div class="energy-label">Höhen-<br>energie<span></span></div>
+          </div>
+          <div class="energy-item energy-item--kinetic">
+            <div class="energy-column"><div class="energy-value" id="kinetic-value">0,00 kJ</div><div class="energy-fill" id="kinetic-fill"></div></div>
+            <div class="energy-label">Bewegungs-<br>energie<span></span></div>
+          </div>
+          <div class="energy-item energy-item--thermal">
+            <div class="energy-column"><div class="energy-value" id="thermal-value">0,00 kJ</div><div class="energy-fill" id="thermal-fill"></div></div>
+            <div class="energy-label">an die Umgebung<br>übertragen<span></span></div>
+          </div>
+        </div>
+        <div class="balance-box">
+          <div class="balance-row"><span>Mechanische Energie</span><strong id="mechanical-value">235,44 kJ</strong></div>
+          <div class="balance-row"><span>System: Runner + Erde + Luft</span><strong id="system-value">235,44 kJ</strong></div>
+          <div class="balance-row"><span>Energiegleichung</span><strong class="balance-ok" id="balance-error">geschlossen</strong></div>
+        </div>
+        <div class="observation" id="observation"><strong>Beobachtung:</strong> Ohne Luftwiderstand bleibt die mechanische Energie erhalten.</div>
+      </aside>
+    </main>
+
+    <details class="model-card">
+      <summary>Physikalisches Modell und Grenzen</summary>
+      <div class="model-grid">
+        <div class="formula-box"><strong>Ohne Luftwiderstand</strong><math display="block" aria-label="E pot plus E kin gleich konstant"><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>=</mo><mtext>konstant</mtext></math></div>
+        <div class="formula-box"><strong>Mit Luftwiderstand</strong><math display="block" aria-label="E pot plus E kin plus E übertragen gleich konstant"><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>übertragen</mtext></msub><mo>=</mo><mtext>konstant</mtext></math></div>
+        <div class="formula-box"><strong>Luftwiderstand</strong><math display="block" aria-label="F W gleich ein halb rho c W A v Quadrat"><msub><mi>F</mi><mi>W</mi></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>ρ</mi><msub><mi>c</mi><mi>W</mi></msub><mi>A</mi><msup><mi>v</mi><mn>2</mn></msup></math></div>
+      </div>
+      <p class="model-note">Der Energy Runner wird als Körper mit 60 kg modelliert und startet aus 400 m Höhe. Im realistischen Fall gelten vereinfacht konstante Luftdichte, eine konstante angeströmte Fläche von 0,70 m² und ein Widerstandsbeiwert von 1,0. Wind, veränderte Körperhaltung und der Aufprall werden nicht modelliert. „An die Umgebung übertragen“ umfasst zunächst auch turbulente Bewegungsenergie der Luft; erst später wird daraus überwiegend innere Energie in Luft, Körper und Umgebung. Dieser Wert wird aus der analytischen Energiegleichung bestimmt und ist keine unabhängige Kontrollmessung.</p>
+    </details>
+  </div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const CONFIG = Object.freeze({
+        mass: 60,
+        g: 9.81,
+        startHeight: 400,
+        airDensity: 1.225,
+        dragCoefficient: 1.0,
+        area: 0.70,
+        defaultTimeScale: 0.45
+      });
+      const DRAG_K = 0.5 * CONFIG.airDensity * CONFIG.dragCoefficient * CONFIG.area;
+      const TERMINAL_SPEED = Math.sqrt(CONFIG.mass * CONFIG.g / DRAG_K);
+      const TOTAL_ENERGY = CONFIG.mass * CONFIG.g * CONFIG.startHeight;
+      const IDEAL_IMPACT_TIME = Math.sqrt(2 * CONFIG.startHeight / CONFIG.g);
+      const DRAG_IMPACT_TIME = Math.acosh(Math.exp(CONFIG.g * CONFIG.startHeight / (TERMINAL_SPEED * TERMINAL_SPEED))) * TERMINAL_SPEED / CONFIG.g;
+
+      const canvas = document.getElementById('fall-canvas');
+      const ctx = canvas.getContext('2d');
+      const dom = {
+        play: document.getElementById('play-button'),
+        reset: document.getElementById('reset-button'),
+        ideal: document.getElementById('ideal-mode'),
+        drag: document.getElementById('drag-mode'),
+        timeScale: document.getElementById('time-scale'),
+        time: document.getElementById('time-readout'),
+        height: document.getElementById('height-readout'),
+        speed: document.getElementById('speed-readout'),
+        acceleration: document.getElementById('acceleration-readout'),
+        status: document.getElementById('status-message'),
+        totalValue: document.getElementById('total-value'),
+        potentialValue: document.getElementById('potential-value'),
+        kineticValue: document.getElementById('kinetic-value'),
+        thermalValue: document.getElementById('thermal-value'),
+        totalFill: document.getElementById('total-fill'),
+        potentialFill: document.getElementById('potential-fill'),
+        kineticFill: document.getElementById('kinetic-fill'),
+        thermalFill: document.getElementById('thermal-fill'),
+        mechanical: document.getElementById('mechanical-value'),
+        system: document.getElementById('system-value'),
+        balance: document.getElementById('balance-error'),
+        observation: document.getElementById('observation')
+      };
+
+      const state = {
+        mode: 'ideal',
+        simTime: 0,
+        playing: false,
+        landed: false,
+        timeScale: CONFIG.defaultTimeScale,
+        lastFrame: performance.now()
+      };
+
+      function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+      function smoothstep(value) {
+        const x = clamp(value, 0, 1);
+        return x * x * (3 - 2 * x);
+      }
+      function logCosh(value) {
+        const a = Math.abs(value);
+        return a < 20 ? Math.log(Math.cosh(value)) : a - Math.log(2);
+      }
+      function impactTime(mode = state.mode) { return mode === 'drag' ? DRAG_IMPACT_TIME : IDEAL_IMPACT_TIME; }
+
+      function sample(mode = state.mode, requestedTime = state.simTime) {
+        const t = clamp(Number(requestedTime) || 0, 0, impactTime(mode));
+        let distance;
+        let speed;
+        let acceleration;
+        if (mode === 'drag') {
+          const z = CONFIG.g * t / TERMINAL_SPEED;
+          const tanh = Math.tanh(z);
+          distance = (TERMINAL_SPEED * TERMINAL_SPEED / CONFIG.g) * logCosh(z);
+          speed = TERMINAL_SPEED * tanh;
+          acceleration = CONFIG.g * (1 - tanh * tanh);
+        } else {
+          distance = 0.5 * CONFIG.g * t * t;
+          speed = CONFIG.g * t;
+          acceleration = CONFIG.g;
+        }
+        const height = Math.max(0, CONFIG.startHeight - Math.min(CONFIG.startHeight, distance));
+        const potential = CONFIG.mass * CONFIG.g * height;
+        const kinetic = 0.5 * CONFIG.mass * speed * speed;
+        const thermal = mode === 'drag' ? Math.max(0, TOTAL_ENERGY - potential - kinetic) : 0;
+        const mechanical = potential + kinetic;
+        const system = mechanical + thermal;
+        return {
+          mode, time: t, height, distance: CONFIG.startHeight - height, speed, acceleration,
+          potential, kinetic, thermal, mechanical, system,
+          total: TOTAL_ENERGY, balanceError: TOTAL_ENERGY - system,
+          terminalSpeed: TERMINAL_SPEED,
+          impactTime: impactTime(mode),
+          landed: t >= impactTime(mode) - 1e-10
+        };
+      }
+
+      const number = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      const energyNumber = new Intl.NumberFormat('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      function formatKJ(joule) { return `${energyNumber.format(joule / 1000)} kJ`; }
+      function formatJ(joule) { return `${Math.abs(joule) < 0.5 ? '0' : number.format(joule)} J`; }
+
+      function updateUI(model = sample()) {
+        dom.time.textContent = `${model.time.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s`;
+        dom.height.textContent = `${number.format(model.height)} m`;
+        dom.speed.textContent = `${number.format(model.speed)} m/s`;
+        dom.acceleration.textContent = `${model.acceleration.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m/s²`;
+        dom.totalValue.textContent = formatKJ(model.total);
+        dom.potentialValue.textContent = formatKJ(model.potential);
+        dom.kineticValue.textContent = formatKJ(model.kinetic);
+        dom.thermalValue.textContent = formatKJ(model.thermal);
+        dom.mechanical.textContent = formatKJ(model.mechanical);
+        dom.system.textContent = formatKJ(model.system);
+        dom.balance.textContent = 'geschlossen';
+        dom.totalFill.style.height = '100%';
+        dom.potentialFill.style.height = `${100 * model.potential / TOTAL_ENERGY}%`;
+        dom.kineticFill.style.height = `${100 * model.kinetic / TOTAL_ENERGY}%`;
+        dom.thermalFill.style.height = `${100 * model.thermal / TOTAL_ENERGY}%`;
+
+        const nearTerminal = model.mode === 'drag' && model.speed > 0.97 * TERMINAL_SPEED && model.acceleration < 0.6;
+        if (model.landed) {
+          dom.status.textContent = 'Boden erreicht – Zustand kurz vor dem Aufprall.';
+        } else if (nearTerminal) {
+          dom.status.textContent = 'Nahezu Endgeschwindigkeit: Das Tempo ändert sich kaum noch.';
+        } else if (model.mode === 'drag') {
+          dom.status.textContent = 'Luftwiderstand bremst den Geschwindigkeitszuwachs.';
+        } else {
+          dom.status.textContent = 'Höhenenergie wird vollständig zu Bewegungsenergie.';
+        }
+        dom.observation.innerHTML = model.mode === 'drag'
+          ? `<strong>Beobachtung:</strong> Ein Teil der Höhenenergie wird an die Umgebung übertragen. Die Geschwindigkeit nähert sich ${number.format(TERMINAL_SPEED)} m/s.`
+          : '<strong>Beobachtung:</strong> Ohne Luftwiderstand bleibt die mechanische Energie erhalten.';
+        dom.play.textContent = state.playing ? '⏸ Pause' : (model.landed ? '▶ Noch einmal' : '▶ Start');
+        dom.ideal.setAttribute('aria-pressed', String(state.mode === 'ideal'));
+        dom.drag.setAttribute('aria-pressed', String(state.mode === 'drag'));
+      }
+
+      function resizeCanvas() {
+        const rect = canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.max(1, Math.round(rect.width * dpr));
+        const height = Math.max(1, Math.round(rect.height * dpr));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.imageSmoothingEnabled = false;
+      }
+
+      const clouds = Object.freeze([
+        { h: 365, x: .18, s: 1.0 }, { h: 322, x: .72, s: .75 },
+        { h: 278, x: .38, s: 1.15 }, { h: 226, x: .80, s: .9 },
+        { h: 174, x: .16, s: .8 }, { h: 116, x: .62, s: 1.05 },
+        { h: 62, x: .32, s: .72 }
+      ]);
+
+      function drawPixelCloud(x, y, scale) {
+        const u = Math.max(2, Math.round(5 * scale));
+        ctx.fillStyle = '#edf1d2';
+        ctx.fillRect(Math.round(x - 6 * u), Math.round(y), 12 * u, 3 * u);
+        ctx.fillRect(Math.round(x - 4 * u), Math.round(y - 2 * u), 8 * u, 3 * u);
+        ctx.fillRect(Math.round(x - 1 * u), Math.round(y - 4 * u), 4 * u, 3 * u);
+      }
+
+      function drawRunner(x, y, scale, model) {
+        const u = Math.max(2, Math.round(scale));
+        const sway = Math.floor(model.time * 5) % 2;
+        ctx.save();
+        ctx.translate(Math.round(x), Math.round(y));
+        ctx.fillStyle = '#173f3c';
+        ctx.fillRect(-4*u, -8*u, 8*u, 2*u);
+        ctx.fillRect(-3*u, -10*u, 6*u, 2*u);
+        ctx.fillStyle = '#0f766e';
+        ctx.fillRect(-3*u, -8*u, 7*u, 2*u);
+        ctx.fillStyle = '#d7a36c';
+        ctx.fillRect(-3*u, -6*u, 6*u, 4*u);
+        ctx.fillStyle = '#25332f';
+        ctx.fillRect(2*u, -5*u, u, u);
+        ctx.fillStyle = '#c99b61';
+        ctx.fillRect(-3*u, -2*u, 6*u, 5*u);
+        ctx.fillStyle = '#fff4d8';
+        ctx.fillRect(-2*u, -1*u, 4*u, 2*u);
+        ctx.fillStyle = '#0f766e';
+        ctx.fillRect(-6*u, (-1-sway)*u, 3*u, 2*u);
+        ctx.fillRect(3*u, (-sway)*u, 3*u, 2*u);
+        ctx.fillStyle = '#72558f';
+        ctx.fillRect(-3*u, 3*u, 2*u, 4*u);
+        ctx.fillRect(u, 3*u, 2*u, 4*u);
+        ctx.fillStyle = '#25332f';
+        ctx.fillRect(-4*u, 7*u, 3*u, 2*u);
+        ctx.fillRect(u, 7*u, 3*u, 2*u);
+        ctx.restore();
+      }
+
+      function draw(model = sample()) {
+        resizeCanvas();
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#b8d8cf';
+        ctx.fillRect(0, 0, w, h);
+        for (let y = 0; y < h; y += 32) {
+          ctx.fillStyle = (y / 32) % 2 ? 'rgba(237,241,210,.08)' : 'rgba(15,118,110,.035)';
+          ctx.fillRect(0, y, w, 16);
+        }
+
+        const zoomBlend = smoothstep(model.time / 3.2);
+        const viewHeight = 115 + (CONFIG.startHeight + 50 - 115) * zoomBlend;
+        const desiredCenter = model.height * (1 - zoomBlend) + (CONFIG.startHeight / 2) * zoomBlend;
+        const viewBottom = clamp(desiredCenter - viewHeight / 2, -25, CONFIG.startHeight + 25 - viewHeight);
+        const viewTop = viewBottom + viewHeight;
+        const topPad = 18;
+        const bottomPad = 18;
+        const plotHeight = h - topPad - bottomPad;
+        const toY = worldHeight => topPad + (viewTop - worldHeight) / viewHeight * plotHeight;
+
+        clouds.forEach(cloud => {
+          if (cloud.h <= viewTop + 20 && cloud.h >= viewBottom - 20) {
+            const drift = Math.sin(model.time * .15 + cloud.h) * 8;
+            drawPixelCloud(cloud.x * (w - 90) + 25 + drift, toY(cloud.h), cloud.s * clamp(170 / viewHeight, .52, 1));
+          }
+        });
+
+        if (viewBottom <= 0 && viewTop >= 0) {
+          const groundY = Math.round(toY(0));
+          ctx.fillStyle = '#5d7e45';
+          ctx.fillRect(0, groundY - 5, w, 5);
+          ctx.fillStyle = '#8a6842';
+          ctx.fillRect(0, groundY, w, h - groundY);
+          ctx.fillStyle = '#6f5236';
+          for (let x = 0; x < w; x += 36) ctx.fillRect(x + 5, groundY + 10, 15, 6);
+        }
+
+        const scaleX = w - 38;
+        ctx.strokeStyle = 'rgba(37,51,47,.55)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(scaleX, topPad); ctx.lineTo(scaleX, h-bottomPad); ctx.stroke();
+        ctx.font = '700 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillStyle = '#38504a';
+        for (let marker = 0; marker <= CONFIG.startHeight; marker += 100) {
+          if (marker <= viewTop && marker >= viewBottom) {
+            const sy = Math.round(toY(marker));
+            ctx.fillRect(scaleX - 6, sy, 8, 2);
+            ctx.fillText(`${marker} m`, scaleX - 10, sy + 4);
+          }
+        }
+
+        const runnerX = Math.round(w * .49);
+        const runnerY = clamp(toY(model.height), 36, h - 38);
+        const spriteScale = clamp(3.2 - zoomBlend, 2.05, 3.2);
+        drawRunner(runnerX, runnerY, spriteScale, model);
+
+        ctx.fillStyle = 'rgba(255,253,248,.92)';
+        ctx.fillRect(14, 14, 168, 35);
+        ctx.strokeStyle = '#38504a';
+        ctx.strokeRect(14.5, 14.5, 167, 34);
+        ctx.fillStyle = '#25332f';
+        ctx.textAlign = 'left';
+        ctx.font = '800 12px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.fillText(state.mode === 'drag' ? 'MIT LUFTWIDERSTAND' : 'OHNE LUFTWIDERSTAND', 25, 36);
+
+        if (model.mode === 'drag' && model.speed > .97 * TERMINAL_SPEED) {
+          ctx.fillStyle = '#fff8dd';
+          ctx.fillRect(14, 57, 202, 31);
+          ctx.strokeStyle = '#c99b61';
+          ctx.strokeRect(14.5, 57.5, 201, 30);
+          ctx.fillStyle = '#6e561c';
+          ctx.font = '800 11px ui-monospace, SFMono-Regular, Menlo, monospace';
+          ctx.fillText('TEMPO FAST KONSTANT', 24, 77);
+        }
+      }
+
+      function reset({ play = false } = {}) {
+        state.simTime = 0;
+        state.playing = play;
+        state.landed = false;
+        state.lastFrame = performance.now();
+        const model = sample();
+        updateUI(model);
+        draw(model);
+        return model;
+      }
+
+      function setMode(mode, { play = true } = {}) {
+        if (mode !== 'ideal' && mode !== 'drag') throw new Error('Unbekannter Fallmodus');
+        state.mode = mode;
+        return reset({ play });
+      }
+
+      function advance(seconds) {
+        const amount = Math.max(0, Number(seconds) || 0);
+        state.simTime = Math.min(impactTime(), state.simTime + amount);
+        state.landed = state.simTime >= impactTime() - 1e-10;
+        const model = sample();
+        updateUI(model);
+        draw(model);
+        return model;
+      }
+
+      function togglePlay() {
+        if (state.landed) reset({ play: true });
+        else state.playing = !state.playing;
+        state.lastFrame = performance.now();
+        updateUI();
+      }
+
+      dom.play.addEventListener('click', togglePlay);
+      dom.reset.addEventListener('click', () => reset({ play: true }));
+      dom.ideal.addEventListener('click', () => setMode('ideal', { play: true }));
+      dom.drag.addEventListener('click', () => setMode('drag', { play: true }));
+      dom.timeScale.addEventListener('change', () => { state.timeScale = Number(dom.timeScale.value) || CONFIG.defaultTimeScale; });
+      document.addEventListener('click', event => {
+        if (event.target.closest('.student-intro-ok')) setTimeout(() => { state.playing = true; state.lastFrame = performance.now(); updateUI(); }, 0);
+      });
+
+      const resizeObserver = new ResizeObserver(() => draw());
+      resizeObserver.observe(canvas);
+      window.addEventListener('resize', () => draw());
+
+      function loop(now) {
+        const dt = Math.min(.05, Math.max(0, (now - state.lastFrame) / 1000));
+        state.lastFrame = now;
+        if (state.playing) {
+          state.simTime = Math.min(impactTime(), state.simTime + dt * state.timeScale);
+          if (state.simTime >= impactTime() - 1e-10) {
+            state.simTime = impactTime();
+            state.landed = true;
+            state.playing = false;
+          }
+        }
+        const model = sample();
+        updateUI(model);
+        draw(model);
+        requestAnimationFrame(loop);
+      }
+
+      window.__freeFallEnergy = Object.freeze({
+        constants: Object.freeze({ ...CONFIG, dragK: DRAG_K, terminalSpeed: TERMINAL_SPEED, totalEnergy: TOTAL_ENERGY, idealImpactTime: IDEAL_IMPACT_TIME, dragImpactTime: DRAG_IMPACT_TIME }),
+        getState: () => ({ ...state, ...sample() }),
+        sample: (mode, time) => sample(mode, time),
+        setMode: (mode, play = false) => setMode(mode, { play }),
+        reset: () => reset({ play: false }),
+        advance
+      });
+
+      reset({ play: false });
+      requestAnimationFrame(loop);
+    })();
+  </script>
+  <script src="../shared/student-entry.js"></script>
+</body>
+</html>

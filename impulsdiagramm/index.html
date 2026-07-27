@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Physik: Stoß-Diagramme Pro</title>
+    <title>Physik – Stoß- und Impulsdiagramme</title>
     <style>
         :root {
             --bg: #f5f5f5;
@@ -946,7 +946,16 @@
                 const d = data1;
                 const maxE = d.EkinVor;
                 const percentNach = (d.EkinNach / maxE * 100).toFixed(1);
-                const hasLoss = Math.abs(d.deltaE) > 0.1;
+                const isElasticModel = d.inputs.k >= 1 - 1e-10;
+                const energyTolerance = Math.max(1e-12, d.EkinVor * 1e-10);
+                const hasLoss = !isElasticModel && d.deltaE < -energyTolerance;
+                const energyMessage = hasLoss ? `
+                    <div style="margin-top:10px; padding:10px; background:#fff5f5; border-left:3px solid var(--secondary); border-radius:4px; font-size:0.875rem;">
+                        <strong>Umwandlung:</strong> ${Math.abs(d.deltaE).toFixed(3)} J kinetische Energie (${Math.abs(d.deltaEPercent)}%) werden zu innerer Energie, z. B. Wärme/Verformung. Die Gesamtenergie bleibt erhalten.
+                    </div>
+                ` : isElasticModel
+                    ? '<div style="margin-top:10px; color:#48bb78; font-size:0.875rem;">✓ Elastischer Stoß: Die kinetische Energie bleibt erhalten.</div>'
+                    : '<div style="margin-top:10px; color:#805ad5; font-size:0.875rem;">Inelastisches Modell: Bei diesen Anfangswerten entsteht wegen fehlender Relativbewegung kein Energieverlust.</div>';
                 
                 content.innerHTML = `
                     <div class="energy-row">
@@ -971,11 +980,7 @@
                         </div>
                     </div>
                     
-                    ${hasLoss ? `
-                    <div style="margin-top:10px; padding:10px; background:#fff5f5; border-left:3px solid var(--secondary); border-radius:4px; font-size:0.875rem;">
-                        <strong>Umwandlung:</strong> ${Math.abs(d.deltaE).toFixed(1)} J kinetische Energie (${Math.abs(d.deltaEPercent)}%) werden zu innerer Energie, z. B. Wärme/Verformung. Die Gesamtenergie bleibt erhalten.
-                    </div>
-                    ` : '<div style="margin-top:10px; color:#48bb78; font-size:0.875rem;">✓ Elastischer Stoß: Die kinetische Energie bleibt erhalten.</div>'}
+                    ${energyMessage}
                 `;
             }
         }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Impuls – Stoß & Vektoraddition (Fixed)</title>
+  <title>Impuls – Stoß und Vektoraddition</title>
 
   <style>
     /* === THEME TOKENS === */
@@ -274,6 +274,8 @@
     }
     .ext-speed__label{ font-size: 12px; color: var(--c-muted); font-weight: 900; }
     .ext-speed__value{ font-size: 12px; font-weight: 900; min-width: 35px; text-align: right; }
+    .vec-symbol{ display:inline-block; position:relative; font-style:italic; padding-top:.18em; }
+    .vec-symbol::after{ content:"→"; position:absolute; left:50%; top:-.72em; transform:translateX(-50%); font-style:normal; font-size:.75em; line-height:1; }
   </style>
   <link rel="stylesheet" href="../shared/atelier.css">
   <link rel="stylesheet" href="../shared/student-entry.css">
@@ -283,7 +285,7 @@
   <header class="app__header">
     <h1 class="app__title">Impuls – Elastischer Stoß (2D)</h1>
     <p class="app__subtitle">Ziehe an den <strong>Kugeln</strong> (Position) oder an den <strong>Pfeilspitzen</strong> (Richtung & Geschwindigkeit). Beobachte die Vektoraddition unten.</p>
-    <p class="model-note"><strong>Modell:</strong> Die Körper stoßen ideal elastisch; Impuls und kinetische Energie bleiben erhalten. Impuls ist <em>p = m · v</em> und daher nicht dasselbe wie Geschwindigkeit. Die gezeichnete Kugelgröße symbolisiert die Masse und ist kein Längenmaßstab.</p>
+    <p class="model-note"><strong>Modell:</strong> Zwei gleich große harte Scheiben stoßen ideal elastisch; Impuls und kinetische Energie bleiben erhalten. Der Impuls ist <span class="vec-symbol">p</span> = m · <span class="vec-symbol">v</span> und daher nicht dasselbe wie Geschwindigkeit. Die Masse wird ausschließlich über die Regler festgelegt; der Kollisionsradius bleibt konstant.</p>
   </header>
 
   <main class="app__main">
@@ -344,9 +346,10 @@
       <!-- Toggle v / p -->
       <div class="ext-modebar" aria-label="Auswahl: Geschwindigkeit oder Impuls">
         <span class="ext-modebar__label">Vektor-Diagramm:</span>
-        <button class="ext-modebar__btn ext-modebar__btn--active" id="modeMomentumBtn" type="button">Impuls (p)</button>
-        <button class="ext-modebar__btn" id="modeVelocityBtn" type="button">Geschwindigkeit (v)</button>
+        <button class="ext-modebar__btn ext-modebar__btn--active" id="modeMomentumBtn" type="button">Impuls (<span class="vec-symbol">p</span>)</button>
+        <button class="ext-modebar__btn" id="modeVelocityBtn" type="button">Geschwindigkeit (<span class="vec-symbol">v</span>)</button>
       </div>
+      <p class="model-note">Nur die Impulsvektoren werden addiert: <span class="vec-symbol">p</span><sub>ges</sub> = <span class="vec-symbol">p</span><sub>1</sub> + <span class="vec-symbol">p</span><sub>2</sub>. Geschwindigkeiten sind nicht additiv erhalten; im Geschwindigkeitsmodus werden sie deshalb nur einzeln verglichen.</p>
       <p class="model-note" id="energyDisplay" aria-live="polite">Kinetische Energie: vor dem Stoß 0,16 J · nach dem Stoß noch nicht bestimmt</p>
 
       <!-- Vector Views -->
@@ -458,13 +461,13 @@
         <div class="panel__title">Werte</div>
         <div style="font-size: 13px; line-height: 1.6;">
           <div style="display:flex; justify-content:space-between;">
-            <span>p₁</span><strong id="disp-p1">0,08 Ns</strong>
+            <span>|<span class="vec-symbol">p</span><sub>1</sub>|</span><strong id="disp-p1">0,08 Ns</strong>
           </div>
           <div style="display:flex; justify-content:space-between;">
-            <span>p₂</span><strong id="disp-p2">0,00 Ns</strong>
+            <span>|<span class="vec-symbol">p</span><sub>2</sub>|</span><strong id="disp-p2">0,00 Ns</strong>
           </div>
           <div style="display:flex; justify-content:space-between; margin-top:4px; padding-top:4px; border-top:1px solid var(--c-border);">
-            <span>p_ges</span><strong id="disp-ptot" style="color:var(--c-result)">0,08 Ns</strong>
+            <span>|<span class="vec-symbol">p</span><sub>ges</sub>|</span><strong id="disp-ptot" style="color:var(--c-result)">0,08 Ns</strong>
           </div>
         </div>
       </div>
@@ -484,7 +487,8 @@
       gridStep: 40,    // Grid Size in px
       origin: { x: 50, y: 230 }, // Ursprung der Vektordiagramme
       baseSpeed: 100,  // Basisgeschwindigkeit der Animation
-      vecScale: 15     // Skalierung der Vektoren auf der Stage (1m/s = 15px)
+      vecScale: 15,    // Skalierung der Vektoren auf der Stage (1m/s = 15px)
+      collisionRadius: 30 // Konstante Geometrie: Masse ändert nicht die Stoßnormale
     };
 
     // --- STATE ---
@@ -662,9 +666,9 @@
       D.c1.setAttribute('transform', `translate(${state.sim.p1.x}, ${state.sim.p1.y})`);
       D.c2.setAttribute('transform', `translate(${state.sim.p2.x}, ${state.sim.p2.y})`);
       
-      // Radius basierend auf Masse (visueller Effekt)
-      const r1 = 20 + state.m1 * 500; 
-      const r2 = 20 + state.m2 * 500;
+      // Gleicher sichtbarer und physikalischer Radius für beide Körper.
+      const r1 = CFG.collisionRadius;
+      const r2 = CFG.collisionRadius;
       D.c1.querySelector('circle').setAttribute('r', r1);
       D.c2.querySelector('circle').setAttribute('r', r2);
 
@@ -736,18 +740,16 @@
       const vec2x = iv2x * m2 * scale;
       const vec2y = iv2y * m2 * scale;
 
-      // Zeichnen Vorher (Spitze an Spitze)
-      // p1 vom Ursprung
+      // Erster Vektor vom Ursprung
       setArrow(D.vecB.p1, ox, oy, ox+vec1x, oy+vec1y);
       setLabel(D.vecB.l1, ox+vec1x/2, oy+vec1y/2 - 10, isMom ? "p₁" : "v₁");
 
-      // p2 an p1
-      setArrow(D.vecB.p2, ox+vec1x, oy+vec1y, ox+vec1x+vec2x, oy+vec1y+vec2y);
-      setLabel(D.vecB.l2, ox+vec1x+vec2x/2 + 10, oy+vec1y+vec2y/2, isMom ? "p₂" : "v₂");
-
-      // Summe
-      setArrow(D.vecB.ptot, ox, oy, ox+vec1x+vec2x, oy+vec1y+vec2y);
-      setLabel(D.vecB.lt, ox+(vec1x+vec2x)/2, oy+(vec1y+vec2y)/2 + 20, "Sum");
+      // Nur Impulse werden Spitze an Schaft addiert. Geschwindigkeiten starten beide am Ursprung.
+      const beforeBase2 = isMom ? { x: ox+vec1x, y: oy+vec1y } : { x: ox, y: oy };
+      setArrow(D.vecB.p2, beforeBase2.x, beforeBase2.y, beforeBase2.x+vec2x, beforeBase2.y+vec2y);
+      setLabel(D.vecB.l2, beforeBase2.x+vec2x/2 + 10, beforeBase2.y+vec2y/2, isMom ? "p₂" : "v₂");
+      setArrow(D.vecB.ptot, ox, oy, ox+vec1x+vec2x, oy+vec1y+vec2y, isMom);
+      setLabel(D.vecB.lt, ox+(vec1x+vec2x)/2, oy+(vec1y+vec2y)/2 + 20, "p ges", isMom);
 
       // Referenzpunkt für Nachher
       const refX = ox + vec1x + vec2x;
@@ -758,7 +760,7 @@
         D.vecA.hint.setAttribute('opacity', 1);
         [D.vecA.p1, D.vecA.p2, D.vecA.sum, D.vecA.l1, D.vecA.l2, D.vecA.ls].forEach(e => e.setAttribute('opacity', 0));
         // Referenzlinie (Summe vorher)
-        setArrow(D.vecA.ref, ox, oy, refX, refY);
+        setArrow(D.vecA.ref, ox, oy, refX, refY, isMom);
         return;
       }
 
@@ -774,15 +776,14 @@
       setArrow(D.vecA.p1, ox, oy, ox+res1x, oy+res1y);
       setLabel(D.vecA.l1, ox+res1x/2, oy+res1y/2 - 10, isMom ? "p₁'" : "v₁'");
 
-      // p2' an p1'
-      setArrow(D.vecA.p2, ox+res1x, oy+res1y, ox+res1x+res2x, oy+res1y+res2y);
-      setLabel(D.vecA.l2, ox+res1x+res2x/2 + 10, oy+res1y+res2y/2, isMom ? "p₂'" : "v₂'");
+      const afterBase2 = isMom ? { x: ox+res1x, y: oy+res1y } : { x: ox, y: oy };
+      setArrow(D.vecA.p2, afterBase2.x, afterBase2.y, afterBase2.x+res2x, afterBase2.y+res2y);
+      setLabel(D.vecA.l2, afterBase2.x+res2x/2 + 10, afterBase2.y+res2y/2, isMom ? "p₂'" : "v₂'");
 
-      // Summe Nachher (gestrichelt)
-      setArrow(D.vecA.sum, ox, oy, ox+res1x+res2x, oy+res1y+res2y);
-      
-      // Referenz (Summe Vorher) - Ghost
-      setArrow(D.vecA.ref, ox, oy, refX, refY);
+      // Nur im Impulsmodus: Summe nachher und Referenzsumme vorher.
+      setArrow(D.vecA.sum, ox, oy, ox+res1x+res2x, oy+res1y+res2y, isMom);
+      setLabel(D.vecA.ls, ox+(res1x+res2x)/2, oy+(res1y+res2y)/2 + 20, "p ges'", isMom);
+      setArrow(D.vecA.ref, ox, oy, refX, refY, isMom);
     }
 
     // --- ANIMATION LOOP ---
@@ -801,8 +802,8 @@
       state.sim.p2.y += state.sim.v2.y * speed * dt;
 
       // Kollision Check
-      const r1 = 20 + state.m1 * 500; 
-      const r2 = 20 + state.m2 * 500;
+      const r1 = CFG.collisionRadius;
+      const r2 = CFG.collisionRadius;
       const dx = state.sim.p2.x - state.sim.p1.x;
       const dy = state.sim.p2.y - state.sim.p1.y;
       const dist = Math.hypot(dx, dy);

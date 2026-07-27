@@ -15,8 +15,10 @@ Interaktive, browserbasierte Physik-Anwendungen für den Unterricht. Die Apps si
 |---|---|
 | [`index.html`](index.html) | Zentrale Landingpage im warmen Atelier-Stil mit direktem Zugang zu allen veröffentlichten Physik-Apps. |
 | [`energie-runner/index.html`](energie-runner/index.html) | Spielbarer Energie-Runner für Klasse 9: chemische, kinetische, potenzielle und innere Energie werden beim Laufen, Springen, Sammeln und bei Kollisionen bilanziert. |
+| [`freier-fall-energie/index.html`](freier-fall-energie/index.html) | Zeitlupen-Animation des freien Falls: Vergleich der Energieumwandlung ohne Luftwiderstand und mit realistischer Endgeschwindigkeit durch quadratischen Luftwiderstand. |
+| [`kondensator-pendel/index.html`](kondensator-pendel/index.html) | Klasse-12-Simulation eines leitfähigen Fadenpendels im getrennten Plattenkondensator: Ladungstransport, lineare Spannungsabnahme, Rechtecknäherung und Feldenergie als Fläche im \(U\)-\(Q\)-Diagramm. |
 | [`energiestufenmodell/index.html`](energiestufenmodell/index.html) | Quanten-Labor zu diskreten Energieniveaus, Anregung und Energieübertragung im Energiestufenmodell. |
-| [`v_aenderung/index.html`](v_aenderung/index.html) | Eishockey-Simulation zur Unterscheidung von Geschwindigkeit \(v\) und Geschwindigkeitsänderung \(\Delta v\). |
+| [`v_aenderung/index.html`](v_aenderung/index.html) | Eishockey-Simulation zur vektoriellen Addition von Anfangsgeschwindigkeit \(\vec v_A\) und Geschwindigkeitsänderung \(\Delta\vec v\) zur Endgeschwindigkeit \(\vec v_E\). |
 | [`impuls/index.html`](impuls/index.html) | Zweidimensionale Stoßsimulation zur Untersuchung von Impulsvektoren und Richtungsänderungen. |
 | [`impulsdiagramm/index.html`](impulsdiagramm/index.html) | Generator für Stoß- und Impulsdiagramme mit grafischer Darstellung der beteiligten Größen. |
 | [`diagramme/index.html`](diagramme/index.html) | Diagrammbastler zum Erstellen und Verknüpfen abschnittsweiser \(t\)-\(x\)-, \(t\)-\(v\)- und \(t\)-\(a\)-Diagramme. |

@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quanten-Labor 2.1</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* === MODERN LIGHT DESIGN SYSTEM === */
         :root {
@@ -691,7 +690,7 @@
                 Wähle eine Energie
             </div>
 
-            <div class="model-note">Vereinfachtes Atommodell: Gezeigt werden nur ausgewählte Energieniveaus. Ihre vertikalen Abstände sind zur Lesbarkeit <strong>schematisch</strong>; entscheidend sind die angegebenen Energiewerte.</div>
+            <div class="model-note">Vereinfachtes Atommodell: Gezeigt werden nur ausgewählte Energieniveaus. Ihre vertikalen Abstände sind zur Lesbarkeit <strong>schematisch</strong>; entscheidend sind die angegebenen Energiewerte. Auswahlregeln und Intensitäten werden nicht berücksichtigt.</div>
 
             <button id="btn-excite" class="btn btn-excite">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -704,8 +703,8 @@
                     <span class="toggle-track"></span>
                 </span>
                 <span>
-                    <div class="toggle-label">Vollständige Spektren</div>
-                    <div class="toggle-sublabel">Alle möglichen Übergänge</div>
+                    <div class="toggle-label">Modellniveaudifferenzen</div>
+                    <div class="toggle-sublabel">Alle Differenzen der ausgewählten Modellniveaus</div>
                 </span>
             </label>
 
@@ -1696,9 +1695,9 @@ dom.btnJ.addEventListener('click', () => updateDisplayUnit('J'));
 
 function updateSpectraBadges() {
     if (state.showFullSpectra) {
-        dom.absBadge.textContent = 'vollständig';
+        dom.absBadge.textContent = 'Modell-Differenzen';
         dom.absBadge.className = 'spectrum-mode-badge full';
-        dom.emBadge.textContent = 'vollständig';
+        dom.emBadge.textContent = 'Modell-Differenzen';
         dom.emBadge.className = 'spectrum-mode-badge full';
         dom.toggleRow.classList.add('active');
     } else {

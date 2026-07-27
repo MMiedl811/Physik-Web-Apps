@@ -13,7 +13,7 @@
     const controls = body.dataset.studentControls;
     const homeHref = body.dataset.studentHome || '../';
 
-    if (!document.querySelector('a.student-home, a[aria-label="Zurück zur Übersicht"]')) {
+    if (!document.querySelector('a.student-home, a[aria-label="Zur Übersicht"], a[aria-label="Zurück zur Übersicht"]')) {
       const link = document.createElement('a');
       link.className = 'student-home';
       link.href = homeHref;

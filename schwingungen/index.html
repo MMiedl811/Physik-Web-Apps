@@ -3,13 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Schwingungen – Feder- &amp; Fadenpendel (p5.js)</title>
+  <title>Schwingungen – Feder- und Fadenpendel</title>
   
-  <!-- p5.js CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
-  <!-- KaTeX for LaTeX rendering -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <!-- Lokale p5.js-Version: funktioniert auch ohne Internetverbindung. -->
+  <script src="../shared/vendor/p5-1.9.0.min.js"></script>
 
   <style>
     :root {
@@ -234,6 +231,66 @@
     .advanced-controls summary { color: #cbd5e1; cursor: pointer; font-size: 12px; font-weight: bold; }
     .advanced-controls[open] summary { margin-bottom: 7px; }
 
+    .pendulum-disclaimer {
+      display: none;
+      padding: 7px 10px;
+      border: 1px solid #f5c26b;
+      border-radius: 8px;
+      background: #4b3212;
+      color: #fff3cf;
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .force-build-btn {
+      display: none;
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 140;
+      min-height: 44px;
+      padding: 9px 14px;
+      border: 1px solid #1d4ed8;
+      border-radius: 10px;
+      background: #eff6ff;
+      color: #1e3a8a;
+      box-shadow: 0 6px 20px rgba(15,23,42,.16);
+    }
+    #forceWizard {
+      width: min(780px, calc(100vw - 24px));
+      max-height: calc(100dvh - 24px);
+      padding: 0;
+      border: 0;
+      border-radius: 18px;
+      color: #172033;
+      box-shadow: 0 24px 80px rgba(2,6,23,.45);
+      overflow: auto;
+    }
+    #forceWizard::backdrop { background: rgba(15,23,42,.72); backdrop-filter: blur(3px); }
+    .wizard-head { display:flex; align-items:center; gap:12px; padding:16px 18px; border-bottom:1px solid #dbe3ee; }
+    .wizard-head h2 { flex:1; margin:0; font-size:1.2rem; }
+    .wizard-close { min-width:44px; min-height:44px; border-radius:50%; background:#e2e8f0; color:#172033; }
+    .wizard-body { display:grid; grid-template-columns:1.15fr .85fr; gap:14px; padding:16px; }
+    #forceConstructionCanvas { width:100%; height:330px; border:1px solid #cbd5e1; border-radius:12px; background:#f8fafc; }
+    .wizard-copy { display:flex; flex-direction:column; min-height:330px; }
+    .wizard-step { color:#2563eb; font-size:.76rem; font-weight:900; letter-spacing:.08em; text-transform:uppercase; }
+    .wizard-copy h3 { margin:8px 0; font-size:1.08rem; }
+    .wizard-copy p { margin:0; line-height:1.5; font-size:.92rem; }
+    .wizard-formula { margin-top:12px; padding:10px; border-radius:10px; background:#eef2ff; font-family:Georgia,serif; text-align:center; }
+    .wizard-vec { display:inline-block; position:relative; padding-top:.1em; font-style:italic; }
+    .wizard-vec::after { content:"→"; position:absolute; left:50%; top:-.78em; transform:translateX(-50%); font-size:.72em; font-style:normal; }
+    .wizard-controls { display:flex; gap:8px; margin-top:auto; padding-top:16px; }
+    .wizard-controls button { min-height:44px; flex:1; }
+    .wizard-dots { display:flex; justify-content:center; gap:6px; padding:0 16px 16px; }
+    .wizard-dots span { width:9px; height:9px; border-radius:50%; background:#cbd5e1; }
+    .wizard-dots span.active { background:#2563eb; transform:scale(1.25); }
+
+    @media (max-width: 700px) {
+      .wizard-body { grid-template-columns:1fr; }
+      #forceConstructionCanvas { height:270px; }
+      .wizard-copy { min-height:260px; }
+    }
+    @media (min-width: 901px) { .info-footer { padding-right: 140px; } }
+
     @media (max-width: 900px) {
       body { height: 100dvh; max-width: 100%; }
       .topbar { padding: 8px 10px; gap: 7px; max-height: 52dvh; overflow-y: auto; overflow-x: hidden; }
@@ -290,8 +347,8 @@
         <span class="category-label">Parameter:</span>
         <div class="control-group">
           <label>Auslenkung (°):</label>
-          <input type="range" id="ampSliderPend" min="1" max="30" step="0.5" value="15">
-          <input type="number" id="ampInputPend" min="1" max="30" value="15" step="0.5">
+          <input type="range" id="ampSliderPend" min="1" max="90" step="0.5" value="15">
+          <input type="number" id="ampInputPend" min="1" max="90" value="15" step="0.5">
         </div>
         <div class="control-group">
           <label>Masse (kg):</label>
@@ -303,8 +360,8 @@
           <input type="range" id="lSlider" min="0.5" max="2.5" step="0.05" value="1.0">
           <input type="number" id="lInput" min="0.5" max="2.5" value="1.0" step="0.05">
         </div>
-        <span class="model-note">Kleinwinkelnäherung: harmonisches Modell bis 30°.</span>
       </div>
+      <div id="pendulumDisclaimer" class="pendulum-disclaimer">⚠ Kein exakt harmonischer Oszillator: Nur für kleine Winkel gilt sin θ ≈ θ.</div>
     </div>
 
     <div class="topbar-row" aria-label="Grundlegende Visualisierungen">
@@ -329,11 +386,21 @@
       <div id="formulaBox" class="formula-overlay"></div>
       <div id="centerHint" class="center-hint"></div>
       <div id="errorHint" class="error-hint"></div>
+      <button id="forceBuildBtn" class="force-build-btn" type="button">Kräfteaddition zur Rückstellkraft</button>
     </div>
   </main>
 
+  <dialog id="forceWizard" aria-labelledby="forceWizardTitle">
+    <div class="wizard-head"><h2 id="forceWizardTitle">Kräfteaddition zur Rückstellkraft</h2><button id="wizardClose" class="wizard-close" type="button" aria-label="Konstruktion schließen">×</button></div>
+    <div class="wizard-body">
+      <canvas id="forceConstructionCanvas" aria-label="Schrittweise grafische Kräfteaddition am Fadenpendel"></canvas>
+      <div class="wizard-copy"><div id="wizardStep" class="wizard-step"></div><h3 id="wizardHeading"></h3><p id="wizardText"></p><div id="wizardFormula" class="wizard-formula"></div><div class="wizard-controls"><button id="wizardBack" class="btn-secondary" type="button">Zurück</button><button id="wizardNext" class="btn-primary" type="button">Weiter</button></div></div>
+    </div>
+    <div id="wizardDots" class="wizard-dots" aria-hidden="true"></div>
+  </dialog>
+
   <footer class="info-footer">
-    <strong>Didaktischer Hinweis:</strong> Das Fadenpendel wird hier als idealer harmonischer Oszillator dargestellt. In der Realität gilt dies nur für kleine Winkel. Zudem wird die Zentripetalkraft zur Vereinfachung der Kräfteaddition vernachlässigt.
+    <span id="footerNote"><strong>Federpendel:</strong> Die Auslenkung wird relativ zur statischen Gleichgewichtslage gemessen; dort gilt F<sub>R</sub> = −D·y.</span>
   </footer>
 
   <script>
@@ -347,7 +414,8 @@
     
     let pendulumState = {
       t: 0, history: [], maxHistory: 600,
-      amplitude: (15 * Math.PI) / 180, mass: 1.0, L: 1.0
+      amplitude: (15 * Math.PI) / 180, mass: 1.0, L: 1.0,
+      theta: (15 * Math.PI) / 180, thetaDot: 0
     };
 
     function getActiveState() {
@@ -357,6 +425,43 @@
     function resetState(state) {
       state.t = 0;
       state.history = [];
+      if (state === pendulumState) {
+        const slider = document.getElementById('ampSliderPend');
+        const degrees = slider ? Number(slider.value) : state.amplitude * 180 / Math.PI;
+        state.amplitude = degrees * Math.PI / 180;
+        state.theta = state.amplitude;
+        state.thetaDot = 0;
+      }
+    }
+
+    function pendulumAcceleration(theta, L) {
+      return -(g / L) * Math.sin(theta);
+    }
+
+    function integratePendulum(state, step) {
+      // Runge-Kutta 4 für θ¨ = −(g/L)·sin(θ)
+      const a = (theta) => pendulumAcceleration(theta, state.L);
+      const t0 = state.theta, w0 = state.thetaDot;
+      const k1t = w0,                  k1w = a(t0);
+      const k2t = w0 + step*k1w/2,     k2w = a(t0 + step*k1t/2);
+      const k3t = w0 + step*k2w/2,     k3w = a(t0 + step*k2t/2);
+      const k4t = w0 + step*k3w,       k4w = a(t0 + step*k3t);
+      state.theta += step * (k1t + 2*k2t + 2*k3t + k4t) / 6;
+      state.thetaDot += step * (k1w + 2*k2w + 2*k3w + k4w) / 6;
+    }
+
+    function completeEllipticK(k) {
+      let a = 1, b = Math.sqrt(Math.max(0, 1-k*k));
+      for (let i = 0; i < 20 && Math.abs(a-b) > 1e-14; i++) {
+        const nextA = (a+b)/2;
+        b = Math.sqrt(a*b);
+        a = nextA;
+      }
+      return Math.PI / (2*a);
+    }
+
+    function nonlinearPendulumPeriod(amplitude, L) {
+      return 4 * Math.sqrt(L/g) * completeEllipticK(Math.sin(Math.abs(amplitude)/2));
     }
     
     let canvas, isRunning = true, isSlowMo = false, isDragging = false;
@@ -398,25 +503,11 @@
       showErrorHint("Unbehandelte Promise-Rejection:\n" + msg);
     });
 
-    function safeKatexRender(tex, element) {
-      try {
-        if (window.katex && typeof window.katex.render === 'function') {
-          window.katex.render(tex, element);
-        } else {
-          // Fallback: plain text
-          element.textContent = tex.replace(/\\\\/g, '\\');
-        }
-      } catch (err) {
-        // KaTeX darf niemals die Simulation stoppen
-        try { element.textContent = tex; } catch {}
-      }
-    }
-
-    let lastFormulaTex = '';
-    function updateFormula(tex) {
-      if (tex === lastFormulaTex) return;
-      lastFormulaTex = tex;
-      safeKatexRender(tex, document.getElementById('formulaBox'));
+    let lastFormulaText = '';
+    function updateFormula(text) {
+      if (text === lastFormulaText) return;
+      lastFormulaText = text;
+      document.getElementById('formulaBox').textContent = text;
     }
 
     function showCenterHint(text, durationMs = 3500) {
@@ -449,6 +540,12 @@
       // Parameter-Bereiche ein-/ausblenden
       document.getElementById('springParams').style.display = system === 'spring' ? 'flex' : 'none';
       document.getElementById('pendulumParams').style.display = system === 'pendulum' ? 'flex' : 'none';
+      const isPendulum = system === 'pendulum';
+      document.getElementById('pendulumDisclaimer').style.display = isPendulum ? 'block' : 'none';
+      document.getElementById('forceBuildBtn').style.display = isPendulum ? 'block' : 'none';
+      document.getElementById('footerNote').innerHTML = isPendulum
+        ? '<strong>Achtung:</strong> Das Fadenpendel schwingt nicht exakt harmonisch. Mit der vorzeichenbehafteten Bogenlänge s = L·θ gilt F<sub>R</sub> = −m·g·sin(s/L); nur für kleine Winkel ist dies näherungsweise linear.'
+        : '<strong>Federpendel:</strong> Die Auslenkung wird relativ zur statischen Gleichgewichtslage gemessen; dort gilt F<sub>R</sub> = −D·y.';
       
       // Zustand zurücksetzen (Auto-Reset beim Tabwechsel)
       resetState(getActiveState());
@@ -457,6 +554,120 @@
       if (document.getElementById('cursorToggle').checked) {
         updateCursorValues();
       }
+    }
+
+    let wizardIndex = 0;
+    let wizardWasRunning = false;
+    const wizardSteps = [
+      {
+        heading: '1. Auslenkung eindeutig festlegen',
+        text: 'Die natürliche Koordinate ist der Winkel θ oder die vorzeichenbehaftete Bogenlänge s = L·θ. Der horizontale Abstand x = L·sin θ ist nur eine Projektion; die Höhe h hat kein Vorzeichen und eignet sich deshalb nicht als Schwingungskoordinate.',
+        formula: 's = L · θ'
+      },
+      {
+        heading: '2. Gewichtskraft einzeichnen',
+        text: 'Am Pendelkörper wirkt die Gewichtskraft stets vertikal nach unten. Ihre Richtung hängt nicht von der Stellung des Pendels ab.',
+        formula: '<span class="wizard-vec">F</span><sub>G</sub> = m · g'
+      },
+      {
+        heading: '3. Seilkraft am Umkehrpunkt',
+        text: 'Wir konstruieren am Umkehrpunkt: Dort ist v = 0 und damit die radiale Zentripetalbeschleunigung null. Die Seilkraft zeigt zum Aufhängepunkt und gleicht die radiale Komponente der Gewichtskraft aus.',
+        formula: '<span class="wizard-vec">F</span><sub>S</sub> = m · g · cos θ &nbsp; (am Umkehrpunkt)'
+      },
+      {
+        heading: '4. Vektoren Spitze an Schaft addieren',
+        text: 'Verschiebe die Seilkraft parallel an die Spitze der Gewichtskraft. Der Pfeil vom Start der Gewichtskraft zur neuen Spitze ist die resultierende Kraft.',
+        formula: 'Σ<span class="wizard-vec">F</span> = <span class="wizard-vec">F</span><sub>G</sub> + <span class="wizard-vec">F</span><sub>S</sub>'
+      },
+      {
+        heading: '5. Tangentiale Rückstellkraft',
+        text: 'Am Umkehrpunkt ist die Resultierende rein tangential. Entlang der Kreisbahn weist sie zur Ruhelage. Ihr Betrag wächst aber nicht proportional mit der Bogenlänge – genau deshalb ist das Fadenpendel nicht exakt harmonisch.',
+        formula: '<i>F</i><sub>R</sub> = −m · g · sin θ = −m · g · sin(s/L)'
+      },
+      {
+        heading: '6. Kontrolle bei 90°',
+        text: 'Wird das Pendel bei 90° aus der Ruhe losgelassen, gilt zunächst F_S = 0. Die gesamte Gewichtskraft wirkt tangential nach unten. Sie zeigt nicht auf einer geraden Verbindung zum tiefsten Punkt, führt aber entlang der erlaubten Kreisbahn dorthin. Entscheidend für „nicht harmonisch“ ist die fehlende Linearität in s.',
+        formula: 'θ = 90°: &nbsp; <i>F</i><sub>S</sub> = 0, &nbsp; |<i>F</i><sub>R</sub>| = m · g'
+      }
+    ];
+
+    function setupForceWizard() {
+      const dialog = document.getElementById('forceWizard');
+      const open = document.getElementById('forceBuildBtn');
+      const close = document.getElementById('wizardClose');
+      const back = document.getElementById('wizardBack');
+      const next = document.getElementById('wizardNext');
+      const closeDialog = () => {
+        if (dialog.open) dialog.close();
+        isRunning = wizardWasRunning;
+        if (playBtn) playBtn.innerText = isRunning ? 'Pause' : 'Start';
+      };
+      open.addEventListener('click', () => {
+        wizardWasRunning = isRunning;
+        isRunning = false;
+        if (playBtn) playBtn.innerText = 'Start';
+        wizardIndex = 0;
+        dialog.showModal();
+        renderForceWizard();
+      });
+      close.addEventListener('click', closeDialog);
+      dialog.addEventListener('cancel', e => { e.preventDefault(); closeDialog(); });
+      back.addEventListener('click', () => { if (wizardIndex > 0) { wizardIndex--; renderForceWizard(); } });
+      next.addEventListener('click', () => {
+        if (wizardIndex >= wizardSteps.length - 1) closeDialog();
+        else { wizardIndex++; renderForceWizard(); }
+      });
+      window.addEventListener('resize', () => { if (dialog.open) renderForceWizard(); });
+    }
+
+    function nativeArrow(ctx, x1, y1, x2, y2, color, dashed = false) {
+      const angle = Math.atan2(y2-y1, x2-x1), head = 9;
+      ctx.save(); ctx.strokeStyle=color; ctx.fillStyle=color; ctx.lineWidth=3;
+      if (dashed) ctx.setLineDash([7,5]);
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.moveTo(x2,y2); ctx.lineTo(x2-head*Math.cos(angle-.45),y2-head*Math.sin(angle-.45)); ctx.lineTo(x2-head*Math.cos(angle+.45),y2-head*Math.sin(angle+.45)); ctx.closePath(); ctx.fill(); ctx.restore();
+    }
+
+    function nativeVectorLabel(ctx, label, x, y, color) {
+      ctx.save(); ctx.fillStyle=color; ctx.font='italic 700 15px Georgia'; ctx.textAlign='left'; ctx.fillText('F',x,y);
+      const fw=ctx.measureText('F').width; ctx.font='11px system-ui'; ctx.fillText(label,x+fw+1,y+3);
+      nativeArrow(ctx,x-1,y-14,x+fw+2,y-14,color,false); ctx.restore();
+    }
+
+    function drawForceConstruction() {
+      const canvas = document.getElementById('forceConstructionCanvas');
+      const rect = canvas.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1,Math.round(rect.width*dpr)); canvas.height = Math.max(1,Math.round(rect.height*dpr));
+      const ctx = canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+      const w=rect.width,h=rect.height; ctx.clearRect(0,0,w,h); ctx.fillStyle='#f8fafc'; ctx.fillRect(0,0,w,h);
+      const selected = Number(document.getElementById('ampSliderPend').value) || 30;
+      const degrees = wizardIndex === 5 ? 90 : Math.max(25,Math.min(65,selected));
+      const theta = degrees*Math.PI/180, pivot={x:w*.5,y:32}, L=Math.min(h*.60,w*.32), bob={x:pivot.x+L*Math.sin(theta),y:pivot.y+L*Math.cos(theta)}, r=14;
+      ctx.strokeStyle='#cbd5e1';ctx.lineWidth=1.5;ctx.setLineDash([5,5]);ctx.beginPath();ctx.moveTo(pivot.x,pivot.y);ctx.lineTo(pivot.x,pivot.y+L+22);ctx.stroke();ctx.setLineDash([]);
+      ctx.strokeStyle='#94a3b8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(pivot.x,pivot.y,L,Math.PI/2-theta,Math.PI/2);ctx.stroke();
+      ctx.fillStyle='#475569';ctx.font='12px system-ui';ctx.textAlign='center';ctx.fillText('Ruhelage',pivot.x,pivot.y+L+20);ctx.fillText(`θ = ${degrees.toFixed(0)}°`,pivot.x+38,pivot.y+54);
+      ctx.strokeStyle='#334155';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(pivot.x,pivot.y);ctx.lineTo(bob.x,bob.y);ctx.stroke();ctx.fillStyle='#1e293b';ctx.beginPath();ctx.arc(pivot.x,pivot.y,4,0,Math.PI*2);ctx.fill();
+      const grad=ctx.createRadialGradient(bob.x-4,bob.y-5,2,bob.x,bob.y,r);grad.addColorStop(0,'#dbeafe');grad.addColorStop(1,'#334155');ctx.fillStyle=grad;ctx.beginPath();ctx.arc(bob.x,bob.y,r,0,Math.PI*2);ctx.fill();
+      if (wizardIndex===0){ctx.strokeStyle='#2563eb';ctx.lineWidth=3;ctx.beginPath();ctx.arc(pivot.x,pivot.y,L,Math.PI/2-theta,Math.PI/2);ctx.stroke();ctx.fillStyle='#2563eb';ctx.font='700 13px system-ui';ctx.fillText('s = L · θ',pivot.x+L*.36,pivot.y+L*.92);}
+      const scale=Math.min(92,h*.31),gravity={x:0,y:scale},tension={x:-scale*Math.cos(theta)*Math.sin(theta),y:-scale*Math.cos(theta)*Math.cos(theta)},resultant={x:gravity.x+tension.x,y:gravity.y+tension.y};
+      const gravityOffset = wizardIndex===5 ? 9 : 0, resultantOffset = wizardIndex===5 ? -9 : 0;
+      if (wizardIndex>=1){nativeArrow(ctx,bob.x+gravityOffset,bob.y,bob.x+gravity.x+gravityOffset,bob.y+gravity.y,'#2563eb');nativeVectorLabel(ctx,'G',bob.x+gravityOffset+10,bob.y+gravity.y*.55,'#2563eb');}
+      if (wizardIndex>=2&&wizardIndex!==5){nativeArrow(ctx,bob.x,bob.y,bob.x+tension.x,bob.y+tension.y,'#7c3aed');nativeVectorLabel(ctx,'S',bob.x+tension.x*.62-8,bob.y+tension.y*.62,'#7c3aed');}
+      if (wizardIndex===3||wizardIndex===4){nativeArrow(ctx,bob.x+gravity.x,bob.y+gravity.y,bob.x+resultant.x,bob.y+resultant.y,'#7c3aed',true);ctx.fillStyle='#7c3aed';ctx.font='11px system-ui';ctx.textAlign='left';ctx.fillText('parallel verschoben',bob.x+gravity.x+8,bob.y+gravity.y-8);}
+      if (wizardIndex>=3){nativeArrow(ctx,bob.x+resultantOffset,bob.y,bob.x+resultant.x+resultantOffset,bob.y+resultant.y,'#dc2626');nativeVectorLabel(ctx,'R',bob.x+resultantOffset+resultant.x*.55-20,bob.y+resultant.y*.55-8,'#dc2626');}
+      if (wizardIndex===5){ctx.fillStyle='#7c3aed';ctx.font='700 12px system-ui';ctx.textAlign='left';ctx.fillText('F_S = 0 beim Loslassen',12,19);}
+    }
+
+    function renderForceWizard() {
+      const data = wizardSteps[wizardIndex];
+      document.getElementById('wizardStep').textContent = `Schritt ${wizardIndex+1} von ${wizardSteps.length}`;
+      document.getElementById('wizardHeading').textContent = data.heading;
+      document.getElementById('wizardText').textContent = data.text;
+      document.getElementById('wizardFormula').innerHTML = data.formula;
+      document.getElementById('wizardBack').disabled = wizardIndex === 0;
+      document.getElementById('wizardNext').textContent = wizardIndex === wizardSteps.length-1 ? 'Schließen' : 'Weiter';
+      document.getElementById('wizardDots').innerHTML = wizardSteps.map((_,i)=>`<span class="${i===wizardIndex?'active':''}"></span>`).join('');
+      drawForceConstruction();
     }
 
     function setup() {
@@ -485,6 +696,7 @@
       playBtn = document.getElementById('playBtn');
       slowBtn = document.getElementById('slowBtn');
       resetBtn = document.getElementById('resetBtn');
+      setupForceWizard();
 
       playBtn.onclick = () => { 
         isRunning = !isRunning; 
@@ -575,7 +787,9 @@
       
       let omega, pos, vel, acc, T, plotPos, plotVel, plotAcc;
       omega = system === 'spring' ? Math.sqrt(currentState.k / currentState.mass) : Math.sqrt(g / currentState.L);
-      T = 2 * PI / omega;
+      T = system === 'spring'
+        ? 2 * PI / omega
+        : nonlinearPendulumPeriod(currentState.amplitude, currentState.L);
       
       // Dynamische Anpassung des sichtbaren Zeitbereichs (mindestens 2 Perioden, mindestens 1 Sekunde)
       visibleTime = Math.max(1.0, 2 * T);
@@ -585,24 +799,31 @@
       // History-Länge anpassen: genug Punkte für visibleTime bei effektivem dt
       currentState.maxHistory = Math.min(Math.ceil(visibleTime / effectiveDt), 5000);
       
-      pos = currentState.amplitude * Math.cos(omega * currentState.t);
-      vel = -currentState.amplitude * omega * Math.sin(omega * currentState.t);
-      acc = -omega * omega * pos;
-      
       if (system === 'spring') {
+        pos = currentState.amplitude * Math.cos(omega * currentState.t);
+        vel = -currentState.amplitude * omega * Math.sin(omega * currentState.t);
+        acc = -omega * omega * pos;
         plotPos = pos; plotVel = vel; plotAcc = acc;
-        updateFormula(`T = 2\\pi \\sqrt{\\frac{m}{D}} \\approx ${T.toFixed(2)}\\text{ s}`);
+        updateFormula(`T = 2π · √(m/D) ≈ ${T.toFixed(2)} s`);
       } else {
-        // Diagramme zeigen den linearen Weg s = L·θ (und die linearen Ableitungen)
+        pos = currentState.theta;
+        vel = currentState.thetaDot;
+        acc = pendulumAcceleration(pos, currentState.L);
+        // Diagramme zeigen die vorzeichenbehaftete Bogenlänge s = L·θ und ihre Ableitungen.
         plotPos = currentState.L * pos;
         plotVel = currentState.L * vel;
         plotAcc = currentState.L * acc;
-        updateFormula(`T = 2\\pi \\sqrt{\\frac{l}{g}} \\approx ${T.toFixed(2)}\\text{ s}`);
+        const T0 = 2 * PI * Math.sqrt(currentState.L/g);
+        updateFormula(`θ̈ = −(g/L) · sin θ   ·   T₀ = ${T0.toFixed(2)} s   ·   T = ${T.toFixed(2)} s`);
       }
 
       if (isRunning && !isDragging) {
         currentState.history.push({t: currentState.t, pos: plotPos, vel: plotVel, acc: plotAcc});
-        currentState.t += effectiveDt;
+        if (system === 'spring') currentState.t += effectiveDt;
+        else {
+          integratePendulum(currentState, effectiveDt);
+          currentState.t += effectiveDt;
+        }
 
         // WICHTIG: History zeitbasiert beschneiden (stabil bei Slow‑Mo an/aus)
         // Sonst bleiben nach einem Moduswechsel viele "zu alte" Punkte übrig,
@@ -649,33 +870,43 @@
       return Math.hypot(vector.x, vector.y);
     }
 
-    function getPendulumForceVectors(theta, mass, w, h) {
+    function getPendulumForceVectors(theta, mass, w, h, thetaDot = 0, L = 1) {
       const weight = mass * g;
+      const gravity = { x: 0, y: weight };
+      const rawTension = mass * (g * Math.cos(theta) + L * thetaDot * thetaDot);
+      const tensionMagnitude = Math.abs(rawTension) < 1e-12 ? 0 : Math.max(0, rawTension);
+      const tension = {
+        x: -tensionMagnitude * Math.sin(theta),
+        y: -tensionMagnitude * Math.cos(theta)
+      };
+      const resultant = {
+        x: gravity.x + tension.x,
+        y: gravity.y + tension.y
+      };
       const restoringMagnitude = -weight * Math.sin(theta);
       const restoring = {
         x: restoringMagnitude * Math.cos(theta),
         y: -restoringMagnitude * Math.sin(theta)
       };
-      const gravity = { x: 0, y: weight };
-      const tension = {
-        x: restoring.x - gravity.x,
-        y: restoring.y - gravity.y
-      };
-      const maxForce = Math.max(vectorLength(gravity), vectorLength(tension), vectorLength(restoring), 0.001);
+      const maxForce = Math.max(vectorLength(gravity), vectorLength(tension), vectorLength(resultant), vectorLength(restoring), 0.001);
       const maxArrowLength = Math.max(45, Math.min(110, Math.min(w * 0.24, h * 0.18)));
       const scale = maxArrowLength / maxForce;
       const toPixels = vector => ({ x: vector.x * scale, y: vector.y * scale });
       const gravityPx = toPixels(gravity);
       const tensionPx = toPixels(tension);
+      const resultantPx = toPixels(resultant);
       const restoringPx = toPixels(restoring);
       return {
         gravity,
         tension,
+        resultant,
         restoring,
+        tensionMagnitude,
         gravityPx,
         tensionPx,
+        resultantPx,
         restoringPx,
-        pixelLengths: [vectorLength(gravityPx), vectorLength(tensionPx), vectorLength(restoringPx)],
+        pixelLengths: [vectorLength(gravityPx), vectorLength(tensionPx), vectorLength(resultantPx)],
         maxArrowLength
       };
     }
@@ -688,11 +919,16 @@
     }
 
     window.__oscillationTest = {
-      pendulumForces(angleDegrees, mass, w, h) {
-        return getPendulumForceVectors(angleDegrees * Math.PI / 180, mass, w, h);
+      pendulumForces(angleDegrees, mass, w, h, thetaDot = 0, L = 1) {
+        return getPendulumForceVectors(angleDegrees * Math.PI / 180, mass, w, h, thetaDot, L);
       },
       visualPendulumLength,
-      vectorLabelParts
+      vectorLabelParts,
+      pendulumAcceleration,
+      nonlinearPendulumPeriod,
+      integratePendulum,
+      getPendulumState: () => ({...pendulumState, history: [...pendulumState.history]}),
+      wizardStepCount: wizardSteps.length
     };
 
     function drawAnimationArea(x, y, w, h, pos, vel, acc) {
@@ -733,16 +969,16 @@
       } else {
         let visualL = visualPendulumLength(L, h), px = visualL * Math.sin(pos), py = visualL * Math.cos(pos);
         stroke(150, 150, 150, 150); strokeWeight(1); drawingContext.setLineDash([5, 5]); line(0, 0, 0, visualL + 50); drawingContext.setLineDash([]);
-        fill(100); noStroke(); textSize(11); text("Ruhelage (x=0)", 5, visualL + 40);
+        fill(100); noStroke(); textSize(11); text("Ruhelage: s = 0", 5, visualL + 40);
         fill(37, 99, 235); textAlign(LEFT); textSize(14); text(`s = ${(L * pos * 100).toFixed(1)} cm`, w/2 - 80, 30);
         if (document.getElementById('energyToggle').checked) drawEnergyBars(-w/2 + 20, h - 100, vel, pos, true, state);
         stroke(50); strokeWeight(3); line(0, 0, px, py);
         fill(30, 41, 59); noStroke(); circle(px, py, 60);
         if (document.getElementById('forceVectorToggle').checked) {
-          const forces = getPendulumForceVectors(pos, mass, w, h);
+          const forces = getPendulumForceVectors(pos, mass, w, h, vel, L);
           drawArrow(px, py, forces.gravityPx.x, forces.gravityPx.y, '#2563eb', 'F_G', forces.maxArrowLength);
-          drawArrow(px, py, forces.tensionPx.x, forces.tensionPx.y, '#7c3aed', 'F_Z', forces.maxArrowLength);
-          drawArrow(px, py, forces.restoringPx.x, forces.restoringPx.y, '#ef4444', 'F_res', forces.maxArrowLength);
+          drawArrow(px, py, forces.tensionPx.x, forces.tensionPx.y, '#7c3aed', 'F_S', forces.maxArrowLength);
+          drawArrow(px, py, forces.resultantPx.x, forces.resultantPx.y, '#ef4444', 'F_res', forces.maxArrowLength);
         }
       }
       pop();
@@ -837,7 +1073,9 @@
       // Amplitude für Diagramm-Skalierung immer aus dem echten State (Simulation) nehmen
       // Feder: y-Amplitude (m), Pendel: s-Amplitude = L·θ (m)
       let ampM = system === 'spring' ? currentState.amplitude : (currentState.L * currentState.amplitude);
-      let T = 2 * PI / omega;
+      let T = system === 'spring'
+        ? 2 * PI / omega
+        : nonlinearPendulumPeriod(currentState.amplitude, currentState.L);
       let margin = 45;
       
       // Sichtbarer Zeitbereich (letzte visibleTime Sekunden)
@@ -947,9 +1185,11 @@
       types.forEach((tName, idx) => {
         let range;
         const posSymbol = system === 'spring' ? 'y' : 's';
+        const pendulumVelocityMax = Math.sqrt(2 * g * currentState.L * (1 - Math.cos(currentState.amplitude)));
+        const pendulumAccelerationMax = g * Math.sin(currentState.amplitude);
         if (tName === 'pos') { range = ampM; label = posSymbol; unit = " cm"; c = color(37, 99, 235); }
-        else if (tName === 'vel') { range = ampM * omega; label = "v"; unit = " cm/s"; c = color(22, 163, 74); }
-        else { range = ampM * omega * omega; label = "a"; unit = " cm/s²"; c = color(239, 68, 68); }
+        else if (tName === 'vel') { range = system === 'spring' ? ampM * omega : pendulumVelocityMax; label = "v"; unit = " cm/s"; c = color(22, 163, 74); }
+        else { range = system === 'spring' ? ampM * omega * omega : pendulumAccelerationMax; label = "a"; unit = " cm/s²"; c = color(239, 68, 68); }
         dR = range * 1.2;
 
         if (type !== 'combined') {
@@ -1070,7 +1310,7 @@
             let ampVal = constrain(Math.abs((y0 - ty) / 500) * 100, 1, 30);
             ampSlider.value = ampVal; ampInput.value = ampVal.toFixed(1);
           } else {
-            let ampVal = constrain(Math.abs(atan2(tx - centerX, ty - 40)) * 180 / PI, 1, 30);
+            let ampVal = constrain(Math.abs(atan2(tx - centerX, ty - 40)) * 180 / PI, 1, 90);
             ampSlider.value = ampVal; ampInput.value = ampVal.toFixed(1);
           }
 
@@ -1137,20 +1377,16 @@
         cursorVel = state.history[nearestIdx].vel;
         cursorAcc = state.history[nearestIdx].acc;
       } else {
-        // Fallback: Berechne Werte direkt aus der Sinusfunktion
+        // Fallback: aktueller Modellzustand, falls noch kein History-Punkt existiert.
         if (system === 'spring') {
           const omega = Math.sqrt(state.k / state.mass);
           cursorPos = state.amplitude * Math.cos(omega * cursorTime);
           cursorVel = -state.amplitude * omega * Math.sin(omega * cursorTime);
           cursorAcc = -omega * omega * cursorPos;
         } else {
-          const omega = Math.sqrt(g / state.L);
-          const theta = state.amplitude * Math.cos(omega * cursorTime);
-          const thetaDot = -state.amplitude * omega * Math.sin(omega * cursorTime);
-          const thetaDDot = -omega * omega * theta;
-          cursorPos = state.L * theta;
-          cursorVel = state.L * thetaDot;
-          cursorAcc = state.L * thetaDDot;
+          cursorPos = state.L * state.theta;
+          cursorVel = state.L * state.thetaDot;
+          cursorAcc = state.L * pendulumAcceleration(state.theta, state.L);
         }
       }
     }

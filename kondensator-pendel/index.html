@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3eee4">
+<title>Kondensator-Pendel – Energie als Fläche</title>
+<link rel="stylesheet" href="../shared/student-entry.css">
+<style>
+:root{--paper:#f3eee4;--ink:#183b3a;--muted:#65706d;--petrol:#176b68;--petrol2:#0e4f4d;--red:#bd5d4d;--blue:#3d74a8;--amber:#d8a13f;--card:#fffdf8;--line:#d7cfc1;--shadow:0 10px 28px rgba(39,55,52,.11)}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-rounded,"Avenir Next",system-ui,sans-serif}body{padding:10px;overflow-x:hidden}button,select,input{font:inherit}button,select,input[type=number]{min-height:44px}.page{max-width:1380px;margin:auto}.topbar{display:flex;align-items:center;gap:12px;min-height:52px;margin-bottom:9px}.home,.btn{border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:850;text-decoration:none;padding:10px 14px;cursor:pointer;box-shadow:0 2px 8px rgba(34,54,51,.06)}.home{min-width:46px;text-align:center}.btn.primary{background:var(--petrol);color:#fff;border-color:var(--petrol)}.btn:disabled{opacity:.45;cursor:not-allowed}.heading{flex:1;min-width:0}.heading h1{font-family:Georgia,serif;font-size:clamp(1.25rem,2.4vw,2rem);margin:0;line-height:1}.heading p{margin:3px 0 0;color:var(--muted);font-size:.86rem}.actions{display:flex;gap:8px}.layout{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(370px,.88fr);gap:12px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}.status{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}.readout{background:var(--card);padding:9px;text-align:center;min-width:0}.readout small{display:block;color:var(--muted);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.readout strong{display:block;margin-top:2px;font-size:clamp(.82rem,1.5vw,1.05rem);font-variant-numeric:tabular-nums;white-space:nowrap}.canvas-wrap{position:relative;height:420px;background:#e8f1ec}.canvas-wrap canvas,.graph-wrap canvas{display:block;width:100%;height:100%}.model-badge{position:absolute;top:10px;left:10px;padding:7px 10px;border:1px solid #b7ccc4;border-radius:999px;background:rgba(255,253,248,.94);font-size:.75rem;font-weight:850}.motion-note{position:absolute;left:12px;right:12px;bottom:10px;margin:auto;max-width:620px;padding:8px 10px;border-radius:11px;background:rgba(255,253,248,.94);border:1px solid var(--line);text-align:center;font-size:.82rem;font-weight:750}.controls{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:10px;align-items:end;padding:10px 12px}.field label{display:block;color:var(--muted);font-size:.7rem;font-weight:850;margin-bottom:4px;text-transform:uppercase}.field select{width:100%;border:1px solid var(--line);border-radius:11px;background:#fff;padding:6px 10px;color:var(--ink);font-weight:750}.packet-info{font-size:.8rem;color:var(--muted);line-height:1.35}.diagram{padding:13px;display:flex;flex-direction:column;gap:8px}.diagram h2{font-family:Georgia,serif;margin:0;font-size:1.2rem}.diagram .lead{margin:0;color:var(--muted);font-size:.82rem;line-height:1.35}.graph-wrap{height:310px;border:1px solid var(--line);border-radius:13px;background:#fff;overflow:hidden}.energy-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.energy-box{border:1px solid var(--line);border-radius:11px;padding:7px 9px;background:#faf7f0}.energy-box small{display:block;color:var(--muted);font-size:.66rem;font-weight:850;text-transform:uppercase}.energy-box strong{font-variant-numeric:tabular-nums;font-size:.94rem}.energy-box.reference{background:#edf6f2;border-color:#bfd8ce}.energy-box.approx{background:#fff6df;border-color:#e7c987}.observation{border-left:5px solid var(--petrol);border-radius:10px;padding:8px 10px;background:#eaf4f0;font-size:.8rem;line-height:1.35}.model{margin-top:9px;padding:0 14px}.model summary{min-height:44px;display:flex;align-items:center;font-weight:900;cursor:pointer}.model-content{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;padding:2px 0 14px;color:#394b48;font-size:.84rem;line-height:1.45}.formula{background:#eef5f2;border:1px solid #c6d8d1;border-radius:12px;padding:10px;text-align:center;font-family:Georgia,serif;font-size:1.02rem}.parameters{display:grid;grid-template-columns:1fr 1fr;gap:8px}.parameters label{font-weight:800}.parameters input{width:100%;border:1px solid var(--line);border-radius:9px;padding:6px 8px}.vec{display:inline-block;position:relative;font-style:italic;padding-top:.12em}.vec:after{content:"→";position:absolute;left:50%;top:-.72em;transform:translateX(-50%);font-size:.72em;font-style:normal}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-height:820px) and (min-width:901px){body{padding:7px}.topbar{min-height:46px;margin-bottom:6px}.heading p{display:none}.canvas-wrap{height:345px}.graph-wrap{height:250px}.controls{padding:7px 10px}.diagram{padding:10px}.model{margin-top:6px}.motion-note{font-size:.75rem}}
+@media(max-width:900px){body{overflow-y:auto}.layout{grid-template-columns:1fr}.canvas-wrap{height:430px}.graph-wrap{height:340px}.model-content{grid-template-columns:1fr}.heading p{display:none}}
+@media(max-width:620px){body{padding:6px}.topbar{flex-wrap:wrap}.heading{order:-1;flex-basis:100%}.actions{margin-left:auto}.actions .btn{padding:8px 10px}.status{grid-template-columns:1fr 1fr}.canvas-wrap{height:390px}.controls{grid-template-columns:1fr 1fr}.packet-info{grid-column:1/-1}.graph-wrap{height:300px}}
+</style>
+</head>
+<body data-physik-app="kondensator-pendel" data-student-home="../" data-student-title="Kondensator-Pendel" data-student-summary="Du beobachtest, wie eine Pendelkugel Ladung zwischen den Platten transportiert und dabei die Spannung sinkt." data-student-controls="Starte die Animation oder führe einzelne Transporte aus. Beobachte gleichzeitig das U-Q-Diagramm.">
+<div class="page">
+<header class="topbar">
+<a class="home" href="../" aria-label="Zur Übersicht">⌂</a>
+<div class="heading"><h1>Kondensator-Pendel</h1><p>Vom Ladungstransport zur Energiefläche im elektrischen Feld</p></div>
+<div class="actions"><button class="btn primary" id="playBtn">▶ Start</button><button class="btn" id="stepBtn">Einzelschritt</button><button class="btn" id="resetBtn">↺ Neu</button></div>
+</header>
+<main class="layout">
+<section class="card" aria-labelledby="experimentTitle">
+<h2 id="experimentTitle" class="sr-only">Pendel im Plattenkondensator</h2>
+<div class="status">
+<div class="readout"><small>Spannung U</small><strong id="uRead">400 V</strong></div>
+<div class="readout"><small>Plattenladung Q</small><strong id="qRead">100 nC</strong></div>
+<div class="readout"><small>Übertragen</small><strong id="transferRead">0 / 20</strong></div>
+<div class="readout"><small>Feldenergie</small><strong id="storedRead">20,00 µJ</strong></div>
+</div>
+<div class="canvas-wrap">
+<canvas id="experimentCanvas" role="img" aria-label="Leitfähige Pendelkugel zwischen einer positiven und einer negativen Kondensatorplatte"></canvas>
+<div class="model-badge">Spannungsquelle getrennt</div>
+<div class="motion-note" id="motionNote">Die positiv geladene Kugel startet an der positiven Platte.</div>
+</div>
+<div class="controls">
+<div class="packet-info"><strong>Rechenmodell: N gleich große Ladungsschritte.</strong><br><span id="packetRead">ΔQ = 5,00 nC</span></div>
+<div class="field"><label for="packetSelect">Ladungsschritte</label><select id="packetSelect"><option value="10">10 · grob</option><option value="20" selected>20 · mittel</option><option value="40">40 · fein</option></select></div>
+<div class="field"><label for="speedSelect">Tempo</label><select id="speedSelect"><option value="0.5">0,5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+</div>
+</section>
+<section class="card diagram" aria-labelledby="diagramTitle">
+<h2 id="diagramTitle">U-Q-Diagramm</h2>
+<p class="lead">Auf der x-Achse wächst die <strong>übertragene Ladung</strong>. Die Spannung fällt linear. Die Fläche unter der Geraden ist Energie.</p>
+<div class="graph-wrap"><canvas id="graphCanvas" role="img" aria-label="Diagramm der Spannung über der übertragenen Ladung mit Rechtecknäherung"></canvas></div>
+<div class="energy-grid">
+<div class="energy-box reference"><small>Anfangsenergie exakt</small><strong id="initialEnergy">20,00 µJ</strong></div>
+<div class="energy-box"><small>Noch im Feld</small><strong id="remainEnergy">20,00 µJ</strong></div>
+<div class="energy-box"><small>Abgegeben exakt</small><strong id="releasedEnergy">0,00 µJ</strong></div>
+<div class="energy-box approx"><small>Rechtecksumme</small><strong id="rectEnergy">0,00 µJ</strong></div>
+</div>
+<div class="observation" id="observation">Noch ist die gesamte Energie im elektrischen Feld gespeichert.</div>
+</section>
+</main>
+<details class="card model">
+<summary>Modell, Herleitung und Parameter</summary>
+<div class="model-content">
+<div><div class="formula">ΔE<sub>el</sub> ≈ ΔQ · U<sub>k</sub><br>E<sub>el</sub> = ½ Q<sub>ges</sub>U<sub>max</sub> = ½ C U<sub>max</sub><sup>2</sup></div><p><strong>Warum ein Dreieck?</strong> Für den getrennten Kondensator gilt U = Q/C. Werden im Rechenmodell gleich große Ladungsschritte übertragen, sinkt U daher linear. Viele schmale Rechtecke nähern sich der Dreiecksfläche an.</p><p><strong>Modellgrenze:</strong> Die gleich großen Schritte sind eine künstliche Diskretisierung der Fläche und beschreiben die reale Ladungsaufnahme der Pendelkugel nicht quantitativ. Pendelbewegung, Kontaktzeit, Induktion und Luftreibung sind nur qualitativ dargestellt.</p></div>
+<div><div class="parameters"><label>U<sub>max</sub> in V<input id="uInput" type="number" min="50" max="1000" step="50" value="400"></label><label>C in nF<input id="cInput" type="number" min="0.05" max="5" step="0.05" value="0.25"></label></div><p>Beim Buchbeispiel gilt Q<sub>ges</sub> = 100 nC und E<sub>el</sub> = 20 µJ. Die exakte Energiebilanz verwendet E = Q²/(2C); die Rechtecke zeigen bewusst die Näherung ΔQ · U<sub>k</sub>.</p></div>
+</div>
+</details>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const expCanvas=$('#experimentCanvas'),graphCanvas=$('#graphCanvas');
+const ectx=expCanvas.getContext('2d'),gctx=graphCanvas.getContext('2d');
+const els={play:$('#playBtn'),step:$('#stepBtn'),reset:$('#resetBtn'),packets:$('#packetSelect'),speed:$('#speedSelect'),uIn:$('#uInput'),cIn:$('#cInput'),u:$('#uRead'),q:$('#qRead'),transfers:$('#transferRead'),stored:$('#storedRead'),packet:$('#packetRead'),note:$('#motionNote'),initial:$('#initialEnergy'),remain:$('#remainEnergy'),released:$('#releasedEnergy'),rect:$('#rectEnergy'),observation:$('#observation')};
+const params={U0:400,CnF:.25,N:20,speed:1};
+const state={step:0,progress:0,from:'left',to:'right',ballSign:1,playing:false,oneStep:false,lastTime:performance.now()};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const smooth=t=>t*t*(3-2*t);
+const fmt=(v,d=2)=>Number(v).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+function constants(){const C=params.CnF*1e-9,Q0=C*params.U0,E0=.5*C*params.U0**2;return{C,Q0,E0,dQ:Q0/params.N};}
+function sampleAtStep(rawStep=state.step){const k=clamp(Math.round(rawStep),0,params.N),{C,Q0,E0,dQ}=constants();const Q=Q0-k*dQ,U=Q/C,stored=Q*Q/(2*C),released=E0-stored;let rectSum=0;for(let i=0;i<k;i++)rectSum+=dQ*params.U0*(1-i/params.N);return{k,Q,U,stored,released,E0,Q0,dQ,rectSum,balanceError:E0-stored-released};}
+function finishTransfer(){if(state.step>=params.N)return sampleAtStep();state.step++;state.from=state.to;state.to=state.from==='left'?'right':'left';state.ballSign=state.from==='left'?1:-1;state.progress=0;if(state.step>=params.N){state.playing=false;state.oneStep=false;}else if(state.oneStep){state.playing=false;state.oneStep=false;}update();return sampleAtStep();}
+function reset(auto=false){state.step=0;state.progress=0;state.from='left';state.to='right';state.ballSign=1;state.playing=auto;state.oneStep=false;state.lastTime=performance.now();update();}
+function setPacketCount(n,auto=false){params.N=[10,20,40].includes(Number(n))?Number(n):20;els.packets.value=String(params.N);reset(auto);}
+function setParameters(U0,CnF,N=params.N){params.U0=clamp(Number(U0)||400,50,1000);params.CnF=clamp(Number(CnF)||.25,.05,5);els.uIn.value=String(params.U0);els.cIn.value=String(params.CnF);setPacketCount(N,false);return sampleAtStep();}
+function advanceTransfers(count=1){const n=Math.max(0,Math.floor(Number(count)||0));state.playing=false;state.oneStep=false;for(let i=0;i<n&&state.step<params.N;i++){state.to=state.from==='left'?'right':'left';finishTransfer();}update();return sampleAtStep();}
+function approximationFor(n=params.N){const N=Number(n),{Q0,E0}=constants(),dQ=Q0/N;let sum=0;for(let i=0;i<N;i++)sum+=dQ*params.U0*(1-i/N);return{N,sum,exact:E0,relativeError:(sum/E0-1)};}
+function update(){const s=sampleAtStep();els.u.textContent=`${fmt(s.U,0)} V`;els.q.textContent=`${fmt(s.Q*1e9,1)} nC`;els.transfers.textContent=`${s.k} / ${params.N}`;els.stored.textContent=`${fmt(s.stored*1e6)} µJ`;els.packet.textContent=`ΔQ = ${fmt(s.dQ*1e9)} nC`;els.initial.textContent=`${fmt(s.E0*1e6)} µJ`;els.remain.textContent=`${fmt(s.stored*1e6)} µJ`;els.released.textContent=`${fmt(s.released*1e6)} µJ`;els.rect.textContent=`${fmt(s.rectSum*1e6)} µJ`;els.play.textContent=state.playing?'❚❚ Pause':state.step>=params.N?'▶ Noch einmal':'▶ Start';els.step.disabled=state.playing||state.step>=params.N;
+ if(state.step===0)els.note.textContent='Die positiv geladene Kugel startet an der positiven Platte.';
+ else if(state.step>=params.N)els.note.textContent='Der Kondensator ist entladen: U = 0 V, das Feld treibt die Kugel nicht mehr an.';
+ else els.note.textContent=`Kontakt ${state.step}: Die Kugel ist jetzt ${state.ballSign>0?'positiv':'negativ'} und wird zur ${state.to==='left'?'positiven':'negativen'} Platte beschleunigt.`;
+ if(state.step===0)els.observation.textContent='Noch ist die gesamte Energie im elektrischen Feld gespeichert.';
+ else if(state.step>=params.N){const a=approximationFor();els.observation.textContent=`Die Dreiecksfläche liefert exakt ${fmt(s.E0*1e6)} µJ. ${params.N} linke Rechtecke ergeben ${fmt(a.sum*1e6)} µJ (${fmt(a.relativeError*100,1)} % zu groß). Mehr, kleinere Pakete verbessern die Näherung.`;}
+ else els.observation.textContent=`Mit Q sinkt auch U linear. Die bereits abgegebene Feldenergie beträgt exakt ${fmt(s.released*1e6)} µJ; die sichtbaren Rechtecke nähern diese Fläche an.`;
+ draw();
+}
+els.play.addEventListener('click',()=>{if(state.step>=params.N)reset(true);else{state.playing=!state.playing;state.oneStep=false;state.lastTime=performance.now();update();}});
+els.step.addEventListener('click',()=>{if(state.step<params.N){state.oneStep=true;state.playing=true;state.lastTime=performance.now();update();}});
+els.reset.addEventListener('click',()=>reset(false));
+els.packets.addEventListener('change',()=>setPacketCount(els.packets.value,false));
+els.speed.addEventListener('change',()=>{params.speed=Number(els.speed.value)||1;});
+function applyInputs(){setParameters(els.uIn.value,els.cIn.value,params.N);}
+els.uIn.addEventListener('change',applyInputs);els.cIn.addEventListener('change',applyInputs);
+document.addEventListener('click',e=>{if(e.target.closest&&e.target.closest('.student-intro-ok')&&state.step===0&&!state.playing)setTimeout(()=>{state.playing=true;state.lastTime=performance.now();update();},0);});
+function resizeCanvas(canvas,ctx){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);return{w,h};}
+function arrow(ctx,x1,y1,x2,y2,color='#176b68',width=2,head=8){const a=Math.atan2(y2-y1,x2-x1);ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-head*Math.cos(a-.45),y2-head*Math.sin(a-.45));ctx.lineTo(x2-head*Math.cos(a+.45),y2-head*Math.sin(a+.45));ctx.closePath();ctx.fill();ctx.restore();}
+function vectorForceLabel(ctx,x,y,color){ctx.save();ctx.fillStyle=color;ctx.font='italic 700 14px Georgia';ctx.fillText('F',x,y);const fw=ctx.measureText('F').width;ctx.font='11px system-ui';ctx.fillText('el',x+fw+1,y+3);arrow(ctx,x-1,y-14,x+fw+2,y-14,color,1,4);ctx.restore();}
+function drawPlate(ctx,x,y,w,h,positive,level){ctx.save();ctx.fillStyle=positive?'#c77a61':'#658caf';ctx.strokeStyle='#183b3a';ctx.lineWidth=2;ctx.fillRect(x,y,w,h);ctx.strokeRect(x,y,w,h);ctx.font='800 16px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=.22+.78*level;ctx.fillStyle=positive?'#9f352c':'#244f7b';const sign=positive?'+':'−';for(let yy=y+17;yy<y+h-5;yy+=27)ctx.fillText(sign,positive?x-13:x+w+13,yy);ctx.globalAlpha=1;ctx.font='800 12px system-ui';ctx.fillStyle='#183b3a';ctx.fillText(positive?'positive Platte':'negative Platte',x+w/2,y-11);ctx.restore();}
+function drawExperiment(){const{w,h}=resizeCanvas(expCanvas,ectx),s=sampleAtStep();ectx.clearRect(0,0,w,h);const bg=ectx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#dcece7');bg.addColorStop(1,'#f2eee2');ectx.fillStyle=bg;ectx.fillRect(0,0,w,h);
+ const cx=w/2,pivotY=58,L=Math.min(h*.57,w*.43),thetaMax=.62,r=17,dx=L*Math.sin(thetaMax),plateY=92,plateH=Math.max(160,h-157),plateW=18,leftX=cx-dx-r-10-plateW,rightX=cx+dx+r+10,level=params.U0?clamp(s.U/params.U0,0,1):0;
+ ectx.save();ectx.strokeStyle=`rgba(23,107,104,${.07+.20*level})`;ectx.lineWidth=1;ectx.setLineDash([5,8]);for(let yy=plateY+23;yy<plateY+plateH-12;yy+=36)arrow(ectx,leftX+plateW+4,yy,rightX-4,yy,`rgba(23,107,104,${.12+.45*level})`,1.3,6);ectx.restore();
+ drawPlate(ectx,leftX,plateY,plateW,plateH,true,level);drawPlate(ectx,rightX,plateY,plateW,plateH,false,level);
+ const a0=state.from==='left'?-thetaMax:thetaMax,a1=state.to==='left'?-thetaMax:thetaMax,theta=a0+(a1-a0)*smooth(state.progress),bx=cx+L*Math.sin(theta),by=pivotY+L*Math.cos(theta);
+ ectx.save();ectx.strokeStyle='#5e655f';ectx.lineWidth=2.2;ectx.beginPath();ectx.moveTo(cx,pivotY);ectx.lineTo(bx,by);ectx.stroke();ectx.fillStyle='#183b3a';ectx.beginPath();ectx.arc(cx,pivotY,5,0,Math.PI*2);ectx.fill();ectx.restore();
+ const glow=ectx.createRadialGradient(bx-5,by-6,2,bx,by,r+8);glow.addColorStop(0,'#f8fbfa');glow.addColorStop(.35,state.ballSign>0?'#dc7c65':'#6e9dc0');glow.addColorStop(1,'#183b3a');ectx.fillStyle=glow;ectx.beginPath();ectx.arc(bx,by,r,0,Math.PI*2);ectx.fill();ectx.strokeStyle='#183b3a';ectx.lineWidth=2;ectx.stroke();ectx.fillStyle='#fff';ectx.font='900 19px system-ui';ectx.textAlign='center';ectx.textBaseline='middle';ectx.fillText(state.ballSign>0?'+':'−',bx,by-1);
+ if(level>.015&&state.step<params.N){const dir=state.to==='right'?1:-1,len=35+42*level;arrow(ectx,bx+dir*(r+3),by,bx+dir*(r+len),by,'#176b68',3,9);vectorForceLabel(ectx,dir>0?bx+r+len-18:bx-r-len+3,by-9,'#176b68');}
+ ectx.fillStyle='#536662';ectx.font='750 12px system-ui';ectx.textAlign='center';ectx.fillText(`Feldstärke ∝ U: ${fmt(level*100,0)} %`,cx,21);
+ expCanvas.setAttribute('aria-label',`Pendel zwischen Kondensatorplatten. Die Kugel ist ${state.ballSign>0?'positiv':'negativ'} geladen. Spannung ${fmt(s.U,0)} Volt, ${s.k} von ${params.N} Ladungstransporten.`);
+}
+function drawGraph(){const{w,h}=resizeCanvas(graphCanvas,gctx),s=sampleAtStep(),m={l:58,r:17,t:25,b:54},pw=w-m.l-m.r,ph=h-m.t-m.b,x=q=>m.l+q/s.Q0*pw,y=u=>m.t+(1-u/params.U0)*ph,bottom=m.t+ph;gctx.clearRect(0,0,w,h);gctx.fillStyle='#fff';gctx.fillRect(0,0,w,h);
+ gctx.strokeStyle='#e7e1d6';gctx.lineWidth=1;gctx.font='11px system-ui';gctx.fillStyle='#68736f';gctx.textAlign='right';gctx.textBaseline='middle';for(let i=0;i<=4;i++){const u=params.U0*i/4,yy=y(u);gctx.beginPath();gctx.moveTo(m.l,yy);gctx.lineTo(w-m.r,yy);gctx.stroke();gctx.fillText(fmt(u,0),m.l-7,yy);}
+ gctx.fillStyle='rgba(23,107,104,.12)';gctx.beginPath();gctx.moveTo(x(0),bottom);gctx.lineTo(x(0),y(params.U0));gctx.lineTo(x(s.Q0),bottom);gctx.closePath();gctx.fill();
+ if(s.k>0){const xc=x(s.k*s.dQ),yc=y(s.U);gctx.fillStyle='rgba(216,161,63,.22)';gctx.beginPath();gctx.moveTo(x(0),bottom);gctx.lineTo(x(0),y(params.U0));gctx.lineTo(xc,yc);gctx.lineTo(xc,bottom);gctx.closePath();gctx.fill();}
+ for(let i=0;i<s.k;i++){const u=params.U0*(1-i/params.N),x1=x(i*s.dQ),x2=x((i+1)*s.dQ),yt=y(u);gctx.fillStyle='rgba(61,116,168,.10)';gctx.fillRect(x1,yt,x2-x1,bottom-yt);gctx.strokeStyle='rgba(61,116,168,.72)';gctx.lineWidth=1;gctx.strokeRect(x1,yt,x2-x1,bottom-yt);}
+ gctx.strokeStyle='#176b68';gctx.lineWidth=3;gctx.beginPath();gctx.moveTo(x(0),y(params.U0));gctx.lineTo(x(s.Q0),bottom);gctx.stroke();
+ const xc=x(s.k*s.dQ),yc=y(s.U);gctx.fillStyle='#bd5d4d';gctx.beginPath();gctx.arc(xc,yc,5,0,Math.PI*2);gctx.fill();
+ gctx.strokeStyle='#183b3a';gctx.lineWidth=1.5;arrow(gctx,m.l,bottom,w-m.r+2,bottom,'#183b3a',1.5,7);arrow(gctx,m.l,bottom,m.l,m.t-5,'#183b3a',1.5,7);gctx.fillStyle='#183b3a';gctx.font='700 11px system-ui';gctx.textAlign='center';gctx.textBaseline='top';gctx.fillText('0',m.l,bottom+6);gctx.textAlign='right';gctx.fillText(`Qges = ${fmt(s.Q0*1e9,0)} nC`,x(s.Q0)-2,bottom+6);gctx.textAlign='center';gctx.fillText('übertragene Ladung Qtrans',m.l+pw/2,bottom+29);gctx.save();gctx.translate(13,m.t+ph/2);gctx.rotate(-Math.PI/2);gctx.textAlign='center';gctx.fillText('Spannung U in V',0,0);gctx.restore();
+ gctx.font='700 10px system-ui';gctx.fillStyle='#3d74a8';gctx.textAlign='left';gctx.textBaseline='top';gctx.fillText('Rechtecke: ΔQ · Uk',m.l+8,m.t+7);gctx.fillStyle='#176b68';gctx.textAlign='right';gctx.fillText('Gerade: U = (Qges − Qtrans) / C',w-m.r-5,m.t+7);
+ graphCanvas.setAttribute('aria-label',`U-Q-Diagramm: ${s.k} von ${params.N} Rechtecken. Spannung ${fmt(s.U,0)} Volt. Rechtecksumme ${fmt(s.rectSum*1e6)} Mikrojoule.`);
+}
+function draw(){drawExperiment();drawGraph();}
+function tick(now){const dt=Math.min(.05,Math.max(0,(now-state.lastTime)/1000));state.lastTime=now;if(state.playing&&state.step<params.N){const duration=(1.22+.75*state.step/params.N)/params.speed;state.progress+=dt/duration;if(state.progress>=1)finishTransfer();else draw();}requestAnimationFrame(tick);}
+new ResizeObserver(draw).observe(document.querySelector('.layout'));
+window.__capacitorPendulum={getState:()=>({...sampleAtStep(),step:state.step,progress:state.progress,playing:state.playing,ballSign:state.ballSign,from:state.from,to:state.to,N:params.N,U0:params.U0,CnF:params.CnF}),sampleAtStep,setPacketCount,setParameters,advanceTransfers,approximationFor,reset:()=>reset(false),draw};
+update();requestAnimationFrame(tick);window.dispatchEvent(new CustomEvent('capacitor-pendulum-ready'));
+})();
+</script>
+<script src="../shared/student-entry.js"></script>
+</body>
+</html>
+
