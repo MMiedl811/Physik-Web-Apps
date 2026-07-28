@@ -836,6 +836,14 @@
         applyGroundResistance(dt);
         state.x += state.vx * dt;
 
+        // Beim Verlassen einer erhöhten Plattform darf die Höhe nicht auf den
+        // tieferen Untergrund springen. Der Runner verliert lediglich den
+        // Kontakt zur Stütze und beginnt von der Plattformkante aus zu fallen.
+        const supportAfterHorizontalMove = supportHeightAt(state.x, state.y);
+        if (state.onGround && supportAfterHorizontalMove < state.y - 0.09) {
+          state.onGround = false;
+        }
+
         if (!state.onGround) {
           const yOld = state.y;
           const vyOld = state.vy;
@@ -845,17 +853,19 @@
           if (state.vy <= 0) {
             const landingHeight = supportHeightAt(state.x, yOld);
             if (yOld >= landingHeight - 0.04 && state.y <= landingHeight) {
-              const mechanicalBefore = kineticEnergy() + potentialEnergy();
+              // Kontaktgeschwindigkeit exakt an der Oberfläche bestimmen. So
+              // fließt keine numerische Eindringtiefe in die Energiebilanz ein.
+              const impactVySquared = Math.max(0, vyOld * vyOld + 2 * CONFIG.g * (yOld - landingHeight));
+              const verticalKineticAtContact = 0.5 * CONFIG.mass * impactVySquared;
               state.y = landingHeight;
               state.vy = 0;
               state.onGround = true;
-              const mechanicalAfter = kineticEnergy() + potentialEnergy();
-              state.thermal += Math.max(0, mechanicalBefore - mechanicalAfter);
+              state.thermal += verticalKineticAtContact;
               setMessage('Landung: vertikale Bewegungsenergie → innere Energie', 2.1);
             }
           }
         } else {
-          state.y = supportHeightAt(state.x, state.y);
+          state.y = supportAfterHorizontalMove;
           state.vy = 0;
         }
 

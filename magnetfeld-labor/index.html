@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3eee4">
+<title>Magnetfeld-Labor – Felder sichtbar machen</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../shared/student-entry.css">
+<style>
+:root{
+  --paper:#f3eee4;--paper2:#e9e1d5;--card:#fffdf8;--card2:#f8f3ea;--ink:#213936;--muted:#68736f;
+  --line:#d8cfc1;--petrol:#0f766e;--petrol2:#0a5a55;--petrolSoft:#dfeee9;--north:#bd5d4d;--south:#4678a2;
+  --iron:#697571;--amber:#d49a38;--shadow:0 12px 32px rgba(48,59,54,.11)
+}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-rounded,"Avenir Next",system-ui,sans-serif}body{padding:9px;overflow-x:hidden}button,select,input{font:inherit}button,select{min-height:44px}.app{width:min(1420px,100%);margin:auto}.topbar{display:flex;align-items:center;gap:10px;min-height:54px;margin-bottom:8px}.home,.btn,.tab{display:inline-flex;align-items:center;justify-content:center;min-width:48px;min-height:48px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font-weight:820;text-decoration:none;cursor:pointer;box-shadow:0 2px 8px rgba(34,54,51,.05)}.home{font-size:1.15rem}.heading{min-width:0;flex:1}.heading h1{margin:0;font-family:Georgia,serif;font-size:clamp(1.3rem,2.5vw,2rem);line-height:1}.heading p{margin:4px 0 0;color:var(--muted);font-size:.84rem}.view-tabs{display:flex;gap:6px;padding:4px;border:1px solid var(--line);border-radius:14px;background:rgba(255,253,248,.74)}.tab{box-shadow:none;border-color:transparent;padding:8px 13px}.tab[aria-selected="true"]{border-color:var(--petrol);background:var(--petrol);color:white}.btn{padding:9px 12px}.btn.primary{border-color:var(--petrol);background:var(--petrol);color:white}.btn:hover:not(:disabled),.home:hover{border-color:var(--petrol)}.btn:disabled{opacity:.42;cursor:not-allowed}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:10px;align-items:start}.card{overflow:hidden;border:1px solid var(--line);border-radius:18px;background:var(--card);box-shadow:var(--shadow)}.stage-card{position:relative}.stage-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--card2)}.stage-head strong{font-size:.94rem}.stage-head span{color:var(--muted);font-size:.75rem}.canvas-wrap{position:relative;height:590px;background:#e7eee9}.canvas-wrap canvas{display:block;width:100%;height:100%;touch-action:none}.canvas-wrap canvas:focus-visible{outline:4px solid rgba(15,118,110,.42);outline-offset:-4px}.stage-badge{position:absolute;top:10px;left:10px;pointer-events:none;padding:7px 10px;border:1px solid rgba(15,118,110,.24);border-radius:999px;background:rgba(255,253,248,.92);color:var(--petrol2);font-size:.73rem;font-weight:850;backdrop-filter:blur(4px)}.stage-tip{position:absolute;right:10px;bottom:10px;max-width:min(330px,60%);pointer-events:none;padding:8px 10px;border:1px solid rgba(216,207,193,.9);border-radius:11px;background:rgba(255,253,248,.9);color:#52615d;font-size:.73rem;line-height:1.35}.space-controls{position:absolute;left:50%;bottom:12px;display:flex;gap:7px;transform:translateX(-50%)}.space-controls .btn{min-width:48px;background:rgba(255,253,248,.94)}.legend{position:absolute;right:10px;top:10px;display:flex;gap:8px;padding:7px 9px;border:1px solid rgba(216,207,193,.9);border-radius:10px;background:rgba(255,253,248,.9);font-size:.72rem;font-weight:800}.dot{display:inline-block;width:9px;height:9px;margin-right:4px;border-radius:50%}.dot.n{background:var(--north)}.dot.s{background:var(--south)}.panel{display:grid;gap:9px}.panel-section{padding:12px}.panel-section h2{margin:0 0 9px;font-size:.91rem}.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}.preset-grid .btn{justify-content:flex-start;min-width:0;padding:8px 9px;font-size:.77rem}.tool-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}.tool-row .btn{padding:8px 5px;font-size:.74rem}.selection{display:grid;gap:8px;padding:9px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.selection-title{display:flex;align-items:center;justify-content:space-between;gap:8px}.selection-title strong{font-size:.82rem}.selection-title span{color:var(--muted);font-size:.7rem}.control-row{display:grid;grid-template-columns:1fr 1fr;gap:6px}.control-row .btn{font-size:.78rem}.field{display:grid;gap:5px}.field label{color:var(--muted);font-size:.72rem;font-weight:780}.field select,.field input[type="range"]{width:100%}.field select{padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px}.check{display:flex;align-items:center;gap:7px;min-height:48px;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:var(--card2);font-size:.76rem;font-weight:750;cursor:pointer}.check input{width:18px;height:18px;margin:0;accent-color:var(--petrol)}.observation{padding:11px;border-left:4px solid var(--petrol);border-radius:10px;background:var(--petrolSoft);font-size:.81rem;line-height:1.43}.readout{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(15,118,110,.18);font-size:.74rem}.readout span{color:var(--muted)}.readout strong{font-variant-numeric:tabular-nums}.mini-note{margin:8px 0 0;color:var(--muted);font-size:.73rem;line-height:1.4}.space-copy{display:grid;gap:9px}.space-copy p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.45}.space-copy .check{background:var(--card)}details.model{margin-top:10px}details.model summary{padding:13px 15px;cursor:pointer;font-weight:830}details.model[open] summary{border-bottom:1px solid var(--line)}.model-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:15px}.model-grid h3{margin:0 0 6px;font-size:.9rem}.model-grid p,.model-grid li{color:#53625e;font-size:.78rem;line-height:1.5}.model-grid ul{margin:7px 0 0;padding-left:19px}.formula{padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card2);font-family:Georgia,serif;text-align:center}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}[hidden]{display:none!important}
+@media(max-height:900px) and (min-width:961px){body{padding:6px}.topbar{min-height:48px;margin-bottom:6px}.heading p{display:none}.canvas-wrap{height:560px}.panel{gap:5px}.panel-section{padding:7px}.panel-section h2{margin-bottom:5px}.preset-grid{grid-template-columns:repeat(3,1fr);gap:4px}.preset-grid .btn{justify-content:center;padding:4px;font-size:.68rem;line-height:1.05}.tool-row{margin-top:4px}.selection{grid-template-columns:repeat(4,1fr);gap:4px;padding:6px}.selection-title,.selection .field{grid-column:1/-1}.control-row{display:contents}.control-row .btn{min-width:0;padding:4px;font-size:.67rem;line-height:1.05}.checks{gap:4px}.check{padding:5px 7px}.observation{padding:8px;font-size:.75rem}.readout{margin-top:5px;padding-top:5px}.mini-note{display:none}}
+@media(max-width:960px){body{overflow-y:auto}.workspace{grid-template-columns:1fr}.panel{grid-template-columns:1fr 1fr}.panel .full{grid-column:auto}.panel .only-3d.full{grid-column:1/-1}.canvas-wrap{height:520px}}
+@media(max-width:680px){body{padding:5px}.topbar{flex-wrap:wrap}.heading{order:-1;flex-basis:100%;padding:5px}.heading p{display:none}.view-tabs{flex:1}.tab{flex:1}.canvas-wrap{height:470px}.workspace{gap:7px}.panel{grid-template-columns:1fr}.panel .full{grid-column:auto}.stage-tip{max-width:76%;font-size:.68rem}.model-grid{grid-template-columns:1fr}.checks{grid-template-columns:1fr 1fr}}
+@media(pointer:coarse){button,select,.home{min-height:48px!important}.check{min-height:48px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.btn,.tab{transition:none}}
+</style>
+</head>
+<body data-physik-app="magnetfeld-labor" data-student-home="../" data-student-title="Magnetfeld-Labor" data-student-summary="Du untersuchst Magnetfelder mit Kompass, Eisenfeilspänen und Feldlinien und vergleichst verschiedene Magnetanordnungen." data-student-controls="Verschiebe Magnete und Materialien direkt auf dem Feldtisch. Tippe auf eine freie Stelle, um dort mit dem Kompass zu messen.">
+<div class="app">
+<header class="topbar">
+  <a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a>
+  <div class="heading"><h1>Magnetfeld-Labor</h1><p>Vom Kompassversuch zum räumlichen Feldlinienmodell</p></div>
+  <div class="view-tabs" role="tablist" aria-label="Ansicht wählen">
+    <button class="tab" id="view2dBtn" type="button" role="tab" aria-selected="true" aria-controls="view2d" tabindex="0">2D-Feldtisch</button>
+    <button class="tab" id="view3dBtn" type="button" role="tab" aria-selected="false" aria-controls="view3d" tabindex="-1">3D-Raumansicht</button>
+  </div>
+  <button class="btn" id="resetBtn" type="button">↺ Neu</button>
+</header>
+<main>
+<div class="workspace">
+  <section class="card stage-card" id="view2d" role="tabpanel" aria-labelledby="view2dBtn">
+    <div class="stage-head"><strong>Magnetfeldtisch</strong><span>2D-Schnitt durch das Magnetfeld</span></div>
+    <div class="canvas-wrap">
+      <canvas id="fieldCanvas" role="application" tabindex="0" aria-describedby="fieldInstructions" aria-keyshortcuts="O C ArrowUp ArrowDown ArrowLeft ArrowRight Delete" aria-label="Interaktiver Magnetfeldtisch mit einem Stabmagneten und Feldlinien"></canvas>
+      <div class="stage-badge">Feldlinien = Darstellungsmodell</div>
+      <div class="stage-tip" id="fieldInstructions">Ziehen oder antippen · Tastatur: O wechselt Objekt, C wählt Kompass, Pfeile bewegen</div>
+    </div>
+  </section>
+  <section class="card stage-card" id="view3d" role="tabpanel" aria-labelledby="view3dBtn" hidden>
+    <div class="stage-head"><strong>Raumansicht eines Stabmagneten</strong><span>ideales räumliches Dipolfeld</span></div>
+    <div class="canvas-wrap">
+      <canvas id="spaceCanvas" role="application" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight + -" aria-label="Interaktive dreidimensionale Ansicht geschlossener Magnetfeldlinien. Pfeiltasten drehen, Plus und Minus zoomen."></canvas>
+      <div class="stage-badge">Ziehen: drehen · Feldlinien liegen in vielen Ebenen</div>
+      <div class="legend"><span><i class="dot n"></i>N</span><span><i class="dot s"></i>S</span></div>
+      <div class="space-controls"><button class="btn" id="zoomOutBtn" type="button" aria-label="Verkleinern">−</button><button class="btn" id="spaceResetBtn" type="button">Ansicht</button><button class="btn" id="zoomInBtn" type="button" aria-label="Vergrößern">+</button></div>
+    </div>
+  </section>
+  <aside class="panel" aria-label="Werkzeuge und Beobachtungen">
+    <section class="card panel-section only-2d">
+      <h2>Aufbau wählen</h2>
+      <div class="preset-grid">
+        <button class="btn primary" id="presetSingle" type="button">▰ Einzelmagnet</button>
+        <button class="btn" id="presetOpposite" type="button">N–S gegenüber</button>
+        <button class="btn" id="presetLike" type="button">N–N gegenüber</button>
+        <button class="btn" id="presetHorse" type="button">Hufeisenmagnet</button>
+        <button class="btn" id="presetIron" type="button">Magnet + Eisen</button>
+      </div>
+      <div class="tool-row"><button class="btn" id="addBarBtn" type="button">+ Stab</button><button class="btn" id="addHorseBtn" type="button">+ Hufeisen</button><button class="btn" id="addMaterialBtn" type="button">+ Material</button></div>
+    </section>
+    <section class="card panel-section only-2d">
+      <h2>Ausgewähltes Objekt</h2>
+      <div class="selection">
+        <div class="selection-title"><strong id="selectionName">Stabmagnet</strong><span id="selectionHint">ziehen oder bearbeiten</span></div>
+        <div class="control-row"><button class="btn" id="rotateLeftBtn" type="button" aria-label="15 Grad gegen den Uhrzeigersinn drehen">↺ 15°</button><button class="btn" id="rotateRightBtn" type="button" aria-label="15 Grad im Uhrzeigersinn drehen">↻ 15°</button></div>
+        <div class="control-row"><button class="btn" id="flipBtn" type="button">N/S tauschen</button><button class="btn" id="deleteBtn" type="button">Entfernen</button></div>
+        <div class="field" id="strengthField"><label for="strengthInput">Magnetstärke: <span id="strengthRead">100 %</span></label><input id="strengthInput" type="range" min="50" max="150" step="10" value="100"></div>
+        <div class="field" id="materialField" hidden><label for="materialType">Material im statischen Feld</label><select id="materialType"><option value="softIron">Weicheisen · ferromagnetisch</option><option value="aluminum">Aluminium · nicht ferromagnetisch</option><option value="wood">Holz · nicht magnetisch</option></select></div>
+      </div>
+    </section>
+    <section class="card panel-section only-2d">
+      <h2>Sichtbar machen</h2>
+      <div class="checks">
+        <label class="check"><input id="compassToggle" type="checkbox" checked>Kompass</label>
+        <label class="check"><input id="needlesToggle" type="checkbox">Magnetnadeln</label>
+        <label class="check"><input id="filingsToggle" type="checkbox">Eisenfeilspäne</label>
+        <label class="check"><input id="fieldLinesToggle" type="checkbox" checked>Feldlinien</label>
+        <label class="check"><input id="heatToggle" type="checkbox">Feldstärke</label>
+        <label class="check"><input id="insideToggle" type="checkbox">Linien innen</label>
+      </div>
+      <p class="mini-note">Kompass, Feilspäne und Feldlinien greifen auf dasselbe berechnete Feld zurück, stellen es aber unterschiedlich dar.</p>
+    </section>
+    <section class="card panel-section full only-2d">
+      <h2>Beobachten – verändern – erklären</h2>
+      <div class="observation" id="observation" aria-live="polite">Verschiebe den Kompass. Seine Nordspitze zeigt an jedem Ort tangential in Feldrichtung.</div>
+      <div class="readout"><span>Feld am Kompass</span><strong id="fieldRead">mittel</strong><span>Richtung</span><strong id="directionRead">0°</strong></div>
+    </section>
+    <section class="card panel-section full only-3d" hidden>
+      <h2>Warum eine Raumansicht?</h2>
+      <div class="space-copy">
+        <p>Die 2D-Zeichnung ist nur ein Schnitt. In Wirklichkeit verlaufen geschlossene Feldlinien in vielen Ebenen um den Magneten.</p>
+        <label class="check"><input id="autoRotateToggle" type="checkbox" checked>Ansicht langsam drehen</label>
+        <div class="observation">Beobachte, wie jede räumliche Linie außerhalb des Magneten vom Nordpol zum Südpol führt und sich im Magneten wieder schließt.</div>
+        <p><strong>Modell:</strong> ergänzende Idealansicht eines einzelnen Stabmagneten. Sie übernimmt den frei zusammengestellten 2D-Aufbau bewusst nicht. Form und Abstand der gezeichneten Linien sind keine Messwerte.</p>
+      </div>
+    </section>
+  </aside>
+</div>
+<details class="card model">
+  <summary>Physikmodell, Fachbegriffe und Modellgrenzen</summary>
+  <div class="model-grid">
+    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B ∝ [3(m · r̂)r̂ − m] / r³</div><p>Stab- und Hufeisenmagnet werden aus kleinen magnetischen Dipolen zusammengesetzt. Die Beiträge aller Dipole werden überlagert. Kompassnadeln richten sich tangential zum resultierenden Feld aus; Feldlinien werden schrittweise in dieser Richtung verfolgt.</p><ul><li>Außerhalb eines Magneten zeigen die Feldlinien von N nach S.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht.</li><li>Eine höhere gezeichnete Liniendichte deutet nur qualitativ ein stärkeres Feld an.</li></ul></div>
+    <div><h3>Ferromagnetische Stoffe</h3><p>Weicheisen wird als Gitter induzierter Dipole modelliert. Sie richten sich iterativ im vorhandenen Feld aus und verändern es dadurch. Aluminium und Holz beeinflussen das statische Feld in diesem Schulmodell nicht sichtbar.</p><p><strong>Modellgrenze:</strong> Die App ist qualitativ. Sie berechnet keine realen Tesla-Werte, Kräfte, Hysterese, Sättigung, Wirbelströme oder exakten Materialkennlinien. Das Weicheisenmodell ersetzt keine Finite-Elemente-Rechnung. Eisenfeilspäne und Feldlinien sind Modellbilder – keine materiellen Fäden.</p><p><strong>Fachliche Orientierung:</strong> LEIFIphysik zu Magnetfeld und Feldlinien, OpenStax zu Magnetismus in Materie sowie die explorative Darstellungslogik der PhET-Simulationen.</p></div>
+  </div>
+</details>
+</main>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=s=>document.querySelector(s);
+const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const fieldCanvas=$('#fieldCanvas'),fctx=fieldCanvas.getContext('2d');
+const spaceCanvas=$('#spaceCanvas'),sctx=spaceCanvas.getContext('2d');
+const els={
+  view2d:$('#view2d'),view3d:$('#view3d'),view2dBtn:$('#view2dBtn'),view3dBtn:$('#view3dBtn'),reset:$('#resetBtn'),
+  selectionName:$('#selectionName'),selectionHint:$('#selectionHint'),strengthField:$('#strengthField'),materialField:$('#materialField'),strength:$('#strengthInput'),strengthRead:$('#strengthRead'),materialType:$('#materialType'),
+  rotateLeft:$('#rotateLeftBtn'),rotateRight:$('#rotateRightBtn'),flip:$('#flipBtn'),remove:$('#deleteBtn'),observation:$('#observation'),fieldRead:$('#fieldRead'),directionRead:$('#directionRead'),
+  compass:$('#compassToggle'),needles:$('#needlesToggle'),filings:$('#filingsToggle'),lines:$('#fieldLinesToggle'),heat:$('#heatToggle'),inside:$('#insideToggle'),autoRotate:$('#autoRotateToggle')
+};
+const colors={ink:'#213936',muted:'#68736f',petrol:'#0f766e',north:'#bd5d4d',south:'#4678a2',iron:'#697571',amber:'#d49a38'};
+const NULL_FIELD_EPS=1e-6;
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const state={
+  view:'2d',magnets:[],materials:[],selected:null,compass:{x:.58,y:.28},
+  layers:{compass:true,needles:false,filings:false,lines:true,heat:false,inside:false},
+  sources:[],fieldLines:[],preset:'single',drag:null,filingPhase:1,
+  camera:{yaw:.65,pitch:-.32,zoom:1,auto:!reducedMotion,drag:null},lastTime:performance.now()
+};
+let idCounter=1,renderQueued=false;
+function objectId(prefix){return `${prefix}-${idCounter++}`;}
+function makeBar(x=0,y=0,angle=0){return{id:objectId('bar'),kind:'bar',x,y,angle,strength:1};}
+function makeHorse(x=0,y=0,angle=0){return{id:objectId('horse'),kind:'horse',x,y,angle,strength:1};}
+function makeMaterial(x=.35,y=0,angle=0,material='softIron'){return{id:objectId('material'),kind:'material',x,y,angle,material};}
+function rotate(vx,vy,a){const c=Math.cos(a),s=Math.sin(a);return{x:vx*c-vy*s,y:vx*s+vy*c};}
+function localToWorld(o,x,y){const p=rotate(x,y,o.angle);return{x:o.x+p.x,y:o.y+p.y};}
+function worldToLocal(o,x,y){const dx=x-o.x,dy=y-o.y;return rotate(dx,dy,-o.angle);}
+function preset(name){
+  state.preset=name;state.magnets=[];state.materials=[];
+  if(name==='single'){state.magnets=[makeBar(0,0,0)];state.compass={x:.58,y:.28};}
+  if(name==='opposite'){state.magnets=[makeBar(-.38,0,0),makeBar(.38,0,0)];state.compass={x:0,y:.29};}
+  if(name==='like'){state.magnets=[makeBar(-.38,0,0),makeBar(.38,0,Math.PI)];state.compass={x:0,y:.29};}
+  if(name==='horse'){state.magnets=[makeHorse(0,-.02,0)];state.compass={x:0,y:.38};}
+  if(name==='iron'){state.magnets=[makeBar(-.35,0,0)];state.materials=[makeMaterial(.35,0,0,'softIron')];state.compass={x:.02,y:.28};}
+  state.selected=state.magnets[0]?.id||state.materials[0]?.id||null;
+  recompute();syncControls();setObservation();
+}
+function selectedObject(){return[...state.magnets,...state.materials].find(o=>o.id===state.selected)||null;}
+function permanentSources(){
+  const out=[];
+  for(const o of state.magnets){
+    if(o.kind==='bar'){
+      for(let i=0;i<5;i++){
+        const lx=-.16+i*.08,p=localToWorld(o,lx,0),m=rotate(o.strength/5,0,o.angle);
+        out.push({x:p.x,y:p.y,mx:m.x,my:m.y,soft:.028,owner:o.id,permanent:true});
+      }
+    }else{
+      const cells=[
+        [.2,.16,0,-1],[.2,.055,0,-1],[.2,-.055,0,-1],[.17,-.16,-.7,-.7],[.07,-.215,-1,0],[-.07,-.215,-1,0],[-.17,-.16,-.7,.7],[-.2,-.055,0,1],[-.2,.055,0,1],[-.2,.16,0,1]
+      ];
+      for(const [lx,ly,mx,my] of cells){const p=localToWorld(o,lx,ly),m=rotate(mx*o.strength/8,my*o.strength/8,o.angle);out.push({x:p.x,y:p.y,mx:m.x,my:m.y,soft:.025,owner:o.id,permanent:true});}
+    }
+  }
+  return out;
+}
+function materialCells(){
+  const groups=[];
+  for(const o of state.materials){
+    if(o.material!=='softIron')continue;
+    const cells=[];
+    for(let ix=0;ix<6;ix++)for(let iy=0;iy<2;iy++){
+      const p=localToWorld(o,-.18+ix*.072,-.045+iy*.09);
+      cells.push({x:p.x,y:p.y,mx:0,my:0,soft:.022,owner:o.id,permanent:false,cell:`${o.id}-${ix}-${iy}`});
+    }
+    groups.push(cells);
+  }
+  return groups;
+}
+function fieldFromSources(x,y,sources,skipCell=null){
+  let bx=0,by=0;
+  for(const s of sources){
+    if(skipCell&&s.cell===skipCell)continue;
+    const dx=x-s.x,dy=y-s.y,r2=dx*dx+dy*dy+s.soft*s.soft,invR3=1/(r2*Math.sqrt(r2)),dot=s.mx*dx+s.my*dy,f=3*dot/r2;
+    bx+=(f*dx-s.mx)*invR3;by+=(f*dy-s.my)*invR3;
+  }
+  return{x:bx,y:by,mag:Math.hypot(bx,by)};
+}
+function computeSources(){
+  const permanent=permanentSources(),groups=materialCells(),induced=groups.flat();
+  for(let pass=0;pass<8;pass++){
+    const snapshot=[...permanent,...induced.map(s=>({...s}))];
+    for(const s of induced){
+      const b=fieldFromSources(s.x,s.y,snapshot,s.cell),target=Math.min(.035,.009*Math.log1p(b.mag*2.2)),ux=b.mag?b.x/b.mag:0,uy=b.mag?b.y/b.mag:0;
+      s.mx=.48*s.mx+.52*target*ux;s.my=.48*s.my+.52*target*uy;
+    }
+  }
+  return[...permanent,...induced];
+}
+function fieldAt(x,y){return fieldFromSources(x,y,state.sources);}
+function northSeeds(o){
+  const seeds=[];
+  if(o.kind==='bar'){
+    for(const d of[-.145,-.105,-.065,-.025,.025,.065,.105,.145])seeds.push(localToWorld(o,.255,d));
+  }else{
+    for(const d of[-.11,-.075,-.04,0,.04,.075,.11])seeds.push(localToWorld(o,-.2+d,.255));
+    for(const y of[.04,.085,.13,.175,.215])seeds.push(localToWorld(o,-.105,y));
+  }
+  return seeds;
+}
+function insidePermanent(x,y){
+  for(const o of state.magnets){
+    const p=worldToLocal(o,x,y);
+    if(o.kind==='bar'&&Math.abs(p.x)<.245&&Math.abs(p.y)<.095)return true;
+    if(o.kind==='horse'){
+      const left=Math.hypot(Math.max(0,Math.abs(p.x+.2)-.08),Math.max(0,Math.abs(p.y+.02)-.25));
+      const right=Math.hypot(Math.max(0,Math.abs(p.x-.2)-.08),Math.max(0,Math.abs(p.y+.02)-.25));
+      const base=Math.abs(p.y+.21)<.08&&Math.abs(p.x)<.23;
+      if(left<.02||right<.02||base)return true;
+    }
+  }
+  return false;
+}
+function traceLine(seed){
+  const pts=[{x:seed.x,y:seed.y}],step=.012;let x=seed.x,y=seed.y;
+  for(let i=0;i<720;i++){
+    const b1=fieldAt(x,y);if(!Number.isFinite(b1.mag)||b1.mag<1e-5)break;
+    const ux=b1.x/b1.mag,uy=b1.y/b1.mag,mx=x+ux*step*.5,my=y+uy*step*.5,b2=fieldAt(mx,my),u2x=b2.x/(b2.mag||1),u2y=b2.y/(b2.mag||1);
+    x+=u2x*step;y+=u2y*step;pts.push({x,y});
+    if(Math.abs(x)>1.25||Math.abs(y)>.78)break;
+    if(i>12&&insidePermanent(x,y))break;
+    if(i>70&&Math.hypot(x-seed.x,y-seed.y)<.025)break;
+  }
+  return pts;
+}
+function computeFieldLines(){
+  const lines=[];
+  for(const o of state.magnets)for(const seed of northSeeds(o)){const line=traceLine(seed);if(line.length>22)lines.push(line);}
+  return lines;
+}
+function recompute(){state.sources=computeSources();state.fieldLines=computeFieldLines();queueRender();updateReadout();}
+function resizeCanvas(canvas,ctx){
+  const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2),w=Math.max(1,Math.round(r.width)),h=Math.max(1,Math.round(r.height));
+  if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr)){canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);}
+  ctx.setTransform(dpr,0,0,dpr,0,0);return{w,h,dpr};
+}
+function viewTransform(canvas){const r=canvas.getBoundingClientRect(),w=r.width,h=r.height,scale=Math.min(w/2.28,h/1.38);return{w,h,scale,cx:w/2,cy:h/2};}
+function toScreen(p,t){return{x:t.cx+p.x*t.scale,y:t.cy-p.y*t.scale};}
+function screenToWorld(x,y,canvas){const t=viewTransform(canvas);return{x:(x-t.cx)/t.scale,y:-(y-t.cy)/t.scale};}
+function toWorld(clientX,clientY,canvas){const r=canvas.getBoundingClientRect(),t=viewTransform(canvas);return{x:(clientX-r.left-t.cx)/t.scale,y:-(clientY-r.top-t.cy)/t.scale};}
+function gridBackground(ctx,w,h){
+  const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,'#e5efe9');g.addColorStop(1,'#f3eee4');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle='rgba(54,93,85,.075)';ctx.lineWidth=1;const step=34;for(let x=step/2;x<w;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}for(let y=step/2;y<h;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+}
+function drawHeat(ctx,t){
+  const cols=30,rows=18,cw=t.w/cols,ch=t.h/rows;
+  for(let iy=0;iy<rows;iy++)for(let ix=0;ix<cols;ix++){
+    const p=screenToWorld(ix*cw+cw/2,iy*ch+ch/2,fieldCanvas),b=fieldAt(p.x,p.y),v=clamp(Math.log1p(b.mag)/4.2,0,1);
+    ctx.fillStyle=`rgba(212,154,56,${.03+.25*v})`;ctx.fillRect(ix*cw,iy*ch,cw+1,ch+1);
+  }
+}
+function drawArrowHead(ctx,a,b,color,size=7){const ang=Math.atan2(b.y-a.y,b.x-a.x);ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ang);ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-size,-size*.55);ctx.lineTo(-size,size*.55);ctx.closePath();ctx.fill();ctx.restore();}
+function drawLines(ctx,t){
+  ctx.save();ctx.strokeStyle='rgba(15,118,110,.72)';ctx.lineWidth=1.65;ctx.lineCap='round';ctx.lineJoin='round';
+  for(const line of state.fieldLines){ctx.beginPath();line.forEach((p,i)=>{const q=toScreen(p,t);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.stroke();for(const frac of[.36,.68]){const i=clamp(Math.floor(line.length*frac),1,line.length-1),a=toScreen(line[i-1],t),b=toScreen(line[i],t);drawArrowHead(ctx,a,b,'rgba(15,118,110,.82)',6);}}
+  ctx.restore();
+}
+function drawNeedles(ctx,t){
+  const sx=.16,sy=.15;ctx.save();ctx.lineCap='round';
+  for(let y=-.6;y<=.6;y+=sy)for(let x=-1.05;x<=1.05;x+=sx){if(insidePermanent(x,y))continue;const b=fieldAt(x,y);if(b.mag<1e-5)continue;const p=toScreen({x,y},t),a=Math.atan2(-b.y,b.x),len=10;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);ctx.lineWidth=2;ctx.strokeStyle=colors.south;ctx.beginPath();ctx.moveTo(-len,0);ctx.lineTo(0,0);ctx.stroke();ctx.strokeStyle=colors.north;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(len,0);ctx.stroke();ctx.restore();}
+  ctx.restore();
+}
+function lcg(n){let s=n>>>0;return()=>((s=Math.imul(1664525,s)+1013904223>>>0)/4294967296);}
+const random=lcg(874219),filings=Array.from({length:650},()=>({x:-1.12+random()*2.24,y:-.66+random()*1.32,j:random()}));
+function drawFilings(ctx,t){
+  ctx.save();ctx.lineCap='round';
+  for(const f of filings){if(insidePermanent(f.x,f.y))continue;const b=fieldAt(f.x,f.y);if(b.mag<1e-5)continue;const p=toScreen(f,t),a=Math.atan2(-b.y,b.x)+(state.filingPhase*(f.j-.5)*1.6),len=2.3+clamp(Math.log1p(b.mag),0,4)*.75;ctx.strokeStyle=`rgba(55,61,57,${.18+clamp(Math.log1p(b.mag)/7,0,.52)})`;ctx.lineWidth=.7+f.j*.55;ctx.beginPath();ctx.moveTo(p.x-Math.cos(a)*len,p.y-Math.sin(a)*len);ctx.lineTo(p.x+Math.cos(a)*len,p.y+Math.sin(a)*len);ctx.stroke();}
+  ctx.restore();
+}
+function drawBar(ctx,t,o){
+  const p=toScreen(o,t),L=.49*t.scale,H=.18*t.scale;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.shadowColor='rgba(29,49,45,.2)';ctx.shadowBlur=10;ctx.shadowOffsetY=4;ctx.fillStyle=colors.south;ctx.fillRect(-L/2,-H/2,L/2,H);ctx.fillStyle=colors.north;ctx.fillRect(0,-H/2,L/2,H);ctx.shadowColor='transparent';ctx.strokeStyle=colors.ink;ctx.lineWidth=2;ctx.strokeRect(-L/2,-H/2,L,H);ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(13,H*.48)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('S',-L*.25,0);ctx.fillText('N',L*.25,0);ctx.restore();
+}
+function drawHorse(ctx,t,o){
+  const p=toScreen(o,t),s=t.scale;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=.16*s;ctx.shadowColor='rgba(29,49,45,.18)';ctx.shadowBlur=9;ctx.shadowOffsetY=4;
+  ctx.strokeStyle=colors.north;ctx.beginPath();ctx.moveTo(-.2*s,-.23*s);ctx.lineTo(-.2*s,.14*s);ctx.quadraticCurveTo(-.2*s,.22*s,-.1*s,.22*s);ctx.lineTo(0,.22*s);ctx.stroke();
+  ctx.strokeStyle=colors.south;ctx.beginPath();ctx.moveTo(.2*s,-.23*s);ctx.lineTo(.2*s,.14*s);ctx.quadraticCurveTo(.2*s,.22*s,.1*s,.22*s);ctx.lineTo(0,.22*s);ctx.stroke();ctx.shadowColor='transparent';ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(13,.075*s)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('N',-.2*s,-.23*s);ctx.fillText('S',.2*s,-.23*s);ctx.restore();
+}
+function drawMaterial(ctx,t,o){
+  const p=toScreen(o,t),W=.43*t.scale,H=.15*t.scale;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.shadowColor='rgba(29,49,45,.15)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fillStyle=o.material==='softIron'?'#7a8581':o.material==='aluminum'?'#b9c1c0':'#b98a5f';ctx.globalAlpha=o.material==='softIron'?.78:1;ctx.fillRect(-W/2,-H/2,W,H);ctx.globalAlpha=1;ctx.shadowColor='transparent';ctx.strokeStyle=colors.ink;ctx.lineWidth=1.7;ctx.strokeRect(-W/2,-H/2,W,H);ctx.save();ctx.beginPath();ctx.rect(-W/2,-H/2,W,H);ctx.clip();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;for(let x=-W;x<W;x+=10){ctx.beginPath();ctx.moveTo(x,-H);ctx.lineTo(x+H*2,H);ctx.stroke();}ctx.restore();ctx.fillStyle='#fff';ctx.font=`800 ${Math.max(10,H*.3)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(o.material==='softIron'?'WEICHEISEN':o.material==='aluminum'?'ALUMINIUM':'HOLZ',0,0);ctx.restore();
+  if(o.material==='softIron')drawInducedDipoles(ctx,t,o);
+}
+function drawInducedDipoles(ctx,t,o){
+  const cells=state.sources.filter(s=>!s.permanent&&s.owner===o.id);ctx.save();ctx.lineWidth=1.5;
+  for(const s of cells){const b=Math.hypot(s.mx,s.my);if(!b)continue;const p=toScreen(s,t),a=Math.atan2(-s.my,s.mx),len=clamp(b*260,3,8);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.beginPath();ctx.moveTo(-len,0);ctx.lineTo(len,0);ctx.stroke();drawArrowHead(ctx,{x:0,y:0},{x:len,y:0},'rgba(255,255,255,.88)',3.5);ctx.restore();}
+  ctx.restore();
+}
+function drawInsideLines(ctx,t,o){
+  ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=1.5;
+  if(o.kind==='bar'){const a=toScreen(localToWorld(o,-.2,0),t),b=toScreen(localToWorld(o,.2,0),t);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();drawArrowHead(ctx,a,b,'rgba(255,255,255,.9)',5);}
+  else{const points=[localToWorld(o,.2,.17),localToWorld(o,.2,-.15),localToWorld(o,0,-.215),localToWorld(o,-.2,-.15),localToWorld(o,-.2,.17)].map(p=>toScreen(p,t));ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();drawArrowHead(ctx,points[2],points[3],'rgba(255,255,255,.9)',5);}
+  ctx.restore();
+}
+function drawSelection(ctx,t,o){
+  if(!o)return;const p=toScreen(o,t),w=(o.kind==='horse'?.58:.55)*t.scale,h=(o.kind==='horse'?.62:.3)*t.scale;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.strokeStyle=colors.amber;ctx.lineWidth=2;ctx.setLineDash([7,5]);ctx.strokeRect(-w/2,-h/2,w,h);ctx.restore();
+}
+function drawCompass(ctx,t){
+  const b=fieldAt(state.compass.x,state.compass.y),p=toScreen(state.compass,t),a=Math.atan2(-b.y,b.x),r=25;ctx.save();ctx.translate(p.x,p.y);ctx.fillStyle='rgba(255,253,248,.94)';ctx.strokeStyle=colors.ink;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,r,0,TAU);ctx.fill();ctx.stroke();ctx.strokeStyle='rgba(33,57,54,.2)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(-r+4,0);ctx.lineTo(r-4,0);ctx.moveTo(0,-r+4);ctx.lineTo(0,r-4);ctx.stroke();
+  if(b.mag<NULL_FIELD_EPS){ctx.fillStyle=colors.muted;ctx.beginPath();ctx.arc(0,0,5,0,TAU);ctx.fill();ctx.restore();return;}
+  ctx.rotate(a);ctx.fillStyle=colors.north;ctx.beginPath();ctx.moveTo(r-4,0);ctx.lineTo(-2,-6);ctx.lineTo(-2,6);ctx.closePath();ctx.fill();ctx.fillStyle=colors.south;ctx.beginPath();ctx.moveTo(-r+4,0);ctx.lineTo(2,-6);ctx.lineTo(2,6);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.font='900 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('N',12,0);ctx.restore();
+}
+function render2D(){
+  const{w,h}=resizeCanvas(fieldCanvas,fctx),t={...viewTransform(fieldCanvas),w,h};fctx.clearRect(0,0,w,h);gridBackground(fctx,w,h);if(state.layers.heat)drawHeat(fctx,t);if(state.layers.needles)drawNeedles(fctx,t);if(state.layers.filings)drawFilings(fctx,t);if(state.layers.lines)drawLines(fctx,t);
+  for(const o of state.materials)drawMaterial(fctx,t,o);for(const o of state.magnets){o.kind==='bar'?drawBar(fctx,t,o):drawHorse(fctx,t,o);if(state.layers.inside)drawInsideLines(fctx,t,o);}drawSelection(fctx,t,selectedObject());if(state.layers.compass)drawCompass(fctx,t);
+  fieldCanvas.setAttribute('aria-label',`Magnetfeldtisch mit ${state.magnets.length} Magneten und ${state.materials.length} Materialkörpern. ${state.fieldLines.length} Feldlinien sind berechnet.`);
+}
+function queueRender(){if(renderQueued)return;renderQueued=true;requestAnimationFrame(()=>{renderQueued=false;if(state.view==='2d')render2D();else render3D();});}
+function qualitativeStrength(mag){const v=Math.log1p(mag);return v<.8?'schwach':v<1.8?'mittel':'stark';}
+function updateReadout(){const b=fieldAt(state.compass.x,state.compass.y);if(b.mag<NULL_FIELD_EPS){els.fieldRead.textContent='nahezu null';els.directionRead.textContent='nicht definiert';return;}const deg=((Math.atan2(b.y,b.x)*180/Math.PI)%360+360)%360;els.fieldRead.textContent=qualitativeStrength(b.mag);els.directionRead.textContent=`${Math.round(deg)}°`;}
+function setObservation(custom=''){
+  if(custom){els.observation.textContent=custom;return;}
+  const o=selectedObject();
+  if(o?.kind==='material'){
+    els.observation.textContent=o.material==='softIron'?'Das Weicheisen wird magnetisch influenziert. Die kleinen Dipole richten sich aus und bündeln das Feld im Eisen.':'Dieser Körper verändert das statische Feld im verwendeten Schulmodell nicht sichtbar.';return;
+  }
+  const texts={single:'Verschiebe den Kompass. Seine Nordspitze zeigt an jedem Ort tangential in Feldrichtung.',opposite:'Zwischen ungleichnamigen Polen verbinden sich viele Feldlinien. Untersuche die Richtung mit dem Kompass.',like:'Zwischen gleichnamigen Polen weichen die Feldlinien auseinander. In der Mitte kann das Feld sehr schwach werden.',horse:'Im mittleren Bereich des Polspalts verlaufen die Feldlinien annähernd parallel und liegen dichter.',iron:'Vergleiche das Feld mit und ohne Weicheisen: Der Körper wird influenziert und führt einen größeren Anteil der Feldlinien durch sich.'};
+  els.observation.textContent=texts[state.preset]||'Verändere Lage, Richtung oder Material und beschreibe, wie sich das Feldlinienbild ändert.';
+}
+function syncControls(){
+  const o=selectedObject(),has=!!o,isMagnet=has&&o.kind!=='material';els.selectionName.textContent=!o?'Kein Objekt':o.kind==='bar'?'Stabmagnet':o.kind==='horse'?'Hufeisenmagnet':o.material==='softIron'?'Weicheisen':o.material==='aluminum'?'Aluminium':'Holz';els.selectionHint.textContent=has?'ziehen oder bearbeiten':'Objekt antippen';
+  for(const b of[els.rotateLeft,els.rotateRight,els.remove])b.disabled=!has;els.flip.disabled=!isMagnet;els.strengthField.hidden=!isMagnet;els.materialField.hidden=!(has&&o.kind==='material');
+  if(isMagnet){els.strength.value=String(Math.round(o.strength*100));els.strengthRead.textContent=`${Math.round(o.strength*100)} %`;}
+  if(o?.kind==='material')els.materialType.value=o.material;
+  const ids={single:'presetSingle',opposite:'presetOpposite',like:'presetLike',horse:'presetHorse',iron:'presetIron'};for(const [name,id] of Object.entries(ids)){const button=$('#'+id),active=state.preset===name;button.classList.toggle('primary',active);button.setAttribute('aria-pressed',String(active));}
+}
+function addObject(kind){
+  if(kind==='material'){
+    if(state.materials.length>=3){setObservation('Für eine klare und schnelle Darstellung sind höchstens drei Materialkörper vorgesehen.');return;}
+    const o=makeMaterial(.35,-.2,0,'softIron');state.materials.push(o);state.selected=o.id;
+  }else{
+    if(state.magnets.length>=4){setObservation('Für eine klare und schnelle Darstellung sind höchstens vier Magnete vorgesehen.');return;}
+    const o=kind==='bar'?makeBar(-.15,.15,0):makeHorse(-.05,.05,0);state.magnets.push(o);state.selected=o.id;
+  }
+  state.preset='custom';recompute();syncControls();setObservation();
+}
+function transformSelected(delta,flip=false){const o=selectedObject();if(!o)return;o.angle+=flip?Math.PI:delta;state.preset='custom';recompute();syncControls();setObservation();}
+function removeSelected(){const id=state.selected;if(!id)return;state.magnets=state.magnets.filter(o=>o.id!==id);state.materials=state.materials.filter(o=>o.id!==id);state.selected=state.magnets[0]?.id||state.materials[0]?.id||null;state.preset='custom';recompute();syncControls();setObservation();}
+function hitObject(p){
+  const objects=[...state.magnets,...state.materials];for(let i=objects.length-1;i>=0;i--){const o=objects[i],q=worldToLocal(o,p.x,p.y);if(o.kind==='bar'&&Math.abs(q.x)<.28&&Math.abs(q.y)<.13)return o;if(o.kind==='horse'){const left=Math.abs(q.x+.2)<.12&&q.y>-.3&&q.y<.29,right=Math.abs(q.x-.2)<.12&&q.y>-.3&&q.y<.29,base=Math.abs(q.y+.21)<.12&&Math.abs(q.x)<.29;if(left||right||base)return o;}if(o.kind==='material'&&Math.abs(q.x)<.25&&Math.abs(q.y)<.12)return o;}return null;
+}
+fieldCanvas.addEventListener('pointerdown',e=>{const p=toWorld(e.clientX,e.clientY,fieldCanvas),o=hitObject(p);fieldCanvas.setPointerCapture(e.pointerId);if(o){state.selected=o.id;state.drag={id:o.id,dx:o.x-p.x,dy:o.y-p.y};syncControls();queueRender();}else if(state.layers.compass){state.compass={x:clamp(p.x,-1.08,1.08),y:clamp(p.y,-.62,.62)};updateReadout();queueRender();}});
+fieldCanvas.addEventListener('pointermove',e=>{if(!state.drag)return;const o=selectedObject();if(!o||o.id!==state.drag.id)return;const p=toWorld(e.clientX,e.clientY,fieldCanvas);o.x=clamp(p.x+state.drag.dx,-.9,.9);o.y=clamp(p.y+state.drag.dy,-.48,.48);state.preset='custom';recompute();syncControls();});
+function endFieldDrag(){if(state.drag){state.drag=null;setObservation();}}
+fieldCanvas.addEventListener('pointerup',endFieldDrag);fieldCanvas.addEventListener('pointercancel',endFieldDrag);
+function cycleKeyboardObject(){const objects=[...state.magnets,...state.materials];if(!objects.length){state.selected=null;return;}const i=objects.findIndex(o=>o.id===state.selected);state.selected=objects[(i+1+objects.length)%objects.length].id;syncControls();queueRender();}
+function selectKeyboardCompass(){state.selected=null;state.layers.compass=true;els.compass.checked=true;syncControls();queueRender();}
+fieldCanvas.addEventListener('keydown',e=>{
+  const key=e.key.toLowerCase();if(key==='o'){e.preventDefault();cycleKeyboardObject();return;}if(key==='c'||e.key==='Escape'){e.preventDefault();selectKeyboardCompass();return;}
+  const moves={ArrowLeft:[-.04,0],ArrowRight:[.04,0],ArrowUp:[0,.04],ArrowDown:[0,-.04]},move=moves[e.key];
+  if(move){e.preventDefault();const o=selectedObject();if(o){o.x=clamp(o.x+move[0],-.9,.9);o.y=clamp(o.y+move[1],-.48,.48);state.preset='custom';recompute();syncControls();setObservation();}else if(state.layers.compass){state.compass.x=clamp(state.compass.x+move[0],-1.08,1.08);state.compass.y=clamp(state.compass.y+move[1],-.62,.62);updateReadout();queueRender();}}
+  if((e.key==='Delete'||e.key==='Backspace')&&selectedObject()){e.preventDefault();removeSelected();}
+});
+function setView(view){state.view=view;const is2=view==='2d';els.view2d.hidden=!is2;els.view3d.hidden=is2;els.view2dBtn.setAttribute('aria-selected',String(is2));els.view3dBtn.setAttribute('aria-selected',String(!is2));els.view2dBtn.tabIndex=is2?0:-1;els.view3dBtn.tabIndex=is2?-1:0;document.querySelectorAll('.only-2d').forEach(e=>e.hidden=!is2);document.querySelectorAll('.only-3d').forEach(e=>e.hidden=is2);queueRender();}
+els.view2dBtn.addEventListener('click',()=>setView('2d'));els.view3dBtn.addEventListener('click',()=>setView('3d'));
+for(const tab of[els.view2dBtn,els.view3dBtn])tab.addEventListener('keydown',e=>{const tabs=[els.view2dBtn,els.view3dBtn];let target=null;if(e.key==='ArrowLeft'||e.key==='ArrowRight')target=tabs[tab===tabs[0]?1:0];if(e.key==='Home')target=tabs[0];if(e.key==='End')target=tabs[1];if(!target)return;e.preventDefault();setView(target===tabs[0]?'2d':'3d');target.focus();});
+function resetAll(){state.layers={compass:true,needles:false,filings:false,lines:true,heat:false,inside:false};for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.checked=state.layers[key];state.filingPhase=1;state.camera.auto=!reducedMotion;els.autoRotate.checked=state.camera.auto;resetCamera();preset('single');setView('2d');}
+els.reset.addEventListener('click',resetAll);
+for(const [id,name] of[['presetSingle','single'],['presetOpposite','opposite'],['presetLike','like'],['presetHorse','horse'],['presetIron','iron']])$('#'+id).addEventListener('click',()=>preset(name));
+$('#addBarBtn').addEventListener('click',()=>addObject('bar'));$('#addHorseBtn').addEventListener('click',()=>addObject('horse'));$('#addMaterialBtn').addEventListener('click',()=>addObject('material'));
+els.rotateLeft.addEventListener('click',()=>transformSelected(Math.PI/12));els.rotateRight.addEventListener('click',()=>transformSelected(-Math.PI/12));els.flip.addEventListener('click',()=>transformSelected(0,true));els.remove.addEventListener('click',removeSelected);
+els.strength.addEventListener('input',()=>{const o=selectedObject();if(!o||o.kind==='material')return;o.strength=Number(els.strength.value)/100;els.strengthRead.textContent=`${els.strength.value} %`;state.preset='custom';recompute();});
+els.materialType.addEventListener('change',()=>{const o=selectedObject();if(!o||o.kind!=='material')return;o.material=els.materialType.value;state.preset='custom';recompute();syncControls();setObservation();});
+for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.addEventListener('change',()=>{state.layers[key]=el.checked;if(key==='filings'&&el.checked)state.filingPhase=1;queueRender();});
+function project3D(p,t){
+  const cy=Math.cos(state.camera.yaw),sy=Math.sin(state.camera.yaw),cp=Math.cos(state.camera.pitch),sp=Math.sin(state.camera.pitch),x1=p.x*cy+p.z*sy,z1=-p.x*sy+p.z*cy,y2=p.y*cp-z1*sp,z2=p.y*sp+z1*cp,d=4.2,f=Math.min(t.w,t.h)*1.24*state.camera.zoom/(d-z2);return{x:t.w/2+x1*f,y:t.h/2-y2*f,z:z2};
+}
+function dipoleCurves3D(){
+  const curves=[];for(const r0 of[.82,1.08,1.38,1.72])for(let k=0;k<8;k++){const phi=k*TAU/8,segments=[];let current=[];for(let i=0;i<=150;i++){const th=.055+(Math.PI-.11)*i/150,r=r0*Math.sin(th)**2,x=r*Math.cos(th),rho=r*Math.sin(th),p={x,y:rho*Math.cos(phi),z:rho*Math.sin(phi)},inside=Math.abs(x)<.57&&Math.hypot(p.y,p.z)<.2;if(inside){if(current.length>1)segments.push(current);current=[];}else current.push(p);}if(current.length>1)segments.push(current);curves.push(...segments);}return curves;
+}
+const curves3D=dipoleCurves3D();
+function cuboidFaces(x0,x1,y0,y1,z0,z1,color){
+  const v=[{x:x0,y:y0,z:z0},{x:x1,y:y0,z:z0},{x:x1,y:y1,z:z0},{x:x0,y:y1,z:z0},{x:x0,y:y0,z:z1},{x:x1,y:y0,z:z1},{x:x1,y:y1,z:z1},{x:x0,y:y1,z:z1}],idx=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[1,2,6,5],[0,3,7,4]];return idx.map((face,i)=>({points:face.map(j=>v[j]),color,shade:[.76,1,.86,.92,.8,.7][i]}));
+}
+function render3D(){
+  const{w,h}=resizeCanvas(spaceCanvas,sctx),t={w,h};sctx.clearRect(0,0,w,h);const g=sctx.createRadialGradient(w*.5,h*.42,20,w*.5,h*.5,Math.max(w,h)*.7);g.addColorStop(0,'#eff5f1');g.addColorStop(1,'#dce7e1');sctx.fillStyle=g;sctx.fillRect(0,0,w,h);
+  const grid=[];for(let i=-4;i<=4;i++){grid.push([{x:-2,y:-.55,z:i*.35},{x:2,y:-.55,z:i*.35}],[{x:i*.35,y:-.55,z:-1.4},{x:i*.35,y:-.55,z:1.4}]);}sctx.strokeStyle='rgba(45,79,72,.11)';sctx.lineWidth=1;for(const line of grid){const a=project3D(line[0],t),b=project3D(line[1],t);sctx.beginPath();sctx.moveTo(a.x,a.y);sctx.lineTo(b.x,b.y);sctx.stroke();}
+  sctx.lineWidth=1.45;sctx.lineCap='round';for(const curve of curves3D){const pts=curve.map(p=>project3D(p,t)),depth=pts.reduce((a,p)=>a+p.z,0)/pts.length,alpha=clamp(.34+(depth+1.5)*.1,.3,.72);sctx.strokeStyle=`rgba(15,118,110,${alpha})`;sctx.beginPath();pts.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.stroke();const i=Math.floor(pts.length*.52);if(i>0&&i<pts.length)drawArrowHead(sctx,pts[i-1],pts[i],`rgba(15,118,110,${Math.min(1,alpha+.2)})`,5.5);}
+  const faces=[...cuboidFaces(-.56,0,-.18,.18,-.18,.18,colors.south),...cuboidFaces(0,.56,-.18,.18,-.18,.18,colors.north)].map(f=>{const ps=f.points.map(p=>project3D(p,t));return{...f,ps,depth:ps.reduce((a,p)=>a+p.z,0)/ps.length};}).sort((a,b)=>a.depth-b.depth);
+  for(const f of faces){sctx.fillStyle=f.color;sctx.globalAlpha=f.shade;sctx.strokeStyle='rgba(33,57,54,.65)';sctx.lineWidth=1.2;sctx.beginPath();f.ps.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.closePath();sctx.fill();sctx.stroke();}sctx.globalAlpha=1;
+  for(const [text,p,color] of[['S',{x:-.59,y:0,z:0},colors.south],['N',{x:.59,y:0,z:0},colors.north]]){const q=project3D(p,t);sctx.fillStyle=color;sctx.strokeStyle='#fff';sctx.lineWidth=3;sctx.beginPath();sctx.arc(q.x,q.y,14,0,TAU);sctx.fill();sctx.stroke();sctx.fillStyle='#fff';sctx.font='900 14px system-ui';sctx.textAlign='center';sctx.textBaseline='middle';sctx.fillText(text,q.x,q.y+.5);}
+  spaceCanvas.setAttribute('aria-label','Dreidimensionale Ansicht eines Stabmagneten mit geschlossenen Feldlinien in mehreren räumlichen Ebenen.');
+}
+function resetCamera(){state.camera.yaw=.65;state.camera.pitch=-.32;state.camera.zoom=1;queueRender();}
+spaceCanvas.addEventListener('pointerdown',e=>{spaceCanvas.setPointerCapture(e.pointerId);state.camera.drag={x:e.clientX,y:e.clientY,yaw:state.camera.yaw,pitch:state.camera.pitch};});
+spaceCanvas.addEventListener('pointermove',e=>{const d=state.camera.drag;if(!d)return;state.camera.yaw=d.yaw+(e.clientX-d.x)*.009;state.camera.pitch=clamp(d.pitch+(e.clientY-d.y)*.007,-1.15,1.15);queueRender();});
+spaceCanvas.addEventListener('pointerup',()=>state.camera.drag=null);spaceCanvas.addEventListener('pointercancel',()=>state.camera.drag=null);
+spaceCanvas.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();state.camera.yaw+=e.key==='ArrowLeft'?-.12:.12;queueRender();}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();state.camera.pitch=clamp(state.camera.pitch+(e.key==='ArrowUp'?.1:-.1),-1.15,1.15);queueRender();}if(e.key==='+'||e.key==='='){e.preventDefault();state.camera.zoom=clamp(state.camera.zoom*1.12,.65,1.6);queueRender();}if(e.key==='-'){e.preventDefault();state.camera.zoom=clamp(state.camera.zoom/1.12,.65,1.6);queueRender();}});
+spaceCanvas.addEventListener('wheel',e=>{e.preventDefault();state.camera.zoom=clamp(state.camera.zoom*(e.deltaY>0?.92:1.08),.65,1.6);queueRender();},{passive:false});
+$('#zoomInBtn').addEventListener('click',()=>{state.camera.zoom=clamp(state.camera.zoom*1.12,.65,1.6);queueRender();});$('#zoomOutBtn').addEventListener('click',()=>{state.camera.zoom=clamp(state.camera.zoom/1.12,.65,1.6);queueRender();});$('#spaceResetBtn').addEventListener('click',resetCamera);
+els.autoRotate.checked=state.camera.auto;els.autoRotate.addEventListener('change',()=>state.camera.auto=els.autoRotate.checked);
+function tick(now){const dt=Math.min(.05,(now-state.lastTime)/1000);state.lastTime=now;if(state.view==='3d'&&state.camera.auto&&!state.camera.drag){state.camera.yaw+=dt*.16;render3D();}if(state.layers.filings&&state.filingPhase>.001){state.filingPhase*=Math.pow(.035,dt);if(state.view==='2d')render2D();}requestAnimationFrame(tick);}
+new ResizeObserver(()=>queueRender()).observe(document.querySelector('.workspace'));
+window.__magnetLab={
+  getState:()=>({view:state.view,preset:state.preset,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,sourceCount:state.sources.length}),
+  fieldAt:(x,y)=>fieldAt(Number(x),Number(y)),setPreset:preset,setView,reset:resetAll,recompute,qualitativeStrength
+};
+preset('single');setView('2d');requestAnimationFrame(tick);window.dispatchEvent(new CustomEvent('magnet-lab-ready'));
+})();
+</script>
+<script src="../shared/student-entry.js"></script>
+</body>
+</html>
