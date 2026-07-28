@@ -20,8 +20,10 @@
 @media(pointer:coarse){button,select,.home{min-height:48px!important}.check{min-height:48px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.btn,.tab{transition:none}}
 @media(min-width:961px){.workspace{grid-template-columns:minmax(0,1fr) 380px}.panel{gap:7px}.panel-section{padding:9px}.panel-section h2{margin-bottom:8px;font-size:.94rem}.preset-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.preset-grid .btn{min-height:50px;padding:7px 5px;font-size:.75rem;line-height:1.12}.tool-row{gap:6px}.tool-row .btn{min-height:50px;padding:7px 5px;font-size:.75rem}.selection{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px}.selection-title,.selection .field{grid-column:1/-1}.control-row{display:contents}.control-row .btn{min-width:0;min-height:50px;padding:6px 4px;font-size:.74rem;line-height:1.08}.checks{gap:6px}.check{min-height:50px;padding:7px 9px;font-size:.78rem}}
-@media(max-height:900px) and (min-width:961px){.panel-section{padding:7px}.selection-section h2,.observation-section h2{display:none}.preset-grid .btn,.tool-row .btn,.control-row .btn{min-height:48px}.selection .field{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:7px}.selection .field label,.selection .field input{margin:0}.observation-section .observation{padding:7px}}
-input[type="range"]{min-height:36px;cursor:pointer}input[type="range"]::-webkit-slider-thumb{width:26px;height:26px}.btn.danger{color:#8f3f35;border-color:rgba(189,93,77,.45);background:#fff8f5}.btn.danger:hover{border-color:var(--north)!important;background:#fff1ec}
+@media(max-height:900px) and (min-width:961px){.panel{gap:5px}.panel-section{padding:7px}.selection-section h2,.observation-section h2{display:none}.preset-grid .btn,.tool-row .btn,.control-row .btn{min-height:48px}.selection .field{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:7px}.selection .field label,.selection .field input{margin:0}.observation-section .readout{margin-top:0}}
+@media(max-height:900px) and (min-width:961px) and (max-width:1100px){.observation-section .observation{display:none}}
+input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-slider-thumb{width:30px;height:30px}.btn.danger{color:#8f3f35;border-color:rgba(189,93,77,.45);background:#fff8f5}.btn.danger:hover{border-color:var(--north)!important;background:#fff1ec}
+.line-density{margin-top:7px;padding:7px 9px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.line-density label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.76rem}.line-density input{width:100%;margin:3px 0 0}.line-density small{display:block;margin-top:1px;color:var(--muted);font-size:.66rem}@media(max-height:900px) and (min-width:961px){.line-density{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:7px;margin-top:4px;padding:4px 7px}.line-density label{display:block}.line-density small{display:none}.line-density input{margin:0}}
 </style>
 </head>
 <body data-physik-app="magnetfeld-labor" data-student-home="../" data-student-title="Magnetfeld-Labor" data-student-summary="Du untersuchst Magnetfelder mit Kompass, Eisenfeilspänen und Feldlinien und vergleichst verschiedene Magnetanordnungen." data-student-controls="Verschiebe Magnete und Materialien direkt auf dem Feldtisch. Tippe auf eine freie Stelle, um dort mit dem Kompass zu messen.">
@@ -41,7 +43,7 @@ input[type="range"]{min-height:36px;cursor:pointer}input[type="range"]::-webkit-
     <div class="stage-head"><strong>Magnetfeldtisch</strong><span>2D-Schnitt durch das Magnetfeld</span></div>
     <div class="canvas-wrap">
       <canvas id="fieldCanvas" role="application" tabindex="0" aria-describedby="fieldInstructions" aria-keyshortcuts="O C ArrowUp ArrowDown ArrowLeft ArrowRight Delete" aria-label="Interaktiver Magnetfeldtisch mit einem Stabmagneten und Feldlinien"></canvas>
-      <div class="stage-badge">Feld wirkt auch zwischen den Linien</div>
+      <div class="stage-badge">Feld wirkt auch zwischen den Linien · Randlinien laufen außerhalb weiter</div>
       <div class="stage-tip" id="fieldInstructions">Ziehen oder antippen · Tastatur: O wechselt Objekt, C wählt Kompass, Pfeile bewegen</div>
     </div>
   </section>
@@ -86,6 +88,7 @@ input[type="range"]{min-height:36px;cursor:pointer}input[type="range"]::-webkit-
         <label class="check"><input id="heatToggle" type="checkbox" checked>Feldfläche</label>
         <label class="check"><input id="insideToggle" type="checkbox" checked>Rückweg im Magneten</label>
       </div>
+      <div class="line-density"><label for="lineDensityInput">Gezeichnete Linien <strong id="lineDensityRead">32 je Magnet</strong></label><input id="lineDensityInput" type="range" min="12" max="48" step="4" value="32"><small>Die Anzahl ist eine wählbare Darstellung – keine physikalisch feste Linienzahl.</small></div>
       <p class="mini-note">Die Feldfläche erinnert daran: Das Feld existiert auch zwischen den ausgewählten Feldlinien.</p>
     </section>
     <section class="card panel-section full only-2d observation-section">
@@ -107,8 +110,8 @@ input[type="range"]{min-height:36px;cursor:pointer}input[type="range"]::-webkit-
 <details class="card model">
   <summary>Physikmodell, Fachbegriffe und Modellgrenzen</summary>
   <div class="model-grid">
-    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B ∝ [3(m · r̂)r̂ − m] / r³</div><p>Stab- und Hufeisenmagnet werden aus kleinen magnetischen Dipolen zusammengesetzt. Die Beiträge aller Dipole werden überlagert. Kompassnadeln richten sich tangential zum resultierenden Feld aus; Feldlinien werden schrittweise in dieser Richtung verfolgt.</p><ul><li>Das Magnetfeld reicht theoretisch beliebig weit. Linien am Bildrand laufen außerhalb des sichtbaren Ausschnitts weiter.</li><li>Die gezeichneten Linien sind nur eine Auswahl: Auch zwischen ihnen existiert ein Feld.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht; außerhalb zeigen sie von N nach S, im Magneten zurück von S nach N.</li><li>Bei mehreren Magneten kann sich das Feld an einzelnen Punkten durch Überlagerung zu B = 0 aufheben.</li><li>Die Feldfläche und die Liniendichte zeigen Feldstärke nur qualitativ.</li></ul></div>
-    <div><h3>Ferromagnetische Stoffe</h3><p>Weicheisen wird als Gitter induzierter Dipole modelliert. Sie richten sich iterativ im vorhandenen Feld aus und verändern es dadurch. Aluminium und Holz beeinflussen das statische Feld in diesem Schulmodell nicht sichtbar.</p><p><strong>Modellgrenze:</strong> Die App ist qualitativ. Sie berechnet keine realen Tesla-Werte, Kräfte, Hysterese, Sättigung, Wirbelströme oder exakten Materialkennlinien. Das Weicheisenmodell ersetzt keine Finite-Elemente-Rechnung. Eisenfeilspäne und Feldlinien sind Modellbilder – keine materiellen Fäden.</p><p><strong>Fachliche Orientierung:</strong> LEIFIphysik zu Magnetfeld und Feldlinien, OpenStax zu Magnetismus in Materie sowie die explorative Darstellungslogik der PhET-Simulationen.</p></div>
+    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B ∝ [3(m · r̂)r̂ − m] / r³</div><p>Stab- und Hufeisenmagnet werden aus kleinen magnetischen Dipolen zusammengesetzt. Die Beiträge aller Dipole werden überlagert. Kompassnadeln richten sich tangential zum resultierenden Feld aus; Feldlinien werden schrittweise in dieser Richtung verfolgt.</p><ul><li>Das Magnetfeld reicht theoretisch beliebig weit. Linien am Bildrand werden außerhalb des sichtbaren Ausschnitts weiterberechnet und können später wieder in das Bild eintreten.</li><li>Die gezeichneten Linien sind nur eine Auswahl: Auch zwischen ihnen existiert ein Feld.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht; außerhalb zeigen sie von N nach S, im Magneten zurück von S nach N.</li><li>Bei mehreren Magneten kann sich das Feld an einzelnen Punkten durch Überlagerung zu B = 0 aufheben.</li><li>Die Feldfläche zeigt Feldstärke nur qualitativ. Der Slider verändert ausschließlich die Anzahl gezeichneter Modelllinien, nicht das Magnetfeld.</li></ul></div>
+    <div><h3>Ferromagnetische Stoffe</h3><p>Weicheisen wird als Gitter induzierter Dipole modelliert. Sie richten sich iterativ im vorhandenen Feld aus und verändern es dadurch. Die sichtbaren Zellen und Elementarmagnete deuten schematisch ähnlich ausgerichtete Weißsche Bezirke an; reale Bezirke sind weder regelmäßig noch so groß. Aluminium und Holz beeinflussen das statische Feld in diesem Schulmodell nicht sichtbar.</p><p><strong>Modellgrenze:</strong> Die App ist qualitativ. Sie berechnet keine realen Tesla-Werte, Kräfte, Hysterese, Sättigung, Wirbelströme oder exakten Materialkennlinien. Das Weicheisenmodell ersetzt keine Finite-Elemente-Rechnung. Eisenfeilspäne und Feldlinien sind Modellbilder – keine materiellen Fäden.</p><p><strong>Fachliche Orientierung:</strong> LEIFIphysik zu Magnetfeld und Feldlinien, OpenStax zu Magnetismus in Materie sowie die explorative Darstellungslogik der PhET-Simulationen.</p></div>
   </div>
 </details>
 </main>
@@ -122,7 +125,7 @@ const fieldCanvas=$('#fieldCanvas'),fctx=fieldCanvas.getContext('2d');
 const spaceCanvas=$('#spaceCanvas'),sctx=spaceCanvas.getContext('2d');
 const els={
   view2d:$('#view2d'),view3d:$('#view3d'),view2dBtn:$('#view2dBtn'),view3dBtn:$('#view3dBtn'),reset:$('#resetBtn'),
-  selectionName:$('#selectionName'),selectionHint:$('#selectionHint'),strengthField:$('#strengthField'),materialField:$('#materialField'),strength:$('#strengthInput'),strengthRead:$('#strengthRead'),materialType:$('#materialType'),
+  selectionName:$('#selectionName'),selectionHint:$('#selectionHint'),strengthField:$('#strengthField'),materialField:$('#materialField'),strength:$('#strengthInput'),strengthRead:$('#strengthRead'),materialType:$('#materialType'),lineDensity:$('#lineDensityInput'),lineDensityRead:$('#lineDensityRead'),
   rotateLeft:$('#rotateLeftBtn'),rotateRight:$('#rotateRightBtn'),flip:$('#flipBtn'),remove:$('#deleteBtn'),observation:$('#observation'),fieldRead:$('#fieldRead'),directionRead:$('#directionRead'),
   compass:$('#compassToggle'),needles:$('#needlesToggle'),filings:$('#filingsToggle'),lines:$('#fieldLinesToggle'),heat:$('#heatToggle'),inside:$('#insideToggle'),autoRotate:$('#autoRotateToggle')
 };
@@ -132,7 +135,7 @@ const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state={
   view:'2d',magnets:[],materials:[],selected:null,compass:{x:.58,y:.28},
   layers:{compass:true,needles:false,filings:false,lines:true,heat:true,inside:true},
-  sources:[],fieldLines:[],traceEndings:{},preset:'single',drag:null,filingPhase:1,
+  sources:[],fieldLines:[],traceEndings:{},lineDensity:32,preset:'single',drag:null,filingPhase:1,
   camera:{yaw:.65,pitch:-.32,zoom:1,auto:!reducedMotion,drag:null},lastTime:performance.now()
 };
 let idCounter=1,renderQueued=false;
@@ -205,14 +208,15 @@ function computeSources(){
   return[...permanent,...induced];
 }
 function fieldAt(x,y){return fieldFromSources(x,y,state.sources);}
+function symmetricOffsets(count,min,max){
+  const half=Math.max(1,Math.floor(count/2)),values=[];
+  for(let i=0;i<half;i++){const u=half===1?1:i/(half-1),v=min+(max-min)*u;values.push(-v,v);}
+  return values.sort((a,b)=>a-b).slice(0,count);
+}
 function northSeeds(o){
   const seeds=[];
-  if(o.kind==='bar'){
-    for(const d of[-.145,-.105,-.065,-.025,.025,.065,.105,.145])seeds.push(localToWorld(o,.255,d));
-  }else{
-    for(const d of[-.11,-.075,-.04,0,.04,.075,.11])seeds.push(localToWorld(o,-.2+d,.255));
-    for(const y of[.04,.085,.13,.175,.215])seeds.push(localToWorld(o,-.105,y));
-  }
+  if(o.kind==='bar')for(const d of symmetricOffsets(state.lineDensity,.018,.145))seeds.push(localToWorld(o,.255,d));
+  else for(const d of symmetricOffsets(state.lineDensity,.012,.11))seeds.push(localToWorld(o,-.2+d,.255));
   return seeds;
 }
 function insidePermanent(x,y){
@@ -230,21 +234,24 @@ function insidePermanent(x,y){
 }
 function softIronAt(x,y){for(const o of state.materials){if(o.material!=='softIron')continue;const p=worldToLocal(o,x,y);if(Math.abs(p.x)<.215&&Math.abs(p.y)<.075)return o;}return null;}
 function traceFieldAt(x,y){const iron=softIronAt(x,y);if(!iron)return fieldAt(x,y);let bx=0,by=0;for(const s of state.sources)if(!s.permanent&&s.owner===iron.id){bx+=s.mx;by+=s.my;}const mag=Math.hypot(bx,by);return mag>NULL_FIELD_EPS?{x:bx,y:by,mag}:fieldAt(x,y);}
+const TRACE_LIMIT=80;
 function traceLine(seed){
-  const pts=[{x:seed.x,y:seed.y}],visited=new Map(),step=.012;let x=seed.x,y=seed.y,end='max';
-  for(let i=0;i<3000;i++){
+  const pts=[{x:seed.x,y:seed.y}],visited=new Map();let x=seed.x,y=seed.y,end='max',leftView=false;
+  for(let i=0;i<6000;i++){
+    const radius=Math.hypot(x,y),step=.012*(1+Math.min(16,radius*.7));
     const b1=traceFieldAt(x,y);if(!Number.isFinite(b1.mag)){end='invalid';break;}if(b1.mag<NULL_FIELD_EPS){end='null';break;}
     const ux=b1.x/b1.mag,uy=b1.y/b1.mag,mx=x+ux*step*.5,my=y+uy*step*.5,b2=traceFieldAt(mx,my),u2x=b2.x/(b2.mag||1),u2y=b2.y/(b2.mag||1);
     x+=u2x*step;y+=u2y*step;pts.push({x,y});
-    if(Math.abs(x)>1.4||Math.abs(y)>1.7){end='boundary';break;}
+    if(Math.abs(x)>1.4||Math.abs(y)>1.7)leftView=true;
+    if(Math.abs(x)>TRACE_LIMIT||Math.abs(y)>TRACE_LIMIT){end='far-limit';break;}
     if(i>12&&insidePermanent(x,y)){end='magnet';break;}
-    if(i%4===0){const key=`${Math.round(x/.018)},${Math.round(y/.018)}`,prev=visited.get(key);if(prev&&i-prev.i>40&&u2x*prev.ux+u2y*prev.uy>.86){pts.push({x:prev.x,y:prev.y});end='loop';break;}visited.set(key,{i,x,y,ux:u2x,uy:u2y});}
+    if(i%4===0&&radius<2.5){const key=`${Math.round(x/.018)},${Math.round(y/.018)}`,prev=visited.get(key);if(prev&&i-prev.i>40&&u2x*prev.ux+u2y*prev.uy>.86){pts.push({x:prev.x,y:prev.y});end='loop';break;}visited.set(key,{i,x,y,ux:u2x,uy:u2y});}
   }
-  return{points:pts,end};
+  return{points:pts,end,leftView};
 }
 function computeFieldLines(){
   const lines=[],endings={};
-  for(const o of state.magnets)for(const seed of northSeeds(o)){const line=traceLine(seed);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>22&&line.end!=='max'&&line.end!=='invalid')lines.push(line);}
+  for(const o of state.magnets)for(const seed of northSeeds(o)){const line=traceLine(seed);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&!['max','invalid','null','far-limit'].includes(line.end))lines.push(line);}
   state.traceEndings=endings;
   return lines;
 }
@@ -271,8 +278,8 @@ function drawHeat(ctx,t){
 }
 function drawArrowHead(ctx,a,b,color,size=7){const ang=Math.atan2(b.y-a.y,b.x-a.x);ctx.save();ctx.translate(b.x,b.y);ctx.rotate(ang);ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-size,-size*.55);ctx.lineTo(-size,size*.55);ctx.closePath();ctx.fill();ctx.restore();}
 function drawLines(ctx,t){
-  ctx.save();ctx.strokeStyle='rgba(15,118,110,.72)';ctx.lineWidth=1.65;ctx.lineCap='round';ctx.lineJoin='round';
-  for(const line of state.fieldLines){const points=line.points;ctx.beginPath();points.forEach((p,i)=>{const q=toScreen(p,t);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.stroke();for(const frac of[.36,.68]){const i=clamp(Math.floor(points.length*frac),1,points.length-1),a=toScreen(points[i-1],t),b=toScreen(points[i],t);drawArrowHead(ctx,a,b,'rgba(15,118,110,.82)',6);}}
+  const dense=state.lineDensity>36;ctx.save();ctx.strokeStyle=dense?'rgba(15,118,110,.58)':'rgba(15,118,110,.66)';ctx.lineWidth=dense?1.05:1.25;ctx.lineCap='round';ctx.lineJoin='round';
+  for(const line of state.fieldLines){const points=line.points;ctx.beginPath();points.forEach((p,i)=>{const q=toScreen(p,t);i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);});ctx.stroke();let travel=0,arrows=0;for(let i=1;i<points.length&&arrows<4;i++){const a=toScreen(points[i-1],t),b=toScreen(points[i],t),visible=b.x>8&&b.x<t.w-8&&b.y>8&&b.y<t.h-8;travel=visible?travel+Math.min(30,Math.hypot(b.x-a.x,b.y-a.y)):0;if(visible&&travel>105){drawArrowHead(ctx,a,b,'rgba(15,118,110,.78)',5.5);travel=0;arrows++;}}}
   ctx.restore();
 }
 function drawNeedles(ctx,t){
@@ -296,18 +303,24 @@ function drawHorse(ctx,t,o){
   ctx.strokeStyle=colors.south;ctx.beginPath();ctx.moveTo(.2*s,-.23*s);ctx.lineTo(.2*s,.14*s);ctx.quadraticCurveTo(.2*s,.22*s,.1*s,.22*s);ctx.lineTo(0,.22*s);ctx.stroke();ctx.shadowColor='transparent';ctx.fillStyle='#fff';ctx.font=`900 ${Math.max(13,.075*s)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('N',-.2*s,-.23*s);ctx.fillText('S',.2*s,-.23*s);ctx.restore();
 }
 function drawMaterial(ctx,t,o){
-  const p=toScreen(o,t),W=.43*t.scale,H=.15*t.scale;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.shadowColor='rgba(29,49,45,.15)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fillStyle=o.material==='softIron'?'#7a8581':o.material==='aluminum'?'#b9c1c0':'#b98a5f';ctx.globalAlpha=o.material==='softIron'?.78:1;ctx.fillRect(-W/2,-H/2,W,H);ctx.globalAlpha=1;ctx.shadowColor='transparent';ctx.strokeStyle=colors.ink;ctx.lineWidth=1.7;ctx.strokeRect(-W/2,-H/2,W,H);ctx.save();ctx.beginPath();ctx.rect(-W/2,-H/2,W,H);ctx.clip();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;for(let x=-W;x<W;x+=10){ctx.beginPath();ctx.moveTo(x,-H);ctx.lineTo(x+H*2,H);ctx.stroke();}ctx.restore();ctx.fillStyle='#fff';ctx.font=`800 ${Math.max(10,H*.3)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(o.material==='softIron'?'WEICHEISEN':o.material==='aluminum'?'ALUMINIUM':'HOLZ',0,0);ctx.restore();
-  if(o.material==='softIron')drawInducedDipoles(ctx,t,o);
+  const p=toScreen(o,t),W=.43*t.scale,H=.15*t.scale,isIron=o.material==='softIron';ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.shadowColor='rgba(29,49,45,.15)';ctx.shadowBlur=8;ctx.shadowOffsetY=3;ctx.fillStyle=isIron?'#75827e':o.material==='aluminum'?'#b9c1c0':'#b98a5f';ctx.globalAlpha=isIron?.9:1;ctx.fillRect(-W/2,-H/2,W,H);ctx.globalAlpha=1;ctx.shadowColor='transparent';ctx.strokeStyle=colors.ink;ctx.lineWidth=1.7;ctx.strokeRect(-W/2,-H/2,W,H);
+  if(!isIron){ctx.save();ctx.beginPath();ctx.rect(-W/2,-H/2,W,H);ctx.clip();ctx.strokeStyle='rgba(255,255,255,.25)';ctx.lineWidth=1;for(let x=-W;x<W;x+=10){ctx.beginPath();ctx.moveTo(x,-H);ctx.lineTo(x+H*2,H);ctx.stroke();}ctx.restore();ctx.fillStyle='#fff';ctx.font=`800 ${Math.max(10,H*.3)}px system-ui`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(o.material==='aluminum'?'ALUMINIUM':'HOLZ',0,0);}
+  ctx.restore();if(isIron){drawSoftIronDomains(ctx,t,o);drawInducedDipoles(ctx,t,o);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.fillStyle='rgba(255,253,248,.92)';ctx.fillRect(-W*.29,H*.5+3,W*.58,14);ctx.fillStyle=colors.ink;ctx.font='800 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('WEICHEISEN',0,H*.5+10);ctx.restore();}
+}
+function drawSoftIronDomains(ctx,t,o){
+  const p=toScreen(o,t),W=.43*t.scale,H=.15*t.scale,cw=W/6,ch=H/2;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.beginPath();ctx.rect(-W/2,-H/2,W,H);ctx.clip();
+  for(let iy=0;iy<2;iy++)for(let ix=0;ix<6;ix++){const x=-W/2+ix*cw,y=-H/2+iy*ch,j=((ix*17+iy*11)%7-3)*.45;ctx.fillStyle=(ix+iy)%2?'rgba(255,255,255,.07)':'rgba(24,48,44,.08)';ctx.strokeStyle='rgba(255,255,255,.34)';ctx.lineWidth=.9;ctx.beginPath();ctx.moveTo(x+j,y);ctx.lineTo(x+cw+j*.25,y);ctx.lineTo(x+cw-j*.35,y+ch);ctx.lineTo(x-j*.2,y+ch);ctx.closePath();ctx.fill();ctx.stroke();}
+  ctx.restore();
 }
 function drawInducedDipoles(ctx,t,o){
-  const cells=state.sources.filter(s=>!s.permanent&&s.owner===o.id);ctx.save();ctx.lineWidth=1.5;
-  for(const s of cells){const b=Math.hypot(s.mx,s.my);if(!b)continue;const p=toScreen(s,t),a=Math.atan2(-s.my,s.mx),len=clamp(b*260,3,8);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);ctx.strokeStyle='rgba(255,255,255,.82)';ctx.beginPath();ctx.moveTo(-len,0);ctx.lineTo(len,0);ctx.stroke();drawArrowHead(ctx,{x:0,y:0},{x:len,y:0},'rgba(255,255,255,.88)',3.5);ctx.restore();}
+  const cells=state.sources.filter(s=>!s.permanent&&s.owner===o.id);ctx.save();
+  for(const s of cells){const b=Math.hypot(s.mx,s.my);if(!b)continue;const p=toScreen(s,t),a=Math.atan2(-s.my,s.mx),len=clamp(b*340,5,10);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(a);ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-len,0);ctx.lineTo(len,0);ctx.stroke();ctx.lineWidth=2.5;ctx.strokeStyle=colors.south;ctx.beginPath();ctx.moveTo(-len,0);ctx.lineTo(0,0);ctx.stroke();ctx.strokeStyle=colors.north;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(len,0);ctx.stroke();drawArrowHead(ctx,{x:0,y:0},{x:len,y:0},colors.north,3.6);ctx.restore();}
   ctx.restore();
 }
 function drawInsideLines(ctx,t,o){
-  ctx.save();ctx.setLineDash([5,5]);ctx.strokeStyle='rgba(255,255,255,.75)';ctx.lineWidth=1.5;
-  if(o.kind==='bar'){const a=toScreen(localToWorld(o,-.2,0),t),b=toScreen(localToWorld(o,.2,0),t);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();drawArrowHead(ctx,a,b,'rgba(255,255,255,.9)',5);}
-  else{const points=[localToWorld(o,.2,.17),localToWorld(o,.2,-.15),localToWorld(o,0,-.215),localToWorld(o,-.2,-.15),localToWorld(o,-.2,.17)].map(p=>toScreen(p,t));ctx.beginPath();points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();drawArrowHead(ctx,points[2],points[3],'rgba(255,255,255,.9)',5);}
+  const p=toScreen(o,t),s=t.scale,count=clamp(Math.round(state.lineDensity/6),3,8);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-o.angle);ctx.setLineDash([4,4]);ctx.strokeStyle='rgba(255,255,255,.72)';ctx.lineWidth=1.15;ctx.lineCap='round';ctx.lineJoin='round';
+  if(o.kind==='bar')for(let i=0;i<count;i++){const y=(-.06+.12*(i/(count-1)))*s,a={x:-.205*s,y},b={x:.205*s,y};ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();if(i%2===0)drawArrowHead(ctx,{x:-.015*s,y},{x:.035*s,y},'rgba(255,255,255,.92)',4.2);}
+  else for(let i=0;i<count;i++){const d=-.045+.09*(i/(count-1)),xr=(.2+d)*s,xl=(-.2-d)*s,base=(.22+d)*s;ctx.beginPath();ctx.moveTo(xr,-.17*s);ctx.lineTo(xr,.13*s);ctx.quadraticCurveTo(xr,base,.1*s,base);ctx.lineTo(-.1*s,base);ctx.quadraticCurveTo(xl,base,xl,.13*s);ctx.lineTo(xl,-.17*s);ctx.stroke();if(i%2===0)drawArrowHead(ctx,{x:.045*s,y:base},{x:-.025*s,y:base},'rgba(255,255,255,.92)',4.2);}
   ctx.restore();
 }
 function drawSelection(ctx,t,o){
@@ -330,7 +343,7 @@ function setObservation(custom=''){
   if(custom){els.observation.textContent=custom;return;}
   const o=selectedObject();
   if(o?.kind==='material'){
-    els.observation.textContent=o.material==='softIron'?'Das Weicheisen wird magnetisch influenziert. Die kleinen Dipole richten sich aus und bündeln das Feld im Eisen.':'Dieser Körper verändert das statische Feld im verwendeten Schulmodell nicht sichtbar.';return;
+    els.observation.textContent=o.material==='softIron'?'Das Weicheisen wird magnetisch influenziert. Die rot-blauen Elementarmagnete richten sich innerhalb schematisch angedeuteter Weißscher Bezirke aus und bündeln das Feld im Eisen.':'Dieser Körper verändert das statische Feld im verwendeten Schulmodell nicht sichtbar.';return;
   }
   const texts={single:'Verschiebe den Kompass. Seine Nordspitze zeigt an jedem Ort tangential in Feldrichtung.',opposite:'Zwischen ungleichnamigen Polen verbinden sich viele Feldlinien. Untersuche die Richtung mit dem Kompass.',like:'Zwischen gleichnamigen Polen weichen die Feldlinien auseinander. In der Mitte kann das Feld sehr schwach werden.',horse:'Im mittleren Bereich des Polspalts verlaufen die Feldlinien annähernd parallel und liegen dichter.',iron:'Vergleiche das Feld mit und ohne Weicheisen: Der Körper wird influenziert und führt einen größeren Anteil der Feldlinien durch sich.'};
   els.observation.textContent=texts[state.preset]||'Verändere Lage, Richtung oder Material und beschreibe, wie sich das Feldlinienbild ändert.';
@@ -340,6 +353,7 @@ function syncControls(){
   for(const b of[els.rotateLeft,els.rotateRight,els.remove])b.disabled=!has;els.flip.disabled=!isMagnet;els.strengthField.hidden=!isMagnet;els.materialField.hidden=!(has&&o.kind==='material');
   if(isMagnet){els.strength.value=String(Math.round(o.strength*100));els.strengthRead.textContent=`${Math.round(o.strength*100)} %`;}
   if(o?.kind==='material')els.materialType.value=o.material;
+  els.lineDensity.value=String(state.lineDensity);els.lineDensityRead.textContent=`${state.lineDensity} je Magnet`;
   const ids={single:'presetSingle',opposite:'presetOpposite',like:'presetLike',horse:'presetHorse',iron:'presetIron'};for(const [name,id] of Object.entries(ids)){const button=$('#'+id),active=state.preset===name;button.classList.toggle('primary',active);button.setAttribute('aria-pressed',String(active));}
 }
 function addObject(kind){
@@ -372,12 +386,13 @@ fieldCanvas.addEventListener('keydown',e=>{
 function setView(view){state.view=view;const is2=view==='2d';els.view2d.hidden=!is2;els.view3d.hidden=is2;els.view2dBtn.setAttribute('aria-selected',String(is2));els.view3dBtn.setAttribute('aria-selected',String(!is2));els.view2dBtn.tabIndex=is2?0:-1;els.view3dBtn.tabIndex=is2?-1:0;document.querySelectorAll('.only-2d').forEach(e=>e.hidden=!is2);document.querySelectorAll('.only-3d').forEach(e=>e.hidden=is2);queueRender();}
 els.view2dBtn.addEventListener('click',()=>setView('2d'));els.view3dBtn.addEventListener('click',()=>setView('3d'));
 for(const tab of[els.view2dBtn,els.view3dBtn])tab.addEventListener('keydown',e=>{const tabs=[els.view2dBtn,els.view3dBtn];let target=null;if(e.key==='ArrowLeft'||e.key==='ArrowRight')target=tabs[tab===tabs[0]?1:0];if(e.key==='Home')target=tabs[0];if(e.key==='End')target=tabs[1];if(!target)return;e.preventDefault();setView(target===tabs[0]?'2d':'3d');target.focus();});
-function resetAll(){state.layers={compass:true,needles:false,filings:false,lines:true,heat:true,inside:true};for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.checked=state.layers[key];state.filingPhase=1;state.camera.auto=!reducedMotion;els.autoRotate.checked=state.camera.auto;resetCamera();preset('single');setView('2d');}
+function resetAll(){state.layers={compass:true,needles:false,filings:false,lines:true,heat:true,inside:true};state.lineDensity=32;for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.checked=state.layers[key];state.filingPhase=1;state.camera.auto=!reducedMotion;els.autoRotate.checked=state.camera.auto;resetCamera();preset('single');setView('2d');}
 els.reset.addEventListener('click',resetAll);
 for(const [id,name] of[['presetSingle','single'],['presetOpposite','opposite'],['presetLike','like'],['presetHorse','horse'],['presetIron','iron']])$('#'+id).addEventListener('click',()=>preset(name));
 $('#addBarBtn').addEventListener('click',()=>addObject('bar'));$('#addHorseBtn').addEventListener('click',()=>addObject('horse'));$('#addMaterialBtn').addEventListener('click',()=>addObject('material'));
 els.rotateLeft.addEventListener('click',()=>transformSelected(Math.PI/12));els.rotateRight.addEventListener('click',()=>transformSelected(-Math.PI/12));els.flip.addEventListener('click',()=>transformSelected(0,true));els.remove.addEventListener('click',removeSelected);
 els.strength.addEventListener('input',()=>{const o=selectedObject();if(!o||o.kind==='material')return;o.strength=Number(els.strength.value)/100;els.strengthRead.textContent=`${els.strength.value} %`;state.preset='custom';recompute();});
+els.lineDensity.addEventListener('input',()=>{state.lineDensity=Number(els.lineDensity.value);els.lineDensityRead.textContent=`${state.lineDensity} je Magnet`;recompute();});
 els.materialType.addEventListener('change',()=>{const o=selectedObject();if(!o||o.kind!=='material')return;o.material=els.materialType.value;state.preset='custom';recompute();syncControls();setObservation();});
 for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.addEventListener('change',()=>{state.layers[key]=el.checked;if(key==='filings'&&el.checked)state.filingPhase=1;queueRender();});
 function project3D(p,t){
@@ -410,7 +425,7 @@ els.autoRotate.checked=state.camera.auto;els.autoRotate.addEventListener('change
 function tick(now){const dt=Math.min(.05,(now-state.lastTime)/1000);state.lastTime=now;if(state.view==='3d'&&state.camera.auto&&!state.camera.drag){state.camera.yaw+=dt*.16;render3D();}if(state.layers.filings&&state.filingPhase>.001){state.filingPhase*=Math.pow(.035,dt);if(state.view==='2d')render2D();}requestAnimationFrame(tick);}
 new ResizeObserver(()=>queueRender()).observe(document.querySelector('.workspace'));
 window.__magnetLab={
-  getState:()=>({view:state.view,preset:state.preset,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),traceEndings:{...state.traceEndings},sourceCount:state.sources.length}),
+  getState:()=>({view:state.view,preset:state.preset,lineDensity:state.lineDensity,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),linesLeavingView:state.fieldLines.filter(l=>l.leftView).length,traceEndings:{...state.traceEndings},sourceCount:state.sources.length}),
   fieldAt:(x,y)=>fieldAt(Number(x),Number(y)),setPreset:preset,setView,reset:resetAll,recompute,qualitativeStrength
 };
 preset('single');setView('2d');requestAnimationFrame(tick);window.dispatchEvent(new CustomEvent('magnet-lab-ready'));
