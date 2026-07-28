@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#f3eee4">
-    <title>Physik Interaktiv – Matthias Miedl</title>
+    <title>Interaktive Physik-Anwendungen</title>
     <style>
         :root {
             --paper: #f3eee4;
@@ -50,8 +50,8 @@
             display: grid;
             grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
             gap: clamp(28px, 6vw, 76px);
-            align-items: end;
-            padding: clamp(46px, 8vw, 96px) 0 clamp(34px, 6vw, 62px);
+            align-items: center;
+            padding: clamp(40px, 7vw, 76px) 0 clamp(34px, 5vw, 52px);
         }
         .eyebrow {
             color: var(--petrol);
@@ -61,20 +61,49 @@
             text-transform: uppercase;
         }
         h1 {
-            max-width: 760px;
+            max-width: 680px;
             margin: 16px 0 0;
-            font-size: clamp(3.25rem, 8vw, 7rem);
-            line-height: .92;
-            letter-spacing: -.072em;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(3rem, 6.8vw, 5.6rem);
+            font-weight: 700;
+            line-height: .96;
+            letter-spacing: -.055em;
         }
         h1 span { color: var(--petrol); }
+        .hero-note {
+            padding: 22px 24px;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            background: rgba(255, 253, 248, .72);
+            box-shadow: 0 12px 34px rgba(71, 57, 40, .08);
+        }
         .intro {
-            margin: 0 0 8px;
-            padding: 18px 0 3px 20px;
-            border-left: 3px solid var(--sand);
-            color: var(--muted);
-            font-size: clamp(1rem, 1.7vw, 1.16rem);
+            margin: 0;
+            color: var(--ink);
+            font-size: clamp(1rem, 1.5vw, 1.1rem);
             line-height: 1.55;
+        }
+        .format-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 14px;
+            margin: 18px 0 0;
+            padding: 16px 0 0;
+            border-top: 1px solid var(--line);
+            color: var(--muted);
+            font-size: .78rem;
+            font-weight: 760;
+            letter-spacing: .025em;
+            list-style: none;
+        }
+        .format-list li { display: inline-flex; align-items: center; gap: 7px; }
+        .format-list li::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            flex: 0 0 auto;
+            border-radius: 50%;
+            background: var(--petrol);
         }
         .section-head {
             display: flex;
@@ -141,7 +170,7 @@
         footer { padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
         @media (max-width: 760px) {
             header { grid-template-columns: 1fr; align-items: start; }
-            .intro { max-width: 560px; }
+            .hero-note { max-width: 620px; }
         }
         @media (max-width: 560px) {
             body { padding: 16px; }
@@ -156,13 +185,20 @@
     <div class="shell">
         <header>
             <div>
-                <div class="eyebrow">Physik · interaktiv · direkt</div>
-                <h1>Physik<br><span>zum Abheben.</span></h1>
+                <div class="eyebrow">Physikunterricht · digitale Lernumgebungen</div>
+                <h1>Interaktive<br><span>Anwendungen</span></h1>
             </div>
-            <p class="intro">Digitale Lernumgebungen für das iPad – zum Erkunden, Ausprobieren und Durchblicken.</p>
+            <div class="hero-note">
+                <p class="intro">Simulationen, Diagrammwerkzeuge und Lernspiele für den Physikunterricht. Die Anwendungen laufen direkt im Browser und unterstützen das eigenständige Untersuchen physikalischer Zusammenhänge.</p>
+                <ul class="format-list" aria-label="Eigenschaften der Anwendungen">
+                    <li>iPad und Desktop</li>
+                    <li>offline nutzbar</li>
+                    <li>ohne Anmeldung</li>
+                </ul>
+            </div>
         </header>
 
-        <div class="section-head"><h2>Interaktive Anwendungen</h2><span>Auswählen und direkt starten</span></div>
+        <div class="section-head"><h2>Anwendungen</h2><span>Simulationen · Diagramme · Quiz</span></div>
         <main class="grid" id="app-grid" aria-label="Physik-Anwendungen">
             <a class="card" href="Quizzes/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta">Klasse 8 · 48 Fragen, Diagramme und Duellmodus</div></a>
             <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta">Klasse 8–9 · Geschwindigkeitsvektoren addieren</div></a>
@@ -177,7 +213,7 @@
             <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta">Klasse 10–12 · Feder- und Fadenpendel</div></a>
         </main>
 
-        <footer>&copy; <span id="year"></span> · mmiedl811.github.io</footer>
+        <footer>&copy; <span id="year"></span> · Physik-Web-Apps</footer>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", () => {

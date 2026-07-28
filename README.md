@@ -7,7 +7,7 @@ Interaktive, browserbasierte Physik-Anwendungen für den Unterricht. Die Apps si
 
 ## Live-Ansicht
 
-**[https://mmiedl811.github.io/Physik-Web-Apps/](https://mmiedl811.github.io/Physik-Web-Apps/)**
+Die veröffentlichte Seite ist über die GitHub-Pages-Adresse dieses Repositories erreichbar.
 
 ## HTML-Dateien
 
@@ -49,10 +49,8 @@ Die Anwendungen basieren überwiegend auf nativem HTML5, CSS und JavaScript. Vie
 
 ## Feedback und Fehlerberichte
 
-Fehler, Darstellungsprobleme und Funktionswünsche können über die GitHub-Issues gemeldet werden:
-
-**[Issues aufrufen](https://github.com/mmiedl811/Physik-Web-Apps/issues)**
+Fehler, Darstellungsprobleme und Funktionswünsche können über den Reiter **Issues** dieses GitHub-Repositories gemeldet werden.
 
 ---
 
-*Erstellt von Matthias Miedl – Physik mit digitalen Werkzeugen.*
+*Interaktive Physik-Anwendungen für den Unterricht.*
