@@ -17,6 +17,7 @@ Interaktive, browserbasierte Physik-Anwendungen für den Unterricht. Die Apps si
 | [`energie-runner/index.html`](energie-runner/index.html) | Spielbarer Energie-Runner für Klasse 9: chemische, kinetische, potenzielle und innere Energie werden beim Laufen, Springen, Sammeln und bei Kollisionen bilanziert. |
 | [`freier-fall-energie/index.html`](freier-fall-energie/index.html) | Zeitlupen-Animation des freien Falls: Vergleich der Energieumwandlung ohne Luftwiderstand und mit realistischer Endgeschwindigkeit durch quadratischen Luftwiderstand. |
 | [`kondensator-pendel/index.html`](kondensator-pendel/index.html) | Klasse-12-Simulation eines leitfähigen Fadenpendels im getrennten Plattenkondensator: Ladungstransport, lineare Spannungsabnahme, Rechtecknäherung und Feldenergie als Fläche im \(U\)-\(Q\)-Diagramm. |
+| [`Quizzes/index.html`](Quizzes/index.html) | Offlinefähiges Physik-Duell für Klasse 8 zur Mechanik mit 48 geprüften Fragen, zwölf Interaktionsformen, eingebetteten SVG-Diagrammen sowie Training, Zeitjagd, Drei-Leben- und Duellmodus. |
 | [`energiestufenmodell/index.html`](energiestufenmodell/index.html) | Quanten-Labor zu diskreten Energieniveaus, Anregung und Energieübertragung im Energiestufenmodell. |
 | [`v_aenderung/index.html`](v_aenderung/index.html) | Eishockey-Simulation zur vektoriellen Addition von Anfangsgeschwindigkeit \(\vec v_A\) und Geschwindigkeitsänderung \(\Delta\vec v\) zur Endgeschwindigkeit \(\vec v_E\). |
 | [`impuls/index.html`](impuls/index.html) | Zweidimensionale Stoßsimulation zur Untersuchung von Impulsvektoren und Richtungsänderungen. |
@@ -26,9 +27,9 @@ Interaktive, browserbasierte Physik-Anwendungen für den Unterricht. Die Apps si
 | [`waagrechter Wurf/index.html`](waagrechter%20Wurf/index.html) | Simulation eines waagrecht abgeworfenen Rettungspakets zur Überlagerung horizontaler und vertikaler Bewegung. |
 | [`schwingungen/index.html`](schwingungen/index.html) | Interaktive Gegenüberstellung von Federpendel und Fadenpendel mit Zeitverläufen und veränderbaren Parametern. |
 
-## Reservierter Quiz-Bereich
+## Quiz-Bereich
 
-Der Ordner `Quizzes/` ist für ein separates zukünftiges Quiz-Projekt reserviert. Das frühere Klasse-8-Geschwindigkeitsquiz wurde aus diesem Repository entfernt.
+Der Ordner `Quizzes/` enthält den ersten Themenpiloten **Klasse 8 – Mechanik**. Die Quiz-Engine ist als eigenständige Offline-Datei aufgebaut; weitere geprüfte Themenpools können später auf derselben Bedienlogik aufbauen.
 
 ## Zielplattform
 
