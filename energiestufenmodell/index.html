@@ -155,6 +155,8 @@
         }
 
         .unit-btn {
+            min-width: 44px;
+            min-height: 44px;
             padding: 6px 16px;
             border: none;
             background: transparent;
@@ -306,6 +308,7 @@
 
         /* Buttons */
         .btn {
+            min-height: 44px;
             padding: 12px 16px;
             border: none;
             border-radius: var(--radius);
@@ -761,7 +764,7 @@
     <footer class="spectra">
         <div class="spectrum-card">
             <div class="spectrum-header">
-                <span>🌈</span> Absorption · aufgenommene Photonenergie
+                <span>🌈</span> Modell-Absorption · aufgenommene Photonenergie
                 <span class="spectrum-mode-badge adaptive" id="abs-mode-badge">adaptiv</span>
             </div>
             <div class="spectrum-body">
@@ -771,7 +774,7 @@
         </div>
         <div class="spectrum-card">
             <div class="spectrum-header">
-                <span>💡</span> Emission · abgegebene Photonenergie
+                <span>💡</span> Modell-Emission · abgegebene Photonenergie
                 <span class="spectrum-mode-badge adaptive" id="em-mode-badge">aktuelle Sitzung</span>
             </div>
             <div class="spectrum-body" style="background: #111827;">
@@ -1490,7 +1493,8 @@ function updateValidation() {
 
     const ionizationDeltaEv = el.ionizationEv - currentEv;
     if (inputEv + tolerance >= ionizationDeltaEv) {
-        setFeedback('invalid', `Ionisierung: Ab ${formatEnergy(ionizationDeltaEv)} reicht die Photonenergie aus, um das Elektron aus diesem Zustand zu lösen.`);
+        const excessEv = Math.max(0, inputEv - ionizationDeltaEv);
+        setFeedback('invalid', `Ionisierung erkannt, aber in dieser App nicht animiert: Ab ${formatEnergy(ionizationDeltaEv)} kann das Elektron gelöst werden. Die Überschussenergie ${formatEnergy(excessEv)} würde als kinetische Energie des Elektrons auftreten.`);
     } else {
         const fromLabel = state.currentLevelIndex === 0 ? '' : ` von ${el.levels[state.currentLevelIndex].id}`;
         setFeedback('invalid', `${formatEnergy(inputEv)} passt zu keinem der ausgewählten Energieniveaus${fromLabel}; die Ionisierungsgrenze ist noch nicht erreicht.`);
@@ -1637,6 +1641,8 @@ function resetSystem() {
     state.energyIn = 0;
     state.energyOut = 0;
     state.emissionLines = [];
+    state.showFullSpectra = false;
+    dom.toggleFullSpectra.checked = false;
 
     dom.input.disabled = false;
     dom.slider.disabled = false;

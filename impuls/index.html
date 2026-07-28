@@ -281,7 +281,7 @@
   <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
 
-<body class="app" data-physik-app="impuls" data-student-home="../" data-student-title="Impuls beim Stoß" data-student-summary="Du beobachtest einen elastischen Stoß und vergleichst die Impulsvektoren vor und nach dem Stoß." data-student-controls="Stelle Masse und Geschwindigkeit ein. Tippe dann auf „Play“.">
+<body class="app" data-physik-app="impuls" data-student-home="../" data-student-title="Impuls beim Stoß" data-student-summary="Du beobachtest einen elastischen Stoß und vergleichst die Impulsvektoren vor und nach dem Stoß." data-student-controls="Stelle Masse und Geschwindigkeit ein. Tippe dann auf „Start“.">
   <header class="app__header">
     <h1 class="app__title">Impuls – Elastischer Stoß (2D)</h1>
     <p class="app__subtitle">Ziehe an den <strong>Kugeln</strong> (Position) oder an den <strong>Pfeilspitzen</strong> (Richtung & Geschwindigkeit). Beobachte die Vektoraddition unten.</p>
@@ -332,14 +332,14 @@
         </svg>
 
         <div class="stage__controls">
-          <button class="btn btn--play" id="playBtn" type="button">▶ Play</button>
+          <button class="btn btn--play" id="playBtn" type="button">▶ Start</button>
           <div class="ext-speed" aria-label="Tempo der Animation">
             <span class="ext-speed__label">Tempo</span>
             <input class="ext-speed__range" type="range" id="extSpeedRange" min="0.10" max="1.00" step="0.05" value="0.25">
             <span class="ext-speed__value" id="extSpeedValue">25%</span>
           </div>
           <button class="btn btn--secondary" id="resetPosBtn" type="button">Positionen</button>
-          <button class="btn btn--secondary" id="resetBtn" type="button">Reset</button>
+          <button class="btn btn--secondary" id="resetBtn" type="button">↺ Neu</button>
         </div>
       </div>
 
@@ -374,12 +374,12 @@
             <line id="beforeP1" stroke="var(--c-coin1)" stroke-width="4" stroke-linecap="round" marker-end="url(#m-p1)"/>
             <line id="beforeP2" stroke="var(--c-coin2)" stroke-width="4" stroke-linecap="round" stroke-dasharray="6,3" marker-end="url(#m-p2)"/>
             <line id="beforePtot" stroke="var(--c-result)" stroke-width="5" stroke-opacity="0.5" stroke-linecap="round" marker-end="url(#m-ptot)"/>
-            <circle cx="50" cy="230" r="3" fill="var(--c-text)"/>
+            <circle cx="200" cy="140" r="3" fill="var(--c-text)"/>
             <!-- Labels -->
             <text id="lbl-b-p1" font-size="12" font-weight="800" fill="var(--c-coin1)">p₁</text>
             <text id="lbl-b-p2" font-size="12" font-weight="800" fill="var(--c-coin2)">p₂</text>
             <text id="lbl-b-ptot" font-size="12" font-weight="800" fill="var(--c-result)">Summe</text>
-            <text id="beforeScaleHint" x="390" y="270" text-anchor="end" font-size="10" fill="var(--c-muted)">Scale</text>
+            <text id="beforeScaleHint" x="390" y="270" text-anchor="end" font-size="10" fill="var(--c-muted)">automatisch skaliert · p in Ns</text>
           </svg>
         </div>
 
@@ -399,17 +399,18 @@
               </marker>
             </defs>
             <g id="afterGrid" stroke="var(--c-grid)" stroke-width="1"></g>
-            <text id="afterHint" x="200" y="140" text-anchor="middle" fill="var(--c-muted)" font-size="13">Animation starten...</text>
+            <text id="afterHint" x="200" y="40" text-anchor="middle" fill="var(--c-muted)" font-size="13">Starte den Stoß …</text>
             <!-- Referenz (Summe Vorher) -->
             <line id="afterRefSum" stroke="var(--c-result)" stroke-width="5" stroke-opacity="0.2" stroke-linecap="round"/>
             <!-- Vektoren Nachher -->
             <line id="afterP1" stroke="var(--c-coin1)" stroke-width="4" stroke-linecap="round" marker-end="url(#m-p1a)" opacity="0"/>
             <line id="afterP2" stroke="var(--c-coin2)" stroke-width="4" stroke-linecap="round" marker-end="url(#m-p2a)" opacity="0"/>
             <line id="afterSum" stroke="var(--c-result)" stroke-width="3" stroke-linecap="round" stroke-dasharray="4,4" marker-end="url(#m-ptota)" opacity="0"/>
-            <circle cx="50" cy="230" r="3" fill="var(--c-text)"/>
+            <circle cx="200" cy="140" r="3" fill="var(--c-text)"/>
             <text id="lbl-a-p1" font-size="12" font-weight="800" fill="var(--c-coin1)" opacity="0">p₁'</text>
             <text id="lbl-a-p2" font-size="12" font-weight="800" fill="var(--c-coin2)" opacity="0">p₂'</text>
             <text id="lbl-a-sum" font-size="12" font-weight="800" fill="var(--c-result)" opacity="0">Summe'</text>
+            <text id="afterScaleHint" x="390" y="270" text-anchor="end" font-size="10" fill="var(--c-muted)">automatisch skaliert · p in Ns</text>
           </svg>
         </div>
       </div>
@@ -482,10 +483,11 @@
 
     // --- CONFIG ---
     const CFG = {
-      scaleNs: 600,    // Pixel pro Ns
-      scaleV: 50,      // Pixel pro m/s
+      scaleNs: 1100,   // Maximale Darstellungsskala in Pixel pro Ns
+      scaleV: 30,      // Maximale Darstellungsskala in Pixel pro m/s
       gridStep: 40,    // Grid Size in px
-      origin: { x: 50, y: 230 }, // Ursprung der Vektordiagramme
+      origin: { x: 200, y: 140 }, // Zentrierter Ursprung der Vektordiagramme
+      vectorExtent: { x: 150, y: 90 }, // Sichtbarer Bereich um den Ursprung
       baseSpeed: 100,  // Basisgeschwindigkeit der Animation
       vecScale: 15,    // Skalierung der Vektoren auf der Stage (1m/s = 15px)
       collisionRadius: 30 // Konstante Geometrie: Masse ändert nicht die Stoßnormale
@@ -539,6 +541,8 @@
       dP2: document.getElementById('disp-p2'),
       dPTot: document.getElementById('disp-ptot'),
       dEnergy: document.getElementById('energyDisplay'),
+      beforeScaleHint: document.getElementById('beforeScaleHint'),
+      afterScaleHint: document.getElementById('afterScaleHint'),
       
       // Vector Views
       svgBefore: document.getElementById('svgBefore'),
@@ -674,25 +678,31 @@
 
       // Vektoren an den Kugeln
       const vScale = CFG.vecScale; 
-      const v1x = (state.isPlaying ? state.sim.v1.x : state.v1 * Math.cos(toRad(state.angle1))) * vScale;
-      const v1y = (state.isPlaying ? state.sim.v1.y : state.v1 * Math.sin(toRad(state.angle1))) * vScale;
-      const v2x = (state.isPlaying ? state.sim.v2.x : state.v2 * Math.cos(toRad(state.angle2))) * vScale;
-      const v2y = (state.isPlaying ? state.sim.v2.y : state.v2 * Math.sin(toRad(state.angle2))) * vScale;
+      const useRuntimeVectors = state.isPlaying || state.isPaused || state.sim.collided;
+      const v1x = (useRuntimeVectors ? state.sim.v1.x : state.v1 * Math.cos(toRad(state.angle1))) * vScale;
+      const v1y = (useRuntimeVectors ? state.sim.v1.y : state.v1 * Math.sin(toRad(state.angle1))) * vScale;
+      const v2x = (useRuntimeVectors ? state.sim.v2.x : state.v2 * Math.cos(toRad(state.angle2))) * vScale;
+      const v2y = (useRuntimeVectors ? state.sim.v2.y : state.v2 * Math.sin(toRad(state.angle2))) * vScale;
+      const hasV1 = Math.hypot(v1x, v1y) > 0.5;
+      const hasV2 = Math.hypot(v2x, v2y) > 0.5;
 
       D.v1Line.setAttribute('x2', v1x); D.v1Line.setAttribute('y2', v1y);
+      D.v1Line.setAttribute('opacity', hasV1 ? 1 : 0);
       D.v1Hand.setAttribute('cx', v1x); D.v1Hand.setAttribute('cy', v1y);
       D.v1Hit.setAttribute('cx', v1x); D.v1Hit.setAttribute('cy', v1y); // Hit Area mitbewegen!
 
       D.v2Line.setAttribute('x2', v2x); D.v2Line.setAttribute('y2', v2y);
+      D.v2Line.setAttribute('opacity', hasV2 ? 1 : 0);
       D.v2Hand.setAttribute('cx', v2x); D.v2Hand.setAttribute('cy', v2y);
       D.v2Hit.setAttribute('cx', v2x); D.v2Hit.setAttribute('cy', v2y); // Hit Area mitbewegen!
 
-      // Handles ausblenden während Play
-      const op = state.isPlaying ? 0 : 1;
+      // Nach dem Stoß zeigen die Pfeile den Ergebniszustand und sind nicht mehr editierbar.
+      const handlesEditable = !state.isPlaying && !state.sim.collided;
+      const op = handlesEditable ? 1 : 0;
       D.v1Hand.setAttribute('opacity', op); D.v2Hand.setAttribute('opacity', op);
       // Hit Areas auch deaktivieren (pointer-events)
-      D.v1Hit.style.pointerEvents = state.isPlaying ? 'none' : 'all';
-      D.v2Hit.style.pointerEvents = state.isPlaying ? 'none' : 'all';
+      D.v1Hit.style.pointerEvents = handlesEditable ? 'all' : 'none';
+      D.v2Hit.style.pointerEvents = handlesEditable ? 'all' : 'none';
 
       // 2. Vector Views
       renderVectorDiagrams();
@@ -720,7 +730,6 @@
 
     function renderVectorDiagrams() {
       const isMom = state.vectorMode === 'momentum';
-      const scale = isMom ? CFG.scaleNs : CFG.scaleV;
       const ox = CFG.origin.x;
       const oy = CFG.origin.y;
 
@@ -734,22 +743,47 @@
       const m1 = isMom ? state.m1 : 1;
       const m2 = isMom ? state.m2 : 1;
 
+      const before1 = { x: iv1x * m1, y: iv1y * m1 };
+      const before2 = { x: iv2x * m2, y: iv2y * m2 };
+      const after1 = { x: state.sim.resV1.x * m1, y: state.sim.resV1.y * m1 };
+      const after2 = { x: state.sim.resV2.x * m2, y: state.sim.resV2.y * m2 };
+      const add = (a, b) => ({ x: a.x + b.x, y: a.y + b.y });
+      const points = [
+        { x: 0, y: 0 },
+        before1,
+        isMom ? add(before1, before2) : before2
+      ];
+      if(state.sim.collided) {
+        points.push(after1, isMom ? add(after1, after2) : after2);
+      }
+      const maxAbsX = Math.max(...points.map(point => Math.abs(point.x)));
+      const maxAbsY = Math.max(...points.map(point => Math.abs(point.y)));
+      const fitX = maxAbsX > 1e-12 ? CFG.vectorExtent.x / maxAbsX : Infinity;
+      const fitY = maxAbsY > 1e-12 ? CFG.vectorExtent.y / maxAbsY : Infinity;
+      const scale = Math.min(isMom ? CFG.scaleNs : CFG.scaleV, fitX, fitY);
+      const scaleText = isMom ? 'automatisch skaliert · p in N·s' : 'automatisch skaliert · v in m/s';
+      D.beforeScaleHint.textContent = scaleText;
+      D.afterScaleHint.textContent = scaleText;
+
       // Vektoren Vorher
-      const vec1x = iv1x * m1 * scale;
-      const vec1y = iv1y * m1 * scale;
-      const vec2x = iv2x * m2 * scale;
-      const vec2y = iv2y * m2 * scale;
+      const vec1x = before1.x * scale;
+      const vec1y = before1.y * scale;
+      const vec2x = before2.x * scale;
+      const vec2y = before2.y * scale;
+      const hasVec1 = Math.hypot(vec1x, vec1y) > 0.5;
+      const hasVec2 = Math.hypot(vec2x, vec2y) > 0.5;
+      const hasBeforeSum = Math.hypot(vec1x + vec2x, vec1y + vec2y) > 0.5;
 
       // Erster Vektor vom Ursprung
       setArrow(D.vecB.p1, ox, oy, ox+vec1x, oy+vec1y);
-      setLabel(D.vecB.l1, ox+vec1x/2, oy+vec1y/2 - 10, isMom ? "p₁" : "v₁");
+      setLabel(D.vecB.l1, ox+vec1x/2, oy+vec1y/2 - 10, isMom ? "p₁" : "v₁", hasVec1);
 
       // Nur Impulse werden Spitze an Schaft addiert. Geschwindigkeiten starten beide am Ursprung.
       const beforeBase2 = isMom ? { x: ox+vec1x, y: oy+vec1y } : { x: ox, y: oy };
       setArrow(D.vecB.p2, beforeBase2.x, beforeBase2.y, beforeBase2.x+vec2x, beforeBase2.y+vec2y);
-      setLabel(D.vecB.l2, beforeBase2.x+vec2x/2 + 10, beforeBase2.y+vec2y/2, isMom ? "p₂" : "v₂");
+      setLabel(D.vecB.l2, beforeBase2.x+vec2x/2 + 10, beforeBase2.y+vec2y/2, isMom ? "p₂" : "v₂", hasVec2);
       setArrow(D.vecB.ptot, ox, oy, ox+vec1x+vec2x, oy+vec1y+vec2y, isMom);
-      setLabel(D.vecB.lt, ox+(vec1x+vec2x)/2, oy+(vec1y+vec2y)/2 + 20, "p ges", isMom);
+      setLabel(D.vecB.lt, ox+(vec1x+vec2x)/2, oy+(vec1y+vec2y)/2 + 20, "p ges", isMom && hasBeforeSum);
 
       // Referenzpunkt für Nachher
       const refX = ox + vec1x + vec2x;
@@ -767,22 +801,25 @@
       D.vecA.hint.setAttribute('opacity', 0);
 
       // Vektoren Nachher (berechnet aus Collision Result)
-      const res1x = state.sim.resV1.x * m1 * scale;
-      const res1y = state.sim.resV1.y * m1 * scale;
-      const res2x = state.sim.resV2.x * m2 * scale;
-      const res2y = state.sim.resV2.y * m2 * scale;
+      const res1x = after1.x * scale;
+      const res1y = after1.y * scale;
+      const res2x = after2.x * scale;
+      const res2y = after2.y * scale;
+      const hasRes1 = Math.hypot(res1x, res1y) > 0.5;
+      const hasRes2 = Math.hypot(res2x, res2y) > 0.5;
+      const hasAfterSum = Math.hypot(res1x + res2x, res1y + res2y) > 0.5;
 
       // p1'
       setArrow(D.vecA.p1, ox, oy, ox+res1x, oy+res1y);
-      setLabel(D.vecA.l1, ox+res1x/2, oy+res1y/2 - 10, isMom ? "p₁'" : "v₁'");
+      setLabel(D.vecA.l1, ox+res1x/2, oy+res1y/2 - 10, isMom ? "p₁'" : "v₁'", hasRes1);
 
       const afterBase2 = isMom ? { x: ox+res1x, y: oy+res1y } : { x: ox, y: oy };
       setArrow(D.vecA.p2, afterBase2.x, afterBase2.y, afterBase2.x+res2x, afterBase2.y+res2y);
-      setLabel(D.vecA.l2, afterBase2.x+res2x/2 + 10, afterBase2.y+res2y/2, isMom ? "p₂'" : "v₂'");
+      setLabel(D.vecA.l2, afterBase2.x+res2x/2 + 10, afterBase2.y+res2y/2, isMom ? "p₂'" : "v₂'", hasRes2);
 
       // Nur im Impulsmodus: Summe nachher und Referenzsumme vorher.
       setArrow(D.vecA.sum, ox, oy, ox+res1x+res2x, oy+res1y+res2y, isMom);
-      setLabel(D.vecA.ls, ox+(res1x+res2x)/2, oy+(res1y+res2y)/2 + 20, "p ges'", isMom);
+      setLabel(D.vecA.ls, ox+(res1x+res2x)/2, oy+(res1y+res2y)/2 + 20, "p ges'", isMom && hasAfterSum);
       setArrow(D.vecA.ref, ox, oy, refX, refY, isMom);
     }
 
@@ -918,7 +955,7 @@
       state.isPlaying = false;
       state.isPaused = false;
       lastTime = 0;
-      D.btnPlay.textContent = "▶ Play";
+      D.btnPlay.textContent = "▶ Start";
       state.sim.p1 = {...state.pos1};
       state.sim.p2 = {...state.pos2};
       state.sim.collided = false;
@@ -1032,6 +1069,22 @@
       l.setAttribute("stroke-opacity", i%200===0?0.3:0.1);
       grid.appendChild(l);
     }
+
+    ['beforeGrid', 'afterGrid'].forEach((gridId) => {
+      const vectorGrid = document.getElementById(gridId);
+      for(let x=40; x<400; x+=40) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x); line.setAttribute("y1", 20); line.setAttribute("x2", x); line.setAttribute("y2", 260);
+        line.setAttribute("stroke-opacity", x === CFG.origin.x ? 0.28 : 0.10);
+        vectorGrid.appendChild(line);
+      }
+      for(let y=20; y<280; y+=40) {
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", 20); line.setAttribute("y1", y); line.setAttribute("x2", 380); line.setAttribute("y2", y);
+        line.setAttribute("stroke-opacity", y === CFG.origin.y ? 0.28 : 0.10);
+        vectorGrid.appendChild(line);
+      }
+    });
 
     // Start
     updateStateFromInputs();

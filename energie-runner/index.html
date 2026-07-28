@@ -346,7 +346,13 @@
       margin-top: 16px;
       padding: 15px 17px;
     }
-    .model-card summary { cursor: pointer; font-weight: 850; }
+    .model-card summary {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+      cursor: pointer;
+      font-weight: 850;
+    }
     .model-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -407,7 +413,7 @@
   </style>
   <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-student-home="../" data-student-title="Energie beim Laufen und Springen" data-student-summary="Du beobachtest, wie chemische Energie in Bewegungs-, Höhen- und innere Energie umgewandelt wird." data-student-controls="Laufe mit den Pfeiltasten oder den Pfeil-Buttons. Springe mit Leertaste, Pfeil nach oben oder „Sprung“.">
+<body data-physik-app="energie-runner" data-student-home="../" data-student-title="Energie beim Laufen und Springen" data-student-summary="Du beobachtest, wie chemische Energie in Bewegungs-, Höhen- und innere Energie umgewandelt wird." data-student-controls="Laufe mit den Pfeiltasten oder den Pfeil-Buttons. Springe mit Leertaste, Pfeil nach oben oder „Sprung“.">
   <div class="page">
     <header class="topbar">
       <div class="title-block">
@@ -516,7 +522,7 @@
         <div class="balance">
           <div class="balance-row"><span>System: Runner + Erde + Umgebung</span><strong id="system-energy">150,0 kJ</strong></div>
           <div class="balance-row"><span>davon durch Muffins</span><strong id="external-energy">+0,0 kJ</strong></div>
-          <div class="balance-row"><span>Automatische Bilanzkorrektur</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
+          <div class="balance-row"><span>Unabhängiger Bilanzrest</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
         </div>
       </aside>
     </main>
@@ -529,7 +535,7 @@
         <div class="formula-box"><strong>Mechanische Energie</strong><math display="block" aria-label="E mechanisch gleich E kin plus E pot"><msub><mi>E</mi><mtext>mech</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub></math></div>
         <div class="formula-box"><strong>Energiebilanz</strong><math display="block" aria-label="E System gleich E chemisch plus E kin plus E pot plus E thermisch"><msub><mi>E</mi><mtext>sys</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>chem</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>th</mtext></msub></math></div>
       </div>
-      <p class="model-note"><strong>Systemgrenze:</strong> Runner + Erde + Umgebung; die Bodenlinie hat das Nullniveau h = 0. Der Muffin liegt vor der Aufnahme außerhalb des Systems und führt bei der Aufnahme chemische Energie zu. Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie erhalten. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung, unelastische Landungen und der Rückprall an Bowser wandeln mechanische Energie in innere Energie um. Die Anzeige „Automatische Bilanzkorrektur“ legt einen numerischen Rest aus jedem Modellschritt offen; sie ist keine unabhängige Messung. Münzen verändern nur den Punktestand und sind keine Energieform.</p>
+      <p class="model-note"><strong>Systemgrenze:</strong> Runner + Erde + Umgebung; die Bodenlinie hat das Nullniveau h = 0. Der Muffin liegt vor der Aufnahme außerhalb des Systems und führt bei der Aufnahme chemische Energie zu. Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie <strong>ohne Steuereingriff</strong> erhalten. Steuern in der Luft führt zusätzlich chemische Energie zu. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung, unelastische Landungen und der Rückprall an Bowser wandeln mechanische Energie in innere Energie um. Der „Unabhängige Bilanzrest“ vergleicht die Gesamtenergie mit der Summe aller Energieformen, ohne den Rest automatisch umzubuchen. Münzen verändern nur den Punktestand und sind keine Energieform.</p>
     </details>
   </div>
 
@@ -620,14 +626,14 @@
       }
 
       let state;
-      let running = true;
+      let running = false;
       let lastTimestamp = 0;
       let accumulator = 0;
       let viewWidth = 900;
       let viewHeight = 520;
       let dpr = 1;
 
-      function resetState() {
+      function resetState(options = {}) {
         state = {
           x: 2,
           y: 0,
@@ -650,9 +656,9 @@
         input.left = false;
         input.right = false;
         input.jumpQueued = false;
-        running = true;
+        running = options.start !== false;
         pauseButton.disabled = false;
-        pauseButton.textContent = '⏸ Pause';
+        pauseButton.textContent = running ? '⏸ Pause' : '▶ Start';
         gameOverOverlay.hidden = true;
         setMessage('Überquere die Brücke, sammle Münzen und springe über Bowser.', 3.5);
         reconcileEnergy();
@@ -674,9 +680,9 @@
       }
       function reconcileEnergy() {
         const error = systemEnergy() - energySum();
-        state.thermal += error;
         state.balanceCorrection = error;
         if (state.thermal < -0.01) throw new Error('Negative thermische Energie: Modellbilanz verletzt.');
+        if (Math.abs(error) > 0.05) throw new Error(`Energiebilanz verletzt: Rest ${error.toFixed(3)} J.`);
         if (state.thermal < 0) state.thermal = 0;
       }
 
@@ -967,7 +973,7 @@
         readouts.external.textContent = `+${formatKJ(s.externalAdded)}`;
         readouts.balance.textContent = `${formatNumber(Math.abs(s.balanceCorrection), 0)} J`;
         if (state.time > state.messageUntil && !state.gameOver) {
-          if (!state.onGround) eventMessage.textContent = 'Im Flug: Bewegungsenergie ↔ Höhenenergie';
+          if (!state.onGround) eventMessage.textContent = 'Im Flug: Bewegung ↔ Höhe; Steuern nutzt zusätzlich chemische Energie';
           else if (Math.abs(state.vx) > 0.25) eventMessage.textContent = 'Laufen: chemische Energie → Bewegung + innere Energie';
           else eventMessage.textContent = 'Stillstand: Die Energiebalken bleiben konstant.';
         }
@@ -1316,6 +1322,7 @@
       });
       restartButton.addEventListener('click', resetState);
       overlayRestart.addEventListener('click', resetState);
+      document.body.addEventListener('student-intro:close', () => resetState(), { once: true });
 
       window.__energyRunner = {
         ready: true,
@@ -1359,7 +1366,7 @@
         config: CONFIG
       };
 
-      resetState();
+      resetState({ start: false });
       resizeCanvas();
       requestAnimationFrame(animationFrame);
     })();

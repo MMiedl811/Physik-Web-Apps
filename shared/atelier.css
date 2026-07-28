@@ -878,7 +878,7 @@ body[data-physik-app="waagrechter-wurf"] #landing-banner {
 /* iPad and other coarse-pointer devices: preserve comfortable hit areas without changing desktop density. */
 @media (pointer: coarse) {
   body[data-physik-app] :where(button, select, input[type="number"], input[type="text"], summary) {
-    min-height: 44px;
+    min-height: 48px;
   }
 
   body[data-physik-app] :where(input[type="checkbox"], input[type="radio"]) {
@@ -887,7 +887,7 @@ body[data-physik-app="waagrechter-wurf"] #landing-banner {
   }
 
   body[data-physik-app] input[type="range"] {
-    min-height: 32px;
+    min-height: 48px;
     touch-action: pan-y;
   }
 
@@ -901,14 +901,14 @@ body[data-physik-app="waagrechter-wurf"] #landing-banner {
   }
 
   body[data-physik-app="quiz"] :where(.chip, .mode-btn, .answer, .sound-toggle, .icon-btn, .ghost-btn) {
-    min-height: 44px;
+    min-height: 48px;
   }
 
   body[data-physik-app="impuls"] :where(.ext-modebar__btn, .btn),
   body[data-physik-app="diagramme"] :where(.motion-tabs__tab, .btn),
   body[data-physik-app="waagrechter-wurf"] .btn,
   body[data-physik-app="schwingungen"] :where(.tab-btn, button) {
-    min-height: 44px;
+    min-height: 48px;
   }
 }
 

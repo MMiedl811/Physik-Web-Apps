@@ -62,8 +62,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
+  min-width: 48px;
+  min-height: 48px;
   border: 1px solid var(--student-accent);
   border-radius: 13px;
   background: var(--student-accent);
@@ -188,7 +188,21 @@ body[data-physik-app="schwingungen"] .student-home {
     overflow: hidden;
   }
   body[data-physik-app="impuls"] #animationSvg { height: 250px; }
-  body[data-physik-app="impuls"] .stage__controls { bottom: 6px; gap: 6px; padding: 4px 8px; }
+  body[data-physik-app="impuls"] .stage__controls {
+    right: 8px;
+    bottom: 6px;
+    left: 8px;
+    max-width: none;
+    transform: none;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 4px 8px;
+  }
+  body[data-physik-app="impuls"] .stage__controls .ext-speed {
+    flex: 1 1 190px;
+    min-width: 0;
+    max-width: 280px;
+  }
   body[data-physik-app="impuls"] .ext-speed { min-width: 150px; padding: 4px 7px; }
   body[data-physik-app="impuls"] .ext-modebar { margin: 6px 0; padding: 4px 8px; gap: 6px; }
   body[data-physik-app="impuls"] #energyDisplay { margin: 4px 0; padding: 5px 8px; }
@@ -226,4 +240,32 @@ body[data-physik-app="schwingungen"] .student-home {
   body[data-physik-app="v-aenderung"] .control-group label { margin-bottom: 5px; }
   body[data-physik-app="v-aenderung"] .checkbox-group { margin-bottom: 8px; }
   body[data-physik-app="v-aenderung"] #start-reset-btn { margin-top: 5px; padding: 12px; }
+}
+
+/* Reale iPads melden einen groben Zeiger. Die gemeinsame Untergrenze gilt auch
+   für Apps mit eigenem Stylesheet, die atelier.css nicht direkt einbinden. */
+@media (pointer: coarse) {
+  body[data-physik-app] :where(
+    button,
+    select,
+    input[type="number"],
+    input[type="text"],
+    summary,
+    a[aria-label="Zur Übersicht"],
+    a[aria-label="Zurück zur Übersicht"]
+  ) {
+    min-height: 48px !important;
+  }
+
+  body[data-physik-app] input[type="range"] {
+    min-height: 48px !important;
+    touch-action: pan-y;
+  }
+
+  body[data-physik-app] :is(
+    a[aria-label="Zur Übersicht"],
+    a[aria-label="Zurück zur Übersicht"]
+  ) {
+    min-width: 48px !important;
+  }
 }

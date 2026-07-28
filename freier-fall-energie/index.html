@@ -285,7 +285,7 @@
   </style>
   <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="freier-fall-energie" data-student-home="../" data-student-title="Freier Fall in Zeitlupe" data-student-summary="Du beobachtest, wie Höhenenergie beim Fallen in Bewegungsenergie und mit Luftwiderstand zusätzlich in innere Energie der Luft umgewandelt wird." data-student-controls="Wähle einen Fall mit oder ohne Luftwiderstand. Pausiere, starte neu oder ändere die Zeitlupe.">
+<body data-physik-app="freier-fall-energie" data-student-home="../" data-student-title="Freier Fall in Zeitlupe" data-student-summary="Du beobachtest, wie Höhenenergie beim Fallen in Bewegungsenergie und mit Luftwiderstand zusätzlich in Energie der Luft übergeht – zunächst auch in turbulente Bewegung, später überwiegend in innere Energie." data-student-controls="Wähle einen Fall mit oder ohne Luftwiderstand. Pausiere, starte neu oder ändere die Zeitlupe.">
   <div class="page">
     <header class="topbar">
       <div class="title-block">
@@ -346,7 +346,7 @@
           </div>
           <div class="energy-item energy-item--thermal">
             <div class="energy-column"><div class="energy-value" id="thermal-value">0,00 kJ</div><div class="energy-fill" id="thermal-fill"></div></div>
-            <div class="energy-label">an die Umgebung<br>übertragen<span></span></div>
+            <div class="energy-label">Energie der Luft<br>(im System)<span></span></div>
           </div>
         </div>
         <div class="balance-box">
@@ -362,10 +362,10 @@
       <summary>Physikalisches Modell und Grenzen</summary>
       <div class="model-grid">
         <div class="formula-box"><strong>Ohne Luftwiderstand</strong><math display="block" aria-label="E pot plus E kin gleich konstant"><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>=</mo><mtext>konstant</mtext></math></div>
-        <div class="formula-box"><strong>Mit Luftwiderstand</strong><math display="block" aria-label="E pot plus E kin plus E übertragen gleich konstant"><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>übertragen</mtext></msub><mo>=</mo><mtext>konstant</mtext></math></div>
+        <div class="formula-box"><strong>Mit Luftwiderstand</strong><math display="block" aria-label="E pot plus E kin plus Energie der Luft gleich konstant"><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>Luft</mtext></msub><mo>=</mo><mtext>konstant</mtext></math></div>
         <div class="formula-box"><strong>Luftwiderstand</strong><math display="block" aria-label="F W gleich ein halb rho c W A v Quadrat"><msub><mi>F</mi><mi>W</mi></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>ρ</mi><msub><mi>c</mi><mi>W</mi></msub><mi>A</mi><msup><mi>v</mi><mn>2</mn></msup></math></div>
       </div>
-      <p class="model-note">Der Energy Runner wird als Körper mit 60 kg modelliert und startet aus 400 m Höhe. Im realistischen Fall gelten vereinfacht konstante Luftdichte, eine konstante angeströmte Fläche von 0,70 m² und ein Widerstandsbeiwert von 1,0. Wind, veränderte Körperhaltung und der Aufprall werden nicht modelliert. „An die Umgebung übertragen“ umfasst zunächst auch turbulente Bewegungsenergie der Luft; erst später wird daraus überwiegend innere Energie in Luft, Körper und Umgebung. Dieser Wert wird aus der analytischen Energiegleichung bestimmt und ist keine unabhängige Kontrollmessung.</p>
+      <p class="model-note">Der Energy Runner wird als Körper mit 60 kg modelliert und startet aus 400 m Höhe. Im realistischen Fall gelten vereinfacht konstante Luftdichte, eine konstante angeströmte Fläche von 0,70 m² und ein Widerstandsbeiwert von 1,0. Wind, veränderte Körperhaltung und der Aufprall werden nicht modelliert. Die „Energie der Luft“ gehört innerhalb der gewählten Systemgrenze Runner + Erde + Luft zum System. Sie umfasst zunächst auch turbulente Bewegungsenergie und wird später überwiegend zu innerer Energie. Dieser Wert wird aus der analytischen Energiegleichung bestimmt und ist keine unabhängige Kontrollmessung.</p>
     </details>
   </div>
 
@@ -500,7 +500,7 @@
           dom.status.textContent = 'Höhenenergie wird vollständig zu Bewegungsenergie.';
         }
         dom.observation.innerHTML = model.mode === 'drag'
-          ? `<strong>Beobachtung:</strong> Ein Teil der Höhenenergie wird an die Umgebung übertragen. Die Geschwindigkeit nähert sich ${number.format(TERMINAL_SPEED)} m/s.`
+          ? `<strong>Beobachtung:</strong> Ein Teil der Höhenenergie geht auf die Luft im System über. Die Geschwindigkeit nähert sich ${number.format(TERMINAL_SPEED)} m/s.`
           : '<strong>Beobachtung:</strong> Ohne Luftwiderstand bleibt die mechanische Energie erhalten.';
         dom.play.textContent = state.playing ? '⏸ Pause' : (model.landed ? '▶ Noch einmal' : '▶ Start');
         dom.ideal.setAttribute('aria-pressed', String(state.mode === 'ideal'));

@@ -176,6 +176,16 @@
             width: 100%;
             aspect-ratio: 2/1;
         }
+
+        @media (max-width: 1180px) {
+            #split-container {
+                grid-template-columns: 1fr;
+                aspect-ratio: auto;
+            }
+            #split-container .split-panel {
+                aspect-ratio: 4/3;
+            }
+        }
         
         .split-panel {
             border: 1px solid var(--border);
@@ -694,9 +704,13 @@
             });
             
             const p0_1 = toPx(0, x1start);
-            const pStart_1 = toPx(t1start, x1start);
+            const effectiveStart1 = Math.min(t1start, tStoss);
+            const effectiveStartX1 = tStoss <= t1start ? xStoss : x1start;
+            const pStart_1 = toPx(effectiveStart1, effectiveStartX1);
             const p0_2 = toPx(0, x2start);
-            const pStart_2 = toPx(t2start, x2start);
+            const effectiveStart2 = Math.min(t2start, tStoss);
+            const effectiveStartX2 = tStoss <= t2start ? xStoss : x2start;
+            const pStart_2 = toPx(effectiveStart2, effectiveStartX2);
             const pStoss = toPx(tStoss, xStoss);
             const tEnd = tMax;
             const pEnd1 = toPx(tEnd, xStoss + v1n * (tEnd - tStoss));

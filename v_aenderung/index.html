@@ -450,6 +450,7 @@
             STOPPED: 'stopped'
         };
         let currentState = STATE.SETUP;
+        let activeRunParameters = null;
         let puckTrail = [];
         
         // Farben
@@ -483,6 +484,24 @@
         const winnerText = document.getElementById('winner-text');
         const finalScoresText = document.getElementById('final-scores');
         const restartGameBtn = document.getElementById('restart-game');
+
+        function readModelParameters() {
+            return {
+                va: parseFloat(vaSlider.value),
+                dv: parseFloat(dvSlider.value),
+                angle: parseFloat(angleSlider.value)
+            };
+        }
+
+        function displayedModelParameters() {
+            return activeRunParameters || readModelParameters();
+        }
+
+        function setModelControlsDisabled(disabled) {
+            [vaSlider, dvSlider, angleSlider].forEach(control => {
+                control.disabled = disabled;
+            });
+        }
 
         gameModeToggle.addEventListener('change', (e) => {
             isGameMode = e.target.checked;
@@ -585,8 +604,10 @@
             
             puckTrail = [];
             currentState = STATE.SETUP;
+            activeRunParameters = null;
             isSimulationRunning = false;
             isPaused = false;
+            setModelControlsDisabled(false);
             startBtn.textContent = "Start";
             pauseBtn.textContent = "Pause";
             pauseBtn.style.backgroundColor = "#8e8e93";
@@ -825,11 +846,13 @@
         // Code Beginn: Physik-Engine & State-Machine
         startBtn.addEventListener('click', () => {
             if (currentState === STATE.SETUP) {
+                activeRunParameters = readModelParameters();
                 currentState = STATE.MOVING_VA;
                 isSimulationRunning = true;
                 startBtn.textContent = "Reset";
+                setModelControlsDisabled(true);
                 
-                let vaMag = parseFloat(vaSlider.value) * 0.4; // Skalierung für Animation (verdoppelt)
+                let vaMag = activeRunParameters.va * 0.4; // Skalierung für Animation (verdoppelt)
                 puck.vel = createVector(vaMag, 0);
             } else {
                 initEnvironment();
@@ -890,8 +913,8 @@
             if (currentState === STATE.MOVING_VA && puck.pos.x >= impulsePoint.x) {
                 puck.pos.x = impulsePoint.x; // Exakt am Stoßpunkt positionieren
                 
-                let dvMag = parseFloat(dvSlider.value) * 0.4; // Skalierung für Animation (verdoppelt)
-                let dV = vectorForPhysicsAngle(angleSlider.value, dvMag);
+                let dvMag = activeRunParameters.dv * 0.4; // Skalierung für Animation (verdoppelt)
+                let dV = vectorForPhysicsAngle(activeRunParameters.angle, dvMag);
                 
                 puck.vel.add(dV); // Vektoraddition: vE = vA + dv
                 currentState = STATE.MOVING_VE;
@@ -1005,15 +1028,15 @@
 
         // Code Beginn: Vektor-Mathematik & Pfeile
         function drawVectors() {
-            let vaMag = parseFloat(vaSlider.value) * canvasScale;
-            let dvMag = parseFloat(dvSlider.value) * canvasScale;
-            let angle = radians(parseFloat(angleSlider.value));
+            const parameters = displayedModelParameters();
+            let vaMag = parameters.va * canvasScale;
+            let dvMag = parameters.dv * canvasScale;
 
             // vA: Startet am Stoßpunkt, zeigt nach rechts
             let vA_End = createVector(impulsePoint.x + vaMag, impulsePoint.y);
 
             // dv: Startet am Stoßpunkt
-            let dV = vectorForPhysicsAngle(angleSlider.value, dvMag);
+            let dV = vectorForPhysicsAngle(parameters.angle, dvMag);
             let dV_End = p5.Vector.add(impulsePoint, dV);
 
             // Konstruktion: dv verschoben an die Spitze von vA
@@ -1037,8 +1060,8 @@
                 // 4. vE (Rot) als Resultierende vom Stoßpunkt zur Spitze des verschobenen Δv
                 let vE_Label = "vE";
                 if (showVeMagCheckbox.checked) {
-                    let vA_vec = createVector(parseFloat(vaSlider.value), 0);
-                    let dV_vec = vectorForPhysicsAngle(angleSlider.value, parseFloat(dvSlider.value));
+                    let vA_vec = createVector(parameters.va, 0);
+                    let dV_vec = vectorForPhysicsAngle(parameters.angle, parameters.dv);
                     let vE_vec = p5.Vector.add(vA_vec, dV_vec);
                     vE_Label += " = " + vE_vec.mag().toFixed(1) + " m/s";
                 }

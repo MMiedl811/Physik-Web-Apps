@@ -11,9 +11,13 @@
     const title = body.dataset.studentTitle;
     const summary = body.dataset.studentSummary;
     const controls = body.dataset.studentControls;
-    const homeHref = body.dataset.studentHome || '../';
+    const configuredHomeHref = body.dataset.studentHome || '../';
+    const homeHref = configuredHomeHref === '../' ? '../index.html' : configuredHomeHref;
+    const existingHome = document.querySelector('a.student-home, a[aria-label="Zur Übersicht"], a[aria-label="Zurück zur Übersicht"]');
 
-    if (!document.querySelector('a.student-home, a[aria-label="Zur Übersicht"], a[aria-label="Zurück zur Übersicht"]')) {
+    if (existingHome) {
+      if (existingHome.getAttribute('href') === '../') existingHome.setAttribute('href', homeHref);
+    } else {
       const link = document.createElement('a');
       link.className = 'student-home';
       link.href = homeHref;
@@ -59,11 +63,29 @@
     overlay.append(card);
     body.append(overlay);
     body.classList.add('student-intro-open');
+    body.dispatchEvent(new CustomEvent('student-intro:open'));
 
+    let closed = false;
     const close = () => {
+      if (closed) return;
+      closed = true;
+      document.removeEventListener('keydown', keepFocusInDialog);
       overlay.remove();
       body.classList.remove('student-intro-open');
+      body.dispatchEvent(new CustomEvent('student-intro:close'));
     };
+    const keepFocusInDialog = event => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        close();
+        return;
+      }
+      if (event.key === 'Tab') {
+        event.preventDefault();
+        button.focus({ preventScroll: true });
+      }
+    };
+    document.addEventListener('keydown', keepFocusInDialog);
     button.addEventListener('click', close, { once: true });
     button.focus({ preventScroll: true });
   });
