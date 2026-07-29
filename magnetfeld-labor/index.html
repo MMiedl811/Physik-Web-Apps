@@ -213,10 +213,17 @@ function symmetricOffsets(count,min,max){
   for(let i=0;i<half;i++){const u=half===1?1:i/(half-1),v=min+(max-min)*u;values.push(-v,v);}
   return values.sort((a,b)=>a-b).slice(0,count);
 }
-function northSeeds(o){
-  const seeds=[];
-  if(o.kind==='bar')for(const d of symmetricOffsets(state.lineDensity,.018,.145))seeds.push(localToWorld(o,.255,d));
-  else for(const d of symmetricOffsets(state.lineDensity,.012,.11))seeds.push(localToWorld(o,-.2+d,.255));
+function fieldSeeds(o){
+  const seeds=[],total=state.lineDensity;
+  if(o.kind==='bar'){
+    const poleCount=total/2,sideEach=(total-poleCount)/2;
+    for(const d of symmetricOffsets(poleCount,.018,.145))seeds.push({point:localToWorld(o,.255,d),family:'pole'});
+    for(let i=0;i<sideEach;i++){const u=(i+.5)/sideEach,x=-.205+.41*u;seeds.push({point:localToWorld(o,x,.112),family:'side'},{point:localToWorld(o,x,-.112),family:'side'});}
+  }else{
+    const gapCount=Math.round(total*.625),outerCount=total-gapCount;
+    for(let i=0;i<gapCount;i++){const u=(i+.5)/gapCount;seeds.push({point:localToWorld(o,0,.245+.31*u),family:'gap'});}
+    for(let i=0;i<outerCount;i++)seeds.push({owner:o,index:i,count:outerCount,family:'outer'});
+  }
   return seeds;
 }
 function insidePermanent(x,y){
@@ -235,23 +242,33 @@ function insidePermanent(x,y){
 function softIronAt(x,y){for(const o of state.materials){if(o.material!=='softIron')continue;const p=worldToLocal(o,x,y);if(Math.abs(p.x)<.215&&Math.abs(p.y)<.075)return o;}return null;}
 function traceFieldAt(x,y){const iron=softIronAt(x,y);if(!iron)return fieldAt(x,y);let bx=0,by=0;for(const s of state.sources)if(!s.permanent&&s.owner===iron.id){bx+=s.mx;by+=s.my;}const mag=Math.hypot(bx,by);return mag>NULL_FIELD_EPS?{x:bx,y:by,mag}:fieldAt(x,y);}
 const TRACE_LIMIT=80;
-function traceLine(seed){
+function traceBranch(seed,direction){
   const pts=[{x:seed.x,y:seed.y}],visited=new Map();let x=seed.x,y=seed.y,end='max',leftView=false;
   for(let i=0;i<6000;i++){
     const radius=Math.hypot(x,y),step=.012*(1+Math.min(16,radius*.7));
     const b1=traceFieldAt(x,y);if(!Number.isFinite(b1.mag)){end='invalid';break;}if(b1.mag<NULL_FIELD_EPS){end='null';break;}
-    const ux=b1.x/b1.mag,uy=b1.y/b1.mag,mx=x+ux*step*.5,my=y+uy*step*.5,b2=traceFieldAt(mx,my),u2x=b2.x/(b2.mag||1),u2y=b2.y/(b2.mag||1);
+    const ux=direction*b1.x/b1.mag,uy=direction*b1.y/b1.mag,mx=x+ux*step*.5,my=y+uy*step*.5,b2=traceFieldAt(mx,my),u2x=direction*b2.x/(b2.mag||1),u2y=direction*b2.y/(b2.mag||1);
     x+=u2x*step;y+=u2y*step;pts.push({x,y});
     if(Math.abs(x)>1.4||Math.abs(y)>1.7)leftView=true;
     if(Math.abs(x)>TRACE_LIMIT||Math.abs(y)>TRACE_LIMIT){end='far-limit';break;}
-    if(i>12&&insidePermanent(x,y)){end='magnet';break;}
+    if(i>1&&insidePermanent(x,y)){end='magnet';break;}
     if(i%4===0&&radius<2.5){const key=`${Math.round(x/.018)},${Math.round(y/.018)}`,prev=visited.get(key);if(prev&&i-prev.i>40&&u2x*prev.ux+u2y*prev.uy>.86){pts.push({x:prev.x,y:prev.y});end='loop';break;}visited.set(key,{i,x,y,ux:u2x,uy:u2y});}
   }
   return{points:pts,end,leftView};
 }
+function fullTraceLine(spec){
+  if(spec.family==='outer')return horseOuterLine(spec);
+  const backward=traceBranch(spec.point,-1),forward=traceBranch(spec.point,1),complete=backward.end==='magnet'&&forward.end==='magnet';
+  return{points:[...backward.points].reverse().slice(0,-1).concat(forward.points),end:complete?'magnet':`${backward.end}/${forward.end}`,leftView:backward.leftView||forward.leftView,family:spec.family};
+}
+function horseOuterLine(spec){
+  const u=(spec.index+.5)/spec.count,a=.025+.38*u,start={x:-.205-.065*u,y:.255},end={x:.205+.065*u,y:.255},c1={x:-.42-a,y:-.36-a},c2={x:.42+a,y:-.36-a},points=[];
+  for(let i=0;i<=120;i++){const t=i/120,v=1-t,p={x:v**3*start.x+3*v*v*t*c1.x+3*v*t*t*c2.x+t**3*end.x,y:v**3*start.y+3*v*v*t*c1.y+3*v*t*t*c2.y+t**3*end.y};points.push(localToWorld(spec.owner,p.x,p.y));}
+  return{points,end:'magnet',leftView:points.some(p=>Math.abs(p.x)>1.4||Math.abs(p.y)>1.7),family:'outer'};
+}
 function computeFieldLines(){
   const lines=[],endings={};
-  for(const o of state.magnets)for(const seed of northSeeds(o)){const line=traceLine(seed);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&!['max','invalid','null','far-limit'].includes(line.end))lines.push(line);}
+  for(const o of state.magnets)for(const spec of fieldSeeds(o)){const line=fullTraceLine(spec);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&line.end==='magnet')lines.push(line);}
   state.traceEndings=endings;
   return lines;
 }
@@ -398,10 +415,12 @@ for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings'
 function project3D(p,t){
   const cy=Math.cos(state.camera.yaw),sy=Math.sin(state.camera.yaw),cp=Math.cos(state.camera.pitch),sp=Math.sin(state.camera.pitch),x1=p.x*cy+p.z*sy,z1=-p.x*sy+p.z*cy,y2=p.y*cp-z1*sp,z2=p.y*sp+z1*cp,d=4.2,f=Math.min(t.w,t.h)*1.24*state.camera.zoom/(d-z2);return{x:t.w/2+x1*f,y:t.h/2-y2*f,z:z2};
 }
-function dipoleCurves3D(){
-  const curves=[];for(const r0 of[.82,1.08,1.38,1.72])for(let k=0;k<8;k++){const phi=k*TAU/8,segments=[];let current=[];for(let i=0;i<=150;i++){const th=.055+(Math.PI-.11)*i/150,r=r0*Math.sin(th)**2,x=r*Math.cos(th),rho=r*Math.sin(th),p={x,y:rho*Math.cos(phi),z:rho*Math.sin(phi)},inside=Math.abs(x)<.57&&Math.hypot(p.y,p.z)<.2;if(inside){if(current.length>1)segments.push(current);current=[];}else current.push(p);}if(current.length>1)segments.push(current);curves.push(...segments);}return curves;
+function spatialFieldCurves3D(){
+  const curves=[],shells=[{poleRadius:.025,bulge:.34},{poleRadius:.065,bulge:.56},{poleRadius:.105,bulge:.82},{poleRadius:.145,bulge:1.12}],planes=12;
+  for(const shell of shells)for(let k=0;k<planes;k++){const phi=k*TAU/planes,curve=[];for(let i=0;i<=120;i++){const u=i/120,s=Math.sin(Math.PI*u),rho=shell.poleRadius+shell.bulge*s**1.18;curve.push({x:.565-1.13*u,y:rho*Math.cos(phi),z:rho*Math.sin(phi)});}curves.push(curve);}
+  return curves;
 }
-const curves3D=dipoleCurves3D();
+const curves3D=spatialFieldCurves3D();
 function cuboidFaces(x0,x1,y0,y1,z0,z1,color){
   const v=[{x:x0,y:y0,z:z0},{x:x1,y:y0,z:z0},{x:x1,y:y1,z:z0},{x:x0,y:y1,z:z0},{x:x0,y:y0,z:z1},{x:x1,y:y0,z:z1},{x:x1,y:y1,z:z1},{x:x0,y:y1,z:z1}],idx=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[1,2,6,5],[0,3,7,4]];return idx.map((face,i)=>({points:face.map(j=>v[j]),color,shade:[.76,1,.86,.92,.8,.7][i]}));
 }
@@ -425,7 +444,7 @@ els.autoRotate.checked=state.camera.auto;els.autoRotate.addEventListener('change
 function tick(now){const dt=Math.min(.05,(now-state.lastTime)/1000);state.lastTime=now;if(state.view==='3d'&&state.camera.auto&&!state.camera.drag){state.camera.yaw+=dt*.16;render3D();}if(state.layers.filings&&state.filingPhase>.001){state.filingPhase*=Math.pow(.035,dt);if(state.view==='2d')render2D();}requestAnimationFrame(tick);}
 new ResizeObserver(()=>queueRender()).observe(document.querySelector('.workspace'));
 window.__magnetLab={
-  getState:()=>({view:state.view,preset:state.preset,lineDensity:state.lineDensity,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),linesLeavingView:state.fieldLines.filter(l=>l.leftView).length,traceEndings:{...state.traceEndings},sourceCount:state.sources.length}),
+  getState:()=>({view:state.view,preset:state.preset,lineDensity:state.lineDensity,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),lineFamilies:state.fieldLines.reduce((a,l)=>(a[l.family]=(a[l.family]||0)+1,a),{}),linesLeavingView:state.fieldLines.filter(l=>l.leftView).length,traceEndings:{...state.traceEndings},sourceCount:state.sources.length,spaceLineCount:curves3D.length,spacePoleAnchors:curves3D.every(c=>Math.abs(c[0].x-.565)<1e-9&&Math.abs(c.at(-1).x+.565)<1e-9)}),
   fieldAt:(x,y)=>fieldAt(Number(x),Number(y)),setPreset:preset,setView,reset:resetAll,recompute,qualitativeStrength
 };
 preset('single');setView('2d');requestAnimationFrame(tick);window.dispatchEvent(new CustomEvent('magnet-lab-ready'));
