@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3eee4">
+<title>Vektor-Labor – Pfeile konstruieren</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../shared/student-entry.css">
+<style>
+:root{
+  --paper:#f3eee4;--surface:#fffdf8;--surface-soft:#f8f2e9;--ink:#25332f;--muted:#68716d;
+  --line:#d9cfbf;--petrol:#0f766e;--petrol-dark:#0b5d57;--blue:#3066a6;--orange:#c66a2b;
+  --violet:#7756a5;--red:#b84b4b;--green:#26825d;--gold:#a8781f;--shadow:0 14px 38px rgba(71,57,40,.11)
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+body{min-height:100vh;margin:0;padding:10px;color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 7% 0,rgba(15,118,110,.09),transparent 28rem),var(--paper);overflow-x:hidden}
+button,select,input{font:inherit}button,select,input[type="number"]{min-height:48px}
+button{cursor:pointer}.app{width:min(1440px,100%);margin:auto}.topbar{display:flex;align-items:center;gap:12px;min-height:54px;margin-bottom:9px}.home{display:grid;min-width:48px;min-height:48px;place-items:center;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font-size:1.1rem;text-decoration:none;box-shadow:0 3px 10px rgba(71,57,40,.07)}
+.heading{min-width:0;flex:1}.heading h1{margin:0;font-family:Georgia,"Times New Roman",serif;font-size:clamp(1.35rem,2.5vw,2.05rem);line-height:1.05;letter-spacing:-.025em}.heading p{margin:3px 0 0;color:var(--muted);font-size:.84rem}.help-btn{min-width:48px;padding:9px 13px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font-weight:850}
+.layout{display:grid;grid-template-columns:330px minmax(0,1fr) 300px;gap:10px;align-items:start}.card{border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:var(--shadow)}.panel{padding:14px}.panel h2{margin:0 0 10px;font-size:.97rem}.eyebrow{margin:0 0 5px;color:var(--petrol);font-size:.7rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:4px;border:1px solid var(--line);border-radius:14px;background:var(--surface-soft)}.segmented button{min-height:44px;padding:6px;border:0;border-radius:10px;background:transparent;color:var(--muted);font-size:.78rem;font-weight:850}.segmented button[aria-pressed="true"]{background:var(--petrol);color:#fff;box-shadow:0 3px 9px rgba(15,118,110,.2)}
+.task-card{margin-top:10px;padding:13px;border:1px solid var(--line);border-radius:15px;background:var(--surface-soft)}.task-card h2{margin:0 0 6px;font-family:Georgia,serif;font-size:1.15rem}.task-card p{margin:0;color:#4e5c57;font-size:.88rem;line-height:1.45}.relation{margin-top:10px;padding:9px 10px;border-left:4px solid var(--petrol);border-radius:8px;background:#eaf3f0;font-size:.93rem;font-weight:850;text-align:center}.vector{display:inline-block;position:relative;padding-top:.1em;font-family:Georgia,serif;font-style:italic;line-height:1}.vector::before{content:"";position:absolute;left:-.03em;right:-.04em;top:-.12em;border-top:1.5px solid currentColor}.vector::after{content:"";position:absolute;right:-.05em;top:-.22em;width:.28em;height:.28em;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor;transform:rotate(45deg)}.vector sub{font-family:inherit;font-style:normal}
+.field{margin-top:11px}.field label,.check-label{display:block;margin-bottom:5px;font-size:.76rem;font-weight:850;color:#4d5a56}.field select{width:100%;padding:0 11px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink)}.scale-readout{margin-top:6px;color:var(--muted);font-size:.75rem;line-height:1.4}.checks{display:grid;gap:6px;margin-top:10px}.check{display:flex;align-items:center;gap:9px;min-height:42px;padding:7px 9px;border:1px solid var(--line);border-radius:11px;background:#fff}.check input{width:22px;height:22px;accent-color:var(--petrol)}.check label{font-size:.8rem;font-weight:760;line-height:1.2}.mini-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.btn{min-height:48px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-weight:850}.btn.primary{border-color:var(--petrol);background:var(--petrol);color:#fff}.btn.primary:hover{background:var(--petrol-dark)}.btn.solution{border-color:#d0b57e;background:#fff7e7;color:#72531b}.btn:disabled{cursor:not-allowed;opacity:.45}
+.stage-card{overflow:hidden}.stage-head{display:flex;align-items:center;gap:10px;min-height:50px;padding:8px 12px;border-bottom:1px solid var(--line)}.stage-head strong{font-size:.88rem}.stage-head span{color:var(--muted);font-size:.76rem}.stage-head .legend{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 10px;margin-left:auto}.legend-item{display:inline-flex;align-items:center;gap:5px;color:#4f5a56!important;font-size:.7rem!important;font-weight:800}.swatch{width:17px;height:4px;border-radius:99px;background:var(--swatch)}
+.stage-wrap{position:relative;height:clamp(430px,65vh,650px);min-height:430px;background:#fbfaf4;touch-action:none}.stage-wrap svg{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}.paper-shadow{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 32px rgba(75,61,42,.05)}.stage-tip{position:absolute;left:12px;bottom:11px;max-width:calc(100% - 24px);padding:7px 10px;border:1px solid rgba(166,150,124,.55);border-radius:9px;background:rgba(255,253,248,.92);color:#5f665f;font-size:.72rem;font-weight:720;pointer-events:none}.scale-toast{position:absolute;top:12px;left:50%;z-index:5;transform:translateX(-50%);padding:9px 13px;border-radius:11px;background:#25332f;color:#fff;font-size:.78rem;font-weight:800;box-shadow:0 8px 20px rgba(37,51,47,.22);opacity:0;pointer-events:none;transition:opacity .18s}.scale-toast.show{opacity:1}
+.feedback{min-height:92px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}.feedback-title{margin:0 0 5px;font-size:.9rem}.feedback p{margin:0;color:var(--muted);font-size:.8rem;line-height:1.4}.feedback.good{background:#edf7f1}.feedback.good .feedback-title{color:#236b4a}.feedback.try{background:#fff8e9}.feedback.try .feedback-title{color:#805b19}.criteria{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.criterion{padding:4px 7px;border-radius:999px;background:#eee9df;color:#5f665f;font-size:.69rem;font-weight:850}.criterion.ok{background:#dcefe4;color:#226747}.criterion.no{background:#f5dfdc;color:#93413c}
+.side-stack{display:grid;gap:10px}.readouts{display:grid;gap:7px}.readout{padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-soft)}.readout small{display:block;color:var(--muted);font-size:.66rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase}.readout strong{display:block;margin-top:3px;font-size:.92rem;font-variant-numeric:tabular-nums}.method{padding:12px}.method h2{margin:0 0 7px;font-size:.94rem}.method p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.48}.method ol{margin:8px 0 0;padding-left:20px;color:#4e5b57;font-size:.78rem;line-height:1.45}.method li+li{margin-top:4px}
+.solution-panel{display:none;padding:12px;border-color:#d5bd8a;background:#fffbf1}.solution-panel.open{display:block}.solution-panel h2{margin:0 0 6px;font-family:Georgia,serif;font-size:1.06rem}.solution-text{min-height:58px;margin:0;color:#5e5b50;font-size:.8rem;line-height:1.45}.step-count{margin-top:7px;color:#8a744a;font-size:.7rem;font-weight:850}.solution-nav{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
+.next-task{width:100%;margin-top:10px}.model-note{padding:11px;border:1px dashed #cfc3b2;border-radius:12px;background:#faf6ee;color:#65665f;font-size:.73rem;line-height:1.43}.model-note strong{color:var(--ink)}
+.help-dialog{width:min(520px,calc(100% - 28px));padding:0;border:1px solid var(--line);border-radius:20px;background:var(--surface);color:var(--ink);box-shadow:0 28px 80px rgba(37,51,47,.28)}.help-dialog::backdrop{background:rgba(37,51,47,.6);backdrop-filter:blur(4px)}.help-content{padding:24px}.help-content h2{margin:0 0 10px;font-family:Georgia,serif}.help-content p{margin:0;color:var(--muted);line-height:1.5}.help-content ol{margin:14px 0;padding-left:22px;line-height:1.5}.help-content .btn{width:100%;margin-top:4px}
+.vector-line{stroke-linecap:round}.vector-hit{stroke:transparent;stroke-width:28;pointer-events:stroke}.handle{stroke:#fff;stroke-width:3;filter:drop-shadow(0 2px 2px rgba(37,51,47,.22))}.vector-label{font-family:Georgia,serif;font-size:18px;font-weight:700;paint-order:stroke;stroke:#fffdf8;stroke-width:5px;stroke-linejoin:round}.vector-label-small{font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:850;paint-order:stroke;stroke:#fffdf8;stroke-width:4px}.helper-line{stroke-dasharray:7 7;opacity:.64}.given-secondary{opacity:.93}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media(max-width:1100px){.layout{grid-template-columns:300px minmax(0,1fr)}.side-stack{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}.stage-wrap{height:570px}.model-note{grid-column:auto}}
+@media(max-width:760px){body{padding:6px}.heading p{display:none}.layout{grid-template-columns:1fr}.panel{padding:11px}.stage-card{order:-1}.stage-wrap{height:54vh;min-height:390px}.side-stack{grid-template-columns:1fr}.stage-head{align-items:flex-start;flex-direction:column}.stage-head .legend{justify-content:flex-start;margin-left:0}.segmented button{font-size:.72rem}.student-home{display:none!important}}
+@media(max-width:430px){.stage-wrap{min-height:360px}.stage-tip{font-size:.67rem}.topbar{gap:7px}.help-btn{padding-inline:10px}.heading h1{font-size:1.25rem}}
+@media(min-width:900px) and (max-height:820px){body{padding:6px}.topbar{min-height:46px;margin-bottom:6px}.heading p{display:none}.layout{grid-template-columns:300px minmax(0,1fr) 270px;gap:7px}.panel{padding:10px}.task-card{margin-top:7px;padding:10px}.task-card p{font-size:.78rem}.relation{margin-top:7px;padding:7px}.field{margin-top:7px}.checks{gap:4px;margin-top:7px}.check{min-height:36px;padding:4px 7px}.check input{width:19px;height:19px}.mini-actions{margin-top:7px}.stage-wrap{height:calc(100vh - 225px);min-height:460px}.method ol{margin-top:5px}.model-note{display:none}.readout{padding:7px}.feedback{min-height:72px;padding:8px}.stage-tip{bottom:7px}}
+@media(prefers-reduced-motion:reduce){.scale-toast{transition:none}}
+</style>
+</head>
+<body data-physik-app="vektor-labor" data-student-home="../" data-student-title="Vektor-Labor" data-student-summary="Du konstruierst Geschwindigkeits-, Kraft- und Beschleunigungspfeile auf einem karierten Zeichenblatt." data-student-controls="Wähle ein Thema. Ziehe auf dem Blatt einen Pfeil und prüfe anschließend Anfangspunkt, Richtung und Betrag.">
+<div class="app">
+<header class="topbar">
+  <a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a>
+  <div class="heading"><h1>Vektor-Labor</h1><p>Geschwindigkeiten, Kräfte und Beschleunigungen maßstäblich konstruieren</p></div>
+  <button class="help-btn" id="helpBtn" type="button" aria-label="Kurzanleitung öffnen">? Hilfe</button>
+</header>
+<main class="layout">
+  <section class="card panel" aria-labelledby="taskHeading">
+    <p class="eyebrow">Thema wählen</p>
+    <div class="segmented" role="group" aria-label="Physikalische Größe">
+      <button type="button" data-context="velocity" aria-pressed="true">Geschwindigkeit</button>
+      <button type="button" data-context="force" aria-pressed="false">Kraft</button>
+      <button type="button" data-context="acceleration" aria-pressed="false">Beschleunigung</button>
+    </div>
+    <div class="task-card">
+      <p class="eyebrow" id="taskNumber">Aufgabe 1 von 3</p>
+      <h2 id="taskHeading">Endgeschwindigkeit konstruieren</h2>
+      <p id="taskText"></p>
+      <div class="relation" id="relation" aria-label="Vektorgleichung"></div>
+    </div>
+    <div class="field">
+      <label for="scaleSelect">Maßstab</label>
+      <select id="scaleSelect">
+        <option value="auto">Automatisch passend</option>
+      </select>
+      <div class="scale-readout" id="scaleReadout" aria-live="polite"></div>
+    </div>
+    <div class="checks">
+      <div class="check"><input id="snapToggle" type="checkbox" checked><label for="snapToggle">Am halben Kästchen einrasten</label></div>
+      <div class="check"><input id="magnitudeToggle" type="checkbox"><label for="magnitudeToggle">Beträge an den Pfeilen anzeigen</label></div>
+      <div class="check"><input id="helperToggle" type="checkbox"><label for="helperToggle">Konstruktionshilfe einblenden</label></div>
+    </div>
+    <div class="mini-actions">
+      <button class="btn" id="clearBtn" type="button">Neu zeichnen</button>
+      <button class="btn primary" id="checkBtn" type="button">Prüfen</button>
+      <button class="btn solution" id="solutionBtn" type="button">Lösung</button>
+      <button class="btn" id="undoBtn" type="button">Rückgängig</button>
+    </div>
+  </section>
+
+  <section class="card stage-card" aria-labelledby="stageTitle">
+    <div class="stage-head">
+      <div><strong id="stageTitle">Konstruktionsblatt</strong><br><span id="stageInstruction">Ziehe vom gewünschten Anfangspunkt bis zur Pfeilspitze.</span></div>
+      <div class="legend" id="legend" aria-label="Farblegende"></div>
+    </div>
+    <div class="stage-wrap" id="stageWrap">
+      <svg id="stage" role="img" tabindex="0" aria-labelledby="svgTitle svgDesc">
+        <title id="svgTitle">Kariertes Konstruktionsblatt für Vektorpfeile</title>
+        <desc id="svgDesc">Gegebene Vektoren und ein durch Ziehen konstruierbarer Pfeil.</desc>
+        <defs>
+          <pattern id="majorGrid" width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 25 0 V 50 M 0 25 H 50" fill="none" stroke="#dfe5df" stroke-width="1"/><path d="M 50 0 L 0 0 0 50" fill="none" stroke="#c7d2cc" stroke-width="1.35"/></pattern>
+        </defs>
+        <rect id="paperBg" x="0" y="0" width="100%" height="100%" fill="#fbfaf4"/>
+        <rect id="gridRect" x="0" y="0" width="100%" height="100%" fill="url(#majorGrid)"/>
+        <g id="axesLayer"></g><g id="helperLayer"></g><g id="givenLayer"></g><g id="userLayer"></g><g id="solutionLayer"></g>
+      </svg>
+      <div class="paper-shadow"></div>
+      <div class="scale-toast" id="scaleToast" role="status"></div>
+      <div class="stage-tip">Tippen und ziehen: neuer Pfeil · Kreise ziehen: Anfang oder Spitze korrigieren</div>
+    </div>
+    <div class="feedback" id="feedback" aria-live="polite">
+      <h2 class="feedback-title">Bereit zum Konstruieren</h2>
+      <p>Setze Anfang und Spitze des gesuchten Pfeils. Die App prüft die geometrische Konstruktion, nicht nur das Ergebnis.</p>
+      <div class="criteria" id="criteria"></div>
+    </div>
+  </section>
+
+  <aside class="side-stack" aria-label="Auswertung und Hilfe">
+    <section class="card panel">
+      <p class="eyebrow">Messwerte</p>
+      <div class="readouts">
+        <div class="readout"><small>Dein Pfeil</small><strong id="userMagnitude">noch nicht gezeichnet</strong></div>
+        <div class="readout"><small>Richtung</small><strong id="userAngle">–</strong></div>
+        <div class="readout"><small>Aktueller Maßstab</small><strong id="scaleCompact">–</strong></div>
+      </div>
+      <button class="btn next-task" id="nextBtn" type="button">Nächste Aufgabe →</button>
+    </section>
+    <section class="card method">
+      <h2 id="methodTitle">So gehst du vor</h2>
+      <p id="methodIntro"></p>
+      <ol id="methodSteps"></ol>
+    </section>
+    <section class="card solution-panel" id="solutionPanel" aria-labelledby="solutionTitle">
+      <p class="eyebrow">Schrittweise Konstruktion</p>
+      <h2 id="solutionTitle">Lösung</h2>
+      <p class="solution-text" id="solutionText"></p>
+      <div class="step-count" id="stepCount"></div>
+      <div class="solution-nav"><button class="btn" id="solutionPrev" type="button">← Zurück</button><button class="btn solution" id="solutionNext" type="button">Weiter →</button></div>
+    </section>
+    <div class="model-note" id="modelNote"><strong>Wichtig:</strong> Pfeile dürfen parallel verschoben werden, wenn nur der Vektor verglichen oder addiert wird. Bei Kräften bleibt der eingezeichnete Angriffspunkt physikalisch bedeutsam.</div>
+  </aside>
+</main>
+</div>
+<dialog class="help-dialog" id="helpDialog" aria-labelledby="helpTitle">
+  <form method="dialog" class="help-content">
+    <p class="eyebrow">Kurzanleitung</p>
+    <h2 id="helpTitle">Pfeile maßstäblich konstruieren</h2>
+    <p>Das karierte Blatt funktioniert wie dein Heft: Ein großes Kästchen entspricht dem angezeigten Betrag.</p>
+    <ol><li>Setze den Anfangspunkt durch Tippen oder Klicken.</li><li>Ziehe bis zur gewünschten Pfeilspitze.</li><li>Korrigiere Anfang oder Spitze an den beiden Kreisen.</li><li>Prüfe anschließend Startpunkt, Richtung und Betrag.</li></ol>
+    <button class="btn primary" value="close" type="submit">Anleitung schließen</button>
+  </form>
+</dialog>
+<script>
+(()=>{
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const $=selector=>document.querySelector(selector);
+const els={stage:$('#stage'),wrap:$('#stageWrap'),axes:$('#axesLayer'),helpers:$('#helperLayer'),given:$('#givenLayer'),user:$('#userLayer'),solution:$('#solutionLayer'),taskNumber:$('#taskNumber'),taskHeading:$('#taskHeading'),taskText:$('#taskText'),relation:$('#relation'),scale:$('#scaleSelect'),scaleReadout:$('#scaleReadout'),scaleCompact:$('#scaleCompact'),snap:$('#snapToggle'),magnitudes:$('#magnitudeToggle'),helper:$('#helperToggle'),clear:$('#clearBtn'),check:$('#checkBtn'),solutionBtn:$('#solutionBtn'),undo:$('#undoBtn'),next:$('#nextBtn'),feedback:$('#feedback'),criteria:$('#criteria'),userMagnitude:$('#userMagnitude'),userAngle:$('#userAngle'),legend:$('#legend'),methodTitle:$('#methodTitle'),methodIntro:$('#methodIntro'),methodSteps:$('#methodSteps'),solutionPanel:$('#solutionPanel'),solutionText:$('#solutionText'),stepCount:$('#stepCount'),solutionPrev:$('#solutionPrev'),solutionNext:$('#solutionNext'),toast:$('#scaleToast'),help:$('#helpBtn'),modelNote:$('#modelNote'),svgDesc:$('#svgDesc')};
+const COLORS={blue:'#3066a6',orange:'#c66a2b',violet:'#7756a5',red:'#b84b4b',green:'#26825d',gold:'#a8781f',ink:'#25332f',solution:'#b84b4b',user:'#0f766e'};
+const SCALE_VALUES=[0.5,1,2,5,10,20,50];
+const CONTEXTS={
+ velocity:{unit:'m/s',name:'Geschwindigkeit',scaleValues:[0.5,1,2,5,10],model:'Geschwindigkeitspfeile beschreiben Betrag und Richtung relativ zum gewählten Bezugssystem. Die Konstruktion behandelt die Änderung als idealisierten Vektorschritt.'},
+ force:{unit:'N',name:'Kraft',scaleValues:[0.5,1,2,5,10,20,50],model:'Kräfte werden als gleichzeitig wirkende Kräfte am markierten Angriffspunkt addiert. Das Verschieben eines Kraftpfeils ist hier nur ein geometrischer Konstruktionsschritt.'},
+ acceleration:{unit:'m/s²',name:'Beschleunigung',scaleValues:[0.5,1,2,5,10],model:'Die resultierende Beschleunigung ist die Vektorsumme gleichzeitig betrachteter Beschleunigungsanteile im selben Bezugssystem.'}
+};
+const V=(x,y)=>({x,y});
+const add=(a,b)=>V(a.x+b.x,a.y+b.y),sub=(a,b)=>V(a.x-b.x,a.y-b.y),mul=(a,k)=>V(a.x*k,a.y*k),mag=a=>Math.hypot(a.x,a.y);
+const fmt=(value,digits=1)=>Number(value).toLocaleString('de-DE',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+const vectorHTML=label=>{const match=/^(Δ|−)?([vFa])(.*)$/.exec(label);if(!match)return label;const suffix=match[3]||'';const sub=suffix?`<sub>${suffix.replace(/^_/, '')}</sub>`:'';return `${match[1]||''}<span class="vector">${match[2]}${sub}</span>`;};
+const relationHTML=text=>text.replace(/(?:Δ|−)?[vFa](?:_[A-Za-z0-9]+)?/g,token=>vectorHTML(token));
+const makeTask=(config)=>config;
+const TASKS={
+ velocity:[
+  makeTask({id:'v-final',title:'Endgeschwindigkeit konstruieren',prompt:'Gegeben sind Anfangsgeschwindigkeit und Geschwindigkeitsänderung. Konstruiere die Endgeschwindigkeit.',relation:'v_E = v_A + Δv',method:'chain',given:[{label:'v_A',start:V(0,0),vec:V(4,1),color:'blue'},{label:'Δv',start:V(0,0),vec:V(2,3),color:'orange'}],helpers:[{label:'Δv',start:V(4,1),vec:V(2,3),color:'orange'}],target:{label:'v_E',start:V(0,0),vec:V(6,4)},steps:['Lies Betrag und Richtung von v_A und Δv am Raster ab.','Verschiebe Δv parallel, bis sein Anfang an der Spitze von v_A liegt.','Verbinde den Anfang von v_A mit der Spitze des verschobenen Δv. Das ist v_E.','Kontrolle: v_E hat den Betrag 7,2 m/s.']}),
+  makeTask({id:'v-change',title:'Geschwindigkeitsänderung konstruieren',prompt:'Anfangs- und Endgeschwindigkeit beginnen am selben Punkt. Konstruiere die Geschwindigkeitsänderung.',relation:'Δv = v_E − v_A',method:'difference',given:[{label:'v_A',start:V(0,0),vec:V(5,1),color:'blue'},{label:'v_E',start:V(0,0),vec:V(2,5),color:'violet'}],helpers:[],target:{label:'Δv',start:V(5,1),vec:V(-3,4)},steps:['Lege v_A und v_E mit gemeinsamem Anfangspunkt übereinander.','Die Differenz beginnt an der Spitze von v_A.','Zeichne den Pfeil von der Spitze von v_A zur Spitze von v_E.','Kontrolle: |Δv| = 5,0 m/s.']}),
+  makeTask({id:'v-initial',title:'Anfangsgeschwindigkeit bestimmen',prompt:'Endgeschwindigkeit und Geschwindigkeitsänderung sind gegeben. Konstruiere die gesuchte Anfangsgeschwindigkeit vom gemeinsamen Startpunkt aus.',relation:'v_A = v_E − Δv',method:'missing',given:[{label:'v_E',start:V(0,0),vec:V(4,5),color:'violet'},{label:'Δv',start:V(0,0),vec:V(-2,3),color:'orange'}],helpers:[{label:'−Δv',start:V(4,5),vec:V(2,-3),color:'gold'}],target:{label:'v_A',start:V(0,0),vec:V(6,2)},steps:['Gesucht ist der Pfeil, zu dem Δv addiert v_E ergibt.','Konstruiere dazu den Gegenvektor −Δv an der Spitze von v_E.','Der Pfeil vom gemeinsamen Startpunkt zur neuen Spitze ist v_A.','Kontrolle: |v_A| = 6,3 m/s.']})
+ ],
+ force:[
+  makeTask({id:'f-result',title:'Resultierende Kraft konstruieren',prompt:'Zwei Kräfte greifen gleichzeitig am markierten Punkt an. Konstruiere die resultierende Kraft mit dem Kräfteparallelogramm.',relation:'F_res = F_1 + F_2',method:'parallelogram',given:[{label:'F_1',start:V(0,0),vec:V(6,0),color:'blue'},{label:'F_2',start:V(0,0),vec:V(2,4),color:'orange'}],helpers:[{label:'F_2',start:V(6,0),vec:V(2,4),color:'orange'},{label:'F_1',start:V(2,4),vec:V(6,0),color:'blue'}],target:{label:'F_res',start:V(0,0),vec:V(8,4)},steps:['Beide Kräfte beginnen am selben Angriffspunkt.','Zeichne durch jede Pfeilspitze eine Parallele zur jeweils anderen Kraft.','Die Diagonale vom Angriffspunkt zur gegenüberliegenden Ecke ist F_res.','Kontrolle: |F_res| = 8,9 N.']}),
+  makeTask({id:'f-missing',title:'Fehlende Kraft konstruieren',prompt:'Eine Kraft und die resultierende Kraft sind gegeben. Konstruiere die fehlende Kraft am Angriffspunkt.',relation:'F_2 = F_res − F_1',method:'missingForce',given:[{label:'F_1',start:V(0,0),vec:V(5,2),color:'blue'},{label:'F_res',start:V(0,0),vec:V(2,6),color:'violet'}],helpers:[{label:'F_2',start:V(5,2),vec:V(-3,4),color:'orange'}],target:{label:'F_2',start:V(0,0),vec:V(-3,4)},steps:['Beginne geometrisch an der Spitze von F_1.','Verbinde die Spitze von F_1 mit der Spitze von F_res. Diese Verbindung hat Richtung und Betrag von F_2.','Übertrage F_2 parallel an den gemeinsamen Angriffspunkt.','Kontrolle: |F_2| = 5,0 N.']}),
+  makeTask({id:'f-balance',title:'Ausgleichskraft konstruieren',prompt:'Konstruiere eine zusätzliche Kraft, sodass Kräftegleichgewicht entsteht.',relation:'F_1 + F_2 + F_A = 0',method:'balance',given:[{label:'F_1',start:V(0,0),vec:V(4,1),color:'blue'},{label:'F_2',start:V(0,0),vec:V(-1,4),color:'orange'}],helpers:[{label:'F_res',start:V(0,0),vec:V(3,5),color:'violet'}],target:{label:'F_A',start:V(0,0),vec:V(-3,-5)},steps:['Konstruiere zuerst die Resultierende F_res aus F_1 und F_2.','Die Ausgleichskraft ist nicht die Resultierende, sondern ihr Gegenvektor.','Zeichne F_A am Angriffspunkt gleich lang und entgegengesetzt zu F_res.','Kontrolle: |F_A| = |F_res| = 5,8 N.']})
+ ],
+ acceleration:[
+  makeTask({id:'a-result',title:'Resultierende Beschleunigung',prompt:'Zwei Beschleunigungsanteile wirken gleichzeitig. Konstruiere die resultierende Beschleunigung.',relation:'a_res = a_1 + a_2',method:'parallelogram',given:[{label:'a_1',start:V(0,0),vec:V(3,0),color:'blue'},{label:'a_2',start:V(0,0),vec:V(0,4),color:'orange'}],helpers:[{label:'a_2',start:V(3,0),vec:V(0,4),color:'orange'},{label:'a_1',start:V(0,4),vec:V(3,0),color:'blue'}],target:{label:'a_res',start:V(0,0),vec:V(3,4)},steps:['Beide Beschleunigungsanteile beginnen am selben Punkt.','Ergänze das Parallelogramm mit Parallelen zu a_1 und a_2.','Zeichne die Diagonale vom gemeinsamen Anfangspunkt.','Kontrolle: |a_res| = 5,0 m/s².']}),
+  makeTask({id:'a-missing',title:'Fehlenden Beschleunigungsanteil finden',prompt:'Resultierende und erster Anteil sind gegeben. Konstruiere den zweiten Beschleunigungsanteil vom gemeinsamen Startpunkt aus.',relation:'a_2 = a_res − a_1',method:'missing',given:[{label:'a_1',start:V(0,0),vec:V(4,-1),color:'blue'},{label:'a_res',start:V(0,0),vec:V(1,5),color:'violet'}],helpers:[{label:'a_2',start:V(4,-1),vec:V(-3,6),color:'orange'}],target:{label:'a_2',start:V(0,0),vec:V(-3,6)},steps:['Vergleiche a_1 und a_res am gemeinsamen Anfangspunkt.','Der Differenzpfeil führt von der Spitze von a_1 zur Spitze von a_res.','Übertrage diesen Pfeil parallel an den gemeinsamen Startpunkt.','Kontrolle: |a_2| = 6,7 m/s².']}),
+  makeTask({id:'a-cancel',title:'Beschleunigung ausgleichen',prompt:'Konstruiere den zweiten Beschleunigungsanteil so, dass die resultierende Beschleunigung null ist.',relation:'a_1 + a_2 = 0',method:'balance',given:[{label:'a_1',start:V(0,0),vec:V(4,3),color:'blue'}],helpers:[],target:{label:'a_2',start:V(0,0),vec:V(-4,-3)},steps:['Für a_res = 0 müssen sich beide Pfeile vollständig aufheben.','Der zweite Anteil ist der Gegenvektor zu a_1.','Zeichne ihn vom selben Anfangspunkt gleich lang in Gegenrichtung.','Kontrolle: |a_2| = 5,0 m/s².']})
+ ]
+};
+const state={context:'velocity',taskIndex:0,userArrow:null,history:[],drag:null,size:{w:800,h:560},origin:V(400,280),grid:50,autoScale:2,currentScale:2,solutionOpen:false,solutionStep:0,adaptedThisDrag:false};
+function task(){return TASKS[state.context][state.taskIndex];}
+function unit(){return CONTEXTS[state.context].unit;}
+function vectorEnd(arrow){return add(arrow.start,arrow.vec);}
+function allTaskPoints(includeTarget=true){const t=task(),points=[V(0,0)];t.given.forEach(a=>points.push(a.start,vectorEnd(a)));t.helpers.forEach(a=>points.push(a.start,vectorEnd(a)));if(includeTarget)points.push(t.target.start,vectorEnd(t.target));return points;}
+function taskBounds(){const points=allTaskPoints();return{minX:Math.min(...points.map(p=>p.x)),maxX:Math.max(...points.map(p=>p.x)),minY:Math.min(...points.map(p=>p.y)),maxY:Math.max(...points.map(p=>p.y))};}
+function niceAutoScale(){const b=taskBounds(),spanX=Math.max(1,b.maxX-b.minX),spanY=Math.max(1,b.maxY-b.minY),availX=Math.max(150,state.size.w-116),availY=Math.max(150,state.size.h-112),need=Math.max(spanX*state.grid/availX,spanY*state.grid/availY);return SCALE_VALUES.find(v=>v>=need)||SCALE_VALUES.at(-1);}
+function positionOrigin(){const b=taskBounds(),contentW=(b.maxX-b.minX)/state.currentScale*state.grid,contentH=(b.maxY-b.minY)/state.currentScale*state.grid,freeX=Math.max(0,state.size.w-contentW),freeY=Math.max(0,state.size.h-contentH);state.origin=V(freeX/2-b.minX/state.currentScale*state.grid,freeY/2+b.maxY/state.currentScale*state.grid);const offsetX=((state.origin.x%state.grid)+state.grid)%state.grid,offsetY=((state.origin.y%state.grid)+state.grid)%state.grid;$('#majorGrid').setAttribute('patternTransform',`translate(${offsetX} ${offsetY})`);}
+function updateScale(resetAuto=false){if(resetAuto)state.autoScale=niceAutoScale();const chosen=els.scale.value;if(chosen==='auto')state.currentScale=state.autoScale;else state.currentScale=Number(chosen);positionOrigin();els.scaleReadout.textContent=`1 großes Kästchen entspricht ${fmt(state.currentScale,state.currentScale<1?1:0)} ${unit()}. Im Automatikmodus wird bei sehr langen Pfeilen sichtbar verkleinert.`;els.scaleCompact.textContent=`1 Kästchen ≙ ${fmt(state.currentScale,state.currentScale<1?1:0)} ${unit()}`;}
+function toScreen(point){return V(state.origin.x+point.x/state.currentScale*state.grid,state.origin.y-point.y/state.currentScale*state.grid);}
+function toWorld(point){return V((point.x-state.origin.x)/state.grid*state.currentScale,(state.origin.y-point.y)/state.grid*state.currentScale);}
+function snapPoint(point){if(!els.snap.checked)return point;const step=state.currentScale/2;return V(Math.round(point.x/step)*step,Math.round(point.y/step)*step);}
+function svgEl(name,attrs={}){const node=document.createElementNS(NS,name);Object.entries(attrs).forEach(([key,value])=>node.setAttribute(key,String(value)));return node;}
+function clearLayer(layer){while(layer.firstChild)layer.firstChild.remove();}
+function drawAxes(){clearLayer(els.axes);const o=state.origin;els.axes.append(svgEl('line',{x1:0,y1:o.y,x2:state.size.w,y2:o.y,stroke:'#9cafaa','stroke-width':1.5,opacity:.65}));els.axes.append(svgEl('line',{x1:o.x,y1:0,x2:o.x,y2:state.size.h,stroke:'#9cafaa','stroke-width':1.5,opacity:.65}));const mark=svgEl('circle',{cx:o.x,cy:o.y,r:5,fill:'#25332f',opacity:.76});els.axes.append(mark);const text=svgEl('text',{x:o.x+9,y:o.y+18,fill:'#68716d','font-size':11,'font-weight':800});text.textContent=state.context==='force'?'Angriffspunkt':'gemeinsamer Start';els.axes.append(text);}
+function labelParts(label){const match=/^(Δ|−)?([vFa])(?:_(.+))?$/.exec(label);if(!match)return{prefix:'',base:label,sub:''};return{prefix:match[1]||'',base:match[2],sub:match[3]||''};}
+function appendVectorLabel(layer,label,start,end,color,showMagnitude,opacity=1){if(!label)return;const dx=end.x-start.x,dy=end.y-start.y,length=Math.hypot(dx,dy),nx=length?dy/length:0,ny=length?-dx/length:-1;let x=(start.x+end.x)/2+nx*19,y=(start.y+end.y)/2+ny*19;const group=svgEl('g',{opacity});const parts=labelParts(label);const main=svgEl('text',{x,y,fill:color,class:'vector-label','text-anchor':'middle'});main.textContent=`${parts.prefix}${parts.base}${parts.sub?parts.sub:''}`;group.append(main);const approxWidth=12*(parts.prefix.length+1+parts.sub.length*.7);const arrowY=y-20;group.append(svgEl('line',{x1:x-approxWidth/2,y1:arrowY,x2:x+approxWidth/2,y2:arrowY,stroke:color,'stroke-width':1.6}));group.append(svgEl('path',{d:`M ${x+approxWidth/2} ${arrowY} l -5 -3 m 5 3 l -5 3`,fill:'none',stroke:color,'stroke-width':1.6}));if(showMagnitude){const value=mag(V((end.x-start.x)/state.grid*state.currentScale,(start.y-end.y)/state.grid*state.currentScale));const amount=svgEl('text',{x,y:y+17,fill:color,class:'vector-label-small','text-anchor':'middle'});amount.textContent=`${fmt(value)} ${unit()}`;group.append(amount);}layer.append(group);}
+function appendArrow(layer,arrow,{helper=false,solution=false,user=false,showMagnitude=els.magnitudes.checked}={}){const start=toScreen(arrow.start),end=toScreen(vectorEnd(arrow)),color=user?COLORS.user:solution?COLORS.solution:(COLORS[arrow.color]||COLORS.ink),vector=V(end.x-start.x,end.y-start.y),length=mag(vector),angle=Math.atan2(vector.y,vector.x),head=Math.min(15,Math.max(10,length*.18)),lineEnd=length>head?V(end.x-Math.cos(angle)*head*.32,end.y-Math.sin(angle)*head*.32):end;const group=svgEl('g',{'data-vector':arrow.label||'vector'});const line=svgEl('line',{x1:start.x,y1:start.y,x2:lineEnd.x,y2:lineEnd.y,stroke:color,'stroke-width':user?6:5,class:`vector-line${helper?' helper-line':''}`});group.append(line);if(length>4){const left=V(end.x-head*Math.cos(angle-.48),end.y-head*Math.sin(angle-.48)),right=V(end.x-head*Math.cos(angle+.48),end.y-head*Math.sin(angle+.48));group.append(svgEl('path',{d:`M ${end.x} ${end.y} L ${left.x} ${left.y} L ${right.x} ${right.y} Z`,fill:color,opacity:helper?.7:1}));}if(user){group.append(svgEl('line',{x1:start.x,y1:start.y,x2:end.x,y2:end.y,class:'vector-hit'}));group.append(svgEl('circle',{cx:start.x,cy:start.y,r:9,fill:color,class:'handle','data-handle':'start'}));group.append(svgEl('circle',{cx:end.x,cy:end.y,r:10,fill:color,class:'handle','data-handle':'end'}));}layer.append(group);appendVectorLabel(layer,arrow.label,start,end,color,showMagnitude,helper?.72:1);}
+function render(){updateScale();drawAxes();clearLayer(els.given);clearLayer(els.helpers);clearLayer(els.user);clearLayer(els.solution);task().given.forEach((arrow,index)=>appendArrow(els.given,arrow,{showMagnitude:els.magnitudes.checked}));const showHelpers=els.helper.checked||(state.solutionOpen&&state.solutionStep>=1);if(showHelpers)task().helpers.forEach(arrow=>appendArrow(els.helpers,arrow,{helper:true,showMagnitude:state.solutionOpen&&state.solutionStep>=3&&els.magnitudes.checked}));if(state.userArrow)appendArrow(els.user,{...state.userArrow,label:task().target.label},{user:true});if(state.solutionOpen&&state.solutionStep>=2)appendArrow(els.solution,{...task().target,color:'solution'},{solution:true,showMagnitude:state.solutionStep>=3||els.magnitudes.checked});updateReadouts();}
+function setTask(index,{keepContext=false}={}){state.taskIndex=(index+TASKS[state.context].length)%TASKS[state.context].length;state.userArrow=null;state.history=[];state.solutionOpen=false;state.solutionStep=0;state.adaptedThisDrag=false;els.solutionPanel.classList.remove('open');els.helper.checked=false;els.taskNumber.textContent=`Aufgabe ${state.taskIndex+1} von ${TASKS[state.context].length}`;els.taskHeading.textContent=task().title;els.taskText.textContent=task().prompt;els.relation.innerHTML=relationHTML(task().relation);els.scale.innerHTML='<option value="auto">Automatisch passend</option>'+CONTEXTS[state.context].scaleValues.map(value=>`<option value="${value}">1 Kästchen ≙ ${fmt(value,value<1?1:0)} ${unit()}</option>`).join('');els.methodTitle.textContent=task().method==='parallelogram'?'Kräfteparallelogramm / Parallelogramm':'So gehst du vor';els.methodIntro.textContent=methodIntro(task().method);els.methodSteps.innerHTML=task().steps.slice(0,3).map(step=>`<li>${step}</li>`).join('');els.modelNote.innerHTML=`<strong>Modellhinweis:</strong> ${CONTEXTS[state.context].model}`;state.autoScale=niceAutoScale();updateScale();updateLegend();setFeedback('ready');updateSolutionPanel();render();if(!keepContext)els.stage.focus({preventScroll:true});}
+function methodIntro(method){const texts={chain:'Für eine Summe darfst du den zweiten Vektor parallel an die Spitze des ersten verschieben.',difference:'Eine Vektordifferenz wird als Pfeil zwischen den beiden Pfeilspitzen sichtbar.',missing:'Konstruiere zuerst die Differenz und übertrage den gesuchten Vektor anschließend an den verlangten Startpunkt.',parallelogram:'Zwei Vektoren mit gemeinsamem Anfang bilden die Seiten eines Parallelogramms. Die Diagonale ist die Summe.',missingForce:'Die Verbindung der Pfeilspitzen liefert zunächst die fehlende Kraft als verschobenen Vektor. Übertrage sie danach an den Angriffspunkt.',balance:'Ein Gegenvektor ist gleich lang, zeigt aber exakt in die entgegengesetzte Richtung.'};return texts[method]||texts.chain;}
+function updateLegend(){els.legend.innerHTML='';task().given.forEach(arrow=>{const item=document.createElement('span');item.className='legend-item';item.innerHTML=`<i class="swatch" style="--swatch:${COLORS[arrow.color]}"></i>${arrow.label.replace('_','')}`;els.legend.append(item);});const item=document.createElement('span');item.className='legend-item';item.innerHTML=`<i class="swatch" style="--swatch:${COLORS.user}"></i>dein ${task().target.label.replace('_','')}`;els.legend.append(item);}
+function updateReadouts(){if(!state.userArrow||mag(state.userArrow.vec)<1e-9){els.userMagnitude.textContent='noch nicht gezeichnet';els.userAngle.textContent='–';return;}const amount=mag(state.userArrow.vec),angle=(Math.atan2(state.userArrow.vec.y,state.userArrow.vec.x)*180/Math.PI+360)%360;els.userMagnitude.textContent=`${fmt(amount)} ${unit()}`;els.userAngle.textContent=`${fmt(angle,0)}° gegen +x`;
+}
+function setFeedback(type,result=null){els.feedback.className='feedback';els.criteria.innerHTML='';if(type==='ready'){els.feedback.querySelector('.feedback-title').textContent='Bereit zum Konstruieren';els.feedback.querySelector('p').textContent='Setze Anfang und Spitze des gesuchten Pfeils. Die App prüft die geometrische Konstruktion, nicht nur das Ergebnis.';return;}if(type==='empty'){els.feedback.classList.add('try');els.feedback.querySelector('.feedback-title').textContent='Noch fehlt dein Pfeil';els.feedback.querySelector('p').textContent='Ziehe auf dem karierten Blatt vom gewünschten Anfangspunkt zur Pfeilspitze.';return;}const all=result.start&&result.direction&&result.magnitude&&result.end;els.feedback.classList.add(all?'good':'try');els.feedback.querySelector('.feedback-title').textContent=all?'Sauber konstruiert!':'Fast – prüfe die markierten Punkte';els.feedback.querySelector('p').textContent=all?`Anfangspunkt, Richtung und Betrag stimmen. |${task().target.label.replace('_','')}| = ${fmt(mag(task().target.vec))} ${unit()}.`:'Nutze Raster und Maßstab. Anfangspunkt und Pfeilspitze werden unabhängig voneinander geprüft.';[['Anfangspunkt',result.start],['Richtung',result.direction],['Betrag',result.magnitude],['Pfeilspitze',result.end]].forEach(([label,ok])=>{const chip=document.createElement('span');chip.className=`criterion ${ok?'ok':'no'}`;chip.textContent=`${ok?'✓':'×'} ${label}`;els.criteria.append(chip);});}
+function evaluate(){if(!state.userArrow||mag(state.userArrow.vec)<1e-8){setFeedback('empty');return null;}const expected=task().target,user=state.userArrow,expectedEnd=vectorEnd(expected),userEnd=vectorEnd(user),startError=mag(sub(user.start,expected.start)),endError=mag(sub(userEnd,expectedEnd)),expectedMag=mag(expected.vec),userMag=mag(user.vec);let angleError=180;if(expectedMag>0&&userMag>0){const dot=expected.vec.x*user.vec.x+expected.vec.y*user.vec.y;angleError=Math.acos(Math.max(-1,Math.min(1,dot/(expectedMag*userMag))))*180/Math.PI;}const positionTol=Math.max(.28,state.currentScale*.22),magnitudeTol=Math.max(.25,expectedMag*.07);const result={start:startError<=positionTol,end:endError<=positionTol,direction:angleError<=7,magnitude:Math.abs(userMag-expectedMag)<=magnitudeTol,startError,endError,angleError,magnitudeError:Math.abs(userMag-expectedMag)};setFeedback('result',result);return result;}
+function pointerPoint(event){const rect=els.stage.getBoundingClientRect();return V((event.clientX-rect.left)/rect.width*state.size.w,(event.clientY-rect.top)/rect.height*state.size.h);}
+function saveHistory(){if(state.userArrow)state.history.push({start:{...state.userArrow.start},vec:{...state.userArrow.vec}});if(state.history.length>20)state.history.shift();}
+function near(a,b,r=18){return Math.hypot(a.x-b.x,a.y-b.y)<=r;}
+function onPointerDown(event){if(state.solutionOpen)return;event.preventDefault();els.stage.setPointerCapture(event.pointerId);const screen=pointerPoint(event);state.adaptedThisDrag=false;if(state.userArrow){const start=toScreen(state.userArrow.start),end=toScreen(vectorEnd(state.userArrow));if(near(screen,start,22)){saveHistory();state.drag={kind:'start',fixedEnd:vectorEnd(state.userArrow)};return;}if(near(screen,end,24)){saveHistory();state.drag={kind:'end'};return;}}saveHistory();const world=snapPoint(toWorld(screen));state.userArrow={start:world,vec:V(0,0)};state.drag={kind:'end'};render();}
+function onPointerMove(event){if(!state.drag||state.solutionOpen)return;event.preventDefault();const screen=pointerPoint(event),world=snapPoint(toWorld(screen));if(state.drag.kind==='start'){state.userArrow.start=world;state.userArrow.vec=sub(state.drag.fixedEnd,world);}else state.userArrow.vec=sub(world,state.userArrow.start);maybeAdaptScale(screen);render();}
+function onPointerUp(event){if(!state.drag)return;event.preventDefault();state.drag=null;if(els.stage.hasPointerCapture(event.pointerId))els.stage.releasePointerCapture(event.pointerId);render();}
+function maybeAdaptScale(screen){if(els.scale.value!=='auto'||state.adaptedThisDrag)return;const edge=24;if(screen.x>edge&&screen.x<state.size.w-edge&&screen.y>edge&&screen.y<state.size.h-edge)return;const index=SCALE_VALUES.indexOf(state.currentScale),next=SCALE_VALUES[Math.min(SCALE_VALUES.length-1,index+1)];if(next>state.currentScale){state.autoScale=next;state.currentScale=next;state.adaptedThisDrag=true;showToast(`Maßstab angepasst: 1 Kästchen ≙ ${fmt(next,next<1?1:0)} ${unit()}`);}}
+let toastTimer=0;function showToast(text){els.toast.textContent=text;els.toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>els.toast.classList.remove('show'),2300);}
+function updateSolutionPanel(){const steps=task().steps;els.solutionText.textContent=steps[state.solutionStep]||steps[0];els.stepCount.textContent=`Schritt ${state.solutionStep+1} von ${steps.length}`;els.solutionPrev.disabled=state.solutionStep===0;els.solutionNext.textContent=state.solutionStep===steps.length-1?'Lösung schließen':'Weiter →';}
+function openSolution(){state.solutionOpen=true;state.solutionStep=0;els.solutionPanel.classList.add('open');updateSolutionPanel();render();els.solutionPanel.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function closeSolution(){state.solutionOpen=false;state.solutionStep=0;els.solutionPanel.classList.remove('open');render();}
+function resize(){const rect=els.wrap.getBoundingClientRect();state.size={w:Math.max(320,Math.round(rect.width)),h:Math.max(340,Math.round(rect.height))};els.stage.setAttribute('viewBox',`0 0 ${state.size.w} ${state.size.h}`);$('#gridRect').setAttribute('x',-state.grid);$('#gridRect').setAttribute('y',-state.grid);$('#gridRect').setAttribute('width',state.size.w+state.grid*2);$('#gridRect').setAttribute('height',state.size.h+state.grid*2);state.autoScale=niceAutoScale();render();}
+function changeContext(context){if(!TASKS[context])return;state.context=context;state.taskIndex=0;document.querySelectorAll('[data-context]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.context===context)));setTask(0);}
+document.querySelectorAll('[data-context]').forEach(btn=>btn.addEventListener('click',()=>changeContext(btn.dataset.context)));
+els.scale.addEventListener('change',()=>{updateScale();render();});els.snap.addEventListener('change',render);els.magnitudes.addEventListener('change',render);els.helper.addEventListener('change',render);
+els.clear.addEventListener('click',()=>{saveHistory();state.userArrow=null;setFeedback('ready');render();});els.undo.addEventListener('click',()=>{state.userArrow=state.history.pop()||null;setFeedback('ready');render();});els.check.addEventListener('click',evaluate);els.next.addEventListener('click',()=>setTask(state.taskIndex+1));els.solutionBtn.addEventListener('click',()=>state.solutionOpen?closeSolution():openSolution());
+els.solutionPrev.addEventListener('click',()=>{if(state.solutionStep>0){state.solutionStep--;updateSolutionPanel();render();}});els.solutionNext.addEventListener('click',()=>{if(state.solutionStep<task().steps.length-1){state.solutionStep++;updateSolutionPanel();render();}else closeSolution();});
+els.help.addEventListener('click',()=>$('#helpDialog').showModal());
+els.stage.addEventListener('pointerdown',onPointerDown);els.stage.addEventListener('pointermove',onPointerMove);els.stage.addEventListener('pointerup',onPointerUp);els.stage.addEventListener('pointercancel',onPointerUp);
+els.stage.addEventListener('keydown',event=>{if(!state.userArrow)return;const step=event.shiftKey?state.currentScale:state.currentScale/2;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key)){event.preventDefault();saveHistory();const delta={ArrowLeft:V(-step,0),ArrowRight:V(step,0),ArrowUp:V(0,step),ArrowDown:V(0,-step)}[event.key];state.userArrow.vec=add(state.userArrow.vec,delta);render();}});
+new ResizeObserver(resize).observe(els.wrap);
+window.__vectorLabTest={TASKS,getState:()=>({context:state.context,taskIndex:state.taskIndex,scale:state.currentScale,userArrow:state.userArrow?JSON.parse(JSON.stringify(state.userArrow)):null}),setContext:changeContext,setTask:index=>setTask(index),setUserArrow:(start,vec)=>{state.userArrow={start:{...start},vec:{...vec}};render();return evaluate();},evaluate,mag,add,sub,vectorEnd,currentTask:()=>task(),openSolution,closeSolution};
+setTask(0,{keepContext:true});resize();window.dispatchEvent(new CustomEvent('vector-lab-ready'));
+})();
+</script>
+<script src="../shared/student-entry.js"></script>
+</body>
+</html>

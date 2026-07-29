@@ -22,6 +22,7 @@ Die veröffentlichte Seite ist über die GitHub-Pages-Adresse dieses Repositorie
 | [`magnetfeld-labor/index.html`](magnetfeld-labor/index.html) | Primär zweidimensionales Magnetfeld-Labor mit frei beweglichen Stab- und Hufeisenmagneten, Kompass, Magnetnadeln, Eisenfeilspänen, Feldlinien, qualitativer magnetischer Influenz und ergänzender 3D-Raumansicht. |
 | [`energiestufenmodell/index.html`](energiestufenmodell/index.html) | Quanten-Labor zu diskreten Energieniveaus, Anregung und Energieübertragung im Energiestufenmodell. |
 | [`v_aenderung/index.html`](v_aenderung/index.html) | Eishockey-Simulation zur vektoriellen Addition von Anfangsgeschwindigkeit \(\vec v_A\) und Geschwindigkeitsänderung \(\Delta\vec v\) zur Endgeschwindigkeit \(\vec v_E\). |
+| [`vektor-labor/index.html`](vektor-labor/index.html) | Maßstäbliches Konstruktionslabor für Geschwindigkeits-, Kraft- und Beschleunigungsvektoren mit kariertem Zeichenblatt, Übungsaufgaben, adaptivem Maßstab, Betragskontrolle und schrittweisen Lösungen. |
 | [`impuls/index.html`](impuls/index.html) | Zweidimensionale Stoßsimulation zur Untersuchung von Impulsvektoren und Richtungsänderungen. |
 | [`impulsdiagramm/index.html`](impulsdiagramm/index.html) | Generator für Stoß- und Impulsdiagramme mit grafischer Darstellung der beteiligten Größen. |
 | [`diagramme/index.html`](diagramme/index.html) | Diagrammbastler zum Erstellen und Verknüpfen abschnittsweiser \(t\)-\(x\)-, \(t\)-\(v\)- und \(t\)-\(a\)-Diagramme. |
