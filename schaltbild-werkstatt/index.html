@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3eee4">
+<title>Schaltbild-Werkstatt – Prototyp</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23176b68'/%3E%3Cpath d='M10 32h14m18 0h12M24 21v22m8-15v8m10-20v32' stroke='%23fffdf8' stroke-width='4' fill='none'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#f3eee4;--card:#fffdf8;--ink:#183b3a;--muted:#68736f;--petrol:#176b68;
+  --petrol-dark:#0e4f4d;--amber:#d8a13f;--red:#b85f50;--line:#d7cfc1;--soft:#eee8dc;
+  --shadow:0 12px 32px rgba(39,55,52,.11)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink);font-family:Inter,ui-rounded,"Avenir Next",system-ui,sans-serif}
+body{padding:12px;overflow-x:hidden}
+button,input,select{font:inherit;color:inherit}
+button,select,input{min-height:48px}
+button{cursor:pointer}
+.app{max-width:1500px;margin:0 auto}
+.topbar{display:flex;align-items:center;gap:12px;min-height:58px;margin-bottom:12px}
+.home,.action,.reset-button{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:13px;background:var(--card);color:var(--ink);font-weight:850;text-decoration:none;padding:10px 14px;box-shadow:0 2px 8px rgba(34,54,51,.06)}
+.home{width:48px;min-height:48px;padding:0;flex:0 0 48px}
+.heading{flex:1;min-width:0}
+.heading-line{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:1.05;margin:0}
+.heading p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.badge{display:inline-flex;align-items:center;min-height:28px;padding:4px 9px;border-radius:999px;background:#efe3bf;color:#6a511b;font-size:.73rem;font-weight:900;letter-spacing:.045em;text-transform:uppercase}
+.top-actions{display:flex;gap:8px}
+.action.primary{background:var(--petrol);border-color:var(--petrol);color:#fff}
+.action:hover,.home:hover,.reset-button:hover{border-color:var(--petrol);transform:translateY(-1px)}
+.workspace{display:grid;grid-template-columns:minmax(330px,410px) minmax(0,1fr);gap:14px;align-items:start}
+.card{background:var(--card);border:1px solid var(--line);border-radius:19px;box-shadow:var(--shadow)}
+.controls{padding:16px;display:grid;gap:16px}
+.control-section{padding-bottom:16px;border-bottom:1px solid var(--line)}
+.control-section:last-of-type{padding-bottom:0;border-bottom:0}
+.section-kicker{margin:0 0 9px;color:var(--muted);font-size:.72rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.control-section h2,.preview-head h2{font-family:Georgia,serif;margin:0;font-size:1.12rem}
+.control-section h2{margin-bottom:10px}
+.segmented{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.segmented button{min-width:0;padding:8px 6px;border:1px solid var(--line);border-radius:12px;background:#f8f4ec;font-size:.84rem;font-weight:850}
+.segmented button[aria-pressed="true"]{background:var(--petrol);border-color:var(--petrol);color:#fff;box-shadow:0 5px 12px rgba(23,107,104,.18)}
+.stepper button:disabled{cursor:not-allowed;opacity:.38;transform:none}
+.count-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding:8px 10px;border-radius:12px;background:#f7f2e9}
+.count-row[hidden]{display:none}
+.count-row span{font-size:.87rem;font-weight:800}
+.stepper{display:flex;align-items:center;gap:6px}
+.stepper button{width:48px;border:1px solid var(--line);border-radius:10px;background:#fff;font-size:1.2rem;font-weight:900}
+.stepper strong{min-width:26px;text-align:center;font-variant-numeric:tabular-nums}
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.field{display:grid;gap:5px;min-width:0}
+.field.full{grid-column:1/-1}
+.field label,.field-label{font-size:.76rem;font-weight:850;color:var(--muted)}
+.input-unit{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;border:1px solid var(--line);border-radius:11px;background:#fff;overflow:hidden}
+.input-unit:focus-within{outline:3px solid rgba(23,107,104,.16);border-color:var(--petrol)}
+.input-unit input{width:100%;min-width:0;border:0;background:transparent;padding:9px 10px;outline:0}
+.input-unit span{padding:0 10px;color:var(--muted);font-size:.83rem;font-weight:850}
+.check-row{display:flex;align-items:center;gap:9px;min-height:48px;padding:8px 10px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:.84rem;font-weight:780}
+.check-row input{width:21px;height:21px;min-height:auto;accent-color:var(--petrol);flex:0 0 auto}
+.motion-toggle{position:relative;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;min-height:58px;padding:8px 10px;border:1px solid var(--line);border-radius:11px;background:#eef6f3;cursor:pointer}
+.motion-toggle input{position:absolute;width:1px;height:1px;min-height:0;opacity:0}
+.toggle-track{position:relative;width:50px;height:30px;border-radius:999px;background:#b9c4c0;box-shadow:inset 0 0 0 1px rgba(24,59,58,.18);transition:background .18s ease}
+.toggle-track::after{content:"";position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 5px rgba(24,59,58,.25);transition:transform .18s ease}
+.motion-toggle input:checked+.toggle-track{background:var(--petrol)}
+.motion-toggle input:checked+.toggle-track::after{transform:translateX(20px)}
+.motion-toggle input:focus-visible+.toggle-track{outline:3px solid rgba(23,107,104,.25);outline-offset:2px}
+.toggle-copy{display:grid;gap:2px;font-size:.83rem}.toggle-copy strong{font-size:.86rem}.toggle-copy small{color:var(--muted);line-height:1.3}
+.motion-toggle.full,.flow-mode.full{grid-column:1/-1}
+.flow-mode{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.flow-mode button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;padding:7px;border:1px solid var(--line);border-radius:11px;background:#fff;font-size:.76rem;font-weight:850}
+.flow-mode button[aria-pressed="true"]{border-color:var(--petrol);background:#e7f1ee;box-shadow:0 0 0 2px rgba(23,107,104,.09)}
+.flow-mode button:disabled{cursor:not-allowed;opacity:.42}
+.flow-dot{width:11px;height:11px;border-radius:50%;background:#287ac0;box-shadow:0 0 0 2px rgba(40,122,192,.16)}
+.flow-dot.current{background:#c9574b;box-shadow:0 0 0 2px rgba(201,87,75,.16)}
+.slot-list{display:grid;gap:10px}
+.slot{border:1px solid var(--line);border-radius:14px;background:#faf7f0;overflow:hidden}
+.slot-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#eee8dc}
+.slot-head strong{font-size:.86rem}
+.slot-chip{padding:3px 7px;border-radius:999px;background:var(--card);color:var(--muted);font-size:.7rem;font-weight:900}
+.slot-body{display:grid;gap:9px;padding:10px}
+.slot select,.slot input[type="text"]{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px 10px}
+.slot select:focus,.slot input[type="text"]:focus{outline:3px solid rgba(23,107,104,.16);border-color:var(--petrol)}
+.slot-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.slot-options .check-row{padding:7px 9px;font-size:.77rem}
+.small-note{margin:9px 0 0;color:var(--muted);font-size:.77rem;line-height:1.45}
+.reset-button{width:100%;background:#f8f4ec}
+.preview{overflow:hidden;min-width:0}
+.preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 17px 12px;border-bottom:1px solid var(--line)}
+.preview-head p{margin:4px 0 0;color:var(--muted);font-size:.83rem}
+.status-pill{flex:0 0 auto;max-width:48%;padding:7px 10px;border-radius:999px;background:#e4f0eb;color:var(--petrol-dark);font-size:.75rem;font-weight:900;text-align:center}
+.diagram-wrap{padding:14px;background:#ece7dd}
+.diagram-paper{position:relative;overflow:hidden;aspect-ratio:50/39;border:1px solid #ccc2b2;border-radius:10px;background:#fff;box-shadow:0 4px 16px rgba(58,63,58,.08)}
+#circuitSvg{display:block;width:100%;height:100%;background:#fff}
+.prototype-mark{position:absolute;right:10px;bottom:9px;color:#9a9387;font-size:.68rem;font-weight:800;pointer-events:none}
+.feedback{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;margin:0;padding:13px 17px;border-top:1px solid var(--line);background:#fffaf0}
+.feedback-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#efe3bf;color:#6a511b;font-weight:950}
+.feedback p{margin:0;font-size:.84rem;line-height:1.45}
+.explainer{margin:0;border-top:1px solid var(--line)}
+.explainer summary{min-height:48px;padding:13px 17px;cursor:pointer;font-weight:850}
+.explainer-content{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 17px 16px}
+.explainer-content div{padding:11px;border-radius:12px;background:#f7f2e9;font-size:.79rem;line-height:1.45}
+.explainer-content strong{display:block;margin-bottom:3px;color:var(--petrol-dark)}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:1050px){
+  .workspace{grid-template-columns:360px minmax(0,1fr)}
+  .top-actions .action span{display:none}
+}
+@media(max-width:850px){
+  body{padding:8px}.workspace{grid-template-columns:1fr}.controls{position:static}.preview{order:-1}
+  .diagram-wrap{padding:9px}.topbar{flex-wrap:wrap}.heading p{display:none}
+}
+@media(max-width:560px){
+  .topbar{gap:8px}.heading{order:-1;flex-basis:100%}.top-actions{margin-left:auto}
+  .segmented{grid-template-columns:1fr}.field-grid,.slot-options,.explainer-content{grid-template-columns:1fr}
+  .status-pill{max-width:none}.preview-head{display:block}.status-pill{margin-top:8px;text-align:left;display:inline-block}
+  .diagram-paper{aspect-ratio:50/39;min-height:280px}
+}
+@media(max-height:820px) and (min-width:851px){
+  body{padding:7px}.topbar{min-height:48px;margin-bottom:7px}.heading p{display:none}.controls{max-height:calc(100vh - 70px);overflow-y:auto;scrollbar-gutter:stable;padding:12px;gap:12px}
+  .control-section{padding-bottom:11px}.diagram-wrap{padding:9px}.explainer-content{padding-bottom:10px}
+}
+@media print{
+  @page{size:landscape;margin:12mm}
+  body{padding:0;background:#fff}.topbar,.controls,.feedback,.explainer,.prototype-mark{display:none!important}
+  .workspace{display:block}.preview{border:0;box-shadow:none}.preview-head{border:0;padding:0 0 8mm}
+  .preview-head p{display:none}.status-pill{display:none}.diagram-wrap{padding:0;background:#fff}
+  .diagram-paper{border:0;box-shadow:none;aspect-ratio:auto;height:165mm}#circuitSvg{width:100%;height:100%}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a>
+  <div class="heading">
+    <div class="heading-line"><h1>Schaltbild-Werkstatt</h1><span class="badge">Prototyp</span></div>
+    <p>Bauteile auswählen – ein sauberes Schaltbild für Unterricht und Arbeitsblatt erhalten.</p>
+  </div>
+  <div class="top-actions">
+    <button class="action" id="printButton" type="button" title="Schaltbild drucken">⎙ <span>Drucken</span></button>
+    <button class="action primary" id="downloadButton" type="button" title="Schaltbild als SVG speichern">↓ <span>SVG speichern</span></button>
+  </div>
+</header>
+
+<main class="workspace">
+  <aside class="card controls" aria-label="Schaltung zusammenstellen">
+    <section class="control-section">
+      <p class="section-kicker">Schritt 1</p>
+      <h2>Grundschaltung</h2>
+      <div class="segmented" id="topologyButtons" aria-label="Schaltungsart">
+        <button type="button" data-topology="series" aria-pressed="true">Reihe</button>
+        <button type="button" data-topology="parallel" aria-pressed="false">Parallel</button>
+        <button type="button" data-topology="mixed" aria-pressed="false">Gemischt</button>
+      </div>
+      <div class="count-row" id="countRow">
+        <span id="countDescription">Bauteile in Reihe</span>
+        <div class="stepper" aria-label="Anzahl der Bauteile">
+          <button type="button" id="countMinus" aria-label="Ein Bauteil weniger">−</button>
+          <strong id="countValue">2</strong>
+          <button type="button" id="countPlus" aria-label="Ein Bauteil mehr">+</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="control-section">
+      <p class="section-kicker">Schritt 2</p>
+      <h2>Spannungsquelle</h2>
+      <div class="field-grid">
+        <div class="field">
+          <label for="sourceVoltage">Spannung</label>
+          <div class="input-unit"><input id="sourceVoltage" type="text" inputmode="decimal" value="4,5" aria-label="Spannung der Spannungsquelle"><span>V</span></div>
+        </div>
+        <div class="field">
+          <label for="sourceLimit">Strombegrenzung <span class="sr-only">optional</span></label>
+          <div class="input-unit"><input id="sourceLimit" type="text" inputmode="decimal" placeholder="optional" aria-label="Maximaler Strom der Spannungsquelle, optional"><span>A</span></div>
+        </div>
+        <label class="check-row full"><input id="sourceVoltmeter" type="checkbox"> Spannung an der Quelle messen</label>
+        <label class="check-row full"><input id="totalAmmeter" type="checkbox"> Gesamtstrom messen</label>
+        <label class="motion-toggle full">
+          <input id="valuesToggle" type="checkbox" role="switch" aria-describedby="valuesHint">
+          <span class="toggle-track" aria-hidden="true"></span>
+          <span class="toggle-copy"><strong>Werte anzeigen</strong><small id="valuesHint">Spannungs-, Strom- und Widerstandswerte im Schaltbild</small></span>
+        </label>
+        <label class="motion-toggle full">
+          <input id="motionToggle" type="checkbox" role="switch" aria-describedby="motionHint">
+          <span class="toggle-track" aria-hidden="true"></span>
+          <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Qualitative Flussrichtung – keine Berechnung der Geschwindigkeit</small></span>
+        </label>
+        <div class="flow-mode full" id="flowModeButtons" role="group" aria-label="Dargestellte Flussrichtung">
+          <button type="button" data-flow-mode="electron" aria-pressed="true"><span class="flow-dot" aria-hidden="true"></span>Elektronen</button>
+          <button type="button" data-flow-mode="current" aria-pressed="false"><span class="flow-dot current" aria-hidden="true"></span>Technischer Strom</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="control-section">
+      <p class="section-kicker">Schritt 3</p>
+      <h2>Bauteile und Messgeräte</h2>
+      <div class="slot-list" id="slotList"></div>
+      <p class="small-note">„U messen“ setzt ein Voltmeter parallel zum Bauteil. „I messen“ setzt ein Amperemeter in Reihe in denselben Zweig.</p>
+    </section>
+
+    <button class="reset-button" id="resetButton" type="button">↺ Ausgangsschaltung</button>
+  </aside>
+
+  <section class="card preview" aria-labelledby="previewTitle">
+    <header class="preview-head">
+      <div><h2 id="previewTitle">Erzeugtes Schaltbild</h2><p>Die Zeichnung wird bei jeder Auswahl automatisch neu aufgebaut.</p></div>
+      <div class="status-pill" id="statusText" aria-live="polite">Reihenschaltung · 2 Bauteile · 4,5 V</div>
+    </header>
+    <div class="diagram-wrap">
+      <div class="diagram-paper">
+        <svg id="circuitSvg" viewBox="0 0 1000 780" role="img" aria-labelledby="svgTitle svgDescription"></svg>
+        <span class="prototype-mark">Schaltbild-Werkstatt · Prototyp</span>
+      </div>
+    </div>
+    <div class="feedback" aria-live="polite">
+      <div class="feedback-icon">i</div>
+      <p id="feedbackText">Die Spannungsquelle und zwei Lampen bilden einen geschlossenen Reihenstromkreis.</p>
+    </div>
+    <details class="explainer">
+      <summary>Was erzeugt die Werkstatt – und was nicht?</summary>
+      <div class="explainer-content">
+        <div><strong>Schaltbild, keine Berechnung</strong>Die Werkstatt ordnet Schaltzeichen und Leitungen. Blaue Punkte zeigen qualitativ die Elektronenbewegung, rote Punkte die technische Stromrichtung – nicht Stromstärke oder Geschwindigkeit.</div>
+        <div><strong>Messgeräte korrekt eingesetzt</strong>Amperemeter liegen in Reihe. Voltmeter werden parallel zu genau dem ausgewählten Bauteil angeschlossen.</div>
+        <div><strong>Werte sind Beschriftungen</strong>Nenn-, Betriebs- und Widerstandswerte werden nur bei aktiviertem Werte-Toggle eingeblendet. Daraus wird kein konstanter Lampen- oder LED-Widerstand behauptet.</div>
+      </div>
+    </details>
+  </section>
+</main>
+</div>
+
+<script>
+(()=>{
+'use strict';
+const $=selector=>document.querySelector(selector);
+const subscript=value=>String(value).replace(/[0-9]/g,d=>'₀₁₂₃₄₅₆₇₈₉'[Number(d)]);
+const escapeXml=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[char]));
+const withUnit=(value,unit)=>{const clean=String(value??'').trim();return clean?`${clean} ${unit}`:'';};
+const deepCopy=value=>JSON.parse(JSON.stringify(value));
+
+const typeDefinitions={
+  lamp:{name:'Lampe',prefix:'L',defaults:{valueA:'6,3',valueB:'0,3',orientation:'right',switchState:'open'}},
+  resistor:{name:'Widerstand',prefix:'R',defaults:{valueA:'100',valueB:'',orientation:'right',switchState:'open'}},
+  led:{name:'LED',prefix:'LED',defaults:{valueA:'2,0',valueB:'20',orientation:'left',switchState:'open'}},
+  switch:{name:'Schalter',prefix:'S',defaults:{valueA:'',valueB:'',orientation:'right',switchState:'open'}}
+};
+const makeComponent=(type='lamp')=>({type,...deepCopy(typeDefinitions[type].defaults),voltmeter:false,ammeter:false});
+const initialState={
+  topology:'series',counts:{series:2,parallel:2,mixed:3},sourceVoltage:'4,5',sourceLimit:'',sourceVoltmeter:false,totalAmmeter:false,showValues:false,showMotion:false,flowMode:'electron',
+  components:[makeComponent('lamp'),makeComponent('lamp'),makeComponent('resistor'),makeComponent('lamp'),makeComponent('resistor')]
+};
+let state=deepCopy(initialState);
+let lastGeometry={topology:'series',components:[],meters:[],nodes:[],electronRoutes:[],viewHeight:780};
+
+const topologyNames={series:'Reihenschaltung',parallel:'Parallelschaltung',mixed:'Gemischte Schaltung'};
+const topologyMinimum={series:1,parallel:2,mixed:3};
+const slotNames={
+  series:['Bauteil 1','Bauteil 2','Bauteil 3','Bauteil 4','Bauteil 5'],
+  parallel:['Parallelzweig 1','Parallelzweig 2','Parallelzweig 3','Parallelzweig 4','Parallelzweig 5'],
+  mixed:['Bauteil in Reihe','Parallelzweig 1','Parallelzweig 2','Parallelzweig 3','Parallelzweig 4']
+};
+
+function activeCount(){return state.counts[state.topology];}
+function labeledComponents(){
+  const counts={};
+  return state.components.slice(0,activeCount()).map((component,index)=>{
+    const definition=typeDefinitions[component.type];
+    counts[definition.prefix]=(counts[definition.prefix]||0)+1;
+    return {...component,index,label:`${definition.prefix}${subscript(counts[definition.prefix])}`,name:definition.name};
+  });
+}
+
+function valueFields(component,index){
+  if(component.type==='lamp')return `
+    <div class="field-grid">
+      <div class="field"><label for="valueA-${index}">Nennspannung</label><div class="input-unit"><input id="valueA-${index}" type="text" inputmode="decimal" data-index="${index}" data-key="valueA" value="${escapeXml(component.valueA)}"><span>V</span></div></div>
+      <div class="field"><label for="valueB-${index}">Nennstrom</label><div class="input-unit"><input id="valueB-${index}" type="text" inputmode="decimal" data-index="${index}" data-key="valueB" value="${escapeXml(component.valueB)}"><span>A</span></div></div>
+    </div>`;
+  if(component.type==='resistor')return `
+    <div class="field"><label for="valueA-${index}">Widerstand</label><div class="input-unit"><input id="valueA-${index}" type="text" inputmode="decimal" data-index="${index}" data-key="valueA" value="${escapeXml(component.valueA)}"><span>Ω</span></div></div>`;
+  if(component.type==='led')return `
+    <div class="field-grid">
+      <div class="field"><label for="valueA-${index}">Durchlassspannung</label><div class="input-unit"><input id="valueA-${index}" type="text" inputmode="decimal" data-index="${index}" data-key="valueA" value="${escapeXml(component.valueA)}"><span>V</span></div></div>
+      <div class="field"><label for="valueB-${index}">Betriebsstrom</label><div class="input-unit"><input id="valueB-${index}" type="text" inputmode="decimal" data-index="${index}" data-key="valueB" value="${escapeXml(component.valueB)}"><span>mA</span></div></div>
+    </div>
+    <div class="field"><label for="orientation-${index}">Durchlassrichtung im Schaltbild</label><select id="orientation-${index}" data-index="${index}" data-key="orientation"><option value="left"${component.orientation==='left'?' selected':''}>nach links (passend zur Quelle)</option><option value="right"${component.orientation==='right'?' selected':''}>nach rechts (entgegengesetzt)</option></select></div>`;
+  return `<div class="field"><label for="switchState-${index}">Schalterstellung</label><select id="switchState-${index}" data-index="${index}" data-key="switchState"><option value="open"${component.switchState==='open'?' selected':''}>offen</option><option value="closed"${component.switchState==='closed'?' selected':''}>geschlossen</option></select></div>`;
+}
+
+function renderControls(){
+  const components=labeledComponents();
+  $('#slotList').innerHTML=components.map((component,index)=>`
+    <article class="slot">
+      <div class="slot-head"><strong>${slotNames[state.topology][index]}</strong><span class="slot-chip">${component.label}</span></div>
+      <div class="slot-body">
+        <div class="field"><label for="type-${index}">Bauteil</label><select id="type-${index}" data-index="${index}" data-key="type">
+          ${Object.entries(typeDefinitions).map(([key,definition])=>`<option value="${key}"${component.type===key?' selected':''}>${definition.name}</option>`).join('')}
+        </select></div>
+        ${valueFields(component,index)}
+        <div class="slot-options">
+          <label class="check-row"><input type="checkbox" data-index="${index}" data-key="voltmeter"${component.voltmeter?' checked':''}> U messen</label>
+          <label class="check-row"><input type="checkbox" data-index="${index}" data-key="ammeter"${component.ammeter?' checked':''}> I messen</label>
+        </div>
+      </div>
+    </article>`).join('');
+
+  document.querySelectorAll('[data-topology]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.topology===state.topology)));
+  const count=activeCount();
+  $('#countRow').hidden=false;
+  $('#countDescription').textContent=state.topology==='series'?'Bauteile in Reihe':state.topology==='parallel'?'Parallele Zweige':'Bauteile insgesamt';
+  $('#countValue').textContent=String(count);
+  $('#countMinus').disabled=count<=topologyMinimum[state.topology];
+  $('#countPlus').disabled=count>=5;
+  syncDisplayControls();
+}
+
+function syncDisplayControls(){
+  $('#valuesToggle').checked=state.showValues;
+  $('#motionToggle').checked=state.showMotion;
+  document.querySelectorAll('[data-flow-mode]').forEach(button=>{
+    button.setAttribute('aria-pressed',String(button.dataset.flowMode===state.flowMode));
+    button.disabled=!state.showMotion;
+  });
+}
+
+const line=(x1,y1,x2,y2,className='wire')=>`<line class="${className}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
+const circle=(cx,cy,r,className='symbol')=>`<circle class="${className}" cx="${cx}" cy="${cy}" r="${r}"/>`;
+const node=(x,y)=>{lastGeometry.nodes.push({x,y});return `<circle class="node" cx="${x}" cy="${y}" r="6"/>`;};
+const text=(x,y,value,className='label',anchor='middle')=>`<text class="${className}" x="${x}" y="${y}" text-anchor="${anchor}">${escapeXml(value)}</text>`;
+
+function meter(cx,cy,letter,label){
+  lastGeometry.meters.push({kind:letter,cx,cy,label});
+  return `${circle(cx,cy,27,'meter')}${text(cx,cy+8,letter,'meter-letter')}${text(cx,cy-38,label,'meter-label')}`;
+}
+
+function componentValue(component){
+  if(component.type==='lamp')return [withUnit(component.valueA,'V'),withUnit(component.valueB,'A')].filter(Boolean).join(' / ');
+  if(component.type==='resistor')return withUnit(component.valueA,'Ω');
+  if(component.type==='led')return [withUnit(component.valueA,'V'),withUnit(component.valueB,'mA')].filter(Boolean).join(' / ');
+  return component.switchState==='closed'?'geschlossen':'offen';
+}
+
+function componentSymbol(left,right,y,component){
+  const cx=(left+right)/2;
+  const half=(right-left)/2;
+  let markup='';
+  if(component.type==='lamp'){
+    const radius=Math.min(29,half-7),cross=radius*.69;
+    markup+=line(left,y,cx-radius,y)+circle(cx,y,radius);
+    markup+=line(cx-cross,y-cross,cx+cross,y+cross,'symbol')+line(cx-cross,y+cross,cx+cross,y-cross,'symbol')+line(cx+radius,y,right,y);
+  }else if(component.type==='resistor'){
+    const resistorHalf=Math.min(42,half-6);
+    markup+=line(left,y,cx-resistorHalf,y)+`<rect class="symbol" x="${cx-resistorHalf}" y="${y-18}" width="${2*resistorHalf}" height="36"/>`+line(cx+resistorHalf,y,right,y);
+  }else if(component.type==='led'){
+    const transform=component.orientation==='left'?` transform="translate(${2*cx} 0) scale(-1 1)"`:'';
+    markup+=`<g${transform}>${line(left,y,cx-33,y)}<path class="symbol" d="M ${cx-33} ${y-29} L ${cx+13} ${y} L ${cx-33} ${y+29} Z"/><line class="symbol" x1="${cx+14}" y1="${y-31}" x2="${cx+14}" y2="${y+31}"/>${line(cx+14,y,right,y)}<path class="light-arrow" d="M ${cx-6} ${y-35} L ${cx-27} ${y-56} M ${cx-27} ${y-56} l 5 15 M ${cx-27} ${y-56} l 15 5 M ${cx+12} ${y-42} L ${cx-9} ${y-63} M ${cx-9} ${y-63} l 5 15 M ${cx-9} ${y-63} l 15 5"/></g>`;
+  }else{
+    const contactHalf=Math.min(34,half-5),leftContact=cx-contactHalf,rightContact=cx+contactHalf;
+    markup+=line(left,y,leftContact,y)+circle(leftContact,y,5,'contact');
+    if(component.switchState==='closed')markup+=line(leftContact+4,y,rightContact-4,y,'symbol');
+    else markup+=line(leftContact+3,y-2,rightContact-7,y-31,'symbol');
+    markup+=circle(rightContact,y,5,'contact')+line(rightContact,y,right,y);
+  }
+  return markup;
+}
+
+function horizontalElement(x1,x2,y,component,meterNumbers,voltageOffset=-78,labelDx=0,elementDx=0){
+  const hasA=component.ammeter;
+  const compact=x2-x1<205;
+  const componentHalf=compact?38:50;
+  const groupWidth=hasA?54+10+2*componentHalf:2*componentHalf;
+  const groupStart=(x1+x2)/2+elementDx-groupWidth/2;
+  const left=hasA?groupStart+64:groupStart;
+  const right=left+2*componentHalf;
+  const center=(left+right)/2;
+  let markup='';
+  let ammeterCenter=null;
+  if(hasA){
+    ammeterCenter=groupStart+27;
+    markup+=line(x1,y,ammeterCenter-27,y)+meter(ammeterCenter,y,'A',`I${subscript(++meterNumbers.a)}`)+line(ammeterCenter+27,y,left,y);
+  }else markup+=line(x1,y,left,y);
+  markup+=componentSymbol(left,right,y,component)+line(right,y,x2,y);
+  if(component.voltmeter){
+    const vy=y+voltageOffset;
+    markup+=line(left,y,left,vy)+line(left,vy,center-27,vy)+meter(center,vy,'V',`U${subscript(++meterNumbers.v)}`)+line(center+27,vy,right,vy)+line(right,vy,right,y)+node(left,y)+node(right,y);
+  }
+  markup+=text(center+labelDx,y+54,component.label,'component-label');
+  if(state.showValues)markup+=text(center+labelDx,y+80,componentValue(component),'value-label');
+  lastGeometry.components.push({index:component.index,type:component.type,label:component.label,x1,x2,y,left,right,cx:center,labelX:center+labelDx,ammeter:hasA,ammeterCenter,voltmeter:component.voltmeter,valueVisible:state.showValues});
+  return markup;
+}
+
+const SOURCE_SHORT_X=507,SOURCE_LONG_X=533;
+function sourceTop(xLeft,xRight,y,meterNumbers){
+  const cx=520,shortX=SOURCE_SHORT_X,longX=SOURCE_LONG_X;
+  let markup='';
+  if(state.totalAmmeter){
+    const ax=245;
+    markup+=line(xLeft,y,ax-27,y)+meter(ax,y,'A',`I${subscript(++meterNumbers.a)}`)+line(ax+27,y,shortX,y);
+  }else markup+=line(xLeft,y,shortX,y);
+  markup+=line(shortX,y-19,shortX,y+19,'symbol')+line(longX,y-31,longX,y+31,'symbol')+line(longX,y,xRight,y);
+  markup+=text(shortX-17,y-31,'−','polarity')+text(longX+18,y-31,'+','polarity');
+  const sourceLabel=withUnit(state.sourceVoltage,'V')+(String(state.sourceLimit).trim()?` / max. ${withUnit(state.sourceLimit,'A')}`:'');
+  if(state.showValues)markup+=text(state.topology==='series'?cx:805,y+69,sourceLabel,'source-label');
+  if(state.sourceVoltmeter){
+    const vy=58,left=cx-53,right=cx+53;
+    markup+=line(left,y,left,vy)+line(left,vy,cx-27,vy)+meter(cx,vy,'V',`U${subscript(++meterNumbers.v)}`)+line(cx+27,vy,right,vy)+line(right,vy,right,y)+node(left,y)+node(right,y);
+  }
+  return markup;
+}
+
+function componentBlocksFlow(component){
+  return component.type==='switch'&&component.switchState==='open'||component.type==='led'&&component.orientation==='right';
+}
+
+function addFlowRoute(points,branch){
+  const length=points.slice(1).reduce((sum,point,index)=>sum+Math.hypot(point[0]-points[index][0],point[1]-points[index][1]),0);
+  const d=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
+  lastGeometry.electronRoutes.push({branch,points,d,length,start:{x:points[0][0],y:points[0][1]},end:{x:points.at(-1)[0],y:points.at(-1)[1]}});
+}
+
+function renderSeries(components,meterNumbers){
+  const xLeft=82,xRight=918,yTop=118,yBottom=575,segment=(xRight-xLeft)/components.length;
+  let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,yBottom)+line(xRight,yTop,xRight,yBottom);
+  components.forEach((component,index)=>{markup+=horizontalElement(xLeft+segment*index,xLeft+segment*(index+1),yBottom,component,meterNumbers,-96);});
+  if(components.every(component=>!componentBlocksFlow(component)))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,yBottom],[xRight,yBottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],0);
+  return markup;
+}
+
+function renderParallel(components,meterNumbers){
+  const xLeft=112,xRight=900,yTop=112;
+  const branchPositions={2:[300,560],3:[235,430,625],4:[205,360,515,670],5:[190,340,490,640,790]};
+  const ys=branchPositions[components.length];
+  const bottom=Math.max(...ys);
+  let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,bottom)+line(xRight,yTop,xRight,bottom);
+  components.forEach((component,index)=>{
+    markup+=horizontalElement(xLeft,xRight,ys[index],component,meterNumbers,-72,95,100)+node(xLeft,ys[index])+node(xRight,ys[index]);
+    if(!componentBlocksFlow(component))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop]],index);
+  });
+  return markup;
+}
+
+function renderMixed(components,meterNumbers){
+  const xLeft=80,xJunction=400,xRight=920,yTop=112;
+  const branches=components.slice(1);
+  const branchPositions={2:[280,540],3:[225,410,595],4:[200,355,510,665]};
+  const ys=branchPositions[branches.length],ySeries=Math.round((ys[0]+ys.at(-1))/2),bottom=ys.at(-1);
+  let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,ySeries)+line(xRight,yTop,xRight,bottom);
+  markup+=horizontalElement(xLeft,xJunction,ySeries,components[0],meterNumbers,-73);
+  markup+=line(xJunction,ys[0],xJunction,bottom);
+  branches.forEach((component,index)=>{markup+=horizontalElement(xJunction,xRight,ys[index],component,meterNumbers,-67,95)+node(xRight,ys[index]);});
+  [...new Set([...ys,ySeries])].forEach(y=>{markup+=node(xJunction,y);});
+  if(!componentBlocksFlow(components[0]))branches.forEach((component,index)=>{
+    if(!componentBlocksFlow(component))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ySeries],[xJunction,ySeries],[xJunction,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop]],index);
+  });
+  return markup;
+}
+
+function prefersReducedMotion(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}
+
+function flowLayer(routes){
+  if(!state.showMotion||!routes.length||prefersReducedMotion())return '';
+  const technicalCurrent=state.flowMode==='current';
+  const dotsPerRoute=routes.length>=4?1:routes.length===3?2:routes.length===2?3:5;
+  const particleClass=technicalCurrent?'flow-particle current':'flow-particle electron';
+  const particles=routes.map((route,routeIndex)=>{
+    const points=technicalCurrent?[...route.points].reverse():route.points;
+    const path=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
+    const duration=Math.max(5,Math.min(12,route.length/135));
+    return Array.from({length:dotsPerRoute},(_,dotIndex)=>{
+      const phase=(dotIndex/dotsPerRoute*duration+routeIndex*.37).toFixed(2);
+      return `<circle class="${particleClass}" r="7"><animateMotion path="${path}" dur="${duration.toFixed(2)}s" begin="-${phase}s" repeatCount="indefinite" calcMode="linear"/></circle>`;
+    }).join('');
+  }).join('');
+  return `<g class="motion-layer" aria-hidden="true">${particles}</g>`;
+}
+
+function feedbackFor(components){
+  const messages=[];
+  const ledPresent=components.some(component=>component.type==='led');
+  const resistorPresent=components.some(component=>component.type==='resistor');
+  const reversedLed=components.some(component=>component.type==='led'&&component.orientation==='right');
+  const openSwitch=components.some(component=>component.type==='switch'&&component.switchState==='open');
+  const vCount=components.filter(component=>component.voltmeter).length+(state.sourceVoltmeter?1:0);
+  const aCount=components.filter(component=>component.ammeter).length+(state.totalAmmeter?1:0);
+  if(ledPresent&&!resistorPresent)messages.push('LED-Hinweis: Im realen Stromkreis braucht eine LED normalerweise eine Strombegrenzung, zum Beispiel einen Vorwiderstand.');
+  if(reversedLed)messages.push('Polungs-Hinweis: Der Pluspol liegt rechts. Eine LED mit Durchlassrichtung nach rechts ist hier in Sperrrichtung eingebaut.');
+  if(openSwitch)messages.push('Der offene Schalter unterbricht den zugehörigen Stromweg.');
+  if(state.showMotion){
+    if(prefersReducedMotion())messages.push('Die Bewegung bleibt wegen der Systemeinstellung „Bewegung reduzieren“ ausgeschaltet.');
+    else if(lastGeometry.electronRoutes.length){
+      messages.push(state.flowMode==='electron'
+        ?'Blaue Punkte zeigen die qualitative Elektronenbewegung vom Minus- zum Pluspol.'
+        :'Rote Punkte zeigen die technische Stromrichtung vom Plus- zum Minuspol.');
+      const expectedRoutes=state.topology==='series'?1:state.topology==='parallel'?components.length:components.length-1;
+      if(lastGeometry.electronRoutes.length<expectedRoutes)messages.push('Unterbrochene oder gesperrte Zweige bleiben ohne Bewegung.');
+    }else messages.push('Es gibt keinen durchgehend leitenden Stromweg; deshalb werden keine bewegten Punkte gezeigt.');
+  }
+  if(vCount||aCount)messages.push(`${vCount?`${vCount} Voltmeter ${vCount===1?'ist':'sind'} parallel angeschlossen`:''}${vCount&&aCount?' · ':''}${aCount?`${aCount} Amperemeter ${aCount===1?'ist':'sind'} in Reihe eingesetzt`:''}.`);
+  if(!messages.length){
+    const count=components.length;
+    messages.push(state.topology==='series'
+      ?`Die Spannungsquelle und ${count===1?'das Bauteil':`${count} Bauteile`} bilden einen geschlossenen Reihenstromkreis.`
+      :state.topology==='parallel'
+        ?`${count} Zweige sind parallel an dieselbe Spannungsquelle angeschlossen.`
+        :`Ein Bauteil liegt in Reihe mit ${count-1} parallel geschalteten Zweigen.`);
+  }
+  return messages.join(' ');
+}
+
+function renderCircuit(){
+  const components=labeledComponents();
+  const viewHeight=state.topology==='parallel'&&components.length===5?900:780;
+  lastGeometry={topology:state.topology,components:[],meters:[],nodes:[],electronRoutes:[],flowMode:state.flowMode,motionVisible:false,viewHeight};
+  const meterNumbers={v:0,a:0};
+  const title=`${topologyNames[state.topology]} mit ${components.length} ${components.length===1?'Bauteil':'Bauteilen'}`;
+  let drawing='';
+  if(state.topology==='series')drawing=renderSeries(components,meterNumbers);
+  else if(state.topology==='parallel')drawing=renderParallel(components,meterNumbers);
+  else drawing=renderMixed(components,meterNumbers);
+  const valueDescription=state.showValues?`Spannungsquelle ${withUnit(state.sourceVoltage,'Volt')}.`:'Bauteilwerte sind ausgeblendet.';
+  const flowDescription=state.showMotion&&lastGeometry.electronRoutes.length&&!prefersReducedMotion()?` ${state.flowMode==='electron'?'Elektronenbewegung':'Technische Stromrichtung'} ist qualitativ eingeblendet.`:'';
+  const description=`Automatisch erzeugtes Schaltbild. ${valueDescription} ${components.map(component=>`${component.label}: ${component.name}`).join(', ')}.${flowDescription}`;
+  const svgStyle=`
+    <style>
+      .wire,.symbol,.meter,.contact,.light-arrow{stroke:#263a38;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+      .symbol{fill:#fff}.meter{fill:#fffdf8}.contact{fill:#fff;stroke-width:3}.node{fill:#263a38}
+      .light-arrow{stroke-width:3}.label,.component-label,.value-label,.source-label,.meter-letter,.meter-label,.polarity{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;fill:#263a38}
+      .component-label{font-size:25px;font-weight:750}.value-label{font-size:19px;fill:#5e6966}.source-label{font-size:22px;font-weight:750}
+      .meter-letter{font-size:28px;font-weight:800}.meter-label{font-family:Georgia,serif;font-size:21px;font-style:italic}.polarity{font-size:23px;font-weight:800}
+      .flow-particle{stroke:#fff;stroke-width:2.5;paint-order:stroke;filter:drop-shadow(0 1px 2px rgba(28,50,48,.24))}.flow-particle.electron{fill:#287ac0}.flow-particle.current{fill:#c9574b}
+    </style>`;
+  const movement=flowLayer(lastGeometry.electronRoutes);
+  lastGeometry.motionVisible=Boolean(movement);
+  $('#circuitSvg').setAttribute('viewBox',`0 0 1000 ${viewHeight}`);
+  $('.diagram-paper').style.aspectRatio=`1000 / ${viewHeight}`;
+  $('#circuitSvg').innerHTML=`<title id="svgTitle">${escapeXml(title)}</title><desc id="svgDescription">${escapeXml(description)}</desc>${svgStyle}<rect width="1000" height="${viewHeight}" fill="#ffffff"/>${drawing}${movement}`;
+  $('#circuitSvg').setAttribute('aria-label',description);
+  const sourceDisplay=withUnit(state.sourceVoltage,'V')||'ohne Spannungsangabe';
+  const valueStatus=state.showValues?` · ${sourceDisplay}`:'';
+  const motionStatus=state.showMotion?` · ${state.flowMode==='electron'?'Elektronen':'technischer Strom'}`:'';
+  $('#statusText').textContent=`${topologyNames[state.topology]} · ${components.length} ${components.length===1?'Bauteil':'Bauteile'}${valueStatus}${motionStatus}`;
+  $('#feedbackText').textContent=feedbackFor(components);
+}
+
+function setTopology(topology){
+  if(!Object.hasOwn(topologyNames,topology))return;
+  state.topology=topology;
+  renderControls();
+  renderCircuit();
+}
+function changeCount(delta){
+  const minimum=topologyMinimum[state.topology];
+  state.counts[state.topology]=Math.max(minimum,Math.min(5,state.counts[state.topology]+delta));
+  renderControls();
+  renderCircuit();
+}
+function reset(){
+  state=deepCopy(initialState);
+  $('#sourceVoltage').value=state.sourceVoltage;
+  $('#sourceLimit').value=state.sourceLimit;
+  $('#sourceVoltmeter').checked=state.sourceVoltmeter;
+  $('#totalAmmeter').checked=state.totalAmmeter;
+  $('#valuesToggle').checked=state.showValues;
+  $('#motionToggle').checked=state.showMotion;
+  renderControls();
+  renderCircuit();
+}
+function svgSource(){
+  const svg=$('#circuitSvg').cloneNode(true);
+  svg.querySelector('.motion-layer')?.remove();
+  const viewHeight=Number(svg.getAttribute('viewBox').trim().split(/\s+/).at(-1))||780;
+  svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+  svg.setAttribute('width','1000');
+  svg.setAttribute('height',String(viewHeight));
+  return `<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(svg)}`;
+}
+function downloadSvg(){
+  const source=svgSource();
+  const blob=new Blob([source],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;link.download='schaltbild.svg';document.body.appendChild(link);link.click();link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+$('#topologyButtons').addEventListener('click',event=>{const button=event.target.closest('[data-topology]');if(button)setTopology(button.dataset.topology);});
+$('#countMinus').addEventListener('click',()=>changeCount(-1));
+$('#countPlus').addEventListener('click',()=>changeCount(1));
+$('#slotList').addEventListener('input',event=>{
+  const target=event.target,index=Number(target.dataset.index),key=target.dataset.key;
+  if(!Number.isInteger(index)||!key)return;
+  if(key==='type')return;
+  state.components[index][key]=target.type==='checkbox'?target.checked:target.value;
+  renderCircuit();
+});
+$('#slotList').addEventListener('change',event=>{
+  const target=event.target,index=Number(target.dataset.index),key=target.dataset.key;
+  if(!Number.isInteger(index)||!key)return;
+  if(key==='type'){
+    const meters={voltmeter:state.components[index].voltmeter,ammeter:state.components[index].ammeter};
+    state.components[index]={...makeComponent(target.value),...meters};
+    renderControls();renderCircuit();
+  }else{
+    state.components[index][key]=target.type==='checkbox'?target.checked:target.value;
+    renderCircuit();
+  }
+});
+$('#sourceVoltage').addEventListener('input',event=>{state.sourceVoltage=event.target.value;renderCircuit();});
+$('#sourceLimit').addEventListener('input',event=>{state.sourceLimit=event.target.value;renderCircuit();});
+$('#sourceVoltmeter').addEventListener('change',event=>{state.sourceVoltmeter=event.target.checked;renderCircuit();});
+$('#totalAmmeter').addEventListener('change',event=>{state.totalAmmeter=event.target.checked;renderCircuit();});
+$('#valuesToggle').addEventListener('change',event=>{state.showValues=event.target.checked;renderCircuit();});
+$('#motionToggle').addEventListener('change',event=>{state.showMotion=event.target.checked;syncDisplayControls();renderCircuit();});
+$('#flowModeButtons').addEventListener('click',event=>{const button=event.target.closest('[data-flow-mode]');if(!button||button.disabled)return;state.flowMode=button.dataset.flowMode;syncDisplayControls();renderCircuit();});
+$('#resetButton').addEventListener('click',reset);
+$('#downloadButton').addEventListener('click',downloadSvg);
+$('#printButton').addEventListener('click',()=>window.print());
+
+window.__circuitWorkshop={
+  getState:()=>deepCopy(state),getGeometry:()=>deepCopy(lastGeometry),setTopology,
+  setComponent:(index,patch)=>{if(index<0||index>4)return false;state.components[index]={...state.components[index],...patch};renderControls();renderCircuit();return true;},
+  setSource:patch=>{state={...state,...patch};$('#sourceVoltage').value=state.sourceVoltage;$('#sourceLimit').value=state.sourceLimit;$('#sourceVoltmeter').checked=state.sourceVoltmeter;$('#totalAmmeter').checked=state.totalAmmeter;syncDisplayControls();renderCircuit();},
+  setCount:(topology,count)=>{if(!Object.hasOwn(topologyMinimum,topology))return false;state.counts[topology]=Math.max(topologyMinimum[topology],Math.min(5,Number(count)||topologyMinimum[topology]));if(state.topology===topology){renderControls();renderCircuit();}return true;},
+  setDisplay:patch=>{state.showValues=patch.showValues??state.showValues;state.showMotion=patch.showMotion??state.showMotion;if(['electron','current'].includes(patch.flowMode))state.flowMode=patch.flowMode;syncDisplayControls();renderCircuit();return true;},
+  render:renderCircuit,getSvgSource:svgSource,reset
+};
+renderControls();renderCircuit();
+window.dispatchEvent(new CustomEvent('circuit-workshop-ready'));
+})();
+</script>
+</body>
+</html>
