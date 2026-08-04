@@ -22,7 +22,7 @@
       link.className = 'student-home';
       link.href = homeHref;
       link.setAttribute('aria-label', 'Zur Übersicht');
-      link.textContent = '⌂ Übersicht';
+      link.textContent = 'Übersicht';
       body.append(link);
     }
 

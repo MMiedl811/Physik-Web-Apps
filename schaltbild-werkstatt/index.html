@@ -96,6 +96,10 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
 .feedback{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;margin:0;padding:13px 17px;border-top:1px solid var(--line);background:#fffaf0}
 .feedback-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#efe3bf;color:#6a511b;font-weight:950}
 .feedback p{margin:0;font-size:.84rem;line-height:1.45}
+.feedback[data-severity="warning"]{background:#fff4dc}
+.feedback[data-severity="warning"] .feedback-icon{background:#e8c76f;color:#5e4613}
+.feedback[data-severity="critical"]{background:#fbe9e5;border-top-color:#deb0a7}
+.feedback[data-severity="critical"] .feedback-icon{background:var(--red);color:#fff}
 .explainer{margin:0;border-top:1px solid var(--line)}
 .explainer summary{min-height:48px;padding:13px 17px;cursor:pointer;font-weight:850}
 .explainer-content{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 17px 16px}
@@ -157,7 +161,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
         <span id="countDescription">Bauteile in Reihe</span>
         <div class="stepper" aria-label="Anzahl der Bauteile">
           <button type="button" id="countMinus" aria-label="Ein Bauteil weniger">−</button>
-          <strong id="countValue">2</strong>
+          <strong id="countValue">1</strong>
           <button type="button" id="countPlus" aria-label="Ein Bauteil mehr">+</button>
         </div>
       </div>
@@ -169,7 +173,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
       <div class="field-grid">
         <div class="field">
           <label for="sourceVoltage">Spannung</label>
-          <div class="input-unit"><input id="sourceVoltage" type="text" inputmode="decimal" value="4,5" aria-label="Spannung der Spannungsquelle"><span>V</span></div>
+          <div class="input-unit"><input id="sourceVoltage" type="text" inputmode="decimal" value="6,3" aria-label="Spannung der Spannungsquelle"><span>V</span></div>
         </div>
         <div class="field">
           <label for="sourceLimit">Strombegrenzung <span class="sr-only">optional</span></label>
@@ -185,7 +189,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
         <label class="motion-toggle full">
           <input id="motionToggle" type="checkbox" role="switch" aria-describedby="motionHint">
           <span class="toggle-track" aria-hidden="true"></span>
-          <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Qualitative Flussrichtung – keine Berechnung der Geschwindigkeit</small></span>
+          <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Punktgeschwindigkeit folgt qualitativ der abgeschätzten Stromstärke</small></span>
         </label>
         <div class="flow-mode full" id="flowModeButtons" role="group" aria-label="Dargestellte Flussrichtung">
           <button type="button" data-flow-mode="electron" aria-pressed="true"><span class="flow-dot" aria-hidden="true"></span>Elektronen</button>
@@ -207,7 +211,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
   <section class="card preview" aria-labelledby="previewTitle">
     <header class="preview-head">
       <div><h2 id="previewTitle">Erzeugtes Schaltbild</h2><p>Die Zeichnung wird bei jeder Auswahl automatisch neu aufgebaut.</p></div>
-      <div class="status-pill" id="statusText" aria-live="polite">Reihenschaltung · 2 Bauteile · 4,5 V</div>
+      <div class="status-pill" id="statusText" aria-live="polite">Reihenschaltung · 1 Bauteil</div>
     </header>
     <div class="diagram-wrap">
       <div class="diagram-paper">
@@ -215,16 +219,16 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
         <span class="prototype-mark">Schaltbild-Werkstatt · Prototyp</span>
       </div>
     </div>
-    <div class="feedback" aria-live="polite">
+    <div class="feedback" data-severity="ok" aria-live="polite">
       <div class="feedback-icon">i</div>
-      <p id="feedbackText">Die Spannungsquelle und zwei Lampen bilden einen geschlossenen Reihenstromkreis.</p>
+      <p id="feedbackText">Die Spannungsquelle und die Lampe bilden einen geschlossenen Reihenstromkreis.</p>
     </div>
     <details class="explainer">
       <summary>Was erzeugt die Werkstatt – und was nicht?</summary>
       <div class="explainer-content">
-        <div><strong>Schaltbild, keine Berechnung</strong>Die Werkstatt ordnet Schaltzeichen und Leitungen. Blaue Punkte zeigen qualitativ die Elektronenbewegung, rote Punkte die technische Stromrichtung – nicht Stromstärke oder Geschwindigkeit.</div>
-        <div><strong>Messgeräte korrekt eingesetzt</strong>Amperemeter liegen in Reihe. Voltmeter werden parallel zu genau dem ausgewählten Bauteil angeschlossen.</div>
-        <div><strong>Werte sind Beschriftungen</strong>Nenn-, Betriebs- und Widerstandswerte werden nur bei aktiviertem Werte-Toggle eingeblendet. Daraus wird kein konstanter Lampen- oder LED-Widerstand behauptet.</div>
+        <div><strong>Plausibilitätsprüfung, keine exakte Simulation</strong>Die Werkstatt warnt bei unpassenden Betriebswerten. Lampen und LEDs sind nicht ohmsch; ihre Nennwerte erlauben deshalb nur eine vereinfachte Abschätzung nahe dem Betriebspunkt.</div>
+        <div><strong>Messgeräte korrekt eingesetzt</strong>Amperemeter liegen in Reihe, Voltmeter parallel zum Messobjekt. U₁ und I₁ bezeichnen Messstellen – die Werkstatt behauptet keine real gemessenen Anzeigen.</div>
+        <div><strong>Bewegung ist qualitativ</strong>Bei gleicher angenommener Leitergeometrie laufen die Punkte bei größerer abgeschätzter Stromstärke schneller. Punktdichte und Tempo sind kein realer Maßstab für Elektronenzahl oder Driftgeschwindigkeit.</div>
       </div>
     </details>
   </section>
@@ -248,11 +252,11 @@ const typeDefinitions={
 };
 const makeComponent=(type='lamp')=>({type,...deepCopy(typeDefinitions[type].defaults),voltmeter:false,ammeter:false});
 const initialState={
-  topology:'series',counts:{series:2,parallel:2,mixed:3},sourceVoltage:'4,5',sourceLimit:'',sourceVoltmeter:false,totalAmmeter:false,showValues:false,showMotion:false,flowMode:'electron',
+  topology:'series',counts:{series:1,parallel:2,mixed:3},sourceVoltage:'6,3',sourceLimit:'',sourceVoltmeter:false,totalAmmeter:false,showValues:false,showMotion:false,flowMode:'electron',
   components:[makeComponent('lamp'),makeComponent('lamp'),makeComponent('resistor'),makeComponent('lamp'),makeComponent('resistor')]
 };
 let state=deepCopy(initialState);
-let lastGeometry={topology:'series',components:[],meters:[],nodes:[],electronRoutes:[],viewHeight:780};
+let lastGeometry={topology:'series',components:[],meters:[],nodes:[],electronRoutes:[],flowDurations:[],operating:null,viewHeight:780};
 
 const topologyNames={series:'Reihenschaltung',parallel:'Parallelschaltung',mixed:'Gemischte Schaltung'};
 const topologyMinimum={series:1,parallel:2,mixed:3};
@@ -340,6 +344,177 @@ function componentValue(component){
   if(component.type==='resistor')return withUnit(component.valueA,'Ω');
   if(component.type==='led')return [withUnit(component.valueA,'V'),withUnit(component.valueB,'mA')].filter(Boolean).join(' / ');
   return component.switchState==='closed'?'geschlossen':'offen';
+}
+
+const severityOrder={ok:0,info:1,warning:2,critical:3};
+const parseQuantity=(value,allowZero=false)=>{
+  const normalized=String(value??'').trim().replace(',','.');
+  if(!normalized)return null;
+  const number=Number(normalized);
+  return Number.isFinite(number)&&(allowZero?number>=0:number>0)?number:null;
+};
+const formatNumber=(value,digits=2)=>new Intl.NumberFormat('de-DE',{maximumFractionDigits:digits}).format(value);
+
+function analyzeCircuit(components){
+  const issues=[],issueKeys=new Set();
+  const addIssue=(severity,text)=>{const key=`${severity}:${text}`;if(!issueKeys.has(key)){issueKeys.add(key);issues.push({severity,text});}};
+  const sourceVoltage=parseQuantity(state.sourceVoltage,true);
+  const limitText=String(state.sourceLimit??'').trim();
+  const sourceLimit=limitText?parseQuantity(limitText):null;
+  const componentCurrents=Array(components.length).fill(null);
+  const componentVoltages=Array(components.length).fill(null);
+  const routeCurrents={};
+  let totalCurrent=null,limitActive=false;
+
+  if(sourceVoltage===null)addIssue('critical','Die Quellenspannung muss eine Zahl größer oder gleich 0 V sein.');
+  if(limitText&&sourceLimit===null)addIssue('critical','Die Strombegrenzung muss eine positive Stromstärke sein.');
+
+  const models=components.map(component=>{
+    if(component.type==='lamp'){
+      const nominalVoltage=parseQuantity(component.valueA),nominalCurrent=parseQuantity(component.valueB);
+      if(nominalVoltage===null||nominalCurrent===null){
+        addIssue('critical',`${component.label}: Nennspannung und Nennstrom müssen positive Zahlen sein.`);
+        return {kind:'invalid',component};
+      }
+      return {kind:'resistive',component,resistance:nominalVoltage/nominalCurrent,nominalVoltage,nominalCurrent,approximate:true};
+    }
+    if(component.type==='resistor'){
+      const resistance=parseQuantity(component.valueA);
+      if(resistance===null){addIssue('critical',`${component.label}: Der Widerstand muss größer als 0 Ω sein.`);return {kind:'invalid',component};}
+      return {kind:'resistive',component,resistance,approximate:false};
+    }
+    if(component.type==='led'){
+      const forwardVoltage=parseQuantity(component.valueA),nominalCurrentMilliamp=parseQuantity(component.valueB);
+      if(forwardVoltage===null||nominalCurrentMilliamp===null){
+        addIssue('critical',`${component.label}: Durchlassspannung und Betriebsstrom müssen positive Zahlen sein.`);
+        return {kind:'invalid',component};
+      }
+      return {kind:component.orientation==='right'?'blocked':'led',component,forwardVoltage,nominalCurrent:nominalCurrentMilliamp/1000};
+    }
+    return {kind:component.switchState==='open'?'open':'closed',component};
+  });
+
+  const capCurrent=rawCurrent=>{
+    if(sourceLimit!==null&&rawCurrent>sourceLimit){
+      limitActive=true;
+      addIssue('warning',`Die Strombegrenzung von ${formatNumber(sourceLimit)} A greift. Die tatsächliche Klemmenspannung wäre dann kleiner als der eingestellte Spannungswert.`);
+      return sourceLimit;
+    }
+    return rawCurrent;
+  };
+
+  if(sourceVoltage!==null&&!models.some(model=>model.kind==='invalid')){
+    if(state.topology==='series'){
+      if(models.some(model=>model.kind==='open'||model.kind==='blocked')){
+        componentCurrents.fill(0);routeCurrents[0]=0;totalCurrent=0;
+      }else{
+        const resistance=models.reduce((sum,model)=>sum+(model.kind==='resistive'?model.resistance:0),0);
+        const forwardVoltage=models.reduce((sum,model)=>sum+(model.kind==='led'?model.forwardVoltage:0),0);
+        const availableVoltage=Math.max(0,sourceVoltage-forwardVoltage);
+        let current=0;
+        if(availableVoltage>0&&resistance===0){
+          if(sourceLimit!==null){
+            current=sourceLimit;limitActive=true;
+            addIssue('warning','Der Strom wird ausschließlich durch die eingestellte Strombegrenzung begrenzt. Ohne sie wäre dieser ideale Stromweg nicht berechenbar.');
+          }else{
+            current=null;
+            addIssue('critical','Der geschlossene Stromweg besitzt keine Strombegrenzung. Das entspricht im Modell einem Kurzschluss beziehungsweise einer ungeschützten LED.');
+          }
+        }else if(resistance>0)current=capCurrent(availableVoltage/resistance);
+        if(current!==null){
+          models.forEach((model,index)=>{
+            componentCurrents[index]=current;
+            componentVoltages[index]=model.kind==='resistive'?current*model.resistance:model.kind==='led'&&current>0?model.forwardVoltage:0;
+          });
+          routeCurrents[0]=current;totalCurrent=current;
+        }
+      }
+    }else if(state.topology==='parallel'){
+      let unsafe=false;
+      models.forEach(model=>{
+        if(model.kind==='closed'){unsafe=true;addIssue('critical',`${model.component.label}: Ein geschlossener Schalter bildet hier einen Kurzschlusszweig parallel zur Quelle.`);}
+        if(model.kind==='led'&&sourceVoltage>model.forwardVoltage){unsafe=true;addIssue('critical',`${model.component.label}: Die LED liegt ohne eigenen Vorwiderstand direkt parallel an der Spannungsquelle; ihr Strom ist nicht sicher bestimmt.`);}
+      });
+      if(unsafe){
+        models.forEach((model,index)=>{if(model.kind==='open'||model.kind==='blocked'||model.kind==='led'&&sourceVoltage<=model.forwardVoltage){componentCurrents[index]=0;routeCurrents[index]=0;}});
+      }else{
+        const rawCurrents=models.map(model=>model.kind==='resistive'?sourceVoltage/model.resistance:0);
+        const rawTotal=rawCurrents.reduce((sum,current)=>sum+current,0);
+        const currentScale=sourceLimit!==null&&rawTotal>sourceLimit?capCurrent(rawTotal)/rawTotal:1;
+        const terminalVoltage=sourceVoltage*currentScale;
+        models.forEach((model,index)=>{
+          const current=model.kind==='resistive'?rawCurrents[index]*currentScale:0;
+          componentCurrents[index]=current;componentVoltages[index]=model.kind==='resistive'?terminalVoltage:null;routeCurrents[index]=current;
+        });
+        totalCurrent=rawTotal*currentScale;
+      }
+    }else{
+      const seriesModel=models[0],branchModels=models.slice(1);
+      if(seriesModel.kind==='open'||seriesModel.kind==='blocked'){
+        componentCurrents.fill(0);branchModels.forEach((_,index)=>{routeCurrents[index]=0;});totalCurrent=0;
+      }else if(branchModels.some(model=>model.kind==='led')){
+        addIssue('critical','Eine LED als eigener Parallelzweig braucht eine eigene Strombegrenzung. Ein gemeinsamer Reihenwiderstand begrenzt die einzelnen LED-Zweigströme nicht zuverlässig.');
+        branchModels.forEach((model,index)=>{if(model.kind==='open'||model.kind==='blocked'){componentCurrents[index+1]=0;routeCurrents[index]=0;}});
+      }else{
+        const activeBranches=branchModels.map((model,index)=>({model,index})).filter(({model})=>model.kind==='resistive'||model.kind==='closed');
+        const shortBranches=activeBranches.filter(({model})=>model.kind==='closed');
+        if(shortBranches.length>1)addIssue('critical','Mehrere ideale Kurzschlusszweige liegen parallel; ihre Stromaufteilung ist ohne Leitungswiderstände nicht bestimmbar.');
+        if(!activeBranches.length){
+          componentCurrents.fill(0);branchModels.forEach((_,index)=>{routeCurrents[index]=0;});totalCurrent=0;
+        }else if(shortBranches.length<=1){
+          const parallelResistance=shortBranches.length?0:1/activeBranches.reduce((sum,{model})=>sum+1/model.resistance,0);
+          const seriesResistance=seriesModel.kind==='resistive'?seriesModel.resistance:0;
+          const forwardVoltage=seriesModel.kind==='led'?seriesModel.forwardVoltage:0;
+          const availableVoltage=Math.max(0,sourceVoltage-forwardVoltage);
+          const totalResistance=seriesResistance+parallelResistance;
+          let current=0;
+          if(availableVoltage>0&&totalResistance===0){
+            if(sourceLimit!==null){current=sourceLimit;limitActive=true;addIssue('warning','Der Strom wird ausschließlich durch die eingestellte Strombegrenzung begrenzt.');}
+            else{current=null;addIssue('critical','Die gemischte Schaltung enthält einen nicht begrenzten Kurzschlussstromweg.');}
+          }else if(totalResistance>0)current=capCurrent(availableVoltage/totalResistance);
+          if(current!==null){
+            componentCurrents[0]=current;
+            componentVoltages[0]=seriesModel.kind==='resistive'?current*seriesResistance:seriesModel.kind==='led'&&current>0?forwardVoltage:0;
+            const parallelVoltage=current*parallelResistance;
+            branchModels.forEach((model,index)=>{
+              let branchCurrent=0;
+              if(shortBranches.length)branchCurrent=model.kind==='closed'?current:0;
+              else if(model.kind==='resistive')branchCurrent=parallelVoltage/model.resistance;
+              componentCurrents[index+1]=branchCurrent;
+              componentVoltages[index+1]=model.kind==='resistive'?parallelVoltage:model.kind==='closed'?0:null;
+              routeCurrents[index]=branchCurrent;
+            });
+            totalCurrent=current;
+          }
+        }
+      }
+    }
+  }
+
+  if(sourceVoltage===0)addIssue('info','Bei 0 V Quellenspannung fließt in diesem Modell kein Strom.');
+  if(totalCurrent===0&&models.some(model=>model.kind==='led')&&!models.some(model=>model.kind==='blocked'))addIssue('info','Die Spannung reicht im vereinfachten LED-Modell nicht für einen Stromfluss in Durchlassrichtung aus.');
+  if(models.some(model=>model.kind==='open'))addIssue('info','Ein offener Schalter unterbricht den zugehörigen Stromweg.');
+  if(models.some(model=>model.kind==='blocked'))addIssue('warning','Eine LED ist in Sperrrichtung eingebaut; der zugehörige Zweig führt im vereinfachten Modell keinen Strom. Reale LEDs vertragen nur eine begrenzte Sperrspannung.');
+  const nonlinearModels=models.filter(model=>model.component.type==='lamp'||model.component.type==='led');
+  const nonlinearSignatures=new Set(nonlinearModels.map(model=>model.component.type==='lamp'?`lamp:${model.nominalVoltage}:${model.nominalCurrent}`:`led:${model.forwardVoltage}:${model.nominalCurrent}`));
+  if(nonlinearModels.length>1&&nonlinearSignatures.size>1&&state.topology!=='parallel')addIssue('warning','Die Spannungsaufteilung an unterschiedlichen Lampen oder LEDs ist aus Nennwerten allein nicht eindeutig bestimmbar. Die Betriebsprüfung verwendet hier nur eine grobe Nennwert-Näherung.');
+  models.forEach((model,index)=>{
+    const current=componentCurrents[index],voltage=componentVoltages[index];
+    if(model.component.type==='lamp'&&current>0&&Number.isFinite(voltage)){
+      const ratio=voltage/model.nominalVoltage;
+      // Didaktische Plausibilitätsschwellen, keine Bauteiltoleranzen oder Lampenkennlinie.
+      if(ratio>1.1)addIssue('critical',`${model.component.label}: ${formatNumber(voltage)} V liegen an einer Lampe mit ${formatNumber(model.nominalVoltage)} V Nennspannung. ${ratio>1.5?'Starke Überspannung':'Überspannung'} – die Lampe würde voraussichtlich durchbrennen. Eine genaue Stromstärke wäre nur mit ihrer Kennlinie bestimmbar.`);
+      else if(ratio<.8)addIssue('info',`${model.component.label}: Die Spannung liegt deutlich unter der Nennspannung; die Lampe leuchtet voraussichtlich schwächer. Eine genaue Stromstärke wäre nur mit ihrer Kennlinie bestimmbar.`);
+    }
+    if(model.kind==='led'&&current>0){
+      const ratio=current/model.nominalCurrent;
+      if(ratio>1.2)addIssue('critical',`${model.component.label}: Der abgeschätzte Strom liegt deutlich über dem angegebenen Betriebsstrom der LED.`);
+      else if(ratio<.5)addIssue('info',`${model.component.label}: Der abgeschätzte Strom liegt deutlich unter dem angegebenen Betriebsstrom.`);
+    }
+  });
+
+  const severity=issues.reduce((result,issue)=>severityOrder[issue.severity]>severityOrder[result]?issue.severity:result,'ok');
+  return {severity,issues,sourceVoltage,sourceLimit,limitActive,totalCurrent,componentCurrents,componentVoltages,routeCurrents,usesLampApproximation:models.some(model=>model.approximate)};
 }
 
 function componentSymbol(left,right,y,component){
@@ -460,43 +635,44 @@ function renderMixed(components,meterNumbers){
 
 function prefersReducedMotion(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}
 
-function flowLayer(routes){
+function flowLayer(routes,operating){
   if(!state.showMotion||!routes.length||prefersReducedMotion())return '';
   const technicalCurrent=state.flowMode==='current';
-  const dotsPerRoute=routes.length>=4?1:routes.length===3?2:routes.length===2?3:5;
+  const activeRoutes=routes.map(route=>({route,current:operating.routeCurrents[route.branch]})).filter(({current})=>Number.isFinite(current)&&current>0);
+  if(!activeRoutes.length)return '';
   const particleClass=technicalCurrent?'flow-particle current':'flow-particle electron';
-  const particles=routes.map((route,routeIndex)=>{
+  const particles=activeRoutes.map(({route,current},routeIndex)=>{
     const points=technicalCurrent?[...route.points].reverse():route.points;
     const path=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
-    const duration=Math.max(5,Math.min(12,route.length/135));
-    return Array.from({length:dotsPerRoute},(_,dotIndex)=>{
-      const phase=(dotIndex/dotsPerRoute*duration+routeIndex*.37).toFixed(2);
-      return `<circle class="${particleClass}" r="7"><animateMotion path="${path}" dur="${duration.toFixed(2)}s" begin="-${phase}s" repeatCount="indefinite" calcMode="linear"/></circle>`;
+    const baseDuration=route.length/200;
+    // Die Punktzahl hängt nur von der Weglänge ab; allein das Tempo folgt gedämpft der Stromabschätzung.
+    const speedFactor=Math.max(.35,Math.min(3,Math.sqrt(current/.3)));
+    const duration=Math.max(2.5,Math.min(24,baseDuration/speedFactor));
+    const dotsForRoute=Math.max(2,Math.min(5,Math.round(route.length/420)));
+    lastGeometry.flowDurations.push({branch:route.branch,current,duration});
+    return Array.from({length:dotsForRoute},(_,dotIndex)=>{
+      const phase=(dotIndex/dotsForRoute*duration+routeIndex*.37).toFixed(2);
+      return `<circle class="${particleClass}" r="7" data-current="${current.toFixed(6)}"><animateMotion path="${path}" dur="${duration.toFixed(2)}s" begin="-${phase}s" repeatCount="indefinite" calcMode="linear"/></circle>`;
     }).join('');
   }).join('');
   return `<g class="motion-layer" aria-hidden="true">${particles}</g>`;
 }
 
-function feedbackFor(components){
-  const messages=[];
-  const ledPresent=components.some(component=>component.type==='led');
-  const resistorPresent=components.some(component=>component.type==='resistor');
-  const reversedLed=components.some(component=>component.type==='led'&&component.orientation==='right');
-  const openSwitch=components.some(component=>component.type==='switch'&&component.switchState==='open');
+function feedbackFor(components,operating){
+  const messages=operating.issues.map(issue=>issue.text);
   const vCount=components.filter(component=>component.voltmeter).length+(state.sourceVoltmeter?1:0);
   const aCount=components.filter(component=>component.ammeter).length+(state.totalAmmeter?1:0);
-  if(ledPresent&&!resistorPresent)messages.push('LED-Hinweis: Im realen Stromkreis braucht eine LED normalerweise eine Strombegrenzung, zum Beispiel einen Vorwiderstand.');
-  if(reversedLed)messages.push('Polungs-Hinweis: Der Pluspol liegt rechts. Eine LED mit Durchlassrichtung nach rechts ist hier in Sperrrichtung eingebaut.');
-  if(openSwitch)messages.push('Der offene Schalter unterbricht den zugehörigen Stromweg.');
   if(state.showMotion){
     if(prefersReducedMotion())messages.push('Die Bewegung bleibt wegen der Systemeinstellung „Bewegung reduzieren“ ausgeschaltet.');
-    else if(lastGeometry.electronRoutes.length){
+    else if(lastGeometry.motionVisible){
       messages.push(state.flowMode==='electron'
-        ?'Blaue Punkte zeigen die qualitative Elektronenbewegung vom Minus- zum Pluspol.'
+        ?'Blaue Punkte zeigen die Elektronenbewegung vom Minus- zum Pluspol.'
         :'Rote Punkte zeigen die technische Stromrichtung vom Plus- zum Minuspol.');
-      const expectedRoutes=state.topology==='series'?1:state.topology==='parallel'?components.length:components.length-1;
-      if(lastGeometry.electronRoutes.length<expectedRoutes)messages.push('Unterbrochene oder gesperrte Zweige bleiben ohne Bewegung.');
-    }else messages.push('Es gibt keinen durchgehend leitenden Stromweg; deshalb werden keine bewegten Punkte gezeigt.');
+      messages.push('Bei gleicher angenommener Leitergeometrie steigt die Punktgeschwindigkeit qualitativ mit der abgeschätzten Stromstärke; die Zahl der Punkte wird dafür nicht verändert.');
+      if(operating.usesLampApproximation)messages.push('Für Lampen ist das nur eine Nennwert-Näherung, keine exakte Kennlinienberechnung.');
+      if(operating.issues.some(issue=>issue.severity==='critical'&&/durchbrennen|Betriebsstrom/.test(issue.text)))messages.push('Die schnelle Bewegung steht nur für den momentanen Modellstrom vor einem möglichen Bauteildefekt, nicht für einen dauerhaften Betrieb.');
+    }else if(operating.totalCurrent===0)messages.push('Die abgeschätzte Stromstärke ist 0 A; deshalb werden keine bewegten Punkte gezeigt.');
+    else messages.push('Die Stromstärke ist mit den gewählten Angaben nicht sicher bestimmbar; deshalb wird keine Bewegung vorgetäuscht.');
   }
   if(vCount||aCount)messages.push(`${vCount?`${vCount} Voltmeter ${vCount===1?'ist':'sind'} parallel angeschlossen`:''}${vCount&&aCount?' · ':''}${aCount?`${aCount} Amperemeter ${aCount===1?'ist':'sind'} in Reihe eingesetzt`:''}.`);
   if(!messages.length){
@@ -507,22 +683,26 @@ function feedbackFor(components){
         ?`${count} Zweige sind parallel an dieselbe Spannungsquelle angeschlossen.`
         :`Ein Bauteil liegt in Reihe mit ${count-1} parallel geschalteten Zweigen.`);
   }
-  return messages.join(' ');
+  return {severity:operating.severity,text:messages.join(' ')};
 }
 
 function renderCircuit(){
   const components=labeledComponents();
+  const operating=analyzeCircuit(components);
   const viewHeight=state.topology==='parallel'&&components.length===5?900:780;
-  lastGeometry={topology:state.topology,components:[],meters:[],nodes:[],electronRoutes:[],flowMode:state.flowMode,motionVisible:false,viewHeight};
+  lastGeometry={topology:state.topology,components:[],meters:[],nodes:[],electronRoutes:[],flowDurations:[],flowMode:state.flowMode,motionVisible:false,operating,viewHeight};
   const meterNumbers={v:0,a:0};
   const title=`${topologyNames[state.topology]} mit ${components.length} ${components.length===1?'Bauteil':'Bauteilen'}`;
   let drawing='';
   if(state.topology==='series')drawing=renderSeries(components,meterNumbers);
   else if(state.topology==='parallel')drawing=renderParallel(components,meterNumbers);
   else drawing=renderMixed(components,meterNumbers);
+  const movement=flowLayer(lastGeometry.electronRoutes,operating);
+  lastGeometry.motionVisible=Boolean(movement);
   const valueDescription=state.showValues?`Spannungsquelle ${withUnit(state.sourceVoltage,'Volt')}.`:'Bauteilwerte sind ausgeblendet.';
-  const flowDescription=state.showMotion&&lastGeometry.electronRoutes.length&&!prefersReducedMotion()?` ${state.flowMode==='electron'?'Elektronenbewegung':'Technische Stromrichtung'} ist qualitativ eingeblendet.`:'';
-  const description=`Automatisch erzeugtes Schaltbild. ${valueDescription} ${components.map(component=>`${component.label}: ${component.name}`).join(', ')}.${flowDescription}`;
+  const flowDescription=lastGeometry.motionVisible?` ${state.flowMode==='electron'?'Elektronenbewegung':'Technische Stromrichtung'} ist stromabhängig qualitativ eingeblendet.`:'';
+  const warningDescription=operating.severity==='critical'?' Die gewählten Betriebswerte enthalten eine kritische Fachwarnung.':'';
+  const description=`Automatisch erzeugtes Schaltbild. ${valueDescription} ${components.map(component=>`${component.label}: ${component.name}`).join(', ')}.${flowDescription}${warningDescription}`;
   const svgStyle=`
     <style>
       .wire,.symbol,.meter,.contact,.light-arrow{stroke:#263a38;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
@@ -532,8 +712,6 @@ function renderCircuit(){
       .meter-letter{font-size:28px;font-weight:800}.meter-label{font-family:Georgia,serif;font-size:21px;font-style:italic}.polarity{font-size:23px;font-weight:800}
       .flow-particle{stroke:#fff;stroke-width:2.5;paint-order:stroke;filter:drop-shadow(0 1px 2px rgba(28,50,48,.24))}.flow-particle.electron{fill:#287ac0}.flow-particle.current{fill:#c9574b}
     </style>`;
-  const movement=flowLayer(lastGeometry.electronRoutes);
-  lastGeometry.motionVisible=Boolean(movement);
   $('#circuitSvg').setAttribute('viewBox',`0 0 1000 ${viewHeight}`);
   $('.diagram-paper').style.aspectRatio=`1000 / ${viewHeight}`;
   $('#circuitSvg').innerHTML=`<title id="svgTitle">${escapeXml(title)}</title><desc id="svgDescription">${escapeXml(description)}</desc>${svgStyle}<rect width="1000" height="${viewHeight}" fill="#ffffff"/>${drawing}${movement}`;
@@ -541,8 +719,12 @@ function renderCircuit(){
   const sourceDisplay=withUnit(state.sourceVoltage,'V')||'ohne Spannungsangabe';
   const valueStatus=state.showValues?` · ${sourceDisplay}`:'';
   const motionStatus=state.showMotion?` · ${state.flowMode==='electron'?'Elektronen':'technischer Strom'}`:'';
-  $('#statusText').textContent=`${topologyNames[state.topology]} · ${components.length} ${components.length===1?'Bauteil':'Bauteile'}${valueStatus}${motionStatus}`;
-  $('#feedbackText').textContent=feedbackFor(components);
+  const warningStatus=operating.severity==='critical'?' · Werte prüfen':'';
+  $('#statusText').textContent=`${topologyNames[state.topology]} · ${components.length} ${components.length===1?'Bauteil':'Bauteile'}${valueStatus}${motionStatus}${warningStatus}`;
+  const feedback=feedbackFor(components,operating);
+  $('.feedback').dataset.severity=feedback.severity;
+  $('.feedback-icon').textContent=['warning','critical'].includes(feedback.severity)?'!':'i';
+  $('#feedbackText').textContent=feedback.text;
 }
 
 function setTopology(topology){
@@ -620,7 +802,7 @@ $('#downloadButton').addEventListener('click',downloadSvg);
 $('#printButton').addEventListener('click',()=>window.print());
 
 window.__circuitWorkshop={
-  getState:()=>deepCopy(state),getGeometry:()=>deepCopy(lastGeometry),setTopology,
+  getState:()=>deepCopy(state),getGeometry:()=>deepCopy(lastGeometry),getOperatingPoint:()=>deepCopy(lastGeometry.operating),setTopology,
   setComponent:(index,patch)=>{if(index<0||index>4)return false;state.components[index]={...state.components[index],...patch};renderControls();renderCircuit();return true;},
   setSource:patch=>{state={...state,...patch};$('#sourceVoltage').value=state.sourceVoltage;$('#sourceLimit').value=state.sourceLimit;$('#sourceVoltmeter').checked=state.sourceVoltmeter;$('#totalAmmeter').checked=state.totalAmmeter;syncDisplayControls();renderCircuit();},
   setCount:(topology,count)=>{if(!Object.hasOwn(topologyMinimum,topology))return false;state.counts[topology]=Math.max(topologyMinimum[topology],Math.min(5,Number(count)||topologyMinimum[topology]));if(state.topology===topology){renderControls();renderCircuit();}return true;},
