@@ -115,12 +115,21 @@
         }
         .section-head h2 { margin: 0; font-size: 1.1rem; letter-spacing: -.02em; }
         .section-head span { color: var(--muted); font-size: .82rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+        #app-grid { display: grid; gap: clamp(34px, 5vw, 56px); }
+        .topic-section { min-width: 0; }
+        .topic-head { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 14px; }
+        .topic-kicker { display: block; margin-bottom: 5px; color: var(--petrol); font-size: .7rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+        .topic-head h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -.035em; }
+        .topic-range { color: var(--muted); font-size: .78rem; font-weight: 760; white-space: nowrap; }
+        .grade-grid { display: grid; grid-template-columns: repeat(5, minmax(178px, 1fr)); gap: 12px; padding: 2px 1px 10px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; scrollbar-color: var(--line) transparent; }
+        .grade-column { min-width: 0; scroll-snap-align: start; }
+        .grade-label { margin: 0 0 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .73rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
+        .grade-cards { display: grid; gap: 12px; }
         .card {
             position: relative;
-            min-height: 216px;
+            min-height: 180px;
             overflow: hidden;
-            padding: 22px;
+            padding: 18px;
             border: 1px solid var(--line);
             border-radius: 22px;
             background: rgba(255, 253, 248, .95);
@@ -143,21 +152,21 @@
         .card:focus-visible { outline: 3px solid rgba(15, 118, 110, .34); outline-offset: 4px; }
         .card-icon {
             display: grid;
-            width: 52px;
-            height: 52px;
+            width: 46px;
+            height: 46px;
             place-items: center;
-            margin-bottom: 42px;
+            margin-bottom: 27px;
             border: 1px solid var(--line);
             border-radius: 16px;
             background: var(--surface-soft);
-            font-size: 1.75rem;
+            font-size: 1.5rem;
         }
-        .card-title { max-width: 220px; font-size: 1.12rem; font-weight: 800; line-height: 1.27; letter-spacing: -.015em; }
-        .card-meta { max-width: 230px; margin-top: 8px; color: var(--muted); font-size: .8rem; line-height: 1.4; }
+        .card-title { max-width: 190px; overflow-wrap: anywhere; hyphens: auto; font-size: 1.03rem; font-weight: 800; line-height: 1.27; letter-spacing: -.015em; }
+        .card-meta { max-width: 190px; margin-top: 7px; color: var(--muted); font-size: .76rem; line-height: 1.4; }
         .arrow {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 16px;
+            right: 16px;
             display: grid;
             width: 38px;
             height: 38px;
@@ -168,16 +177,20 @@
             color: var(--petrol);
             font-size: 1.1rem;
         }
+        .status-work { position: absolute; top: 18px; right: 61px; padding: 5px 8px; border: 1px solid #8f1d16; border-radius: 999px; background: #b42318; color: #fff; font-size: .65rem; font-weight: 900; letter-spacing: .045em; line-height: 1; text-transform: uppercase; }
         footer { padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
         @media (max-width: 760px) {
             header { grid-template-columns: 1fr; align-items: start; }
             .hero-note { max-width: 620px; }
         }
+        @media (max-width: 900px) { .topic-range { white-space: normal; } .topic-range::after { content: " · horizontal wischen"; } }
         @media (max-width: 560px) {
             body { padding: 16px; }
             header { padding-top: 48px; }
             .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
-            .card { min-height: 190px; }
+            .topic-head { align-items: flex-start; flex-direction: column; gap: 3px; }
+            .grade-grid { margin-right: -16px; padding-right: 16px; }
+            .card { min-height: 176px; }
         }
         @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
     </style>
@@ -199,23 +212,64 @@
             </div>
         </header>
 
-        <div class="section-head"><h2>Anwendungen</h2><span>Simulationen · Werkzeuge · Quiz</span></div>
-        <main class="grid" id="app-grid" aria-label="Physik-Anwendungen">
-            <a class="card" href="Quizzes/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta">Klasse 8 · 48 Fragen, Diagramme und Duellmodus</div></a>
-            <a class="card" href="magnetfeld-labor/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Magnetfeld-Labor</div><div class="card-meta">Sekundarstufe I · Feldlinien, Kompass und magnetische Influenz</div></a>
-            <a class="card" href="schaltbild-werkstatt/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔌</div><div class="card-title">Schaltbild-Werkstatt</div><div class="card-meta">Sekundarstufe I · Reihen-, Parallel- und gemischte Schaltungen mit Messgeräten erstellen</div></a>
-            <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta">Klasse 8–9 · Geschwindigkeitsvektoren addieren</div></a>
-            <a class="card" href="vektor-labor/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta">Klasse 8–12 · Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
-            <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta">Sekundarstufe I · Energieübertragungen deuten</div></a>
-            <a class="card" href="energie-runner/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta">Klasse 9 · Energieumwandlungen im Jump-and-Run</div></a>
-            <a class="card" href="freier-fall-energie/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta">Klasse 9 · Energieerhaltung mit und ohne Luftwiderstand</div></a>
-            <a class="card" href="mechanische-leistung/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪜</div><div class="card-title">Treppen-Leistungslabor</div><div class="card-meta">Klasse 9 · Höhenenergie, Leistung und P-t-Fläche</div></a>
-            <a class="card" href="kondensator-pendel/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta">Klasse 12 · Feldenergie als Fläche im U-Q-Diagramm</div></a>
-            <a class="card" href="impuls/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta">Sekundarstufe I · Impuls als Vektor</div></a>
-            <a class="card" href="impulsdiagramm/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta">Sekundarstufe I · Impuls und Energie vergleichen</div></a>
-            <a class="card" href="diagramme/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta">Klasse 8–10 · Diagramme lesen und verknüpfen</div></a>
-            <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta">Klasse 10–11 · Teilbewegungen überlagern</div></a>
-            <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta">Klasse 10–12 · Feder- und Fadenpendel</div></a>
+        <div class="section-head"><h2>Nach Themenbereichen</h2><span>Innerhalb jedes Bereichs: Klasse 8 → Klasse 12</span></div>
+        <main id="app-grid" aria-label="Physik-Anwendungen nach Themenbereich und Klassenstufe">
+            <section class="topic-section" id="topic-mechanik" aria-labelledby="mechanik-title">
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="mechanik-title">Mechanik</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
+                <div class="grade-grid" aria-label="Mechanik-Anwendungen nach Klassenstufe">
+                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards">
+                        <a class="card" href="Quizzes/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta">Klasse 8 · 48 Fragen, Diagramme und Duellmodus</div></a>
+                        <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta">Klasse 8 · Geschwindigkeitsvektoren addieren</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards">
+                        <a class="card" href="energie-runner/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta">Klasse 9 · Energieumwandlungen im Jump-and-Run</div></a>
+                        <a class="card" href="mechanische-leistung/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪜</div><div class="card-title">Treppen-Leistungslabor</div><div class="card-meta">Klasse 9 · Höhenenergie, Leistung und P-t-Fläche</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards">
+                        <a class="card" href="freier-fall-energie/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta">Klasse 10 · Energieerhaltung mit und ohne Luftwiderstand</div></a>
+                        <a class="card" href="impuls/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta">Klasse 10 · Impuls als Vektor</div></a>
+                        <a class="card" href="impulsdiagramm/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta">Klasse 10 · Impuls und Energie vergleichen</div></a>
+                        <a class="card" href="diagramme/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta">Klasse 10 · Diagramme lesen und verknüpfen</div></a>
+                        <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta">Klasse 10 · Teilbewegungen überlagern</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards">
+                        <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta">Klasse 11 · Feder- und Fadenpendel</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards">
+                        <a class="card" href="vektor-labor/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta">Klasse 8–12 · Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
+                    </div></div>
+                </div>
+            </section>
+
+            <section class="topic-section" id="topic-elektrodynamik" aria-labelledby="elektrodynamik-title">
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="elektrodynamik-title">Elektrodynamik</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
+                <div class="grade-grid" aria-label="Elektrodynamik-Anwendungen nach Klassenstufe">
+                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards">
+                        <a class="card" href="schaltbild-werkstatt/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔌</div><div class="card-title">Schaltbild-Werkstatt</div><div class="card-meta">Klasse 8 · Reihen-, Parallel- und gemischte Schaltungen mit Messgeräten erstellen</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards"></div></div>
+                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards">
+                        <a class="card" href="magnetfeld-labor/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Magnetfeld-Labor</div><div class="card-meta">Klasse 10 · Feldlinien, Kompass und magnetische Influenz</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards"></div></div>
+                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards">
+                        <a class="card" href="kondensator-pendel/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta">Klasse 12 · Feldenergie als Fläche im U-Q-Diagramm</div></a>
+                    </div></div>
+                </div>
+            </section>
+
+            <section class="topic-section" id="topic-atomphysik" aria-labelledby="atomphysik-title">
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="atomphysik-title">Atomphysik</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
+                <div class="grade-grid" aria-label="Atomphysik-Anwendungen nach Klassenstufe">
+                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards"></div></div>
+                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards">
+                        <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta">Klasse 9 · Energieübertragungen deuten</div></a>
+                    </div></div>
+                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards"></div></div>
+                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards"></div></div>
+                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards"></div></div>
+                </div>
+            </section>
         </main>
 
         <footer>&copy; <span id="year"></span> · Physik-Web-Apps</footer>

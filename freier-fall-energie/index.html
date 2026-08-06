@@ -77,7 +77,7 @@
       gap: 14px;
       align-items: stretch;
     }
-    .scene-card, .energy-card, .model-card {
+    .scene-card, .energy-card, .motion-card, .model-card {
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background: rgba(255, 253, 248, .96);
@@ -174,8 +174,18 @@
       font-weight: 800;
     }
 
-    .energy-card { display: flex; min-width: 0; flex-direction: column; padding: 14px; }
-    .energy-card h2 { margin: 0; font-size: 1.05rem; }
+    .energy-card { min-width: 0; overflow: hidden; }
+    .energy-card summary, .motion-card summary, .model-card summary {
+      display: flex;
+      min-height: 48px;
+      align-items: center;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 850;
+    }
+    .energy-card summary { font-size: 1.05rem; }
+    .energy-card[open] summary, .motion-card[open] summary { border-bottom: 1px solid var(--line); }
+    .energy-content { display: flex; min-height: 474px; flex-direction: column; padding: 0 14px 14px; }
     .energy-intro { margin: 5px 0 10px; color: var(--muted); font-size: .78rem; line-height: 1.38; }
     .energy-scale {
       position: relative;
@@ -243,17 +253,31 @@
     }
     .observation strong { color: var(--violet); }
 
-    .model-card { margin-top: 10px; padding: 11px 14px; }
-    .model-card summary { display: flex; min-height: 44px; align-items: center; cursor: pointer; font-weight: 850; }
-    .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+    .motion-card, .model-card { margin-top: 10px; overflow: hidden; }
+    .motion-content { padding: 12px 14px 15px; }
+    .motion-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 11px; }
+    .motion-explanation { margin: 0; color: var(--muted); font-size: .78rem; line-height: 1.42; }
+    .position-switch { display: grid; min-width: min(360px, 100%); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface-soft); }
+    .position-switch .mode-button { min-height: 48px; }
+    .motion-values { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 11px; }
+    .motion-value { min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-soft); }
+    .motion-value span { display: block; margin-bottom: 3px; color: var(--muted); font-size: .68rem; font-weight: 800; }
+    .motion-value strong { display: block; overflow-wrap: anywhere; color: var(--petrol-dark); font-size: clamp(.9rem, 2vw, 1.08rem); }
+    .diagram-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .diagram-panel { min-width: 0; padding: 8px; border: 1px solid var(--line); border-radius: 14px; background: #fffdf8; }
+    .diagram-panel h3 { margin: 0 0 2px; font-size: .82rem; }
+    .diagram-panel p { margin: 0 0 5px; color: var(--muted); font-size: .68rem; }
+    .motion-canvas { display: block; width: 100%; height: 220px; }
+    .model-card { padding-bottom: 11px; }
+    .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 14px 0; }
     .formula-box { padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); font-size: .8rem; line-height: 1.42; }
     .formula-box strong { display: block; margin-bottom: 5px; color: var(--petrol-dark); }
     .formula-box math { font-size: 1rem; }
-    .model-note { margin: 10px 0 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+    .model-note { margin: 10px 14px 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
 
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
-      .energy-card { min-height: 510px; }
+      .energy-card[open] { min-height: 510px; }
     }
     @media (max-width: 680px) {
       .page { padding: 8px; }
@@ -262,6 +286,11 @@
       .top-actions .button { flex: 1; }
       .canvas-wrap { height: 430px; }
       .controls-strip { grid-template-columns: 1fr; }
+      .motion-toolbar { align-items: stretch; flex-direction: column; }
+      .position-switch { min-width: 0; }
+      .motion-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .diagram-grid { grid-template-columns: 1fr; }
+      .motion-canvas { height: 205px; }
       .model-grid { grid-template-columns: 1fr; }
       .status-message { width: 100%; margin-left: 0; }
     }
@@ -272,14 +301,15 @@
       .canvas-wrap { height: 410px; }
       .status-row { min-height: 43px; padding: 6px 9px; }
       .controls-strip { padding: 7px 9px; }
-      .energy-card { min-height: 0; padding: 10px; }
+      .energy-card[open] { min-height: 0; }
+      .energy-content { min-height: 0; padding: 0 10px 10px; }
       .energy-intro { display: none; }
       .energy-scale { min-height: 280px; padding-top: 20px; }
       .energy-column { height: 238px; }
       .energy-label { min-height: 42px; }
       .balance-box, .observation { margin-top: 6px; padding: 7px 8px; }
       .observation { min-height: 54px; }
-      .model-card { margin-top: 8px; padding: 9px 13px; }
+      .motion-card, .model-card { margin-top: 8px; }
     }
     @media (prefers-reduced-motion: reduce) { .energy-fill { transition: none; } }
   </style>
@@ -327,10 +357,11 @@
         </div>
       </section>
 
-      <aside class="energy-card" aria-label="Energieanzeigen">
-        <h2>Energieformen</h2>
-        <p class="energy-intro">Alle Balken nutzen dieselbe Skala. „Gesamt“ ist eine schraffierte Referenz und keine zusätzliche Energieform.</p>
-        <div class="energy-scale">
+      <details class="energy-card" open>
+        <summary>Energiediagramme</summary>
+        <div class="energy-content" aria-label="Energieanzeigen">
+          <p class="energy-intro">Alle Balken nutzen dieselbe Skala. „Gesamt“ ist eine schraffierte Referenz und keine zusätzliche Energieform.</p>
+          <div class="energy-scale">
           <span class="scale-label">235,44 kJ</span>
           <div class="energy-item energy-item--total">
             <div class="energy-column"><div class="energy-value" id="total-value">235,44 kJ</div><div class="energy-fill" id="total-fill"></div></div>
@@ -348,15 +379,40 @@
             <div class="energy-column"><div class="energy-value" id="thermal-value">0,00 kJ</div><div class="energy-fill" id="thermal-fill"></div></div>
             <div class="energy-label">Energie der Luft<br>(im System)<span></span></div>
           </div>
-        </div>
-        <div class="balance-box">
+          </div>
+          <div class="balance-box">
           <div class="balance-row"><span>Mechanische Energie</span><strong id="mechanical-value">235,44 kJ</strong></div>
           <div class="balance-row"><span>System: Runner + Erde + Luft</span><strong id="system-value">235,44 kJ</strong></div>
           <div class="balance-row"><span>Energiegleichung</span><strong class="balance-ok" id="balance-error">geschlossen</strong></div>
+          </div>
+          <div class="observation" id="observation"><strong>Beobachtung:</strong> Ohne Luftwiderstand bleibt die mechanische Energie erhalten.</div>
         </div>
-        <div class="observation" id="observation"><strong>Beobachtung:</strong> Ohne Luftwiderstand bleibt die mechanische Energie erhalten.</div>
-      </aside>
+      </details>
     </main>
+
+    <details class="motion-card" open>
+      <summary>Bewegungsdiagramme</summary>
+      <div class="motion-content">
+        <div class="motion-toolbar">
+          <p class="motion-explanation">Der farbige Kurvenabschnitt und die Punkte laufen exakt mit der Fallanimation mit. Die helle Kurve zeigt den weiteren Verlauf bis zum Boden.</p>
+          <div class="position-switch" role="group" aria-label="Größe im Ortsdiagramm wählen">
+            <button class="mode-button" id="height-position" type="button" aria-pressed="true">Höhe y</button>
+            <button class="mode-button" id="distance-position" type="button" aria-pressed="false">Fallstrecke Δy</button>
+          </div>
+        </div>
+        <div class="motion-values" aria-label="Aktuelle Werte der Bewegungsdiagramme">
+          <div class="motion-value"><span>Zeit t</span><strong id="motion-time">0,00 s</strong></div>
+          <div class="motion-value"><span id="position-value-label">Höhe y</span><strong id="position-value">400,0 m</strong></div>
+          <div class="motion-value"><span>Geschwindigkeitsbetrag |v|</span><strong id="motion-speed">0,0 m/s</strong></div>
+          <div class="motion-value"><span>Beschleunigungsbetrag |a|</span><strong id="motion-acceleration">9,81 m/s²</strong></div>
+        </div>
+        <div class="diagram-grid">
+          <section class="diagram-panel"><h3 id="position-chart-title">Höhe–Zeit</h3><p id="position-chart-note">y startet bei 400 m und nimmt ab.</p><canvas class="motion-canvas" id="position-chart" aria-label="Höhe-Zeit-Diagramm mit synchronem Messpunkt"></canvas></section>
+          <section class="diagram-panel"><h3>Geschwindigkeit–Zeit</h3><p>Gezeigt wird der Betrag |v|.</p><canvas class="motion-canvas" id="speed-chart" aria-label="Geschwindigkeit-Zeit-Diagramm mit synchronem Messpunkt"></canvas></section>
+          <section class="diagram-panel"><h3>Beschleunigung–Zeit</h3><p>Gezeigt wird der Betrag |a|.</p><canvas class="motion-canvas" id="acceleration-chart" aria-label="Beschleunigung-Zeit-Diagramm mit synchronem Messpunkt"></canvas></section>
+        </div>
+      </div>
+    </details>
 
     <details class="model-card">
       <summary>Physikalisches Modell und Grenzen</summary>
@@ -412,7 +468,19 @@
         mechanical: document.getElementById('mechanical-value'),
         system: document.getElementById('system-value'),
         balance: document.getElementById('balance-error'),
-        observation: document.getElementById('observation')
+        observation: document.getElementById('observation'),
+        heightPosition: document.getElementById('height-position'),
+        distancePosition: document.getElementById('distance-position'),
+        motionTime: document.getElementById('motion-time'),
+        positionValueLabel: document.getElementById('position-value-label'),
+        positionValue: document.getElementById('position-value'),
+        motionSpeed: document.getElementById('motion-speed'),
+        motionAcceleration: document.getElementById('motion-acceleration'),
+        positionChartTitle: document.getElementById('position-chart-title'),
+        positionChartNote: document.getElementById('position-chart-note'),
+        positionChart: document.getElementById('position-chart'),
+        speedChart: document.getElementById('speed-chart'),
+        accelerationChart: document.getElementById('acceleration-chart')
       };
 
       const state = {
@@ -420,6 +488,7 @@
         simTime: 0,
         playing: false,
         landed: false,
+        positionMode: 'height',
         timeScale: CONFIG.defaultTimeScale,
         lastFrame: performance.now()
       };
@@ -477,6 +546,20 @@
         dom.height.textContent = `${number.format(model.height)} m`;
         dom.speed.textContent = `${number.format(model.speed)} m/s`;
         dom.acceleration.textContent = `${model.acceleration.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m/s²`;
+        dom.motionTime.textContent = `${model.time.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} s`;
+        dom.positionValueLabel.textContent = state.positionMode === 'height' ? 'Höhe y' : 'Fallstrecke Δy';
+        dom.positionValue.textContent = `${number.format(state.positionMode === 'height' ? model.height : model.distance)} m`;
+        dom.motionSpeed.textContent = `${number.format(model.speed)} m/s`;
+        dom.motionAcceleration.textContent = `${model.acceleration.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m/s²`;
+        dom.positionChartTitle.textContent = state.positionMode === 'height' ? 'Höhe–Zeit' : 'Fallstrecke–Zeit';
+        dom.positionChartNote.textContent = state.positionMode === 'height'
+          ? 'y startet bei 400 m und nimmt ab.'
+          : 'Δy startet bei 0 m und nimmt zu.';
+        dom.positionChart.setAttribute('aria-label', state.positionMode === 'height'
+          ? 'Höhe-Zeit-Diagramm mit synchronem Messpunkt'
+          : 'Fallstrecke-Zeit-Diagramm mit synchronem Messpunkt');
+        dom.heightPosition.setAttribute('aria-pressed', String(state.positionMode === 'height'));
+        dom.distancePosition.setAttribute('aria-pressed', String(state.positionMode === 'distance'));
         dom.totalValue.textContent = formatKJ(model.total);
         dom.potentialValue.textContent = formatKJ(model.potential);
         dom.kineticValue.textContent = formatKJ(model.kinetic);
@@ -518,6 +601,128 @@
         }
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         ctx.imageSmoothingEnabled = false;
+      }
+
+      function resizeMotionCanvas(target) {
+        const rect = target.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.max(1, Math.round(rect.width * dpr));
+        const height = Math.max(1, Math.round(rect.height * dpr));
+        if (target.width !== width || target.height !== height) {
+          target.width = width;
+          target.height = height;
+        }
+        const chartContext = target.getContext('2d');
+        chartContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+        return { context: chartContext, width: rect.width, height: rect.height };
+      }
+
+      function niceMaximum(value, step) { return Math.max(step, Math.ceil(value / step) * step); }
+      function chartValue(kind, model) {
+        if (kind === 'position') return state.positionMode === 'height' ? model.height : model.distance;
+        if (kind === 'speed') return model.speed;
+        return model.acceleration;
+      }
+
+      function drawMotionChart(target, kind, currentModel) {
+        const { context: chartContext, width, height } = resizeMotionCanvas(target);
+        if (width < 10 || height < 10) return;
+        const margin = { left: 48, right: 12, top: 16, bottom: 34 };
+        const plotWidth = width - margin.left - margin.right;
+        const plotHeight = height - margin.top - margin.bottom;
+        const endTime = currentModel.impactTime;
+        const endModel = sample(currentModel.mode, endTime);
+        const yMaximum = kind === 'position' ? CONFIG.startHeight : (kind === 'speed' ? niceMaximum(endModel.speed * 1.08, 10) : 10);
+        const xAt = time => margin.left + time / endTime * plotWidth;
+        const yAt = value => margin.top + (1 - clamp(value / yMaximum, 0, 1)) * plotHeight;
+        const formatTick = value => Number.isInteger(value) ? String(value) : value.toFixed(1).replace('.', ',');
+
+        chartContext.clearRect(0, 0, width, height);
+        chartContext.fillStyle = '#fffdf8';
+        chartContext.fillRect(0, 0, width, height);
+        chartContext.font = '700 10px ui-sans-serif, system-ui, sans-serif';
+        chartContext.textBaseline = 'middle';
+        for (let index = 0; index <= 2; index += 1) {
+          const value = yMaximum * index / 2;
+          const y = yAt(value);
+          chartContext.strokeStyle = 'rgba(37,51,47,.12)';
+          chartContext.lineWidth = 1;
+          chartContext.beginPath();
+          chartContext.moveTo(margin.left, y);
+          chartContext.lineTo(width - margin.right, y);
+          chartContext.stroke();
+          chartContext.fillStyle = '#68716d';
+          chartContext.textAlign = 'right';
+          chartContext.fillText(formatTick(value), margin.left - 7, y);
+        }
+        for (let index = 0; index <= 2; index += 1) {
+          const time = endTime * index / 2;
+          const x = xAt(time);
+          chartContext.strokeStyle = 'rgba(37,51,47,.10)';
+          chartContext.beginPath();
+          chartContext.moveTo(x, margin.top);
+          chartContext.lineTo(x, height - margin.bottom);
+          chartContext.stroke();
+          chartContext.fillStyle = '#68716d';
+          chartContext.textAlign = index === 0 ? 'left' : (index === 2 ? 'right' : 'center');
+          chartContext.fillText(time.toFixed(1).replace('.', ','), x, height - 18);
+        }
+        chartContext.strokeStyle = '#68716d';
+        chartContext.lineWidth = 1.4;
+        chartContext.beginPath();
+        chartContext.moveTo(margin.left, margin.top);
+        chartContext.lineTo(margin.left, height - margin.bottom);
+        chartContext.lineTo(width - margin.right, height - margin.bottom);
+        chartContext.stroke();
+        chartContext.fillStyle = '#25332f';
+        chartContext.textAlign = 'left';
+        const unit = kind === 'position' ? 'm' : (kind === 'speed' ? 'm/s' : 'm/s²');
+        chartContext.fillText(unit, margin.left + 5, margin.top + 7);
+        chartContext.textAlign = 'right';
+        chartContext.fillText('t in s', width - margin.right, height - 5);
+
+        function strokeCurve(until, color, lineWidth) {
+          const segments = 120;
+          chartContext.strokeStyle = color;
+          chartContext.lineWidth = lineWidth;
+          chartContext.lineJoin = 'round';
+          chartContext.lineCap = 'round';
+          chartContext.beginPath();
+          for (let index = 0; index <= segments; index += 1) {
+            const time = until * index / segments;
+            const x = xAt(time);
+            const y = yAt(chartValue(kind, sample(currentModel.mode, time)));
+            if (index === 0) chartContext.moveTo(x, y); else chartContext.lineTo(x, y);
+          }
+          chartContext.stroke();
+        }
+        strokeCurve(endTime, 'rgba(15,118,110,.22)', 3);
+        if (currentModel.time > 0) strokeCurve(currentModel.time, '#0f766e', 3.2);
+
+        const currentX = xAt(currentModel.time);
+        const currentY = yAt(chartValue(kind, currentModel));
+        chartContext.save();
+        chartContext.setLineDash([4, 4]);
+        chartContext.strokeStyle = 'rgba(185,100,79,.65)';
+        chartContext.lineWidth = 1.4;
+        chartContext.beginPath();
+        chartContext.moveTo(currentX, margin.top);
+        chartContext.lineTo(currentX, height - margin.bottom);
+        chartContext.stroke();
+        chartContext.restore();
+        chartContext.fillStyle = '#b9644f';
+        chartContext.beginPath();
+        chartContext.arc(currentX, currentY, 5, 0, Math.PI * 2);
+        chartContext.fill();
+        chartContext.strokeStyle = '#fffdf8';
+        chartContext.lineWidth = 2;
+        chartContext.stroke();
+      }
+
+      function drawMotionCharts(model = sample()) {
+        drawMotionChart(dom.positionChart, 'position', model);
+        drawMotionChart(dom.speedChart, 'speed', model);
+        drawMotionChart(dom.accelerationChart, 'acceleration', model);
       }
 
       const clouds = Object.freeze([
@@ -642,6 +847,7 @@
           ctx.font = '800 11px ui-monospace, SFMono-Regular, Menlo, monospace';
           ctx.fillText('TEMPO FAST KONSTANT', 24, 77);
         }
+        drawMotionCharts(model);
       }
 
       function reset({ play = false } = {}) {
@@ -683,12 +889,25 @@
       dom.ideal.addEventListener('click', () => setMode('ideal', { play: true }));
       dom.drag.addEventListener('click', () => setMode('drag', { play: true }));
       dom.timeScale.addEventListener('change', () => { state.timeScale = Number(dom.timeScale.value) || CONFIG.defaultTimeScale; });
+      dom.heightPosition.addEventListener('click', () => {
+        state.positionMode = 'height';
+        updateUI();
+        drawMotionCharts();
+      });
+      dom.distancePosition.addEventListener('click', () => {
+        state.positionMode = 'distance';
+        updateUI();
+        drawMotionCharts();
+      });
       document.addEventListener('click', event => {
         if (event.target.closest('.student-intro-ok')) setTimeout(() => { state.playing = true; state.lastFrame = performance.now(); updateUI(); }, 0);
       });
 
       const resizeObserver = new ResizeObserver(() => draw());
       resizeObserver.observe(canvas);
+      resizeObserver.observe(dom.positionChart);
+      resizeObserver.observe(dom.speedChart);
+      resizeObserver.observe(dom.accelerationChart);
       window.addEventListener('resize', () => draw());
 
       function loop(now) {
