@@ -24,6 +24,7 @@
 @media(max-height:900px) and (min-width:961px) and (max-width:1100px){.observation-section .observation{display:none}}
 input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-slider-thumb{width:30px;height:30px}.btn.danger{color:#8f3f35;border-color:rgba(189,93,77,.45);background:#fff8f5}.btn.danger:hover{border-color:var(--north)!important;background:#fff1ec}
 .line-density{margin-top:7px;padding:7px 9px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.line-density label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.76rem}.line-density input{width:100%;margin:3px 0 0}.line-density small{display:block;margin-top:1px;color:var(--muted);font-size:.66rem}@media(max-height:900px) and (min-width:961px){.line-density{display:grid;grid-template-columns:118px minmax(0,1fr);align-items:center;gap:7px;margin-top:4px;padding:4px 7px}.line-density label{display:block}.line-density small{display:none}.line-density input{margin:0}}
+.space-settings{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0}.space-settings label{display:grid;gap:4px;font-size:.76rem;font-weight:800}.space-settings select{width:100%;padding:0 10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}.space-density{padding:7px 9px;border:1px solid var(--line);border-radius:12px;background:var(--card2)}.space-density label{display:flex;justify-content:space-between;align-items:center}.space-density input{width:100%;margin:2px 0 0}
 </style>
 </head>
 <body data-physik-app="magnetfeld-labor" data-student-home="../" data-student-title="Magnetfeld-Labor" data-student-summary="Du untersuchst Magnetfelder mit Kompass, Eisenfeilspänen und Feldlinien und vergleichst verschiedene Magnetanordnungen." data-student-controls="Verschiebe Magnete und Materialien direkt auf dem Feldtisch. Tippe auf eine freie Stelle, um dort mit dem Kompass zu messen.">
@@ -48,10 +49,10 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
     </div>
   </section>
   <section class="card stage-card" id="view3d" role="tabpanel" aria-labelledby="view3dBtn" hidden>
-    <div class="stage-head"><strong>Raumansicht eines Stabmagneten</strong><span>ideales räumliches Dipolfeld</span></div>
+    <div class="stage-head"><strong id="spaceTitle">Raumansicht eines Stabmagneten</strong><span id="spaceSubtitle">qualitatives räumliches Feldmodell</span></div>
     <div class="canvas-wrap">
       <canvas id="spaceCanvas" role="application" tabindex="0" aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight + -" aria-label="Interaktive dreidimensionale Ansicht geschlossener Magnetfeldlinien. Pfeiltasten drehen, Plus und Minus zoomen."></canvas>
-      <div class="stage-badge">Ziehen: drehen · Feldlinien liegen in vielen Ebenen</div>
+      <div class="stage-badge" id="spaceBadge">Ziehen: drehen · Projektionen können sich kreuzen · Randlinien laufen weiter</div>
       <div class="legend"><span><i class="dot n"></i>N</span><span><i class="dot s"></i>S</span></div>
       <div class="space-controls"><button class="btn" id="zoomOutBtn" type="button" aria-label="Verkleinern">−</button><button class="btn" id="spaceResetBtn" type="button">Ansicht</button><button class="btn" id="zoomInBtn" type="button" aria-label="Vergrößern">+</button></div>
     </div>
@@ -97,12 +98,16 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
       <div class="readout"><span>Feld am Kompass</span><strong id="fieldRead">mittel</strong><span>Richtung</span><strong id="directionRead">0°</strong></div>
     </section>
     <section class="card panel-section full only-3d" hidden>
-      <h2>Warum eine Raumansicht?</h2>
+      <h2>Räumlichen Aufbau untersuchen</h2>
       <div class="space-copy">
-        <p>Die 2D-Zeichnung ist nur ein Schnitt. In Wirklichkeit verlaufen geschlossene Feldlinien in vielen Ebenen um den Magneten.</p>
+        <p>Die 2D-Zeichnung ist nur ein Schnitt. Die Raumansicht zeigt ausgewählte Feldlinien in unterschiedlichen Ebenen.</p>
+        <div class="space-settings">
+          <label for="spaceModelSelect">3D-Modell<select id="spaceModelSelect"><option value="single">Einzelner Stabmagnet</option><option value="opposite">Zwei Magnete · N–S</option><option value="like">Zwei Magnete · N–N</option><option value="horse">Hufeisenmagnet</option><option value="iron">Stabmagnet + Weicheisen</option></select></label>
+          <div class="space-density"><label for="spaceDensityInput">Gezeichnete Raumlinien <strong id="spaceDensityRead">24</strong></label><input id="spaceDensityInput" type="range" min="12" max="48" step="12" value="24"></div>
+        </div>
         <label class="check"><input id="autoRotateToggle" type="checkbox" checked>Ansicht langsam drehen</label>
-        <div class="observation">Beobachte, wie jede räumliche Linie außerhalb des Magneten vom Nordpol zum Südpol führt und sich im Magneten wieder schließt.</div>
-        <p><strong>Modell:</strong> ergänzende Idealansicht eines einzelnen Stabmagneten. Sie übernimmt den frei zusammengestellten 2D-Aufbau bewusst nicht. Form und Abstand der gezeichneten Linien sind keine Messwerte.</p>
+        <div class="observation" id="spaceObservation">Außerhalb des Stabmagneten verlaufen die Linien vom Nordpol zum Südpol. Der Rückweg im Magnetkörper ist verdeckt.</div>
+        <p id="spaceModelNote"><strong>Modell:</strong> qualitative, reproduzierbare Raumansicht. Projektionsschnitte auf dem Bildschirm sind keine Schnittpunkte der räumlichen Feldlinien.</p>
       </div>
     </section>
   </aside>
@@ -110,8 +115,8 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
 <details class="card model">
   <summary>Physikmodell, Fachbegriffe und Modellgrenzen</summary>
   <div class="model-grid">
-    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B ∝ [3(m · r̂)r̂ − m] / r³</div><p>Stab- und Hufeisenmagnet werden aus kleinen magnetischen Dipolen zusammengesetzt. Die Beiträge aller Dipole werden überlagert; Kompassnadeln richten sich tangential zum resultierenden Feld aus. Beim Stabmagneten werden Feldlinien schrittweise in dieser Richtung verfolgt. Beim Hufeisenmagneten zeigen geordnete Linienfamilien den breiten Luftspalt bewusst als qualitative Schulbuchdarstellung.</p><ul><li>Das Magnetfeld reicht theoretisch beliebig weit. Linien am Bildrand werden außerhalb des sichtbaren Ausschnitts weiterberechnet und können später wieder in das Bild eintreten.</li><li>Die gezeichneten Linien sind nur eine Auswahl: Auch zwischen ihnen existiert ein Feld.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht; außerhalb zeigen sie von N nach S, im Magneten zurück von S nach N.</li><li>Bei mehreren Magneten kann sich das Feld an einzelnen Punkten durch Überlagerung zu B = 0 aufheben.</li><li>Die Feldfläche zeigt Feldstärke nur qualitativ. Der Slider verändert ausschließlich die Anzahl gezeichneter Modelllinien, nicht das Magnetfeld.</li></ul></div>
-    <div><h3>Ferromagnetische Stoffe</h3><p>Weicheisen wird als Gitter induzierter Dipole modelliert. Sie richten sich iterativ im vorhandenen Feld aus und verändern es dadurch. Die sichtbaren Zellen und Elementarmagnete deuten schematisch ähnlich ausgerichtete Weißsche Bezirke an; reale Bezirke sind weder regelmäßig noch so groß. Aluminium und Holz beeinflussen das statische Feld in diesem Schulmodell nicht sichtbar.</p><p><strong>Modellgrenze:</strong> Die App ist qualitativ. Sie berechnet keine realen Tesla-Werte, Kräfte, Hysterese, Sättigung, Wirbelströme oder exakten Materialkennlinien. Das Weicheisenmodell ersetzt keine Finite-Elemente-Rechnung. Eisenfeilspäne und Feldlinien sind Modellbilder – keine materiellen Fäden.</p><p><strong>Fachliche Orientierung:</strong> LEIFIphysik zu Magnetfeld und Feldlinien, OpenStax zu Magnetismus in Materie sowie die explorative Darstellungslogik der PhET-Simulationen.</p></div>
+    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B = Σ Bᵢ</div><p>Der Stabmagnet wird aus kleinen magnetischen Dipolen zusammengesetzt. Beim Hufeisenmagneten wird die Außenwirkung der verteilten, gegenüberliegenden Polflächen angenähert; diese mathematischen Flächenelemente sind keine isolierten magnetischen Monopole. Die Beiträge werden überlagert. Kompassnadeln und alle sichtbaren Feldlinien folgen demselben resultierenden Feld.</p><ul><li>Das Magnetfeld reicht theoretisch beliebig weit. Linien am Bildrand werden außerhalb des sichtbaren Ausschnitts weiterberechnet und können später wieder in das Bild eintreten.</li><li>Die gezeichneten Linien sind nur eine Auswahl: Auch zwischen ihnen existiert ein Feld.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht; außerhalb zeigen sie von N nach S, im Magneten zurück von S nach N.</li><li>Bei mehreren Magneten kann sich das Feld an einzelnen Punkten durch Überlagerung zu B = 0 aufheben.</li><li>Die Feldfläche zeigt Feldstärke nur qualitativ. Der Slider verändert ausschließlich die Anzahl gezeichneter Modelllinien, nicht das Magnetfeld.</li></ul></div>
+    <div><h3>Ferromagnetische Stoffe</h3><p>Weicheisen wird als Gitter induzierter Dipole modelliert. Sie richten sich iterativ im vorhandenen Feld aus und verändern es dadurch. Innerhalb des Körpers wird die Richtung der gezeichneten Linien glatt an die gemittelte induzierte Magnetisierung angenähert. Die sichtbaren Zellen und Elementarmagnete deuten schematisch ähnlich ausgerichtete Weißsche Bezirke an; reale Bezirke sind weder regelmäßig noch so groß. Aluminium und Holz beeinflussen das statische Feld in diesem Schulmodell nicht sichtbar.</p><p><strong>Modellgrenze:</strong> Die App ist qualitativ. Sie berechnet keine realen Tesla-Werte, Kräfte, Hysterese, Sättigung, Wirbelströme oder exakten Materialkennlinien. Das Weicheisenmodell ersetzt keine Finite-Elemente-Rechnung. Eisenfeilspäne und Feldlinien sind Modellbilder – keine materiellen Fäden.</p><p><strong>Fachliche Orientierung:</strong> LEIFIphysik zu Magnetfeld und Feldlinien, OpenStax zu Magnetismus in Materie sowie die explorative Darstellungslogik der PhET-Simulationen.</p></div>
   </div>
 </details>
 </main>
@@ -127,7 +132,7 @@ const els={
   view2d:$('#view2d'),view3d:$('#view3d'),view2dBtn:$('#view2dBtn'),view3dBtn:$('#view3dBtn'),reset:$('#resetBtn'),
   selectionName:$('#selectionName'),selectionHint:$('#selectionHint'),strengthField:$('#strengthField'),materialField:$('#materialField'),strength:$('#strengthInput'),strengthRead:$('#strengthRead'),materialType:$('#materialType'),lineDensity:$('#lineDensityInput'),lineDensityRead:$('#lineDensityRead'),
   rotateLeft:$('#rotateLeftBtn'),rotateRight:$('#rotateRightBtn'),flip:$('#flipBtn'),remove:$('#deleteBtn'),observation:$('#observation'),fieldRead:$('#fieldRead'),directionRead:$('#directionRead'),
-  compass:$('#compassToggle'),needles:$('#needlesToggle'),filings:$('#filingsToggle'),lines:$('#fieldLinesToggle'),heat:$('#heatToggle'),inside:$('#insideToggle'),autoRotate:$('#autoRotateToggle')
+  compass:$('#compassToggle'),needles:$('#needlesToggle'),filings:$('#filingsToggle'),lines:$('#fieldLinesToggle'),heat:$('#heatToggle'),inside:$('#insideToggle'),autoRotate:$('#autoRotateToggle'),spaceModel:$('#spaceModelSelect'),spaceDensity:$('#spaceDensityInput'),spaceDensityRead:$('#spaceDensityRead'),spaceTitle:$('#spaceTitle'),spaceSubtitle:$('#spaceSubtitle'),spaceObservation:$('#spaceObservation'),spaceModelNote:$('#spaceModelNote')
 };
 const colors={ink:'#213936',muted:'#68736f',petrol:'#0f766e',north:'#bd5d4d',south:'#4678a2',iron:'#697571',amber:'#d49a38'};
 const NULL_FIELD_EPS=1e-6;
@@ -137,7 +142,7 @@ const state={
   view:'2d',magnets:[],materials:[],selected:null,compass:{x:.58,y:.28},
   layers:{compass:true,needles:false,filings:false,lines:true,heat:true,inside:true},
   sources:[],fieldLines:[],traceEndings:{},lineDensity:32,preset:'single',drag:null,filingPhase:1,
-  camera:{yaw:.65,pitch:-.32,zoom:1,auto:!reducedMotion,drag:null},lastTime:performance.now()
+  camera:{yaw:.65,pitch:-.32,zoom:.76,auto:!reducedMotion,drag:null},spaceModel:'single',spaceDensity:24,spaceData:null,lastTime:performance.now()
 };
 let idCounter=1,renderQueued=false;
 function objectId(prefix){return `${prefix}-${idCounter++}`;}
@@ -167,10 +172,10 @@ function permanentSources(){
         out.push({x:p.x,y:p.y,mx:m.x,my:m.y,soft:.028,owner:o.id,permanent:true});
       }
     }else{
-      const cells=[
-        [-.2,-.18,0,-.36],[-.2,-.06,0,-.36],[-.2,.06,0,-.36],[-.16,.215,-1,0],[-.08,.215,-1,0],[0,.215,-1,0],[.08,.215,-1,0],[.16,.215,-1,0],[.2,.06,0,.36],[.2,-.06,0,.36],[.2,-.18,0,.36]
-      ];
-      for(const [lx,ly,mx,my] of cells){const p=localToWorld(o,lx,ly),m=rotate(mx*o.strength/8,my*o.strength/8,o.angle);out.push({x:p.x,y:p.y,mx:m.x,my:m.y,soft:.025,owner:o.id,permanent:true});}
+      for(let i=0;i<9;i++){
+        const y=HORSE_BOTTOM+.04+i*(HORSE_BRIDGE_Y-HORSE_BOTTOM-.08)/8,weight=(i===0||i===8)?.65:1,n=localToWorld(o,-HORSE_INNER_X-.012,y),s=localToWorld(o,HORSE_INNER_X+.012,y),q=.0045*o.strength*weight;
+        out.push({x:n.x,y:n.y,q,soft:.032,owner:o.id,permanent:true},{x:s.x,y:s.y,q:-q,soft:.032,owner:o.id,permanent:true});
+      }
     }
   }
   return out;
@@ -192,7 +197,9 @@ function fieldFromSources(x,y,sources,skipCell=null){
   let bx=0,by=0;
   for(const s of sources){
     if(skipCell&&s.cell===skipCell)continue;
-    const dx=x-s.x,dy=y-s.y,r2=dx*dx+dy*dy+s.soft*s.soft,invR3=1/(r2*Math.sqrt(r2)),dot=s.mx*dx+s.my*dy,f=3*dot/r2;
+    const dx=x-s.x,dy=y-s.y,r2=dx*dx+dy*dy+s.soft*s.soft,invR3=1/(r2*Math.sqrt(r2));
+    if(Number.isFinite(s.q)){bx+=s.q*dx*invR3;by+=s.q*dy*invR3;continue;}
+    const dot=s.mx*dx+s.my*dy,f=3*dot/r2;
     bx+=(f*dx-s.mx)*invR3;by+=(f*dy-s.my)*invR3;
   }
   return{x:bx,y:by,mag:Math.hypot(bx,by)};
@@ -209,22 +216,19 @@ function computeSources(){
   return[...permanent,...induced];
 }
 function fieldAt(x,y){return fieldFromSources(x,y,state.sources);}
-function symmetricOffsets(count,min,max){
-  const half=Math.max(1,Math.floor(count/2)),values=[];
-  for(let i=0;i<half;i++){const u=half===1?1:i/(half-1),v=min+(max-min)*u;values.push(-v,v);}
-  return values.sort((a,b)=>a-b).slice(0,count);
-}
 function fieldSeeds(o){
   const seeds=[],total=state.lineDensity;
   if(o.kind==='bar'){
-    const axialCount=Math.max(4,Math.round(total/8)*2),sideCount=axialCount,archCount=total-axialCount-sideCount,sideEach=sideCount/2;
-    for(const d of symmetricOffsets(axialCount,.012,.034))seeds.push({point:localToWorld(o,.255,d),family:'axial'});
-    for(const d of symmetricOffsets(archCount,.038,.14))seeds.push({point:localToWorld(o,.255,d),family:'arch'});
-    for(let i=0;i<sideEach;i++){const u=(i+.5)/sideEach,x=-.17+.34*u;seeds.push({point:localToWorld(o,x,.112),family:'side'},{point:localToWorld(o,x,-.112),family:'side'});}
+    const half=total/2,multiple=state.magnets.length>1,ironCandidates=!multiple&&state.materials.some(m=>m.material==='softIron'),parameters=Array.from({length:half},(_,i)=>(i+.5)/half);
+    if(ironCandidates)for(let i=half-2;i>=0;i--)parameters.push((i+1)/half);
+    for(const u of parameters){
+      if(multiple){const offset=.012+.14*Math.pow(u,.92),family=offset<.04?'axial':offset<.105?'arch':'wide';seeds.push({point:localToWorld(o,.255,offset),family},{point:localToWorld(o,.255,-offset),family});}
+      else{const height=u<.72?.105+.56*Math.pow(u/.72,1.18):.69*Math.exp(Math.log(3.1)*(u-.72)/.28),family=height<.23?'close':height<.72?'medium':'far';seeds.push({point:localToWorld(o,0,height),family},{point:localToWorld(o,0,-height),family});}
+    }
   }else{
     const gapCount=Math.round(total*.56/2)*2,outerEach=(total-gapCount)/2;
-    for(let i=0;i<gapCount;i++)seeds.push({owner:o,index:i,count:gapCount,family:'gap'});
-    for(let i=0;i<outerEach;i++){seeds.push({owner:o,index:i,count:outerEach,family:'outerTop'});seeds.push({owner:o,index:i,count:outerEach,family:'outerBottom'});}
+    for(let i=0;i<gapCount;i++){const u=(i+.5)/gapCount,y=HORSE_BOTTOM+.035+(HORSE_BRIDGE_Y-HORSE_BOTTOM-.07)*u;seeds.push({point:localToWorld(o,0,y),family:'gap'});}
+    for(let i=0;i<outerEach;i++){const u=(i+.5)/outerEach,height=.34+.72*Math.pow(u,1.25);seeds.push({point:localToWorld(o,0,height),family:'outerTop'},{point:localToWorld(o,0,-height),family:'outerBottom'});}
   }
   return seeds;
 }
@@ -240,41 +244,35 @@ function insidePermanent(x,y){
   return false;
 }
 function softIronAt(x,y){for(const o of state.materials){if(o.material!=='softIron')continue;const p=worldToLocal(o,x,y);if(Math.abs(p.x)<.215&&Math.abs(p.y)<.075)return o;}return null;}
-function traceFieldAt(x,y){const iron=softIronAt(x,y);if(!iron)return fieldAt(x,y);let bx=0,by=0;for(const s of state.sources)if(!s.permanent&&s.owner===iron.id){bx+=s.mx;by+=s.my;}const mag=Math.hypot(bx,by);return mag>NULL_FIELD_EPS?{x:bx,y:by,mag}:fieldAt(x,y);}
+function traceFieldAt(x,y){
+  const total=fieldAt(x,y),iron=softIronAt(x,y);if(!iron||total.mag<NULL_FIELD_EPS)return total;
+  let bx=0,by=0;for(const s of state.sources)if(!s.permanent&&s.owner===iron.id){bx+=s.mx;by+=s.my;}
+  const inducedMag=Math.hypot(bx,by);if(inducedMag<NULL_FIELD_EPS)return total;
+  const p=worldToLocal(iron,x,y),depth=Math.min(.215-Math.abs(p.x),.075-Math.abs(p.y)),q=clamp(depth/.024,0,1),blend=q*q*(3-2*q),tx=total.x/total.mag,ty=total.y/total.mag,ix=bx/inducedMag,iy=by/inducedMag,dx=(1-blend)*tx+blend*ix,dy=(1-blend)*ty+blend*iy,mag=Math.hypot(dx,dy);
+  return{x:dx/mag*total.mag,y:dy/mag*total.mag,mag:total.mag};
+}
 const TRACE_LIMIT=80;
+function traceUnit(x,y,direction){const b=traceFieldAt(x,y);if(!Number.isFinite(b.mag)||b.mag<NULL_FIELD_EPS)return null;return{x:direction*b.x/b.mag,y:direction*b.y/b.mag};}
 function traceBranch(seed,direction){
   const pts=[{x:seed.x,y:seed.y}],visited=new Map();let x=seed.x,y=seed.y,end='max',leftView=false;
-  for(let i=0;i<6000;i++){
-    const radius=Math.hypot(x,y),step=.012*(1+Math.min(16,radius*.7));
-    const b1=traceFieldAt(x,y);if(!Number.isFinite(b1.mag)){end='invalid';break;}if(b1.mag<NULL_FIELD_EPS){end='null';break;}
-    const ux=direction*b1.x/b1.mag,uy=direction*b1.y/b1.mag,mx=x+ux*step*.5,my=y+uy*step*.5,b2=traceFieldAt(mx,my),u2x=direction*b2.x/(b2.mag||1),u2y=direction*b2.y/(b2.mag||1);
-    x+=u2x*step;y+=u2y*step;pts.push({x,y});
+  for(let i=0;i<12000;i++){
+    const radius=Math.hypot(x,y),step=.006*(1+Math.min(6,Math.max(0,radius-.8)*.8)),k1=traceUnit(x,y,direction);if(!k1){const b=traceFieldAt(x,y);end=Number.isFinite(b.mag)?'null':'invalid';break;}
+    const k2=traceUnit(x+k1.x*step*.5,y+k1.y*step*.5,direction),k3=k2&&traceUnit(x+k2.x*step*.5,y+k2.y*step*.5,direction),k4=k3&&traceUnit(x+k3.x*step,y+k3.y*step,direction);if(!k2||!k3||!k4){end='null';break;}
+    const ux=(k1.x+2*k2.x+2*k3.x+k4.x)/6,uy=(k1.y+2*k2.y+2*k3.y+k4.y)/6;x+=ux*step;y+=uy*step;pts.push({x,y});
     if(Math.abs(x)>1.4||Math.abs(y)>1.7)leftView=true;
     if(Math.abs(x)>TRACE_LIMIT||Math.abs(y)>TRACE_LIMIT){end='far-limit';break;}
     if(i>1&&insidePermanent(x,y)){end='magnet';break;}
-    if(i%4===0&&radius<2.5){const key=`${Math.round(x/.018)},${Math.round(y/.018)}`,prev=visited.get(key);if(prev&&i-prev.i>40&&u2x*prev.ux+u2y*prev.uy>.86){pts.push({x:prev.x,y:prev.y});end='loop';break;}visited.set(key,{i,x,y,ux:u2x,uy:u2y});}
+    if(i%6===0&&radius<2.5){const key=`${Math.round(x/.014)},${Math.round(y/.014)}`,prev=visited.get(key);if(prev&&i-prev.i>70&&ux*prev.ux+uy*prev.uy>.9){pts.push({x:prev.x,y:prev.y});end='loop';break;}visited.set(key,{i,x,y,ux,uy});}
   }
   return{points:pts,end,leftView};
 }
 function fullTraceLine(spec){
-  if(spec.family==='gap')return horseGapLine(spec);
-  if(spec.family==='outerTop'||spec.family==='outerBottom')return horseOutsideLine(spec);
   const backward=traceBranch(spec.point,-1),forward=traceBranch(spec.point,1),complete=backward.end==='magnet'&&forward.end==='magnet';
   return{points:[...backward.points].reverse().slice(0,-1).concat(forward.points),end:complete?'magnet':`${backward.end}/${forward.end}`,leftView:backward.leftView||forward.leftView,family:spec.family};
 }
-function horseGapLine(spec){
-  const u=(spec.index+.5)/spec.count,y=HORSE_BOTTOM+.045+(HORSE_BRIDGE_Y-HORSE_BOTTOM-.075)*u,bow=.022*y/.22,points=[];
-  for(let i=0;i<=72;i++){const t=i/72,p={x:-HORSE_INNER_X+(2*HORSE_INNER_X)*t,y:y+4*bow*t*(1-t)};points.push(localToWorld(spec.owner,p.x,p.y));}
-  return{points,end:'magnet',leftView:false,family:'gap'};
-}
-function horseOutsideLine(spec){
-  const u=(spec.index+.5)/spec.count,top=spec.family==='outerTop',startY=top?.07+.055*u:-.07-.1*u,reach=.11+.2*u,controlY=top?HORSE_TOP+reach:HORSE_BOTTOM-reach,start={x:-HORSE_OUTER_X,y:startY},end={x:HORSE_OUTER_X,y:startY},c1={x:-.39-reach,y:controlY},c2={x:.39+reach,y:controlY},points=[];
-  for(let i=0;i<=120;i++){const t=i/120,v=1-t,p={x:v**3*start.x+3*v*v*t*c1.x+3*v*t*t*c2.x+t**3*end.x,y:v**3*start.y+3*v*v*t*c1.y+3*v*t*t*c2.y+t**3*end.y};points.push(localToWorld(spec.owner,p.x,p.y));}
-  return{points,end:'magnet',leftView:points.some(p=>Math.abs(p.x)>1.4||Math.abs(p.y)>1.7),family:spec.family};
-}
 function computeFieldLines(){
   const lines=[],endings={};
-  for(const o of state.magnets)for(const spec of fieldSeeds(o)){const line=fullTraceLine(spec);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&line.end==='magnet')lines.push(line);}
+  for(const o of state.magnets){let accepted=0;for(const spec of fieldSeeds(o)){const line=fullTraceLine(spec);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&line.end==='magnet'){lines.push(line);accepted++;if(accepted>=state.lineDensity)break;}}}
   state.traceEndings=endings;
   return lines;
 }
@@ -410,7 +408,7 @@ fieldCanvas.addEventListener('keydown',e=>{
 function setView(view){state.view=view;const is2=view==='2d';els.view2d.hidden=!is2;els.view3d.hidden=is2;els.view2dBtn.setAttribute('aria-selected',String(is2));els.view3dBtn.setAttribute('aria-selected',String(!is2));els.view2dBtn.tabIndex=is2?0:-1;els.view3dBtn.tabIndex=is2?-1:0;document.querySelectorAll('.only-2d').forEach(e=>e.hidden=!is2);document.querySelectorAll('.only-3d').forEach(e=>e.hidden=is2);queueRender();}
 els.view2dBtn.addEventListener('click',()=>setView('2d'));els.view3dBtn.addEventListener('click',()=>setView('3d'));
 for(const tab of[els.view2dBtn,els.view3dBtn])tab.addEventListener('keydown',e=>{const tabs=[els.view2dBtn,els.view3dBtn];let target=null;if(e.key==='ArrowLeft'||e.key==='ArrowRight')target=tabs[tab===tabs[0]?1:0];if(e.key==='Home')target=tabs[0];if(e.key==='End')target=tabs[1];if(!target)return;e.preventDefault();setView(target===tabs[0]?'2d':'3d');target.focus();});
-function resetAll(){state.layers={compass:true,needles:false,filings:false,lines:true,heat:true,inside:true};state.lineDensity=32;for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.checked=state.layers[key];state.filingPhase=1;state.camera.auto=!reducedMotion;els.autoRotate.checked=state.camera.auto;resetCamera();preset('single');setView('2d');}
+function resetAll(){state.layers={compass:true,needles:false,filings:false,lines:true,heat:true,inside:true};state.lineDensity=32;for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings',els.filings],['lines',els.lines],['heat',els.heat],['inside',els.inside]])el.checked=state.layers[key];state.filingPhase=1;state.camera.auto=!reducedMotion;els.autoRotate.checked=state.camera.auto;state.spaceModel='single';state.spaceDensity=24;recomputeSpaceModel();resetCamera();preset('single');setView('2d');}
 els.reset.addEventListener('click',resetAll);
 for(const [id,name] of[['presetSingle','single'],['presetOpposite','opposite'],['presetLike','like'],['presetHorse','horse'],['presetIron','iron']])$('#'+id).addEventListener('click',()=>preset(name));
 $('#addBarBtn').addEventListener('click',()=>addObject('bar'));$('#addHorseBtn').addEventListener('click',()=>addObject('horse'));$('#addMaterialBtn').addEventListener('click',()=>addObject('material'));
@@ -422,39 +420,117 @@ for(const [key,el] of[['compass',els.compass],['needles',els.needles],['filings'
 function project3D(p,t){
   const cy=Math.cos(state.camera.yaw),sy=Math.sin(state.camera.yaw),cp=Math.cos(state.camera.pitch),sp=Math.sin(state.camera.pitch),x1=p.x*cy+p.z*sy,z1=-p.x*sy+p.z*cy,y2=p.y*cp-z1*sp,z2=p.y*sp+z1*cp,d=4.2,f=Math.min(t.w,t.h)*1.24*state.camera.zoom/(d-z2);return{x:t.w/2+x1*f,y:t.h/2-y2*f,z:z2};
 }
-function spatialFieldCurves3D(){
-  const curves=[],shells=[{poleRadius:.025,bulge:.34},{poleRadius:.065,bulge:.56},{poleRadius:.105,bulge:.82},{poleRadius:.145,bulge:1.12}],planes=12;
-  for(const shell of shells)for(let k=0;k<planes;k++){const phi=k*TAU/planes,curve=[];for(let i=0;i<=120;i++){const u=i/120,s=Math.sin(Math.PI*u),rho=shell.poleRadius+shell.bulge*s**1.18;curve.push({x:.565-1.13*u,y:rho*Math.cos(phi),z:rho*Math.sin(phi)});}curves.push(curve);}
-  return curves;
+const SPACE_MODELS=['single','opposite','like','horse','iron'];
+const SPACE_META={
+  single:['Raumansicht eines Stabmagneten','verteiltes räumliches Dipolfeld','Außerhalb verlaufen die Raumlinien vom Nordpol zum Südpol. Der geschlossene Rückweg liegt verdeckt im Magnetkörper.'],
+  opposite:['Zwei Stabmagnete · N–S','überlagertes räumliches Gesamtfeld','Zwischen den ungleichnamigen Polen wird ein großer Anteil der ausgewählten Raumlinien durch den Spalt geführt.'],
+  like:['Zwei Stabmagnete · N–N','räumliches Feld mit Nullstellenbereich','Die Raumlinien weichen der feldschwachen Mitte zwischen den gleichnamigen Polen aus; dort wird keine Richtung erfunden.'],
+  horse:['Raumansicht eines Hufeisenmagneten','breiter Polspalt mit Randfeld','Im breiten Luftspalt verlaufen viele Raumlinien annähernd parallel; an den Rändern weiten sie sich räumlich auf.'],
+  iron:['Stabmagnet und Weicheisen','qualitative räumliche Influenz','Ein Teil der Raumlinien wird durch das Weicheisen gebündelt. Die farbigen Elementarmagnete zeigen die induzierte Ausrichtung schematisch.']
+};
+const fract=x=>x-Math.floor(x);
+function spaceLocalToWorld(o,x,y,z){const c=Math.cos(o.angle||0),s=Math.sin(o.angle||0);return{x:o.x+x*c-y*s,y:o.y+x*s+y*c,z:(o.z||0)+z};}
+function spaceWorldToLocal(o,p){const dx=p.x-o.x,dy=p.y-o.y,c=Math.cos(-(o.angle||0)),s=Math.sin(-(o.angle||0));return{x:dx*c-dy*s,y:dx*s+dy*c,z:p.z-(o.z||0)};}
+function spaceScene(name){
+  const bar=(x,angle=0,length=.72)=>({kind:'bar',x,y:0,z:0,angle,length,height:.34,depth:.34,strength:1});
+  if(name==='single')return{name,magnets:[bar(0,0,1.12)],materials:[]};
+  if(name==='opposite')return{name,magnets:[bar(-.5,0),bar(.5,0)],materials:[]};
+  if(name==='like')return{name,magnets:[bar(-.5,0),bar(.5,Math.PI)],materials:[]};
+  if(name==='horse')return{name,magnets:[{kind:'horse',x:0,y:0,z:0,angle:0,outer:.4,inner:.16,top:.4,bridge:.14,bottom:-.4,depth:.36,strength:1}],materials:[]};
+  return{name,magnets:[bar(-.48,0,.66)],materials:[{kind:'material',material:'softIron',x:.42,y:0,z:0,angle:0,length:.5,height:.28,depth:.32}]};
 }
-const curves3D=spatialFieldCurves3D();
-function cuboidFaces(x0,x1,y0,y1,z0,z1,color){
-  const v=[{x:x0,y:y0,z:z0},{x:x1,y:y0,z:z0},{x:x1,y:y1,z:z0},{x:x0,y:y1,z:z0},{x:x0,y:y0,z:z1},{x:x1,y:y0,z:z1},{x:x1,y:y1,z:z1},{x:x0,y:y1,z:z1}],idx=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[1,2,6,5],[0,3,7,4]];return idx.map((face,i)=>({points:face.map(j=>v[j]),color,shade:[.76,1,.86,.92,.8,.7][i]}));
+function pointInSpaceObject(p,o){
+  const q=spaceWorldToLocal(o,p);
+  if(o.kind==='bar'||o.kind==='material')return Math.abs(q.x)<o.length/2&&Math.abs(q.y)<o.height/2&&Math.abs(q.z)<o.depth/2;
+  const leg=q.y>o.bottom&&q.y<o.top&&Math.abs(q.z)<o.depth/2&&(q.x>-o.outer&&q.x<-o.inner||q.x>o.inner&&q.x<o.outer),bridge=Math.abs(q.x)<o.outer&&q.y>o.bridge&&q.y<o.top&&Math.abs(q.z)<o.depth/2;return leg||bridge;
 }
+function insideSpacePermanent(p){return state.spaceData?.scene.magnets.find(o=>pointInSpaceObject(p,o))||null;}
+function insideSpaceMaterial(p){return state.spaceData?.scene.materials.find(o=>pointInSpaceObject(p,o))||null;}
+function spaceSources3D(scene){
+  const sources=[];
+  for(const o of scene.magnets){
+    if(o.kind==='bar')for(let i=0;i<5;i++){const x=(-.34+i*.17)*o.length,p=spaceLocalToWorld(o,x,0,0),m=spaceLocalToWorld({...o,x:0,y:0,z:0},.13*o.strength/5,0,0);sources.push({x:p.x,y:p.y,z:p.z,mx:m.x,my:m.y,mz:0,soft:.035,permanent:true,owner:o});}
+    else for(let iy=0;iy<9;iy++)for(let iz=0;iz<3;iz++){const y=o.bottom+.055+iy*(o.bridge-o.bottom-.11)/8,z=-o.depth*.3+iz*o.depth*.3,w=(iy===0||iy===8?.7:1)*(iz===1?1:.72),n=spaceLocalToWorld(o,-o.inner-.012,y,z),s=spaceLocalToWorld(o,o.inner+.012,y,z),q=.00145*w;sources.push({...n,q,soft:.038,permanent:true,owner:o},{...s,q:-q,soft:.038,permanent:true,owner:o});}
+  }
+  for(const o of scene.materials){
+    const cells=[];for(let ix=0;ix<6;ix++)for(let iy=0;iy<2;iy++)for(let iz=0;iz<2;iz++){const p=spaceLocalToWorld(o,-o.length*.4+ix*o.length*.16,(iy-.5)*o.height*.42,(iz-.5)*o.depth*.42);cells.push({...p,mx:0,my:0,mz:0,soft:.035,permanent:false,owner:o,cell:`${ix}-${iy}-${iz}`});}
+    for(let pass=0;pass<10;pass++)for(const cell of cells){const b=spaceFieldFromSources(cell,[...sources,...cells],cell),mag=Math.hypot(b.x,b.y,b.z);if(mag<1e-9)continue;const target=.0038*(1-Math.exp(-mag*.18)),mix=.55;cell.mx=(1-mix)*cell.mx+mix*target*b.x/mag;cell.my=(1-mix)*cell.my+mix*target*b.y/mag;cell.mz=(1-mix)*cell.mz+mix*target*b.z/mag;}
+    sources.push(...cells);
+  }
+  return sources;
+}
+function spaceFieldFromSources(p,sources,skip=null){
+  let bx=0,by=0,bz=0;
+  for(const s of sources){if(s===skip)continue;const dx=p.x-s.x,dy=p.y-s.y,dz=p.z-s.z,r2=dx*dx+dy*dy+dz*dz+s.soft*s.soft,invR3=1/(r2*Math.sqrt(r2));if(Number.isFinite(s.q)){bx+=s.q*dx*invR3;by+=s.q*dy*invR3;bz+=s.q*dz*invR3;continue;}const dot=s.mx*dx+s.my*dy+s.mz*dz,f=3*dot/r2;bx+=(f*dx-s.mx)*invR3;by+=(f*dy-s.my)*invR3;bz+=(f*dz-s.mz)*invR3;}
+  return{x:bx,y:by,z:bz,mag:Math.hypot(bx,by,bz)};
+}
+function spaceFieldAt(x,y,z){return spaceFieldFromSources({x,y,z},state.spaceData?.sources||[]);}
+function spaceTraceField(p){
+  const total=spaceFieldAt(p.x,p.y,p.z),iron=insideSpaceMaterial(p);if(!iron||total.mag<1e-9)return total;
+  let bx=0,by=0,bz=0;for(const s of state.spaceData.sources)if(!s.permanent&&s.owner===iron){bx+=s.mx;by+=s.my;bz+=s.mz;}const m=Math.hypot(bx,by,bz);if(m<1e-9)return total;const q=spaceWorldToLocal(iron,p),depth=Math.min(iron.length/2-Math.abs(q.x),iron.height/2-Math.abs(q.y),iron.depth/2-Math.abs(q.z)),u=clamp(depth/.025,0,1),blend=u*u*(3-2*u),dx=(1-blend)*total.x/total.mag+blend*bx/m,dy=(1-blend)*total.y/total.mag+blend*by/m,dz=(1-blend)*total.z/total.mag+blend*bz/m,n=Math.hypot(dx,dy,dz);return{x:dx/n*total.mag,y:dy/n*total.mag,z:dz/n*total.mag,mag:total.mag};
+}
+function spaceUnit(p,direction){const b=spaceTraceField(p);if(!Number.isFinite(b.mag)||b.mag<1e-9)return null;return{x:direction*b.x/b.mag,y:direction*b.y/b.mag,z:direction*b.z/b.mag};}
+function traceSpaceBranch(seed,direction){
+  const points=[{...seed}],seen=new Map();let p={...seed},end='max',leftView=false;
+  for(let i=0;i<9000;i++){
+    const r=Math.hypot(p.x,p.y,p.z),h=.0075*(1+Math.min(5,Math.max(0,r-.8)*.7)),k1=spaceUnit(p,direction);if(!k1){end='null';break;}const at=(q,k,f)=>({x:q.x+k.x*h*f,y:q.y+k.y*h*f,z:q.z+k.z*h*f}),p2=at(p,k1,.5),k2=spaceUnit(p2,direction),p3=k2&&at(p,k2,.5),k3=p3&&spaceUnit(p3,direction),p4=k3&&at(p,k3,1),k4=p4&&spaceUnit(p4,direction);if(!k2||!k3||!k4){end='null';break;}const ux=(k1.x+2*k2.x+2*k3.x+k4.x)/6,uy=(k1.y+2*k2.y+2*k3.y+k4.y)/6,uz=(k1.z+2*k2.z+2*k3.z+k4.z)/6;p={x:p.x+ux*h,y:p.y+uy*h,z:p.z+uz*h};points.push(p);if(r>1.55)leftView=true;if(r>20){end='far-limit';break;}if(i>1&&insideSpacePermanent(p)){end='magnet';break;}if(i%7===0&&r<3){const key=`${Math.round(p.x/.016)},${Math.round(p.y/.016)},${Math.round(p.z/.016)}`,old=seen.get(key);if(old&&i-old.i>90&&ux*old.ux+uy*old.uy+uz*old.uz>.9){end='loop';break;}seen.set(key,{i,ux,uy,uz});}
+  }
+  return{points,end,leftView};
+}
+function spacePoleAt(p,scene){
+  const o=scene.magnets.find(m=>pointInSpaceObject(p,m));if(!o)return null;const q=spaceWorldToLocal(o,p);if(o.kind==='bar')return q.x>=0?'N':'S';return q.x<=0?'N':'S';
+}
+function traceSpaceLine(seed,family){const a=traceSpaceBranch(seed,-1),b=traceSpaceBranch(seed,1),points=[...a.points].reverse().slice(0,-1).concat(b.points),start=spacePoleAt(points[0],state.spaceData.scene),finish=spacePoleAt(points.at(-1),state.spaceData.scene),complete=a.end==='magnet'&&b.end==='magnet'&&start==='N'&&finish==='S',maxRadius=points.reduce((m,p)=>Math.max(m,Math.hypot(p.x,p.y,p.z)),0);return{points,family,end:complete?'magnet':`${a.end}/${b.end}`,startPole:start,endPole:finish,leftView:a.leftView||b.leftView,maxRadius};}
+function barSpaceSeed(o,i,total,minRadius=.018,maxRadius=.188){const u=fract((i+.5)*.61803398875),phi=TAU*fract(i*.754877666+total*.037),radius=minRadius+(maxRadius-minRadius)*Math.pow(u,.8);return spaceLocalToWorld(o,o.length/2+.008,radius*Math.cos(phi),radius*Math.sin(phi));}
+function spaceSeedGroups(scene){
+  const target=state.spaceDensity;
+  if(scene.name==='horse'){
+    const gap=Math.round(target*.58),outer=target-gap,o=scene.magnets[0],gaps=[],outs=[];for(let i=0;i<gap*6;i++)gaps.push(spaceLocalToWorld(o,0,o.bottom+.065+(o.bridge-o.bottom-.13)*fract((i+.5)*.618),o.depth*.38*(2*fract(i*.754+.2)-1)));for(let i=0;i<outer*8;i++){const u=fract((i+.5)*.618),phi=TAU*fract(i*.754),r=.44+.9*Math.pow(u,1.25);outs.push(spaceLocalToWorld(o,0,r*Math.cos(phi),r*Math.sin(phi)));}return[{family:'gap',quota:gap,seeds:gaps},{family:'outer',quota:outer,seeds:outs}];
+  }
+  const bars=scene.magnets.filter(o=>o.kind==='bar'),ordinary=[];for(let i=0;i<target*8;i++){const o=bars[i%bars.length],j=Math.floor(i/bars.length);ordinary.push(barSpaceSeed(o,j,target));}
+  if(scene.name!=='iron')return[{family:'bar',quota:target,seeds:ordinary}];
+  const iron=scene.materials[0],through=Math.round(target*.5),guides=[],bypass=[];for(let i=0;i<through*10;i++)guides.push(spaceLocalToWorld(iron,0,iron.height*.34*(2*fract((i+.5)*.618)-1),iron.depth*.34*(2*fract(i*.754+.3)-1)));for(let i=0;i<(target-through)*18;i++)bypass.push(barSpaceSeed(bars[0],i,target,.17,.42));return[{family:'iron',quota:through,seeds:guides,ironMode:'through'},{family:'outer',quota:target-through,seeds:bypass,ironMode:'outside'}];
+}
+function recomputeSpaceModel(){
+  const scene=spaceScene(state.spaceModel),sources=spaceSources3D(scene),data={scene,sources,curves:[],endings:{},attempted:0,domainCount:sources.filter(s=>!s.permanent).length};state.spaceData=data;
+  for(const group of spaceSeedGroups(scene)){let accepted=0;for(const seed of group.seeds){const line=traceSpaceLine(seed,group.family),passesIron=line.points.some(p=>insideSpaceMaterial(p));data.attempted++;data.endings[line.end]=(data.endings[line.end]||0)+1;const ironMatch=!group.ironMode||group.ironMode==='through'&&passesIron||group.ironMode==='outside'&&!passesIron;if(line.end==='magnet'&&line.maxRadius<2.25&&ironMatch){data.curves.push(line);accepted++;if(accepted>=group.quota)break;}}}
+  syncSpaceUI();queueRender();return data;
+}
+function spaceDefaultZoom(name){return name==='horse'?1:.76;}
+function setSpaceModel(name){if(!SPACE_MODELS.includes(name))return;state.spaceModel=name;state.camera.zoom=spaceDefaultZoom(name);els.spaceModel.value=name;recomputeSpaceModel();}
+function syncSpaceUI(){const meta=SPACE_META[state.spaceModel];els.spaceTitle.textContent=meta[0];els.spaceSubtitle.textContent=meta[1];els.spaceObservation.textContent=meta[2];els.spaceDensity.value=String(state.spaceDensity);els.spaceDensityRead.textContent=String(state.spaceDensity);els.spaceModel.value=state.spaceModel;els.spaceModelNote.innerHTML=state.spaceModel==='iron'?'<strong>Modell:</strong> Die sichtbaren Bezirke und Ersatzdipole sind qualitativ; reale Weißsche Bezirke sind unregelmäßig und viel kleiner. Projektionsschnitte sind keine räumlichen Schnittpunkte.':'<strong>Modell:</strong> qualitative Raumansicht. Die Linienzahl ist eine Darstellungsdichte; Projektionsschnitte sind keine räumlichen Schnittpunkte.';}
+function spaceCuboidFaces(o,x0,x1,y0,y1,z0,z1,color){const raw=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]].map(v=>spaceLocalToWorld(o,...v)),idx=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[3,2,6,7],[1,2,6,5],[0,3,7,4]];return idx.map((face,i)=>({points:face.map(j=>raw[j]),color,shade:[.76,1,.86,.92,.8,.7][i]}));}
+function spaceFaces(scene){const faces=[];for(const o of scene.magnets)if(o.kind==='bar'){faces.push(...spaceCuboidFaces(o,-o.length/2,0,-o.height/2,o.height/2,-o.depth/2,o.depth/2,colors.south),...spaceCuboidFaces(o,0,o.length/2,-o.height/2,o.height/2,-o.depth/2,o.depth/2,colors.north));}else{faces.push(...spaceCuboidFaces(o,-o.outer,-o.inner,o.bottom,o.top,-o.depth/2,o.depth/2,colors.north),...spaceCuboidFaces(o,o.inner,o.outer,o.bottom,o.top,-o.depth/2,o.depth/2,colors.south),...spaceCuboidFaces(o,-o.inner,0,o.bridge,o.top,-o.depth/2,o.depth/2,colors.north),...spaceCuboidFaces(o,0,o.inner,o.bridge,o.top,-o.depth/2,o.depth/2,colors.south));}for(const o of scene.materials)faces.push(...spaceCuboidFaces(o,-o.length/2,o.length/2,-o.height/2,o.height/2,-o.depth/2,o.depth/2,colors.iron));return faces;}
+function drawSpaceDomains(t){
+  const data=state.spaceData;if(!data?.scene.materials.length)return;const o=data.scene.materials[0],z=(Math.cos(state.camera.yaw)>=0?1:-1)*(o.depth/2+.002),edge=i=>-o.length/2+i*o.length/6+(i>0&&i<6?(((i*17)%5)-2)*.004:0),split=x=>.012*Math.sin((x/o.length+.5)*TAU*1.7);for(let iy=0;iy<2;iy++)for(let ix=0;ix<6;ix++){const x0=edge(ix),x1=edge(ix+1),y00=iy===0?-o.height/2:split(x0),y01=iy===0?-o.height/2:split(x1),y10=iy===0?split(x0):o.height/2,y11=iy===0?split(x1):o.height/2,ps=[[x0,y00],[x1,y01],[x1,y11],[x0,y10]].map(v=>project3D(spaceLocalToWorld(o,v[0],v[1],z),t));sctx.fillStyle=(ix+iy)%2?'rgba(255,255,255,.08)':'rgba(20,45,41,.12)';sctx.strokeStyle='rgba(255,255,255,.42)';sctx.beginPath();ps.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.closePath();sctx.fill();sctx.stroke();}
+  for(const s of data.sources.filter(s=>!s.permanent&&s.owner===o)){const mag=Math.hypot(s.mx,s.my,s.mz);if(!mag)continue;const k=.045/mag,a=project3D({x:s.x-s.mx*k,y:s.y-s.my*k,z:s.z-s.mz*k},t),m=project3D(s,t),b=project3D({x:s.x+s.mx*k,y:s.y+s.my*k,z:s.z+s.mz*k},t);sctx.lineWidth=2.3;sctx.strokeStyle=colors.south;sctx.beginPath();sctx.moveTo(a.x,a.y);sctx.lineTo(m.x,m.y);sctx.stroke();sctx.strokeStyle=colors.north;sctx.beginPath();sctx.moveTo(m.x,m.y);sctx.lineTo(b.x,b.y);sctx.stroke();}
+}
+function drawSpacePoleLabels(scene,t){for(const o of scene.magnets){const z=(Math.cos(state.camera.yaw)>=0?1:-1)*(o.depth/2+.012),labels=o.kind==='bar'?[['S',spaceLocalToWorld(o,-o.length/2-.025,0,z),colors.south],['N',spaceLocalToWorld(o,o.length/2+.025,0,z),colors.north]]:[['N',spaceLocalToWorld(o,-o.inner+.03,(o.bottom+o.bridge)/2,z),colors.north],['S',spaceLocalToWorld(o,o.inner-.03,(o.bottom+o.bridge)/2,z),colors.south]];for(const[text,p,color]of labels){const q=project3D(p,t);sctx.fillStyle=color;sctx.strokeStyle='#fff';sctx.lineWidth=3;sctx.beginPath();sctx.arc(q.x,q.y,13,0,TAU);sctx.fill();sctx.stroke();sctx.fillStyle='#fff';sctx.font='900 13px system-ui';sctx.textAlign='center';sctx.textBaseline='middle';sctx.fillText(text,q.x,q.y+.5);}}}
 function render3D(){
-  const{w,h}=resizeCanvas(spaceCanvas,sctx),t={w,h};sctx.clearRect(0,0,w,h);const g=sctx.createRadialGradient(w*.5,h*.42,20,w*.5,h*.5,Math.max(w,h)*.7);g.addColorStop(0,'#eff5f1');g.addColorStop(1,'#dce7e1');sctx.fillStyle=g;sctx.fillRect(0,0,w,h);
+  const{w,h}=resizeCanvas(spaceCanvas,sctx),t={w,h},data=state.spaceData;if(!data)return;sctx.clearRect(0,0,w,h);const g=sctx.createRadialGradient(w*.5,h*.42,20,w*.5,h*.5,Math.max(w,h)*.7);g.addColorStop(0,'#eff5f1');g.addColorStop(1,'#dce7e1');sctx.fillStyle=g;sctx.fillRect(0,0,w,h);
   const grid=[];for(let i=-4;i<=4;i++){grid.push([{x:-2,y:-.55,z:i*.35},{x:2,y:-.55,z:i*.35}],[{x:i*.35,y:-.55,z:-1.4},{x:i*.35,y:-.55,z:1.4}]);}sctx.strokeStyle='rgba(45,79,72,.11)';sctx.lineWidth=1;for(const line of grid){const a=project3D(line[0],t),b=project3D(line[1],t);sctx.beginPath();sctx.moveTo(a.x,a.y);sctx.lineTo(b.x,b.y);sctx.stroke();}
-  sctx.lineWidth=1.45;sctx.lineCap='round';for(const curve of curves3D){const pts=curve.map(p=>project3D(p,t)),depth=pts.reduce((a,p)=>a+p.z,0)/pts.length,alpha=clamp(.34+(depth+1.5)*.1,.3,.72);sctx.strokeStyle=`rgba(15,118,110,${alpha})`;sctx.beginPath();pts.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.stroke();const i=Math.floor(pts.length*.52);if(i>0&&i<pts.length)drawArrowHead(sctx,pts[i-1],pts[i],`rgba(15,118,110,${Math.min(1,alpha+.2)})`,5.5);}
-  const faces=[...cuboidFaces(-.56,0,-.18,.18,-.18,.18,colors.south),...cuboidFaces(0,.56,-.18,.18,-.18,.18,colors.north)].map(f=>{const ps=f.points.map(p=>project3D(p,t));return{...f,ps,depth:ps.reduce((a,p)=>a+p.z,0)/ps.length};}).sort((a,b)=>a.depth-b.depth);
-  for(const f of faces){sctx.fillStyle=f.color;sctx.globalAlpha=f.shade;sctx.strokeStyle='rgba(33,57,54,.65)';sctx.lineWidth=1.2;sctx.beginPath();f.ps.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.closePath();sctx.fill();sctx.stroke();}sctx.globalAlpha=1;
-  for(const [text,p,color] of[['S',{x:-.59,y:0,z:0},colors.south],['N',{x:.59,y:0,z:0},colors.north]]){const q=project3D(p,t);sctx.fillStyle=color;sctx.strokeStyle='#fff';sctx.lineWidth=3;sctx.beginPath();sctx.arc(q.x,q.y,14,0,TAU);sctx.fill();sctx.stroke();sctx.fillStyle='#fff';sctx.font='900 14px system-ui';sctx.textAlign='center';sctx.textBaseline='middle';sctx.fillText(text,q.x,q.y+.5);}
-  spaceCanvas.setAttribute('aria-label','Dreidimensionale Ansicht eines Stabmagneten mit geschlossenen Feldlinien in mehreren räumlichen Ebenen.');
+  sctx.lineWidth=state.spaceDensity>=48?1.05:1.35;sctx.lineCap='round';for(const line of data.curves){const pts=line.points.map(p=>project3D(p,t)),depth=pts.reduce((a,p)=>a+p.z,0)/pts.length,alpha=clamp(.34+(depth+1.5)*.1,.28,.74);sctx.strokeStyle=`rgba(15,118,110,${alpha})`;sctx.beginPath();pts.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.stroke();const i=Math.floor(pts.length*.54);if(i>0&&i<pts.length)drawArrowHead(sctx,pts[i-1],pts[i],`rgba(15,118,110,${Math.min(1,alpha+.2)})`,5);}
+  const faces=spaceFaces(data.scene).map(f=>{const ps=f.points.map(p=>project3D(p,t));return{...f,ps,depth:ps.reduce((a,p)=>a+p.z,0)/ps.length};}).sort((a,b)=>a.depth-b.depth);for(const f of faces){sctx.fillStyle=f.color;sctx.globalAlpha=f.shade;sctx.strokeStyle='rgba(33,57,54,.65)';sctx.lineWidth=1.2;sctx.beginPath();f.ps.forEach((p,i)=>i?sctx.lineTo(p.x,p.y):sctx.moveTo(p.x,p.y));sctx.closePath();sctx.fill();sctx.stroke();}sctx.globalAlpha=1;drawSpaceDomains(t);drawSpacePoleLabels(data.scene,t);spaceCanvas.setAttribute('aria-label',`${SPACE_META[state.spaceModel][0]} mit ${data.curves.length} äußeren Abschnitten räumlich berechneter, geschlossener Feldlinien. Die Rückwege liegen verdeckt in den Magnetkörpern; Projektionsschnitte sind keine Schnittpunkte im Raum.`);
 }
-function resetCamera(){state.camera.yaw=.65;state.camera.pitch=-.32;state.camera.zoom=1;queueRender();}
+function resetCamera(){state.camera.yaw=.65;state.camera.pitch=-.32;state.camera.zoom=spaceDefaultZoom(state.spaceModel);queueRender();}
 spaceCanvas.addEventListener('pointerdown',e=>{spaceCanvas.setPointerCapture(e.pointerId);state.camera.drag={x:e.clientX,y:e.clientY,yaw:state.camera.yaw,pitch:state.camera.pitch};});
 spaceCanvas.addEventListener('pointermove',e=>{const d=state.camera.drag;if(!d)return;state.camera.yaw=d.yaw+(e.clientX-d.x)*.009;state.camera.pitch=clamp(d.pitch+(e.clientY-d.y)*.007,-1.15,1.15);queueRender();});
 spaceCanvas.addEventListener('pointerup',()=>state.camera.drag=null);spaceCanvas.addEventListener('pointercancel',()=>state.camera.drag=null);
 spaceCanvas.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();state.camera.yaw+=e.key==='ArrowLeft'?-.12:.12;queueRender();}if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();state.camera.pitch=clamp(state.camera.pitch+(e.key==='ArrowUp'?.1:-.1),-1.15,1.15);queueRender();}if(e.key==='+'||e.key==='='){e.preventDefault();state.camera.zoom=clamp(state.camera.zoom*1.12,.65,1.6);queueRender();}if(e.key==='-'){e.preventDefault();state.camera.zoom=clamp(state.camera.zoom/1.12,.65,1.6);queueRender();}});
 spaceCanvas.addEventListener('wheel',e=>{e.preventDefault();state.camera.zoom=clamp(state.camera.zoom*(e.deltaY>0?.92:1.08),.65,1.6);queueRender();},{passive:false});
 $('#zoomInBtn').addEventListener('click',()=>{state.camera.zoom=clamp(state.camera.zoom*1.12,.65,1.6);queueRender();});$('#zoomOutBtn').addEventListener('click',()=>{state.camera.zoom=clamp(state.camera.zoom/1.12,.65,1.6);queueRender();});$('#spaceResetBtn').addEventListener('click',resetCamera);
+els.spaceModel.addEventListener('change',()=>setSpaceModel(els.spaceModel.value));els.spaceDensity.addEventListener('input',()=>{state.spaceDensity=Number(els.spaceDensity.value);recomputeSpaceModel();});
 els.autoRotate.checked=state.camera.auto;els.autoRotate.addEventListener('change',()=>state.camera.auto=els.autoRotate.checked);
 function tick(now){const dt=Math.min(.05,(now-state.lastTime)/1000);state.lastTime=now;if(state.view==='3d'&&state.camera.auto&&!state.camera.drag){state.camera.yaw+=dt*.16;render3D();}if(state.layers.filings&&state.filingPhase>.001){state.filingPhase*=Math.pow(.035,dt);if(state.view==='2d')render2D();}requestAnimationFrame(tick);}
 new ResizeObserver(()=>queueRender()).observe(document.querySelector('.workspace'));
 window.__magnetLab={
-  getState:()=>({view:state.view,preset:state.preset,lineDensity:state.lineDensity,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),lineFamilies:state.fieldLines.reduce((a,l)=>(a[l.family]=(a[l.family]||0)+1,a),{}),linesLeavingView:state.fieldLines.filter(l=>l.leftView).length,traceEndings:{...state.traceEndings},sourceCount:state.sources.length,spaceLineCount:curves3D.length,spacePoleAnchors:curves3D.every(c=>Math.abs(c[0].x-.565)<1e-9&&Math.abs(c.at(-1).x+.565)<1e-9)}),
-  fieldAt:(x,y)=>fieldAt(Number(x),Number(y)),setPreset:preset,setView,reset:resetAll,recompute,qualitativeStrength
+  getState:()=>({view:state.view,preset:state.preset,lineDensity:state.lineDensity,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),lineFamilies:state.fieldLines.reduce((a,l)=>(a[l.family]=(a[l.family]||0)+1,a),{}),linesLeavingView:state.fieldLines.filter(l=>l.leftView).length,traceEndings:{...state.traceEndings},sourceCount:state.sources.length,spaceLineCount:state.spaceData?.curves.length||0,spacePoleAnchors:state.spaceData?.curves.every(l=>l.startPole==='N'&&l.endPole==='S')||false}),
+  getFieldLines:()=>state.fieldLines.map(line=>({family:line.family,end:line.end,points:line.points.map(p=>({x:p.x,y:p.y}))})),
+  getSpaceState:()=>({model:state.spaceModel,density:state.spaceDensity,models:[...SPACE_MODELS],lineCount:state.spaceData?.curves.length||0,lineEndings:state.spaceData?.curves.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),lineFamilies:state.spaceData?.curves.reduce((a,l)=>(a[l.family]=(a[l.family]||0)+1,a),{}),oriented:state.spaceData?.curves.every(l=>l.startPole==='N'&&l.endPole==='S')||false,sourceCount:state.spaceData?.sources.length||0,domainCount:state.spaceData?.domainCount||0,attempted:state.spaceData?.attempted||0,traceEndings:{...(state.spaceData?.endings||{})},throughIron:state.spaceData?.curves.filter(l=>l.points.some(p=>insideSpaceMaterial(p))).length||0}),
+  getSpaceCurves:()=>state.spaceData?.curves.map(l=>({family:l.family,end:l.end,startPole:l.startPole,endPole:l.endPole,points:l.points.map(p=>({...p}))}))||[],
+  fieldAt:(x,y)=>fieldAt(Number(x),Number(y)),spaceFieldAt:(x,y,z)=>spaceFieldAt(Number(x),Number(y),Number(z)),setPreset:preset,setSpaceModel:setSpaceModel,setView,reset:resetAll,recompute,recomputeSpaceModel,qualitativeStrength
 };
-preset('single');setView('2d');requestAnimationFrame(tick);window.dispatchEvent(new CustomEvent('magnet-lab-ready'));
+recomputeSpaceModel();preset('single');setView('2d');requestAnimationFrame(tick);window.dispatchEvent(new CustomEvent('magnet-lab-ready'));
 })();
 </script>
 <script src="../shared/student-entry.js"></script>
