@@ -73,9 +73,9 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 370px;
+      grid-template-columns: minmax(0, 1fr) 430px;
       gap: 14px;
-      align-items: stretch;
+      align-items: start;
     }
     .scene-card, .energy-card, .motion-card, .model-card {
       border: 1px solid var(--line);
@@ -175,6 +175,7 @@
     }
 
     .energy-card { min-width: 0; overflow: hidden; }
+    .analysis-stack { min-width: 0; }
     .energy-card summary, .motion-card summary, .model-card summary {
       display: flex;
       min-height: 48px;
@@ -268,6 +269,13 @@
     .diagram-panel h3 { margin: 0 0 2px; font-size: .82rem; }
     .diagram-panel p { margin: 0 0 5px; color: var(--muted); font-size: .68rem; }
     .motion-canvas { display: block; width: 100%; height: 220px; }
+    .analysis-stack .motion-toolbar { align-items: stretch; flex-direction: column; }
+    .analysis-stack .position-switch { min-width: 0; }
+    .analysis-stack .motion-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .analysis-stack .diagram-grid { grid-template-columns: 1fr; gap: 7px; }
+    .analysis-stack .diagram-panel { padding: 7px; }
+    .analysis-stack .diagram-panel p { display: none; }
+    .analysis-stack .motion-canvas { height: 118px; }
     .model-card { padding-bottom: 11px; }
     .model-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 10px 14px 0; }
     .formula-box { padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-soft); font-size: .8rem; line-height: 1.42; }
@@ -278,6 +286,13 @@
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
       .energy-card[open] { min-height: 510px; }
+      .analysis-stack .motion-toolbar { align-items: center; flex-direction: row; }
+      .analysis-stack .position-switch { min-width: min(360px, 100%); }
+      .analysis-stack .motion-values { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .analysis-stack .diagram-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+      .analysis-stack .diagram-panel { padding: 8px; }
+      .analysis-stack .diagram-panel p { display: block; }
+      .analysis-stack .motion-canvas { height: 220px; }
     }
     @media (max-width: 680px) {
       .page { padding: 8px; }
@@ -291,6 +306,11 @@
       .motion-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .diagram-grid { grid-template-columns: 1fr; }
       .motion-canvas { height: 205px; }
+      .analysis-stack .motion-toolbar { align-items: stretch; flex-direction: column; }
+      .analysis-stack .position-switch { min-width: 0; }
+      .analysis-stack .motion-values { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .analysis-stack .diagram-grid { grid-template-columns: 1fr; }
+      .analysis-stack .motion-canvas { height: 205px; }
       .model-grid { grid-template-columns: 1fr; }
       .status-message { width: 100%; margin-left: 0; }
     }
@@ -310,6 +330,12 @@
       .balance-box, .observation { margin-top: 6px; padding: 7px 8px; }
       .observation { min-height: 54px; }
       .motion-card, .model-card { margin-top: 8px; }
+      .analysis-stack .motion-content { padding: 8px 10px 10px; }
+      .analysis-stack .motion-explanation { display: none; }
+      .analysis-stack .motion-toolbar, .analysis-stack .motion-values { margin-bottom: 6px; }
+      .analysis-stack .motion-value { padding: 6px 8px; }
+      .analysis-stack .diagram-grid { gap: 6px; }
+      .analysis-stack .motion-canvas { height: 90px; }
     }
     @media (prefers-reduced-motion: reduce) { .energy-fill { transition: none; } }
   </style>
@@ -357,7 +383,8 @@
         </div>
       </section>
 
-      <details class="energy-card" open>
+      <aside class="analysis-stack" aria-label="Diagramme zum freien Fall">
+      <details class="energy-card" id="energy-details">
         <summary>Energiediagramme</summary>
         <div class="energy-content" aria-label="Energieanzeigen">
           <p class="energy-intro">Alle Balken nutzen dieselbe Skala. „Gesamt“ ist eine schraffierte Referenz und keine zusätzliche Energieform.</p>
@@ -388,9 +415,8 @@
           <div class="observation" id="observation"><strong>Beobachtung:</strong> Ohne Luftwiderstand bleibt die mechanische Energie erhalten.</div>
         </div>
       </details>
-    </main>
 
-    <details class="motion-card" open>
+      <details class="motion-card" id="motion-details" open>
       <summary>Bewegungsdiagramme</summary>
       <div class="motion-content">
         <div class="motion-toolbar">
@@ -412,7 +438,9 @@
           <section class="diagram-panel"><h3>Beschleunigung–Zeit</h3><p>Gezeigt wird der Betrag |a|.</p><canvas class="motion-canvas" id="acceleration-chart" aria-label="Beschleunigung-Zeit-Diagramm mit synchronem Messpunkt"></canvas></section>
         </div>
       </div>
-    </details>
+      </details>
+      </aside>
+    </main>
 
     <details class="model-card">
       <summary>Physikalisches Modell und Grenzen</summary>
@@ -480,7 +508,9 @@
         positionChartNote: document.getElementById('position-chart-note'),
         positionChart: document.getElementById('position-chart'),
         speedChart: document.getElementById('speed-chart'),
-        accelerationChart: document.getElementById('acceleration-chart')
+        accelerationChart: document.getElementById('acceleration-chart'),
+        energyDetails: document.getElementById('energy-details'),
+        motionDetails: document.getElementById('motion-details')
       };
 
       const state = {
@@ -898,6 +928,15 @@
         state.positionMode = 'distance';
         updateUI();
         drawMotionCharts();
+      });
+      dom.energyDetails.addEventListener('toggle', () => {
+        if (dom.energyDetails.open) dom.motionDetails.open = false;
+      });
+      dom.motionDetails.addEventListener('toggle', () => {
+        if (dom.motionDetails.open) {
+          dom.energyDetails.open = false;
+          drawMotionCharts();
+        }
       });
       document.addEventListener('click', event => {
         if (event.target.closest('.student-intro-ok')) setTimeout(() => { state.playing = true; state.lastFrame = performance.now(); updateUI(); }, 0);
