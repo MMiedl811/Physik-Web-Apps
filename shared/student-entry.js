@@ -3,8 +3,8 @@
 
   const STUDENT_GUIDANCE = Object.freeze({
     'magnetfeld-labor': {
-      goal: 'Wie lassen sich Richtung und Verlauf eines Magnetfelds sichtbar machen?',
-      observe: 'Achte darauf, wie sich Kompassnadeln und Feldlinien bei unterschiedlichen Magnetanordnungen ausrichten.'
+      goal: 'Wie lassen sich Richtung und Stärke eines Magnetfelds an jedem Ort sichtbar machen?',
+      observe: 'Vergleiche Magnetnadel-Raster und Messkompass: Zeigen beide am selben Ort dieselbe Feldrichtung?'
     },
     diagramme: {
       goal: 'Wie hängen Orts-, Geschwindigkeits- und Beschleunigungsdiagramm derselben Bewegung zusammen?',
