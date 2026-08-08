@@ -232,19 +232,24 @@ function drawPendulum(){
   const c=dom.ctx,cv=dom.canvas,W=cv.width,H=cv.height,dpr=Math.min(devicePixelRatio||1,2);
   c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W/dpr,H/dpr);
   const w=W/dpr,hgt=H/dpr;
-  const px=(v)=>w/2+v;
-  const py=(v)=>hgt-40-v;
-  const scale=Math.min(w/2.8,(hgt-140)/(state.L+0.3));
+  const pivotX=w/2,pivotY=32;
+  // Einheitlicher Maßstab über den gesamten L-Regelbereich: längere Fäden erscheinen sichtbar länger,
+  // bleiben aber selbst bei L = 2,5 m und θ = 90° vollständig im Canvas.
+  const scale=Math.max(1,Math.min((w/2-34)/2.5,(hgt-pivotY-34)/2.5));
   const Lpx=state.L*scale;
-  const pivotX=px(0),pivotY=py(state.L+0.15);
   const bobX=pivotX+Lpx*Math.sin(state.theta);
   const bobY=pivotY+Lpx*Math.cos(state.theta);
+  const groundY=pivotY+Lpx;
+  // Aufhängung
+  c.strokeStyle='#25332f';c.lineWidth=3;
+  c.beginPath();c.moveTo(pivotX-38,pivotY-8);c.lineTo(pivotX+38,pivotY-8);c.stroke();
+  c.lineWidth=1;for(let x=pivotX-34;x<=pivotX+34;x+=10){c.beginPath();c.moveTo(x,pivotY-8);c.lineTo(x-6,pivotY-15);c.stroke();}
   // Bodenlinie (Nullniveau)
   c.strokeStyle='#c8bfae';c.setLineDash([4,4]);c.lineWidth=1;
-  c.beginPath();c.moveTo(10,pivotY+Lpx);c.lineTo(w-10,pivotY+Lpx);c.stroke();c.setLineDash([]);
+  c.beginPath();c.moveTo(10,groundY);c.lineTo(w-10,groundY);c.stroke();c.setLineDash([]);
   // Höhenlinie h
   c.strokeStyle='#2fa896';c.lineWidth=1.5;c.setLineDash([3,3]);
-  c.beginPath();c.moveTo(bobX,bobY);c.lineTo(bobX,pivotY+Lpx);c.stroke();c.setLineDash([]);
+  c.beginPath();c.moveTo(bobX,bobY);c.lineTo(bobX,groundY);c.stroke();c.setLineDash([]);
   // Faden
   c.strokeStyle='#25332f';c.lineWidth=2.5;
   c.beginPath();c.moveTo(pivotX,pivotY);c.lineTo(bobX,bobY);c.stroke();
@@ -255,15 +260,15 @@ function drawPendulum(){
   c.fillText('m',bobX,bobY+0.5);
   // Aufhängepunkt
   c.fillStyle='#25332f';c.beginPath();c.arc(pivotX,pivotY,4,0,Math.PI*2);c.fill();
-  // Winkelbogen
-  const arcR=26,dir=state.theta>=0?1:-1;
+  // Winkelbogen von der Vertikalen zum Faden
+  const arcR=26,midAngle=Math.PI/2-state.theta/2;
   c.strokeStyle='#7a5aa6';c.lineWidth=1.5;
-  c.beginPath();c.arc(pivotX,pivotY,arcR,0,state.theta,dir<0);c.stroke();
-  c.fillStyle='#7a5aa6';c.font='700 12px system-ui';c.textAlign='left';
-  c.fillText('θ',pivotX+arcR+4,pivotY-4);
+  c.beginPath();c.arc(pivotX,pivotY,arcR,Math.PI/2,Math.PI/2-state.theta,state.theta>0);c.stroke();
+  c.fillStyle='#7a5aa6';c.font='700 12px system-ui';c.textAlign='center';
+  c.fillText('θ',pivotX+(arcR+13)*Math.cos(midAngle),pivotY+(arcR+13)*Math.sin(midAngle));
   // Label Höhe
   c.fillStyle='#2fa896';c.font='700 11px system-ui';c.textAlign='left';
-  c.fillText('h',bobX+8,(pivotY+Lpx+bobY)/2);
+  c.fillText('h',bobX+8,(groundY+bobY)/2);
 }
 function render(){
   drawPendulum();
