@@ -158,6 +158,14 @@
         /* Buttons */
         .btn-row { display: flex; gap: 0.55rem; flex-wrap: wrap; }
 
+        /* Modus-Umschalter */
+        .mode-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .mode-row .btn { flex: 1; min-width: 120px; }
+
         .btn {
             flex: 1; min-width: 76px;
             padding: 0.65rem 0.7rem;
@@ -198,14 +206,26 @@
     </div>
 
     <div class="panel">
+        <div class="mode-row">
+            <button class="btn btn-active" id="mode-waagrecht">🏢 Abwurf (waagrecht)</button>
+            <button class="btn btn-secondary" id="mode-schraeg">🚀 Schräger Wurf</button>
+        </div>
         <div class="slider-grid">
-            <!-- Höhe -->
-            <div class="slider-row">
+            <!-- Höhe (nur im waagrechten Modus) -->
+            <div class="slider-row" id="slider-h">
                 <div class="slider-label">
                     <span>Höhe <em>h</em></span>
                     <strong id="lbl-h">80 m</strong>
                 </div>
                 <input type="range" id="sl-h" min="10" max="300" step="1" value="80">
+            </div>
+            <!-- Winkel (nur im schrägen Modus) -->
+            <div class="slider-row" id="slider-alpha" style="display:none;">
+                <div class="slider-label">
+                    <span>Winkel <em>α</em></span>
+                    <strong id="lbl-alpha">45°</strong>
+                </div>
+                <input type="range" id="sl-alpha" min="10" max="80" step="1" value="45">
             </div>
             <!-- Abwurfposition x -->
             <div class="slider-row">
@@ -259,8 +279,22 @@
 class Physics {
     constructor(g = 9.81) { this.g = g; }
 
-    /** Zustand zum Zeitpunkt t: x, y, vx, vy */
-    getState(h, v0, g, xStart, t) {
+    /** Zustand zum Zeitpunkt t: x, y, vx, vy
+     *  mode 'waagrecht': Abwurf aus Höhe h, v0 horizontal.
+     *  mode 'schraeg':   Abschuss aus Höhe 0, Winkel alpha (Grad), v0 in Flugrichtung.
+     */
+    getState(h, v0, g, xStart, t, mode = 'waagrecht', alpha = 0) {
+        if (mode === 'schraeg') {
+            const a   = alpha * Math.PI / 180;
+            const vx0 = v0 * Math.cos(a);
+            const vy0 = v0 * Math.sin(a);
+            return {
+                x:  xStart + vx0 * t,
+                y:  Math.max(0, vy0 * t - 0.5 * g * t * t),
+                vx: vx0,
+                vy: vy0 - g * t
+            };
+        }
         return {
             x:  xStart + v0 * t,
             y:  Math.max(0, h - 0.5 * g * t * t),
@@ -269,24 +303,33 @@ class Physics {
         };
     }
 
-    /** t_flight = sqrt(2h / g) */
-    flightTime(h, g) {
-        if (g <= 0 || h <= 0) return 0;
-        return Math.sqrt(2 * h / g);
+    /** Flugzeit bis zum Boden. Waagrecht: sqrt(2h/g). Schräg: 2·v0·sin(α)/g. */
+    flightTime(h, v0, g, mode = 'waagrecht', alpha = 0) {
+        if (g <= 0) return 0;
+        if (mode === 'schraeg') {
+            const a = alpha * Math.PI / 180;
+            const s = Math.sin(a);
+            return (v0 <= 0 || s <= 0) ? 0 : 2 * v0 * s / g;
+        }
+        return (h <= 0) ? 0 : Math.sqrt(2 * h / g);
     }
 
-    /** Reichweite x beim Aufprall */
-    range(h, v0, g, xStart) {
-        return xStart + v0 * this.flightTime(h, g);
+    /** Reichweite x beim Aufschlag. Schräg: x0 + v0²·sin(2α)/g. */
+    range(h, v0, g, xStart, mode = 'waagrecht', alpha = 0) {
+        if (mode === 'schraeg') {
+            const a = alpha * Math.PI / 180;
+            return xStart + (v0 * v0 * Math.sin(2 * a)) / g;
+        }
+        return xStart + v0 * this.flightTime(h, v0, g, mode, alpha);
     }
 
     /** Vorberechnete Trajektorie als Punktarray */
-    trajectory(h, v0, g, xStart, steps = 90) {
-        const tF  = this.flightTime(h, g);
+    trajectory(h, v0, g, xStart, steps = 90, mode = 'waagrecht', alpha = 0) {
+        const tF  = this.flightTime(h, v0, g, mode, alpha);
         const pts = [];
         for (let i = 0; i <= steps; i++) {
             const t = (i / steps) * tF;
-            pts.push(this.getState(h, v0, g, xStart, t));
+            pts.push(this.getState(h, v0, g, xStart, t, mode, alpha));
         }
         return pts;
     }
@@ -371,6 +414,11 @@ class Renderer {
         this._drawAxes(W, H);
         this._drawIsland(snap.island);
 
+        // Schräger Modus: Kanone am Abschusspunkt
+        if (snap.mode === 'schraeg' && snap.cannon) {
+            this._drawCannon(snap.cannon.x, snap.cannon.y, snap.cannon.alpha);
+        }
+
         // Gestrichelte Parabel (nur wenn explizit an)
         if (snap.preTrajectory && snap.preTrajectory.length > 1) {
             this._drawPreTrajectory(snap.preTrajectory);
@@ -381,11 +429,14 @@ class Renderer {
             this._drawTrail(snap.trail);
         }
 
-        // Flugzeug
-        if (snap.plane) this._drawPlane(snap.plane.x, snap.plane.y, snap.plane.opacity);
+        // Flugzeug (nur im waagrechten Modus)
+        if (snap.mode !== 'schraeg' && snap.plane) this._drawPlane(snap.plane.x, snap.plane.y, snap.plane.opacity);
 
-        // Paket (nur wenn nicht im Einflug)
-        if (snap.pkg) this._drawPackage(snap.pkg.x, snap.pkg.y);
+        // Projektil: Geschoss (schräg) oder Paket (waagrecht)
+        if (snap.pkg) {
+            if (snap.mode === 'schraeg') this._drawBall(snap.pkg.x, snap.pkg.y);
+            else this._drawPackage(snap.pkg.x, snap.pkg.y);
+        }
 
         // Vektorpfeile
         if (snap.showVectors && snap.pkg && snap.vectors) {
@@ -702,6 +753,51 @@ class Renderer {
         ctx.restore();
     }
 
+    /* ---- Kanone (schräger Modus) ---- */
+    _drawCannon(x, y, alphaDeg) {
+        const ctx = this.ctx;
+        const cx  = this.scaler.toCanvasX(x);
+        const cy  = this.scaler.toCanvasY(y);
+        const a   = -alphaDeg * Math.PI / 180; // Canvas-y ist invertiert → negativ drehen
+
+        ctx.save();
+        ctx.translate(cx, cy);
+
+        // Lafette / Räder
+        ctx.fillStyle = '#5d4037';
+        ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#8d6e63';
+        ctx.beginPath(); ctx.arc(0, 0, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#4e342e'; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(0, 0, 13, 0, Math.PI * 2); ctx.stroke();
+
+        // Rohr (um α gedreht, nach oben rechts)
+        ctx.rotate(a);
+        ctx.fillStyle   = '#37474f';
+        ctx.strokeStyle = '#263238';
+        ctx.lineWidth   = 1.5;
+        ctx.fillRect(2, -5, 32, 10);
+        ctx.strokeRect(2, -5, 32, 10);
+
+        ctx.restore();
+    }
+
+    /* ---- Geschoss (schräger Modus) ---- */
+    _drawBall(x, y) {
+        const ctx = this.ctx;
+        const cx  = this.scaler.toCanvasX(x);
+        const cy  = this.scaler.toCanvasY(y);
+        ctx.save();
+        ctx.fillStyle   = '#c62828';
+        ctx.strokeStyle = '#7f0000';
+        ctx.lineWidth   = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        // kleiner Glanzpunkt
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.beginPath(); ctx.arc(cx - 2.5, cy - 2.5, 2.5, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    }
+
     /* ---- Vorberechnete Parabel ---- */
     _drawPreTrajectory(pts) {
         const ctx = this.ctx;
@@ -888,7 +984,9 @@ class App {
             v0: 25,    // Anfangsgeschwindigkeit [m/s]
             g:  9.81,  // Erdbeschleunigung [m/s²]
             xi: 150,   // Insel-Mittelpunkt [m]
-            iw: 30     // Inselbreite [m]
+            iw: 30,    // Inselbreite [m]
+            mode: 'waagrecht', // 'waagrecht' | 'schraeg'
+            alpha: 45  // Abschusswinkel [°], nur im schrägen Modus
         };
 
         this.showVectors = true;
@@ -928,7 +1026,15 @@ class App {
 
     /* ---- Scaler konfigurieren ---- */
     _fitScaler() {
-        const { h, v0, g, xs, xi, iw } = this.state;
+        const { h, v0, g, xs, xi, iw, mode, alpha } = this.state;
+        if (mode === 'schraeg') {
+            const a     = alpha * Math.PI / 180;
+            const rangeEnd = xs + (v0 * v0 * Math.sin(2 * a)) / g;
+            const maxH     = (v0 * v0 * Math.sin(a) * Math.sin(a)) / (2 * g);
+            const xMax     = Math.max(xi + iw / 2 + 30, rangeEnd + 30);
+            this.scaler.fit(xs, xMax, Math.max(maxH, 10));
+            return;
+        }
         const rangeEnd = this.physics.range(h, v0, g, xs);
         const xMax     = Math.max(xi + iw / 2 + 30, rangeEnd + 30);
         // Linker Rand: genug Platz für den Einflug
@@ -937,12 +1043,15 @@ class App {
 
     /* ---- Statisches Startbild ---- */
     _drawStatic(overrideHit = null) {
-        const { h, xs, v0, g, xi, iw } = this.state;
+        const { h, xs, v0, g, xi, iw, mode, alpha } = this.state;
+        const schraeg = mode === 'schraeg';
         this.renderer.draw({
-            plane:         { x: xs, y: h, opacity: 1 },
+            mode:          mode,
+            plane:         schraeg ? null : { x: xs, y: h, opacity: 1 },
+            cannon:        schraeg ? { x: xs, y: 0, alpha } : null,
             pkg:           null,
             island:        { x1: xi - iw/2, x2: xi + iw/2, hit: overrideHit },
-            preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs) : null,
+            preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs, 90, mode, alpha) : null,
             trail:         [],
             showVectors:   false,
             vectors:       null,
@@ -1012,12 +1121,19 @@ class App {
        Flugzeug fliegt weiter, Paket fällt
        ================================================= */
     _startDropPhase() {
-        const { h, xs, v0, g } = this.state;
-        const tFlight = this.physics.flightTime(h, g);
+        const { h, xs, v0, g, mode, alpha } = this.state;
+        const tFlight = this.physics.flightTime(h, v0, g, mode, alpha);
         this.trail    = [];
 
-        // Paket-Animator starten
+        // Paket/Geschoss-Animator starten
         this.animator.start(tFlight);
+
+        // Schräger Wurf: kein Flugzeug → keine exit-Phase, nur Flug
+        if (mode === 'schraeg') {
+            this._phase = 'launch';
+            this._planeOpacity = 1;
+            return;
+        }
 
         // Flugzeug fliegt parallel weiter (exit-Phase, eigener kleiner RAF)
         this._phase      = 'exit';
@@ -1060,8 +1176,9 @@ class App {
        ANIMATIONS-FRAME (Paket fällt)
        ================================================= */
     _onAnimFrame(t) {
-        const { h, xs, v0, g, xi, iw } = this.state;
-        const pos = this.physics.getState(h, v0, g, xs, t);
+        const { h, xs, v0, g, xi, iw, mode, alpha } = this.state;
+        const schraeg = mode === 'schraeg';
+        const pos = this.physics.getState(h, v0, g, xs, t, mode, alpha);
 
         // Trail mit Decimation
         this.trail.push({ x: pos.x, y: pos.y });
@@ -1069,14 +1186,16 @@ class App {
             this.trail = this.trail.filter((_, i) => i % 2 === 0);
         }
 
-        // Plane-Position für diese Phase
-        const planeVisible = this._phase === 'exit' && this._planeX <= this.scaler.xMax + 40;
+        // Plane-Position für diese Phase (nur waagrecht)
+        const planeVisible = !schraeg && this._phase === 'exit' && this._planeX <= this.scaler.xMax + 40;
 
         this.renderer.draw({
+            mode:          mode,
             plane:         planeVisible ? { x: this._planeX, y: h, opacity: this._planeOpacity ?? 1 } : null,
+            cannon:        schraeg ? { x: xs, y: 0, alpha } : null,
             pkg:           { x: pos.x, y: pos.y },
             island:        { x1: xi - iw/2, x2: xi + iw/2, hit: null },
-            preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs) : null,
+            preTrajectory: this.showPreTraj ? this.physics.trajectory(h, v0, g, xs, 90, mode, alpha) : null,
             trail:         this.trail,
             showVectors:   this.showVectors,
             vectors:       { vx: pos.vx, vy: pos.vy },
@@ -1088,18 +1207,21 @@ class App {
        ANIMATIONS-ENDE
        ================================================= */
     _onAnimEnd() {
-        const { h, xs, v0, g, xi, iw } = this.state;
-        const tF    = this.physics.flightTime(h, g);
-        const range = this.physics.range(h, v0, g, xs);
+        const { h, xs, v0, g, xi, iw, mode, alpha } = this.state;
+        const schraeg = mode === 'schraeg';
+        const tF    = this.physics.flightTime(h, v0, g, mode, alpha);
+        const range = this.physics.range(h, v0, g, xs, mode, alpha);
         const hit   = range >= xi - iw/2 && range <= xi + iw/2;
-        const pos   = this.physics.getState(h, v0, g, xs, tF);
+        const pos   = this.physics.getState(h, v0, g, xs, tF, mode, alpha);
 
         this._phase = 'idle';
         this._paused = false;
         this._setParameterLock(false);
 
         this.renderer.draw({
+            mode:          mode,
             plane:         null,
+            cannon:        schraeg ? { x: xs, y: 0, alpha } : null,
             pkg:           { x: pos.x, y: 0 },
             island:        { x1: xi - iw/2, x2: xi + iw/2, hit },
             preTrajectory: null,
@@ -1114,7 +1236,7 @@ class App {
         const banner = document.getElementById('landing-banner');
         banner.className = 'show ' + (hit ? 'hit' : 'miss');
         banner.textContent = hit
-            ? '🎯 Treffer! Paket landet auf der Insel!'
+            ? (schraeg ? '🎯 Treffer! Das Geschoss landet auf der Insel!' : '🎯 Treffer! Paket landet auf der Insel!')
             : `❌ Daneben! Reichweite: ${range.toFixed(0)} m`;
         setTimeout(() => { banner.className = ''; }, 3200);
     }
@@ -1124,11 +1246,12 @@ class App {
        ================================================= */
     _bindUI() {
         const sliders = [
-            { id: 'sl-h',  key: 'h',  lbl: 'lbl-h',  fmt: v => `${v} m`     },
-            { id: 'sl-xs', key: 'xs', lbl: 'lbl-xs', fmt: v => `${v} m`     },
-            { id: 'sl-v0', key: 'v0', lbl: 'lbl-v0', fmt: v => `${v} m/s`   },
-            { id: 'sl-g',  key: 'g',  lbl: 'lbl-g',  fmt: v => `${parseFloat(v).toFixed(2)} m/s²` },
-            { id: 'sl-xi', key: 'xi', lbl: 'lbl-xi', fmt: v => `${v} m`     }
+            { id: 'sl-h',     key: 'h',     lbl: 'lbl-h',     fmt: v => `${v} m`     },
+            { id: 'sl-alpha', key: 'alpha', lbl: 'lbl-alpha', fmt: v => `${v}°`      },
+            { id: 'sl-xs',    key: 'xs',    lbl: 'lbl-xs',    fmt: v => `${v} m`     },
+            { id: 'sl-v0',    key: 'v0',    lbl: 'lbl-v0',    fmt: v => `${v} m/s`   },
+            { id: 'sl-g',     key: 'g',     lbl: 'lbl-g',     fmt: v => `${parseFloat(v).toFixed(2)} m/s²` },
+            { id: 'sl-xi',    key: 'xi',    lbl: 'lbl-xi',    fmt: v => `${v} m`     }
         ];
         this._sliders = sliders.map(({ id }) => document.getElementById(id));
 
@@ -1148,6 +1271,9 @@ class App {
         document.getElementById('btn-slo').addEventListener('click',      () => this._onSloMo());
         document.getElementById('btn-vec').addEventListener('click',      () => this._onToggleVectors());
         document.getElementById('btn-traj').addEventListener('click',     () => this._onToggleTraj());
+
+        document.getElementById('mode-waagrecht').addEventListener('click', () => this._onSwitchMode('waagrecht'));
+        document.getElementById('mode-schraeg').addEventListener('click',   () => this._onSwitchMode('schraeg'));
 
         window.addEventListener('resize', () => {
             this.renderer.resize();
@@ -1169,18 +1295,47 @@ class App {
         const btn = document.getElementById('btn-play');
 
         if (this._phase === 'idle' && !this.animator.running) {
-            // Neu starten → Einflug-Phase
+            // Neu starten → Einflug (waagrecht) oder direkter Abschuss (schräg)
             this._fitScaler();
             this._paused = false;
             this._setParameterLock(true);
             document.getElementById('landing-banner').className = '';
-            this._startEntryPhase();
+            if (this.state.mode === 'schraeg') {
+                this._startDropPhase();
+            } else {
+                this._startEntryPhase();
+            }
             btn.textContent = '⏸ Pause';
         } else if (this._phase !== 'idle') {
             this._paused = !this._paused;
             if (this.animator.running && this.animator.paused !== this._paused) this.animator.pause();
             btn.textContent = this._paused ? '▶ Fortsetzen' : '⏸ Pause';
         }
+    }
+
+    /* ---- Modus umschalten (waagrecht <-> schräg) ---- */
+    _onSwitchMode(mode) {
+        // Laufende Animation vorher sauber stoppen
+        if (this._phase !== 'idle' || this.animator.running) this._onReset();
+        if (this.state.mode === mode) return;
+
+        this.state.mode = mode;
+        const isSchraeg = mode === 'schraeg';
+
+        // Höhe <-> Winkel einblenden
+        document.getElementById('slider-h').style.display     = isSchraeg ? 'none' : '';
+        document.getElementById('slider-alpha').style.display = isSchraeg ? '' : 'none';
+
+        // Modus-Buttons
+        document.getElementById('mode-waagrecht').className = 'btn ' + (isSchraeg ? 'btn-secondary' : 'btn-active');
+        document.getElementById('mode-schraeg').className   = 'btn ' + (isSchraeg ? 'btn-active' : 'btn-secondary');
+
+        // Untertitel
+        document.querySelector('.header-subtitle').textContent =
+            isSchraeg ? 'Geschoss-Abschuss auf die Insel' : 'Rettungspaket-Abwurf';
+
+        this._fitScaler();
+        this._drawStatic();
     }
 
     _onReset() {
@@ -1225,7 +1380,7 @@ class App {
     }
 
     _updateAllSliderFills() {
-        ['sl-h','sl-xs','sl-v0','sl-g','sl-xi'].forEach(id =>
+        ['sl-h','sl-alpha','sl-xs','sl-v0','sl-g','sl-xi'].forEach(id =>
             this._updateSliderFill(document.getElementById(id))
         );
     }
