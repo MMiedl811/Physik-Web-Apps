@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f4efe6">
+<title>Fadenpendel – Energieumwandlung</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="../shared/student-entry.css">
+<style>
+:root{--paper:#f4efe6;--surface:#fffdf8;--soft:#f8f2e9;--ink:#25332f;--muted:#68716d;--line:#d9cfbf;--petrol:#0f766e;--teal:#0f766e;--red:#cf594d;--blue:#3979b8;--blue2:#70a9dc;--green:#2fa896;--violet:#7a5aa6;--shadow:0 12px 32px rgba(62,52,39,.09)}
+*{box-sizing:border-box}html{background:var(--paper)}body{min-height:100vh;margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(circle at 8% 0,rgba(15,118,110,.10),transparent 30rem),var(--paper)}
+button,input,select{font:inherit}button,select{min-height:48px}
+.page{width:min(1100px,100%);margin:auto;padding:12px}
+.topbar{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.home,.button{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font-weight:800;text-decoration:none;cursor:pointer}
+.home{min-width:48px}
+.button.primary{border-color:var(--petrol);background:var(--petrol);color:#fff}
+.heading{flex:1}.heading h1{margin:0;font-family:Georgia,serif;font-size:clamp(1.45rem,3.4vw,2.2rem);line-height:1}.heading p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.mode-switch{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.mode-btn{flex:1;min-width:150px}.mode-btn.active{border-color:var(--petrol);background:var(--petrol);color:#fff}
+.card{border:1px solid var(--line);border-radius:20px;background:rgba(255,253,248,.97);box-shadow:var(--shadow);overflow:hidden}
+.readouts{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--line)}
+.readout{padding:10px 14px;border-right:1px solid var(--line)}.readout:last-child{border:0}
+.readout small{display:block;color:var(--muted);font-size:.72rem;font-weight:750}
+.readout strong{display:block;margin-top:2px;font-size:1.05rem}
+.actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--line);background:var(--soft)}
+.stage-wrap{display:grid;grid-template-columns:1.25fr .8fr;gap:14px;padding:16px;align-items:center}
+canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid var(--line);border-radius:14px;touch-action:none}
+.energy-card h3{margin:0 0 6px;font-size:1rem}
+.energy-card p{margin:0 0 10px;color:var(--muted);font-size:.78rem;line-height:1.4}
+.energy-scale{position:relative;display:flex;justify-content:space-around;align-items:flex-end;height:210px;margin:0 auto;max-width:340px;border-bottom:2px solid var(--ink)}
+.energy-item{display:flex;min-width:0;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.energy-column{display:flex;align-items:flex-end;width:44px;height:100%;border:1px solid var(--line);background:#fbf7ef;border-radius:8px 8px 0 0;overflow:hidden}
+.energy-fill{width:100%;height:0;transition:height 90ms linear}
+.ei-kin{background:linear-gradient(135deg,var(--blue2),var(--blue))}
+.ei-pot{background:linear-gradient(135deg,#4fd1b0,var(--teal))}
+.ei-therm{background:linear-gradient(135deg,#ef8a72,var(--red))}
+.ei-total .energy-fill{background:repeating-linear-gradient(135deg,var(--violet) 0 8px,#9d7fc4 8px 14px)}
+.energy-label{margin-top:6px;font-size:.7rem;font-weight:850;color:var(--muted);text-align:center}
+.energy-value{font-size:.66rem;color:var(--muted);margin-top:2px;text-align:center;white-space:nowrap}
+.scale-mark{position:absolute;right:-8px;transform:translateY(-50%);color:var(--muted);font-size:.66rem}
+.controls{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:14px;border-top:1px solid var(--line);background:var(--soft)}
+.field{display:grid;gap:5px}
+.field label{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;font-weight:800}
+.field input{width:100%}
+.explain{padding:12px 16px;border-top:1px solid var(--line);font-size:.86rem;line-height:1.5}
+.model-note{margin:12px 0 0;padding:12px 16px;color:var(--muted);font-size:.76rem;line-height:1.45}
+@media(max-width:760px){.stage-wrap{grid-template-columns:1fr}.heading p{display:none}.readouts{grid-template-columns:1fr 1fr}.readout:last-child{grid-column:1/-1;border-top:1px solid var(--line)}.controls{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-physik-app="fadenpendel-energie" data-student-home="../index.html" data-student-title="Fadenpendel – Energieumwandlung" data-student-summary="Du beobachtest, wie Höhen- und Bewegungsenergie beim Fadenpendel ineinander umgewandelt werden – mit und ohne Luftreibung." data-student-controls="Wähle Länge, Auslenkung und Masse. Starte, pausiere oder setze neu auf. Schalte Luftreibung an oder aus.">
+<div class="page">
+<header class="topbar"><a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a><div class="heading"><h1>Fadenpendel – Energieumwandlung</h1><p>Mechanische Energie: Bewegung ↔ Höhe</p></div><button class="button" id="reset" type="button">↺ Neu</button></header>
+
+<div class="mode-switch" role="tablist" aria-label="Luftreibung">
+  <button id="mode-ideal" class="mode-btn active" data-mode="ideal" type="button" role="tab" aria-selected="true">Ohne Luftreibung</button>
+  <button id="mode-friction" class="mode-btn" data-mode="friction" type="button" role="tab" aria-selected="false">Mit Luftreibung</button>
+</div>
+
+<main>
+<section class="card">
+  <div class="readouts">
+    <div class="readout"><small>Auslenkung θ</small><strong id="ro-theta">30°</strong></div>
+    <div class="readout"><small>Höhe h</small><strong id="ro-height">0,0 m</strong></div>
+    <div class="readout"><small>Geschwindigkeit v</small><strong id="ro-speed">0,0 m/s</strong></div>
+  </div>
+
+  <div class="actions">
+    <button class="button primary" id="play" type="button">▶ Start</button>
+    <button class="button" id="resetPos" type="button">↺ Reset</button>
+    <div class="field" style="flex:1;min-width:180px"><label>Zeitskalierung <strong id="speedVal">1×</strong></label><input id="timeScale" type="range" min="0.2" max="2" step="0.1" value="1"></div>
+  </div>
+
+  <div class="stage-wrap">
+    <canvas id="pendulum" role="img" aria-label="Fadenpendel: Kugel an einem Faden, der eine Schwingung ausführt"></canvas>
+
+    <div class="energy-card" aria-label="Energiebalken">
+      <h3>Energieumwandlung</h3>
+      <p id="energyIntro">Balken im selben Maßstab. „Gesamt" ist die schraffierte Referenz und wird nicht zu den Formen addiert.</p>
+      <div class="energy-scale">
+        <div class="energy-item">
+          <div class="energy-column"><div class="energy-fill ei-kin" id="bar-kin"></div></div>
+          <div class="energy-label">E<sub>kin</sub></div><div class="energy-value" id="val-kin">0,0 J</div>
+        </div>
+        <div class="energy-item">
+          <div class="energy-column"><div class="energy-fill ei-pot" id="bar-pot"></div></div>
+          <div class="energy-label">E<sub>pot</sub></div><div class="energy-value" id="val-pot">0,0 J</div>
+        </div>
+        <div class="energy-item" id="item-therm" style="display:none">
+          <div class="energy-column"><div class="energy-fill ei-therm" id="bar-therm"></div></div>
+          <div class="energy-label">E<sub>inner</sub></div><div class="energy-value" id="val-therm">0,0 J</div>
+        </div>
+        <div class="energy-item ei-total">
+          <div class="energy-column"><div class="energy-fill" id="bar-total"></div></div>
+          <div class="energy-label">Gesamt</div><div class="energy-value" id="val-total">0,0 J</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="field"><label>Länge <em>L</em><strong id="lbl-L">1,0 m</strong></label><input id="sl-L" type="range" min="0.5" max="2.5" step="0.05" value="1.0"></div>
+    <div class="field"><label>Auslenkung <em>α</em><strong id="lbl-amp">30°</strong></label><input id="sl-amp" type="range" min="10" max="90" step="1" value="30"></div>
+    <div class="field"><label>Masse <em>m</em><strong id="lbl-mass">0,5 kg</strong></label><input id="sl-mass" type="range" min="0.2" max="2" step="0.1" value="0.5"></div>
+  </div>
+
+  <p class="explain" id="explain"><strong>Beobachte:</strong> Am Umkehrpunkt ist die Geschwindigkeit null und die Höhenenergie maximal. Im tiefsten Punkt ist die Höhenenergie null und die Bewegungsenergie maximal. Ohne Luftreibung bleibt die Gesamtenergie erhalten.</p>
+</section>
+
+<p class="model-note"><strong>Modell:</strong> Exakte Pendelgleichung θ̈ = −(g/L)·sin θ (keine Kleinwinkelnäherung), integriert mit Runge-Kutta 4. Die Höhe wird relativ zum tiefsten Punkt gemessen: h = L·(1 − cos θ), E<sub>pot</sub> = m·g·h und E<sub>kin</sub> = ½·m·v² mit v = L·θ̇. <strong>Ohne Luftreibung</strong> bleibt E<sub>ges</sub> = E<sub>kin</sub> + E<sub>pot</sub> konstant. <strong>Mit Luftreibung</strong> wird die „verlorene" mechanische Energie als innere Energie E<sub>inner</sub> gutgeschrieben (Erwärmung von Luft und Pendel); die Gesamtenergie bleibt damit erhalten, aber die Auslenkung klingt ab. Die Masse beeinflusst die Schwingungsdauer nicht, wohl aber die Energiewerte.</p>
+</main>
+</div>
+
+<script>
+(()=>{'use strict';
+const q=s=>document.querySelector(s),fmt=(v,d=2)=>Number(v).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const CONFIG={g:9.81,b:0.08};
+const state={mode:'ideal',L:1.0,ampDeg:30,mass:0.5,timeScale:1,playing:false,t:0,theta:0,omega:0,einner:0};
+const dom={canvas:q('#pendulum'),ctx:null,roTheta:q('#ro-theta'),roHeight:q('#ro-height'),roSpeed:q('#ro-speed'),barKin:q('#bar-kin'),barPot:q('#bar-pot'),barTherm:q('#bar-therm'),barTotal:q('#bar-total'),valKin:q('#val-kin'),valPot:q('#val-pot'),valTherm:q('#val-therm'),valTotal:q('#val-total'),itemTherm:q('#item-therm'),play:q('#play'),reset:q('#reset'),resetPos:q('#resetPos'),explain:q('#explain'),timeScale:q('#timeScale'),speedVal:q('#speedVal'),slL:q('#sl-L'),slAmp:q('#sl-amp'),slMass:q('#sl-mass'),lblL:q('#lbl-L'),lblAmp:q('#lbl-amp'),lblMass:q('#lbl-mass')};
+
+const ampRad=()=>state.ampDeg*Math.PI/180;
+const height=()=>state.L*(1-Math.cos(state.theta));
+const speed=()=>state.L*Math.abs(state.omega);
+const eKin=()=>0.5*state.mass*Math.pow(state.L*state.omega,2);
+const ePot=()=>state.mass*CONFIG.g*height();
+const eMech=()=>eKin()+ePot();
+const initialE=()=>state.mass*CONFIG.g*state.L*(1-Math.cos(ampRad()));
+
+function accel(th,om){return -(CONFIG.g/state.L)*Math.sin(th)-(state.mode==='friction'?CONFIG.b*om:0);}
+function rk4(dt){
+  const th0=state.theta,om0=state.omega;
+  const k1t=om0,k1o=accel(th0,om0);
+  const k2t=om0+dt*k1o/2,k2o=accel(th0+dt*k1t/2,om0+dt*k1o/2);
+  const k3t=om0+dt*k2o/2,k3o=accel(th0+dt*k2t/2,om0+dt*k2o/2);
+  const k4t=om0+dt*k3o,k4o=accel(th0+dt*k3t,om0+dt*k3o);
+  return {theta:th0+dt*(k1t+2*k2t+2*k3t+k4t)/6,omega:om0+dt*(k1o+2*k2o+2*k3o+k4o)/6};
+}
+function advance(dtFrame){
+  const n=Math.max(4,Math.ceil(dtFrame/0.004));
+  const h=dtFrame/n;
+  for(let i=0;i<n;i++){
+    const before=eMech();
+    const nx=rk4(h);
+    state.theta=nx.theta;state.omega=nx.omega;
+    if(state.mode==='friction'){
+      const loss=before-eMech();
+      if(loss>0)state.einner+=loss;
+    }
+  }
+  state.t+=dtFrame;
+}
+function reset(keepMode){
+  state.theta=ampRad();state.omega=0;state.einner=0;state.t=0;state.playing=false;
+  dom.play.textContent='▶ Start';
+}
+
+function resizeCanvas(){
+  if(!dom.ctx)dom.ctx=dom.canvas.getContext('2d');
+  const rect=dom.canvas.getBoundingClientRect();
+  const dpr=Math.min(devicePixelRatio||1,2);
+  dom.canvas.width=Math.max(1,Math.round(rect.width*dpr));
+  dom.canvas.height=Math.max(1,Math.round(rect.height*dpr||240*dpr));
+}
+function drawPendulum(){
+  const c=dom.ctx,cv=dom.canvas,W=cv.width,H=cv.height,dpr=Math.min(devicePixelRatio||1,2);
+  c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W/dpr,H/dpr);
+  const w=W/dpr,hgt=H/dpr;
+  const px=(v)=>w/2+v;
+  const py=(v)=>hgt-40-v;
+  const scale=Math.min(w/2.8,(hgt-140)/(state.L+0.3));
+  const Lpx=state.L*scale;
+  const pivotX=px(0),pivotY=py(state.L+0.15);
+  const bobX=pivotX+Lpx*Math.sin(state.theta);
+  const bobY=pivotY+Lpx*Math.cos(state.theta);
+  // Bodenlinie (Nullniveau)
+  c.strokeStyle='#c8bfae';c.setLineDash([4,4]);c.lineWidth=1;
+  c.beginPath();c.moveTo(10,pivotY+Lpx);c.lineTo(w-10,pivotY+Lpx);c.stroke();c.setLineDash([]);
+  // Höhenlinie h
+  c.strokeStyle='#2fa896';c.lineWidth=1.5;c.setLineDash([3,3]);
+  c.beginPath();c.moveTo(bobX,bobY);c.lineTo(bobX,pivotY+Lpx);c.stroke();c.setLineDash([]);
+  // Faden
+  c.strokeStyle='#25332f';c.lineWidth=2.5;
+  c.beginPath();c.moveTo(pivotX,pivotY);c.lineTo(bobX,bobY);c.stroke();
+  // Pendelmasse
+  c.fillStyle='#0f766e';
+  c.beginPath();c.arc(bobX,bobY,14,0,Math.PI*2);c.fill();
+  c.fillStyle='#fff';c.font='700 13px system-ui';c.textAlign='center';c.textBaseline='middle';
+  c.fillText('m',bobX,bobY+0.5);
+  // Aufhängepunkt
+  c.fillStyle='#25332f';c.beginPath();c.arc(pivotX,pivotY,4,0,Math.PI*2);c.fill();
+  // Winkelbogen
+  const arcR=26,dir=state.theta>=0?1:-1;
+  c.strokeStyle='#7a5aa6';c.lineWidth=1.5;
+  c.beginPath();c.arc(pivotX,pivotY,arcR,0,state.theta,dir<0);c.stroke();
+  c.fillStyle='#7a5aa6';c.font='700 12px system-ui';c.textAlign='left';
+  c.fillText('θ',pivotX+arcR+4,pivotY-4);
+  // Label Höhe
+  c.fillStyle='#2fa896';c.font='700 11px system-ui';c.textAlign='left';
+  c.fillText('h',bobX+8,(pivotY+Lpx+bobY)/2);
+}
+function render(){
+  drawPendulum();
+  const thDeg=state.theta*180/Math.PI;
+  dom.roTheta.textContent=`${fmt(thDeg,0)}°`;
+  dom.roHeight.textContent=`${fmt(height(),2)} m`;
+  dom.roSpeed.textContent=`${fmt(speed(),2)} m/s`;
+  const E=initialE()||1;
+  const kin=eKin(),pot=ePot();
+  const total=state.mode==='friction'?kin+pot+state.einner:kin+pot;
+  const pct=v=>Math.max(0,Math.min(100,v/E*100));
+  dom.barKin.style.height=`${pct(kin)}%`;
+  dom.barPot.style.height=`${pct(pot)}%`;
+  dom.barTotal.style.height=`${pct(total)}%`;
+  dom.valKin.textContent=`${fmt(kin,1)} J`;
+  dom.valPot.textContent=`${fmt(pot,1)} J`;
+  dom.valTotal.textContent=`${fmt(total,1)} J`;
+  if(state.mode==='friction'){
+    dom.barTherm.style.height=`${pct(state.einner)}%`;
+    dom.valTherm.textContent=`${fmt(state.einner,1)} J`;
+  }
+}
+function updateExplain(){
+  if(state.mode==='friction'){
+    dom.explain.innerHTML='<strong>Mit Luftreibung:</strong> Ein Teil der mechanischen Energie wird zu innerer Energie E<sub>inner</sub> (Erwärmung von Luft und Pendel). Deshalb wird die Auslenkung kleiner. Die Gesamtenergie bleibt erhalten: E<sub>ges</sub> = E<sub>kin</sub> + E<sub>pot</sub> + E<sub>inner</sub>.';
+    dom.itemTherm.style.display='';
+  }else{
+    dom.explain.innerHTML='<strong>Beobachte:</strong> Am Umkehrpunkt ist die Geschwindigkeit null und die Höhenenergie maximal. Im tiefsten Punkt ist die Höhenenergie null und die Bewegungsenergie maximal. Ohne Luftreibung bleibt die Gesamtenergie konstant.';
+    dom.itemTherm.style.display='none';
+  }
+}
+
+function setMode(m){
+  if(state.mode===m&&state.theta===ampRad())return;
+  state.mode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>{const on=b.dataset.mode===m;b.classList.toggle('active',on);b.setAttribute('aria-selected',on);});
+  reset();updateExplain();render();
+}
+function configure(patch){
+  if(patch.L!==undefined)state.L=clamp(+patch.L,0.5,2.5);
+  if(patch.ampDeg!==undefined)state.ampDeg=clamp(+patch.ampDeg,10,90);
+  if(patch.mass!==undefined)state.mass=clamp(+patch.mass,0.2,2);
+  dom.lblL.textContent=`${fmt(state.L,1)} m`;
+  dom.lblAmp.textContent=`${fmt(state.ampDeg,0)}°`;
+  dom.lblMass.textContent=`${fmt(state.mass,1)} kg`;
+  reset();render();
+}
+
+q('#mode-ideal').addEventListener('click',()=>setMode('ideal'));
+q('#mode-friction').addEventListener('click',()=>setMode('friction'));
+dom.play.addEventListener('click',()=>{state.playing=!state.playing;dom.play.textContent=state.playing?'⏸ Pause':'▶ Start';});
+dom.resetPos.addEventListener('click',()=>reset(true));
+dom.reset.addEventListener('click',()=>{configure({L:1.0,ampDeg:30,mass:0.5});setMode('ideal');dom.timeScale.value=1;dom.speedVal.textContent='1×';state.timeScale=1;});
+dom.timeScale.addEventListener('input',()=>{state.timeScale=+dom.timeScale.value;dom.speedVal.textContent=`${fmt(state.timeScale,1)}×`;});
+dom.slL.addEventListener('input',()=>configure({L:dom.slL.value}));
+dom.slAmp.addEventListener('input',()=>configure({ampDeg:dom.slAmp.value}));
+dom.slMass.addEventListener('input',()=>configure({mass:dom.slMass.value}));
+addEventListener('resize',()=>{resizeCanvas();render();});
+
+let lastFrame=performance.now();
+function frame(now){
+  const dt=Math.min(0.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
+  if(state.playing)advance(dt*state.timeScale);
+  render();
+  requestAnimationFrame(frame);
+}
+resizeCanvas();reset();updateExplain();render();
+requestAnimationFrame(frame);
+window.__fadenpendel=Object.freeze({state,advance,reset,setMode,configure,get:()=>({theta:state.theta,omega:state.omega,kin:eKin(),pot:ePot(),einner:state.einner,total:state.mode==='friction'?eKin()+ePot()+state.einner:eKin()+ePot()})});
+})();
+</script>
+<script src="../shared/student-entry.js"></script>
+</body>
+</html>

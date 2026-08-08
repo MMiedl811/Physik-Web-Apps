@@ -28,6 +28,7 @@ Die veröffentlichte Seite ist über die GitHub-Pages-Adresse dieses Repositorie
 | [Bewegungsdiagramme](diagramme/index.html) | 10 | Abschnittsweise t–x-, t–v- und t–a-Diagramme lesen und verknüpfen. Ein zweiter, bewusst synchron gehaltener Einstieg: [`Physik-Diagrammbastler-Segmente-SplitDashboard.html`](diagramme/Physik-Diagrammbastler-Segmente-SplitDashboard.html). |
 | [Waagrechter Abwurf auf Insel](waagrechter%20Wurf/index.html) | 10 | Überlagerung horizontaler und vertikaler Bewegung eines abgeworfenen Rettungspakets. |
 | [Schwingungen](schwingungen/index.html) | 11 | Federpendel und Fadenpendel im Vergleich mit Zeitverläufen. |
+| [Fadenpendel – Energieumwandlung](fadenpendel-energie/index.html) | 11 | Exakte Pendelgleichung (keine Kleinwinkelnäherung) mit Energiebalken für E_kin, E_pot und Gesamt – mit und ohne Luftreibung (Reibung wird als innere Energie bilanziert). |
 | [Vektor-Labor](vektor-labor/index.html) | 8–12 | Maßstäbliches Konstruktionslabor für Geschwindigkeits-, Kraft- und Beschleunigungsvektoren. |
 
 ### Wärmelehre
