@@ -1048,8 +1048,11 @@
       let Ek, Ep;
       if (!isPend) {
         Ek = 0.5 * mass * v * v;
-        let dLs = (mass * g) / k;
-        Ep = 0.5 * k * Math.pow(dLs - p, 2) + mass * g * (amplitude + p);
+        // Potenzielle Energie relativ zur statischen Gleichgewichtslage:
+        // Dort ist die Gewichtskraft bereits durch die Feder kompensiert, es
+        // zählt nur die elastische Energie Ep = ½·k·p². Ohne den konstanten
+        // Schwere-Offset ist die Umwandlung E_kin ↔ E_pot klar sichtbar.
+        Ep = 0.5 * k * p * p;
       } else {
         Ek = 0.5 * mass * Math.pow(L * v, 2);
         Ep = mass * g * L * (1 - Math.cos(p));
