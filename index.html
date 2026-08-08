@@ -115,16 +115,29 @@
         }
         .section-head h2 { margin: 0; font-size: 1.1rem; letter-spacing: -.02em; }
         .section-head span { color: var(--muted); font-size: .82rem; }
+        .filter-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; }
+        .search-wrap { position: relative; flex: 1; min-width: 240px; }
+        .search-input { width: 100%; min-height: 52px; padding: 12px 48px 12px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); font: inherit; font-size: 1rem; box-shadow: var(--shadow); }
+        .search-input::placeholder { color: var(--muted); }
+        .search-input:focus-visible { outline: 3px solid rgba(15, 118, 110, .3); outline-offset: 2px; }
+        .search-clear { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); display: none; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-soft); color: var(--muted); cursor: pointer; font: inherit; font-size: .95rem; line-height: 1; }
+        .search-clear.visible { display: grid; place-items: center; }
+        .filter-count { color: var(--muted); font-size: .82rem; font-weight: 760; white-space: nowrap; }
+        .topic-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
+        .topic-nav a { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: .84rem; font-weight: 800; text-decoration: none; transition: border-color .2s ease, color .2s ease; }
+        .topic-nav a:hover { border-color: var(--petrol); color: var(--petrol); }
+        .topic-nav a:focus-visible { outline: 3px solid rgba(15, 118, 110, .3); outline-offset: 2px; }
+        .grade-badge { display: inline-block; margin: 0 6px 2px 0; padding: 2px 9px; border: 1px solid color-mix(in srgb, var(--petrol) 32%, var(--line)); border-radius: 999px; background: var(--surface-soft); color: var(--petrol); font-size: .68rem; font-weight: 850; letter-spacing: .02em; white-space: nowrap; }
+        .card.hidden, .topic-section.hidden { display: none; }
+        .no-results { display: none; margin: 26px 0 10px; padding: 26px; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); text-align: center; }
+        .no-results.visible { display: block; }
         #app-grid { display: grid; gap: clamp(34px, 5vw, 56px); }
         .topic-section { min-width: 0; }
         .topic-head { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 14px; }
         .topic-kicker { display: block; margin-bottom: 5px; color: var(--petrol); font-size: .7rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
         .topic-head h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -.035em; }
         .topic-range { color: var(--muted); font-size: .78rem; font-weight: 760; white-space: nowrap; }
-        .grade-grid { display: grid; grid-template-columns: repeat(5, minmax(178px, 1fr)); gap: 12px; padding: 2px 1px 10px; overflow-x: auto; overscroll-behavior-inline: contain; scroll-snap-type: inline proximity; scrollbar-color: var(--line) transparent; }
-        .grade-column { min-width: 0; scroll-snap-align: start; }
-        .grade-label { margin: 0 0 8px; padding: 7px 10px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: .73rem; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
-        .grade-cards { display: grid; gap: 12px; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); gap: 14px; }
         .card {
             position: relative;
             min-height: 180px;
@@ -183,13 +196,12 @@
             header { grid-template-columns: 1fr; align-items: start; }
             .hero-note { max-width: 620px; }
         }
-        @media (max-width: 900px) { .topic-range { white-space: normal; } .topic-range::after { content: " · horizontal wischen"; } }
+        @media (max-width: 900px) { .topic-range { white-space: normal; } }
         @media (max-width: 560px) {
             body { padding: 16px; }
             header { padding-top: 48px; }
             .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
             .topic-head { align-items: flex-start; flex-direction: column; gap: 3px; }
-            .grade-grid { margin-right: -16px; padding-right: 16px; }
             .card { min-height: 176px; }
         }
         @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
@@ -212,84 +224,95 @@
             </div>
         </header>
 
-        <div class="section-head"><h2>Nach Themenbereichen</h2><span>Innerhalb jedes Bereichs: Klasse 8 → Klasse 12</span></div>
-        <main id="app-grid" aria-label="Physik-Anwendungen nach Themenbereich und Klassenstufe">
+        <div class="filter-bar" role="search">
+            <div class="search-wrap">
+                <input type="search" id="app-search" class="search-input" placeholder="App suchen – z. B. Energie, Stoß, Schwingung, Vektor …" aria-label="Anwendung suchen">
+                <button type="button" id="search-clear" class="search-clear" aria-label="Suche zurücksetzen">✕</button>
+            </div>
+            <span class="filter-count" id="filter-count"></span>
+        </div>
+
+        <nav class="topic-nav" aria-label="Schnellnavigation zu Themenbereichen">
+            <a href="#topic-mechanik">Mechanik</a>
+            <a href="#topic-waermelehre">Wärmelehre</a>
+            <a href="#topic-elektrodynamik">Elektrodynamik</a>
+            <a href="#topic-atomphysik">Atomphysik</a>
+        </nav>
+
+        <div class="section-head"><h2>Alle Anwendungen</h2><span>Nach Themenbereich geordnet – filtern oder zur Klasse springen</span></div>
+        <main id="app-grid" aria-label="Physik-Anwendungen nach Themenbereich">
             <section class="topic-section" id="topic-mechanik" aria-labelledby="mechanik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="mechanik-title">Mechanik</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
-                <div class="grade-grid" aria-label="Mechanik-Anwendungen nach Klassenstufe">
-                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards">
-                        <a class="card" href="Quizzes/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta">Klasse 8 · 48 Fragen, Diagramme und Duellmodus</div></a>
-                        <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta">Klasse 8 · Geschwindigkeitsvektoren addieren</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards">
-                        <a class="card" href="energie-runner/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta">Klasse 9 · Energieumwandlungen im Jump-and-Run</div></a>
-                        <a class="card" href="mechanische-leistung/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪜</div><div class="card-title">Treppen-Leistungslabor</div><div class="card-meta">Klasse 9 · Höhenenergie, Leistung und P-t-Fläche</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards">
-                        <a class="card" href="freier-fall-energie/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta">Klasse 10 · Energieerhaltung mit und ohne Luftwiderstand</div></a>
-                        <a class="card" href="impuls/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta">Klasse 10 · Impuls als Vektor</div></a>
-                        <a class="card" href="impulsdiagramm/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta">Klasse 10 · Impuls und Energie vergleichen</div></a>
-                        <a class="card" href="diagramme/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta">Klasse 10 · Diagramme lesen und verknüpfen</div></a>
-                        <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta">Klasse 10 · Teilbewegungen überlagern</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards">
-                        <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta">Klasse 11 · Feder- und Fadenpendel</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards">
-                        <a class="card" href="vektor-labor/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta">Klasse 8–12 · Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
-                    </div></div>
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="mechanik-title">Mechanik</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="card-grid" aria-label="Mechanik-Anwendungen">
+                    <a class="card" href="Quizzes/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>48 Fragen, Diagramme und Duellmodus</div></a>
+                    <a class="card" href="v_aenderung/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>Geschwindigkeitsvektoren addieren</div></a>
+                    <a class="card" href="energie-runner/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energieumwandlungen im Jump-and-Run</div></a>
+                    <a class="card" href="mechanische-leistung/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪜</div><div class="card-title">Treppen-Leistungslabor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Höhenenergie, Leistung und P-t-Fläche</div></a>
+                    <a class="card" href="freier-fall-energie/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Energieerhaltung mit und ohne Luftwiderstand</div></a>
+                    <a class="card" href="impuls/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls als Vektor</div></a>
+                    <a class="card" href="impulsdiagramm/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls und Energie vergleichen</div></a>
+                    <a class="card" href="diagramme/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Diagramme lesen und verknüpfen</div></a>
+                    <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Teilbewegungen überlagern</div></a>
+                    <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Feder- und Fadenpendel</div></a>
+                    <a class="card" href="vektor-labor/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 8–12</span>Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-waermelehre" aria-labelledby="waermelehre-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="waermelehre-title">Wärmelehre</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
-                <div class="grade-grid" aria-label="Wärmelehre-Anwendungen nach Klassenstufe">
-                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards">
-                        <a class="card" href="energie-faesser/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🌡️</div><div class="card-title">Energiebalken</div><div class="card-meta">Klasse 9 · Innere Energie, Temperatur und Wärmeleitung</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards"></div></div>
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="waermelehre-title">Wärmelehre</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="card-grid" aria-label="Wärmelehre-Anwendungen">
+                    <a class="card" href="energie-faesser/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🌡️</div><div class="card-title">Energiebalken</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Innere Energie, Temperatur und Wärmeleitung</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-elektrodynamik" aria-labelledby="elektrodynamik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="elektrodynamik-title">Elektrodynamik</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
-                <div class="grade-grid" aria-label="Elektrodynamik-Anwendungen nach Klassenstufe">
-                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards">
-                        <a class="card" href="schaltbild-werkstatt/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔌</div><div class="card-title">Schaltbild-Werkstatt</div><div class="card-meta">Klasse 8 · Reihen-, Parallel- und gemischte Schaltungen mit Messgeräten erstellen</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards">
-                        <a class="card" href="magnetfeld-labor/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Magnetfeld-Labor</div><div class="card-meta">Klasse 10 · Feldlinien, Kompass und magnetische Influenz</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards">
-                        <a class="card" href="kondensator-pendel/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta">Klasse 12 · Feldenergie als Fläche im U-Q-Diagramm</div></a>
-                    </div></div>
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="elektrodynamik-title">Elektrodynamik</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="card-grid" aria-label="Elektrodynamik-Anwendungen">
+                    <a class="card" href="schaltbild-werkstatt/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔌</div><div class="card-title">Schaltbild-Werkstatt</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>Reihen-, Parallel- und gemischte Schaltungen mit Messgeräten erstellen</div></a>
+                    <a class="card" href="magnetfeld-labor/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Magnetfeld-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Feldlinien, Kompass und magnetische Influenz</div></a>
+                    <a class="card" href="kondensator-pendel/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta"><span class="grade-badge">Klasse 12</span>Feldenergie als Fläche im U-Q-Diagramm</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-atomphysik" aria-labelledby="atomphysik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="atomphysik-title">Atomphysik</h2></div><span class="topic-range">Klasse 8 → Klasse 12</span></div>
-                <div class="grade-grid" aria-label="Atomphysik-Anwendungen nach Klassenstufe">
-                    <div class="grade-column" data-grade="8"><h3 class="grade-label">Klasse 8</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="9"><h3 class="grade-label">Klasse 9</h3><div class="grade-cards">
-                        <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta">Klasse 9 · Energieübertragungen deuten</div></a>
-                    </div></div>
-                    <div class="grade-column" data-grade="10"><h3 class="grade-label">Klasse 10</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="11"><h3 class="grade-label">Klasse 11</h3><div class="grade-cards"></div></div>
-                    <div class="grade-column" data-grade="12"><h3 class="grade-label">Klasse 12</h3><div class="grade-cards"></div></div>
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="atomphysik-title">Atomphysik</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="card-grid" aria-label="Atomphysik-Anwendungen">
+                    <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energieübertragungen deuten</div></a>
                 </div>
             </section>
         </main>
+        <div class="no-results" id="no-results" role="status">Keine Anwendung gefunden – versuche einen anderen Suchbegriff.</div>
 
         <footer>&copy; <span id="year"></span> · Physik-Web-Apps</footer>
     </div>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('year').textContent = new Date().getFullYear();
+
+            const input = document.getElementById('app-search');
+            const clear = document.getElementById('search-clear');
+            const count = document.getElementById('filter-count');
+            const cards = Array.from(document.querySelectorAll('.card'));
+            const sections = Array.from(document.querySelectorAll('.topic-section'));
+            const noResults = document.getElementById('no-results');
+            const total = cards.length;
+
+            const apply = () => {
+                const q = input.value.trim().toLowerCase();
+                let shown = 0;
+                cards.forEach(c => {
+                    const match = !q || c.textContent.toLowerCase().includes(q);
+                    c.classList.toggle('hidden', !match);
+                    if (match) shown++;
+                });
+                sections.forEach(s => s.classList.toggle('hidden', !s.querySelector('.card:not(.hidden)')));
+                clear.classList.toggle('visible', !!q);
+                count.textContent = q ? (shown + ' von ' + total + ' Anwendungen') : (total + ' Anwendungen');
+                noResults.classList.toggle('visible', shown === 0);
+            };
+            input.addEventListener('input', apply);
+            clear.addEventListener('click', () => { input.value = ''; apply(); input.focus(); });
+            apply();
         });
     </script>
 </body>
