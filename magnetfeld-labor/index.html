@@ -92,7 +92,7 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
         <label class="check"><input id="insideToggle" type="checkbox">Rückweg im Magneten</label>
       </div>
       <p class="field-grid-note">Das Magnetnadel-Raster ist die verlässlichste Ansicht: Jede Nadel zeigt die lokale Feldrichtung. Deaktiviere „Nur Richtung“, um die Stärke zusätzlich über die Deckkraft zu vergleichen.</p>
-      <div class="line-density" id="lineDensityControl" hidden><label for="lineDensityInput">Gezeichnete Linien <strong id="lineDensityRead">32 je Magnet</strong></label><input id="lineDensityInput" type="range" min="12" max="48" step="4" value="32"><small>Die Anzahl ist eine wählbare Darstellung – keine physikalisch feste Linienzahl.</small></div>
+      <div class="line-density" id="lineDensityControl" hidden><label for="lineDensityInput">Gezeichnete Linien <strong id="lineDensityRead">32 je Magnet</strong></label><input id="lineDensityInput" type="range" min="12" max="48" step="4" value="32"><small>Die Anzahl ist eine wählbare Darstellung. Die Abstände der Linien sind kein verlässliches Maß für die Feldstärke.</small></div>
       <p class="mini-note">Die Feldlinien-Skizze ist nur eine berechnete Auswahl von Integralkurven – keine Sammlung realer Fäden und keine feste Linienzahl.</p>
     </section>
     <section class="card panel-section full only-2d observation-section">
@@ -118,7 +118,7 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
 <details class="card model">
   <summary>Physikmodell, Fachbegriffe und Modellgrenzen</summary>
   <div class="model-grid">
-    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B = Σ Bᵢ</div><p>Der Stabmagnet wird aus kleinen magnetischen Dipolen zusammengesetzt. Beim Hufeisenmagneten wird die Außenwirkung der verteilten, gegenüberliegenden Polflächen angenähert; diese mathematischen Flächenelemente sind keine isolierten magnetischen Monopole. Die Beiträge werden überlagert. Messkompass, Magnetnadel-Raster und Feldlinien-Skizze verwenden dasselbe resultierende Feld.</p><ul><li>Nach dem Vorbild von PhET ist das Magnetnadel-Raster die Standardansicht: Jede kleine Nadel zeigt die lokale Feldrichtung. Im Modus „Richtung + Stärke“ codiert ihre Deckkraft die Feldstärke nur qualitativ und nicht linear.</li><li>Das Magnetfeld reicht theoretisch beliebig weit. Linien am Bildrand werden außerhalb des sichtbaren Ausschnitts weiterberechnet und können später wieder in das Bild eintreten.</li><li>Die gezeichneten Linien sind nur eine Auswahl: Auch zwischen ihnen existiert ein Feld.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht; außerhalb zeigen sie von N nach S, im Magneten zurück von S nach N.</li><li>Bei mehreren Magneten kann sich das Feld an einzelnen Punkten durch Überlagerung zu B = 0 aufheben.</li><li>Die Feldstärke-Fläche zeigt Feldstärke nur qualitativ. Der Slider verändert ausschließlich die Anzahl gezeichneter Modelllinien, nicht das Magnetfeld.</li></ul></div>
+    <div><h3>Wie wird das Feld berechnet?</h3><div class="formula">B = Σ Bᵢ</div><p>Der Stabmagnet wird aus kleinen magnetischen Dipolen zusammengesetzt. Beim Hufeisenmagneten wird die Außenwirkung der verteilten, gegenüberliegenden Polflächen angenähert; diese mathematischen Flächenelemente sind keine isolierten magnetischen Monopole. Die Beiträge werden überlagert. Messkompass, Magnetnadel-Raster und Feldlinien-Skizze verwenden dasselbe resultierende Feld.</p><ul><li>Nach dem Vorbild von PhET ist das Magnetnadel-Raster die Standardansicht: Jede kleine Nadel zeigt die lokale Feldrichtung. Im Modus „Richtung + Stärke“ codiert ihre Deckkraft die Feldstärke nur qualitativ und nicht linear.</li><li>Bei mehreren Stabmagneten werden mögliche Linienanfänge über die gesamte Magnetoberfläche verteilt. Das Gewicht eines Oberflächenstücks ist proportional zum dort austretenden Fluss B · n · Δs. Anschließend wird jede Kurve im überlagerten Gesamtfeld mit d<strong>r</strong>/ds = <strong>B</strong>/|<strong>B</strong>| integriert. Dadurch entstehen auch die zuvor fehlenden nahen Seitenbögen.</li><li>Das Magnetfeld reicht theoretisch beliebig weit. Linien am Bildrand werden außerhalb des sichtbaren Ausschnitts weiterberechnet und können später wieder in das Bild eintreten.</li><li>Die gezeichneten Linien sind nur eine Auswahl: Auch zwischen ihnen existiert ein Feld.</li><li>Magnetische Feldlinien sind geschlossen und schneiden sich nicht; außerhalb zeigen sie von N nach S, im Magneten zurück von S nach N.</li><li>Bei mehreren Magneten kann sich das Feld an einzelnen Punkten durch Überlagerung zu B = 0 aufheben.</li><li>Die Feldstärke-Fläche zeigt Feldstärke nur qualitativ. Der Slider verändert ausschließlich die Anzahl gezeichneter Modelllinien, nicht das Magnetfeld.</li></ul></div>
     <div><h3>Ferromagnetische Stoffe</h3><p>Weicheisen wird als Gitter induzierter Dipole modelliert. Sie richten sich iterativ im vorhandenen Feld aus und verändern es dadurch. Innerhalb des Körpers wird die Richtung der gezeichneten Linien glatt an die gemittelte induzierte Magnetisierung angenähert. Die sichtbaren Zellen und Elementarmagnete deuten schematisch ähnlich ausgerichtete Weißsche Bezirke an; reale Bezirke sind weder regelmäßig noch so groß. Aluminium und Holz beeinflussen das statische Feld in diesem Schulmodell nicht sichtbar.</p><p><strong>Modellgrenze:</strong> Die App ist qualitativ. Sie berechnet keine realen Tesla-Werte, Kräfte, Hysterese, Sättigung, Wirbelströme oder exakten Materialkennlinien. Das Weicheisenmodell ersetzt keine Finite-Elemente-Rechnung. Eisenfeilspäne und Feldlinien sind Modellbilder – keine materiellen Fäden.</p><p><strong>Fachliche Orientierung:</strong> LEIFIphysik zu Magnetfeld und Feldlinien, OpenStax zu Magnetismus in Materie sowie die explorative Darstellungslogik der PhET-Simulationen.</p></div>
   </div>
 </details>
@@ -219,14 +219,33 @@ function computeSources(){
   return[...permanent,...induced];
 }
 function fieldAt(x,y){return fieldFromSources(x,y,state.sources);}
+function barFluxSeeds(o){
+  // Sample the whole boundary. Candidate density follows the positive outward flux B·n·ds,
+  // not an arbitrary fan at one pole face; this preserves close side loops in multi-magnet scenes.
+  const hx=.252,hy=.102,eps=.008,samples=[],steps=240;
+  const add=(lx,ly,nx,ny,ds,family)=>{const point=localToWorld(o,lx,ly),normal=rotate(nx,ny,o.angle),b=fieldAt(point.x,point.y),flux=Math.max(0,b.x*normal.x+b.y*normal.y)*ds;if(Number.isFinite(flux)&&flux>1e-9)samples.push({point,flux,family});};
+  for(let i=0;i<steps;i++){
+    const u=(i+.5)/steps,x=-hx+2*hx*u,y=-hy+2*hy*u;
+    add(hx+eps,y,1,0,2*hy/steps,'pole-face');add(-hx-eps,y,-1,0,2*hy/steps,'pole-face');
+    add(x,hy+eps,0,1,2*hx/steps,'side-leakage');add(x,-hy-eps,0,-1,2*hx/steps,'side-leakage');
+  }
+  const total=samples.reduce((sum,s)=>sum+s.flux,0),wanted=Math.max(48,state.lineDensity*3);if(total<=0)return[];
+  const seeds=[],used=new Set();let cumulative=0,index=0;
+  for(let i=0;i<wanted;i++){
+    const target=(i+.5)/wanted*total;while(index<samples.length-1&&cumulative+samples[index].flux<target)cumulative+=samples[index++].flux;
+    let chosen=index;if(used.has(chosen)){for(let d=1;d<samples.length;d++){const up=chosen+d,down=chosen-d;if(up<samples.length&&!used.has(up)){chosen=up;break;}if(down>=0&&!used.has(down)){chosen=down;break;}}}
+    used.add(chosen);seeds.push({point:samples[chosen].point,family:samples[chosen].family,owner:o.id});
+  }
+  return seeds;
+}
 function fieldSeeds(o){
   const seeds=[],total=state.lineDensity;
   if(o.kind==='bar'){
     const half=total/2,multiple=state.magnets.length>1,ironCandidates=!multiple&&state.materials.some(m=>m.material==='softIron'),parameters=Array.from({length:half},(_,i)=>(i+.5)/half);
     if(ironCandidates)for(let i=half-2;i>=0;i--)parameters.push((i+1)/half);
+    if(multiple)return barFluxSeeds(o);
     for(const u of parameters){
-      if(multiple){const offset=.012+.14*Math.pow(u,.92),family=offset<.04?'axial':offset<.105?'arch':'wide';seeds.push({point:localToWorld(o,.255,offset),family},{point:localToWorld(o,.255,-offset),family});}
-      else{const height=u<.72?.105+.56*Math.pow(u/.72,1.18):.69*Math.exp(Math.log(3.1)*(u-.72)/.28),family=height<.23?'close':height<.72?'medium':'far';seeds.push({point:localToWorld(o,0,height),family},{point:localToWorld(o,0,-height),family});}
+      const height=u<.72?.105+.56*Math.pow(u/.72,1.18):.69*Math.exp(Math.log(3.1)*(u-.72)/.28),family=height<.23?'close':height<.72?'medium':'far';seeds.push({point:localToWorld(o,0,height),family},{point:localToWorld(o,0,-height),family});
     }
   }else{
     const gapCount=Math.round(total*.56/2)*2,outerEach=(total-gapCount)/2;
@@ -273,9 +292,17 @@ function fullTraceLine(spec){
   const backward=traceBranch(spec.point,-1),forward=traceBranch(spec.point,1),complete=backward.end==='magnet'&&forward.end==='magnet';
   return{points:[...backward.points].reverse().slice(0,-1).concat(forward.points),end:complete?'magnet':`${backward.end}/${forward.end}`,leftView:backward.leftView||forward.leftView,family:spec.family};
 }
+function sourceTraceLine(spec){
+  const forward=traceBranch(spec.point,1);return{points:forward.points,end:forward.end,leftView:forward.leftView,family:spec.family,owner:spec.owner};
+}
 function computeFieldLines(){
   const lines=[],endings={};
-  for(const o of state.magnets){let accepted=0;for(const spec of fieldSeeds(o)){const line=fullTraceLine(spec);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&line.end==='magnet'){lines.push(line);accepted++;if(accepted>=state.lineDensity)break;}}}
+  for(const o of state.magnets){
+    const sourceSeeded=state.magnets.length>1&&o.kind==='bar',valid=[];
+    for(const spec of fieldSeeds(o)){const line=sourceSeeded?sourceTraceLine(spec):fullTraceLine(spec);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&line.end==='magnet')valid.push(line);}
+    if(sourceSeeded&&valid.length>state.lineDensity){const chosen=new Set();for(let i=0;i<state.lineDensity;i++)chosen.add(Math.min(valid.length-1,Math.floor((i+.5)/state.lineDensity*valid.length)));for(const index of chosen)lines.push(valid[index]);}
+    else lines.push(...valid.slice(0,state.lineDensity));
+  }
   state.traceEndings=endings;
   return lines;
 }
@@ -541,7 +568,7 @@ function tick(now){const dt=Math.min(.05,(now-state.lastTime)/1000);state.lastTi
 new ResizeObserver(()=>queueRender()).observe(document.querySelector('.workspace'));
 window.__magnetLab={
   getState:()=>({view:state.view,preset:state.preset,layers:{...state.layers},lineDensity:state.lineDensity,magnets:state.magnets.map(o=>({...o})),materials:state.materials.map(o=>({...o})),compass:{...state.compass},lineCount:state.fieldLines.length,lineEndings:state.fieldLines.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),lineFamilies:state.fieldLines.reduce((a,l)=>(a[l.family]=(a[l.family]||0)+1,a),{}),linesLeavingView:state.fieldLines.filter(l=>l.leftView).length,traceEndings:{...state.traceEndings},sourceCount:state.sources.length,spaceLineCount:state.spaceData?.curves.length||0,spacePoleAnchors:state.spaceData?.curves.every(l=>l.startPole==='N'&&l.endPole==='S')||false}),
-  getFieldLines:()=>state.fieldLines.map(line=>({family:line.family,end:line.end,points:line.points.map(p=>({x:p.x,y:p.y}))})),
+  getFieldLines:()=>state.fieldLines.map(line=>({family:line.family,owner:line.owner||null,end:line.end,points:line.points.map(p=>({x:p.x,y:p.y}))})),
   getSpaceState:()=>({model:state.spaceModel,density:state.spaceDensity,models:[...SPACE_MODELS],lineCount:state.spaceData?.curves.length||0,lineEndings:state.spaceData?.curves.reduce((a,l)=>(a[l.end]=(a[l.end]||0)+1,a),{}),lineFamilies:state.spaceData?.curves.reduce((a,l)=>(a[l.family]=(a[l.family]||0)+1,a),{}),oriented:state.spaceData?.curves.every(l=>l.startPole==='N'&&l.endPole==='S')||false,sourceCount:state.spaceData?.sources.length||0,domainCount:state.spaceData?.domainCount||0,attempted:state.spaceData?.attempted||0,traceEndings:{...(state.spaceData?.endings||{})},throughIron:state.spaceData?.curves.filter(l=>l.points.some(p=>insideSpaceMaterial(p))).length||0}),
   getSpaceCurves:()=>state.spaceData?.curves.map(l=>({family:l.family,end:l.end,startPole:l.startPole,endPole:l.endPole,points:l.points.map(p=>({...p}))}))||[],
   fieldAt:(x,y)=>fieldAt(Number(x),Number(y)),spaceFieldAt:(x,y,z)=>spaceFieldAt(Number(x),Number(y),Number(z)),setPreset:preset,setSpaceModel:setSpaceModel,setView,reset:resetAll,recompute,recomputeSpaceModel,qualitativeStrength
