@@ -16,7 +16,7 @@ button,input,select{font:inherit}button,select{min-height:48px}
 .home,.button{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:10px 14px;border:1px solid var(--line);border-radius:13px;background:var(--surface);color:var(--ink);font-weight:800;text-decoration:none;cursor:pointer}
 .home{min-width:48px}
 .button.primary{border-color:var(--petrol);background:var(--petrol);color:#fff}
-.heading{flex:1}.heading h1{margin:0;font-family:Georgia,serif;font-size:clamp(1.45rem,3.4vw,2.2rem);line-height:1}.heading p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
+.heading{flex:1;min-width:0}.heading h1{margin:0;font-family:Georgia,serif;font-size:clamp(1.45rem,3.4vw,2.2rem);line-height:1}.heading p{margin:4px 0 0;color:var(--muted);font-size:.9rem}
 .mode-switch{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
 .mode-btn{flex:1;min-width:150px}.mode-btn.active{border-color:var(--petrol);background:var(--petrol);color:#fff}
 .card{border:1px solid var(--line);border-radius:20px;background:rgba(255,253,248,.97);box-shadow:var(--shadow);overflow:hidden}
@@ -25,8 +25,14 @@ button,input,select{font:inherit}button,select{min-height:48px}
 .readout small{display:block;color:var(--muted);font-size:.72rem;font-weight:750}
 .readout strong{display:block;margin-top:2px;font-size:1.05rem}
 .actions{display:flex;gap:8px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--line);background:var(--soft)}
+.speed-switch{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}.speed-btn{min-width:112px}.speed-btn.active{border-color:var(--violet);background:#efe8f7;color:#563d78;box-shadow:inset 0 0 0 1px var(--violet)}
 .stage-wrap{display:grid;grid-template-columns:1.25fr .8fr;gap:14px;padding:16px;align-items:center}
 canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid var(--line);border-radius:14px;touch-action:none}
+#pendulum{height:clamp(350px,50vw,430px)}
+.positions-tools{border-top:1px solid var(--line);background:var(--surface)}
+.positions-toggle{width:100%;justify-content:space-between;border:0;border-radius:0;background:var(--surface);box-shadow:none}.positions-toggle::after{content:'＋';color:var(--petrol);font-size:1.2rem}.positions-toggle[aria-expanded="true"]::after{content:'−'}
+.positions-panel{padding:0 14px 14px}.position-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.position-btn{min-width:0;padding-inline:10px}.position-btn.active{border-color:var(--violet);background:#efe8f7;color:#563d78;box-shadow:inset 0 0 0 1px var(--violet)}
+.position-info{margin-top:10px;padding:11px 13px;border-left:4px solid var(--petrol);border-radius:10px;background:#edf6f3;font-size:.82rem;line-height:1.45}.position-info strong{display:block;margin-bottom:2px}.position-info span{color:var(--muted)}
 .energy-card h3{margin:0 0 6px;font-size:1rem}
 .energy-card p{margin:0 0 10px;color:var(--muted);font-size:.78rem;line-height:1.4}
 .energy-scale{position:relative;display:flex;justify-content:space-around;align-items:flex-end;height:210px;margin:0 auto;max-width:340px;border-bottom:2px solid var(--ink)}
@@ -53,10 +59,11 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
 .chart-wrap canvas{height:100%!important;border:0;border-radius:0;background:#fff;touch-action:pan-y}
 .chart-status{margin:8px 2px 0;color:var(--muted);font-size:.76rem;line-height:1.4}
 .model-note{margin:12px 0 0;padding:12px 16px;color:var(--muted);font-size:.76rem;line-height:1.45}
-@media(max-width:760px){.stage-wrap{grid-template-columns:1fr}.heading p{display:none}.readouts{grid-template-columns:1fr 1fr}.readout:last-child{grid-column:1/-1;border-top:1px solid var(--line)}.controls{grid-template-columns:1fr}.energy-history summary{align-items:flex-start;flex-direction:column;gap:2px;padding-right:50px}.energy-history summary::after{position:absolute;right:18px}.chart-wrap{height:250px}}
+@media(max-width:760px){.stage-wrap{grid-template-columns:1fr}.heading p{display:none}.readouts{grid-template-columns:1fr 1fr}.readout:last-child{grid-column:1/-1;border-top:1px solid var(--line)}.controls{grid-template-columns:1fr}.speed-switch{width:100%;margin-left:0}.speed-btn{flex:1}.energy-history summary{align-items:flex-start;flex-direction:column;gap:2px;padding-right:50px}.energy-history summary::after{position:absolute;right:18px}.chart-wrap{height:250px}}
+@media(max-width:520px){#pendulum{height:320px}.position-buttons{grid-template-columns:1fr}.position-btn{text-align:left;justify-content:flex-start}}
 </style>
 </head>
-<body data-physik-app="fadenpendel-energie" data-student-home="../index.html" data-student-title="Fadenpendel – Energieumwandlung" data-student-summary="Du beobachtest, wie Höhen- und Bewegungsenergie beim Fadenpendel ineinander umgewandelt werden – mit und ohne Luftreibung." data-student-controls="Wähle Länge, Auslenkung und Masse. Starte, pausiere oder setze neu auf. Schalte Luftreibung an oder aus.">
+<body data-physik-app="fadenpendel-energie" data-student-home="../index.html" data-student-title="Fadenpendel – Energieumwandlung" data-student-summary="Du beobachtest, wie Höhen- und Bewegungsenergie beim Fadenpendel ineinander umgewandelt werden – mit und ohne Luftreibung." data-student-controls="Wähle Länge, Auslenkung und Masse. Starte normal oder in Zeitlupe. Blende die wichtigen Positionen ein und vergleiche dort Höhe, Geschwindigkeit und Energie.">
 <div class="page">
 <header class="topbar"><a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a><div class="heading"><h1>Fadenpendel – Energieumwandlung</h1><p>Mechanische Energie: Bewegung ↔ Höhe</p></div><button class="button" id="reset" type="button">↺ Neu</button></header>
 
@@ -76,7 +83,10 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
   <div class="actions">
     <button class="button primary" id="play" type="button">▶ Start</button>
     <button class="button" id="resetPos" type="button">↺ Reset</button>
-    <div class="field" style="flex:1;min-width:180px"><label>Zeitskalierung <strong id="speedVal">1×</strong></label><input id="timeScale" type="range" min="0.2" max="2" step="0.1" value="1"></div>
+    <div class="speed-switch" role="group" aria-label="Simulationstempo">
+      <button class="button speed-btn active" id="speed-normal" type="button" aria-pressed="true">Normal · 1×</button>
+      <button class="button speed-btn" id="speed-slow" type="button" aria-pressed="false">Zeitlupe · ⅛×</button>
+    </div>
   </div>
 
   <div class="stage-wrap">
@@ -106,6 +116,18 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
     </div>
   </div>
 
+  <section class="positions-tools" aria-label="Wichtige Positionen des Pendels">
+    <button class="button positions-toggle" id="positions-toggle" type="button" aria-expanded="false" aria-controls="positions-panel">Wichtige Positionen darstellen</button>
+    <div class="positions-panel" id="positions-panel" hidden>
+      <div class="position-buttons" role="group" aria-label="Position hervorheben">
+        <button class="button position-btn" type="button" data-position="left" aria-pressed="false">Umkehrpunkt links</button>
+        <button class="button position-btn active" type="button" data-position="bottom" aria-pressed="true">Tiefpunkt</button>
+        <button class="button position-btn" type="button" data-position="right" aria-pressed="false">Umkehrpunkt rechts</button>
+      </div>
+      <div class="position-info" id="position-info" aria-live="polite"></div>
+    </div>
+  </section>
+
   <div class="controls">
     <div class="field"><label>Länge <em>L</em><strong id="lbl-L">1,0 m</strong></label><input id="sl-L" type="range" min="0.5" max="2.5" step="0.05" value="1.0"></div>
     <div class="field"><label>Auslenkung <em>α</em><strong id="lbl-amp">30°</strong></label><input id="sl-amp" type="range" min="10" max="90" step="1" value="30"></div>
@@ -123,7 +145,7 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
   <p class="explain" id="explain"><strong>Beobachte:</strong> Am Umkehrpunkt ist die Geschwindigkeit null und die Höhenenergie maximal. Im tiefsten Punkt ist die Höhenenergie null und die Bewegungsenergie maximal. Ohne Luftreibung bleibt die Gesamtenergie erhalten.</p>
 </section>
 
-<p class="model-note"><strong>Modell:</strong> Exakte Pendelgleichung θ̈ = −(g/L)·sin θ (keine Kleinwinkelnäherung), integriert mit Runge-Kutta 4. Die Höhe wird relativ zum tiefsten Punkt gemessen: h = L·(1 − cos θ), E<sub>pot</sub> = m·g·h und E<sub>kin</sub> = ½·m·v² mit v = L·θ̇. <strong>Ohne Luftreibung</strong> bleibt E<sub>ges</sub> = E<sub>kin</sub> + E<sub>pot</sub> konstant. <strong>Mit Luftreibung</strong> wird die „verlorene" mechanische Energie als innere Energie E<sub>inner</sub> gutgeschrieben (Erwärmung von Luft und Pendel); die Gesamtenergie bleibt damit erhalten, aber die Auslenkung klingt ab. Die Masse beeinflusst die Schwingungsdauer nicht, wohl aber die Energiewerte.</p>
+<p class="model-note"><strong>Modell:</strong> Exakte Pendelgleichung θ̈ = −(g/L)·sin θ (keine Kleinwinkelnäherung), integriert mit Runge-Kutta 4. Die Höhe wird relativ zum tiefsten Punkt gemessen: h = L·(1 − cos θ), E<sub>pot</sub> = m·g·h und E<sub>kin</sub> = ½·m·v² mit v = L·θ̇. Die Fadenlänge wird für gute Lesbarkeit adaptiv abgebildet; maßgeblich ist der angezeigte Wert L, nicht ein Pixelmaßstab. <strong>Ohne Luftreibung</strong> bleibt E<sub>ges</sub> = E<sub>kin</sub> + E<sub>pot</sub> konstant. <strong>Mit Luftreibung</strong> wird die „verlorene" mechanische Energie als innere Energie E<sub>inner</sub> gutgeschrieben (Erwärmung von Luft und Pendel); die Gesamtenergie bleibt damit erhalten, aber die Auslenkung klingt ab. Die Masse beeinflusst die Schwingungsdauer nicht, wohl aber die Energiewerte.</p>
 </main>
 </div>
 
@@ -132,8 +154,8 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
 (()=>{'use strict';
 const q=s=>document.querySelector(s),fmt=(v,d=2)=>Number(v).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const CONFIG={g:9.81,b:0.08};
-const state={mode:'ideal',L:1.0,ampDeg:30,mass:0.5,timeScale:1,playing:false,t:0,theta:0,omega:0,einner:0};
-const dom={canvas:q('#pendulum'),ctx:null,roTheta:q('#ro-theta'),roHeight:q('#ro-height'),roSpeed:q('#ro-speed'),barKin:q('#bar-kin'),barPot:q('#bar-pot'),barTherm:q('#bar-therm'),barTotal:q('#bar-total'),valKin:q('#val-kin'),valPot:q('#val-pot'),valTherm:q('#val-therm'),valTotal:q('#val-total'),itemTherm:q('#item-therm'),play:q('#play'),reset:q('#reset'),resetPos:q('#resetPos'),explain:q('#explain'),timeScale:q('#timeScale'),speedVal:q('#speedVal'),slL:q('#sl-L'),slAmp:q('#sl-amp'),slMass:q('#sl-mass'),lblL:q('#lbl-L'),lblAmp:q('#lbl-amp'),lblMass:q('#lbl-mass'),energyHistory:q('#energyHistory'),energyChart:q('#energyChart'),chartStatus:q('#chartStatus')};
+const state={mode:'ideal',L:1.0,ampDeg:30,mass:0.5,timeScale:1,speedMode:'normal',showPositions:false,selectedPosition:'bottom',playing:false,t:0,theta:0,omega:0,einner:0};
+const dom={canvas:q('#pendulum'),ctx:null,roTheta:q('#ro-theta'),roHeight:q('#ro-height'),roSpeed:q('#ro-speed'),barKin:q('#bar-kin'),barPot:q('#bar-pot'),barTherm:q('#bar-therm'),barTotal:q('#bar-total'),valKin:q('#val-kin'),valPot:q('#val-pot'),valTherm:q('#val-therm'),valTotal:q('#val-total'),itemTherm:q('#item-therm'),play:q('#play'),reset:q('#reset'),resetPos:q('#resetPos'),explain:q('#explain'),speedNormal:q('#speed-normal'),speedSlow:q('#speed-slow'),positionsToggle:q('#positions-toggle'),positionsPanel:q('#positions-panel'),positionInfo:q('#position-info'),positionButtons:[...document.querySelectorAll('.position-btn')],slL:q('#sl-L'),slAmp:q('#sl-amp'),slMass:q('#sl-mass'),lblL:q('#lbl-L'),lblAmp:q('#lbl-amp'),lblMass:q('#lbl-mass'),energyHistory:q('#energyHistory'),energyChart:q('#energyChart'),chartStatus:q('#chartStatus')};
 const chartHistory={kin:[],pot:[],inner:[],total:[],nextSample:0,dirty:true,lastPaint:0};
 let energyChart=null;
 
@@ -144,6 +166,42 @@ const eKin=()=>0.5*state.mass*Math.pow(state.L*state.omega,2);
 const ePot=()=>state.mass*CONFIG.g*height();
 const eMech=()=>eKin()+ePot();
 const initialE=()=>state.mass*CONFIG.g*state.L*(1-Math.cos(ampRad()));
+function importantPositionSnapshot(key=state.selectedPosition){
+  const turn=key==='left'||key==='right';
+  const theta=turn?(key==='left'?-ampRad():ampRad()):0;
+  const h=turn?state.L*(1-Math.cos(ampRad())):0;
+  const v=turn?0:Math.sqrt(Math.max(0,2*CONFIG.g*state.L*(1-Math.cos(ampRad()))));
+  const kin=0.5*state.mass*v*v,pot=state.mass*CONFIG.g*h;
+  return {key,theta,h,v,kin,pot,total:kin+pot};
+}
+function updatePositionInfo(){
+  const p=importantPositionSnapshot();
+  const isBottom=p.key==='bottom';
+  const title=isBottom?'Tiefpunkt · minimale Höhe':'Umkehrpunkt · minimale Geschwindigkeit';
+  const facts=isBottom
+    ? `h<sub>min</sub> = ${fmt(p.h,2)} m · v<sub>max</sub> = ${fmt(p.v,2)} m/s · E<sub>kin</sub> maximal · E<sub>pot</sub> = 0 J`
+    : `θ = ${fmt(p.theta*180/Math.PI,0)}° · h<sub>max</sub> = ${fmt(p.h,2)} m · v<sub>min</sub> = ${fmt(p.v,2)} m/s · E<sub>pot</sub> maximal`;
+  dom.positionInfo.innerHTML=`<strong>${title}</strong>${facts}<br><span>Idealreferenz für die eingestellte Startauslenkung. Mit Luftreibung werden spätere Umkehrpunkte kleiner.</span>`;
+}
+function setImportantPosition(key){
+  if(!['left','bottom','right'].includes(key))return;
+  state.selectedPosition=key;
+  dom.positionButtons.forEach(button=>{const on=button.dataset.position===key;button.classList.toggle('active',on);button.setAttribute('aria-pressed',on);});
+  updatePositionInfo();render();
+}
+function setPositionsVisible(visible){
+  state.showPositions=!!visible;dom.positionsPanel.hidden=!state.showPositions;
+  dom.positionsToggle.setAttribute('aria-expanded',state.showPositions);
+  if(state.showPositions)updatePositionInfo();
+  render();
+}
+function setSpeedMode(mode){
+  state.speedMode=mode==='slow'?'slow':'normal';
+  state.timeScale=state.speedMode==='slow'?1/8:1;
+  const slow=state.speedMode==='slow';
+  dom.speedSlow.classList.toggle('active',slow);dom.speedSlow.setAttribute('aria-pressed',slow);
+  dom.speedNormal.classList.toggle('active',!slow);dom.speedNormal.setAttribute('aria-pressed',!slow);
+}
 
 function energySnapshot(){
   const kin=eKin(),pot=ePot(),inner=state.mode==='friction'?state.einner:0;
@@ -238,7 +296,7 @@ function drawPendulum(){
   // Die Zeichenfläche ist bewusst kein Längenmaßstab; maßgeblich ist der angezeigte L-Wert.
   const maxLpx=Math.max(32,Math.min(w/2-34,hgt-pivotY-34));
   const lengthRatio=(state.L-0.5)/(2.5-0.5);
-  const Lpx=maxLpx*(0.35+0.65*lengthRatio);
+  const Lpx=maxLpx*(0.42+0.58*lengthRatio);
   const bobX=pivotX+Lpx*Math.sin(state.theta);
   const bobY=pivotY+Lpx*Math.cos(state.theta);
   const groundY=pivotY+Lpx;
@@ -249,6 +307,17 @@ function drawPendulum(){
   // Bodenlinie (Nullniveau)
   c.strokeStyle='#c8bfae';c.setLineDash([4,4]);c.lineWidth=1;
   c.beginPath();c.moveTo(10,groundY);c.lineTo(w-10,groundY);c.stroke();c.setLineDash([]);
+  // Wichtige Positionen als ruhige Referenzmarken hinter dem aktuellen Pendel
+  if(state.showPositions){
+    ['left','bottom','right'].forEach(key=>{
+      const p=importantPositionSnapshot(key),x=pivotX+Lpx*Math.sin(p.theta),y=pivotY+Lpx*Math.cos(p.theta),selected=key===state.selectedPosition;
+      const compactMarkers=state.ampDeg<18,markerR=compactMarkers?(selected?6:4):(selected?12:10);
+      c.save();c.globalAlpha=selected ? 0.82 : 0.34;c.strokeStyle=key==='bottom'?'#0f766e':'#7a5aa6';c.lineWidth=selected?2.5:1.5;c.setLineDash([5,5]);
+      c.beginPath();c.moveTo(pivotX,pivotY);c.lineTo(x,y);c.stroke();c.setLineDash([]);
+      c.fillStyle=selected?(key==='bottom'?'#d9f0e9':'#eee6f7'):'#fffdf8';c.beginPath();c.arc(x,y,markerR,0,Math.PI*2);c.fill();c.stroke();
+      c.globalAlpha=1;c.fillStyle=key==='bottom'?'#0f766e':'#6b4e8d';c.font=`800 ${compactMarkers?7:10}px system-ui`;c.textAlign='center';c.textBaseline='middle';c.fillText(key==='bottom'?'T':'U',x,y+.5);c.restore();
+    });
+  }
   // Höhenlinie h
   c.strokeStyle='#2fa896';c.lineWidth=1.5;c.setLineDash([3,3]);
   c.beginPath();c.moveTo(bobX,bobY);c.lineTo(bobX,groundY);c.stroke();c.setLineDash([]);
@@ -317,15 +386,18 @@ function configure(patch){
   dom.lblL.textContent=`${fmt(state.L,1)} m`;
   dom.lblAmp.textContent=`${fmt(state.ampDeg,0)}°`;
   dom.lblMass.textContent=`${fmt(state.mass,1)} kg`;
-  reset();render();
+  reset();if(state.showPositions)updatePositionInfo();render();
 }
 
 q('#mode-ideal').addEventListener('click',()=>setMode('ideal'));
 q('#mode-friction').addEventListener('click',()=>setMode('friction'));
 dom.play.addEventListener('click',()=>{state.playing=!state.playing;dom.play.textContent=state.playing?'⏸ Pause':'▶ Start';});
 dom.resetPos.addEventListener('click',()=>reset(true));
-dom.reset.addEventListener('click',()=>{configure({L:1.0,ampDeg:30,mass:0.5});setMode('ideal');dom.timeScale.value=1;dom.speedVal.textContent='1×';state.timeScale=1;});
-dom.timeScale.addEventListener('input',()=>{state.timeScale=+dom.timeScale.value;dom.speedVal.textContent=`${fmt(state.timeScale,1)}×`;});
+dom.reset.addEventListener('click',()=>{configure({L:1.0,ampDeg:30,mass:0.5});setMode('ideal');setSpeedMode('normal');setImportantPosition('bottom');setPositionsVisible(false);});
+dom.speedNormal.addEventListener('click',()=>setSpeedMode('normal'));
+dom.speedSlow.addEventListener('click',()=>setSpeedMode('slow'));
+dom.positionsToggle.addEventListener('click',()=>setPositionsVisible(!state.showPositions));
+dom.positionButtons.forEach(button=>button.addEventListener('click',()=>setImportantPosition(button.dataset.position)));
 dom.slL.addEventListener('input',()=>configure({L:dom.slL.value}));
 dom.slAmp.addEventListener('input',()=>configure({ampDeg:dom.slAmp.value}));
 dom.slMass.addEventListener('input',()=>configure({mass:dom.slMass.value}));
@@ -340,9 +412,9 @@ function frame(now){
   if(dom.energyHistory.open&&chartHistory.dirty&&now-chartHistory.lastPaint>80)paintEnergyChart();
   requestAnimationFrame(frame);
 }
-resizeCanvas();reset();updateExplain();render();
+resizeCanvas();reset();setSpeedMode('normal');updateExplain();render();
 requestAnimationFrame(frame);
-window.__fadenpendel=Object.freeze({state,advance,reset,setMode,configure,get:()=>({theta:state.theta,omega:state.omega,kin:eKin(),pot:ePot(),einner:state.einner,total:state.mode==='friction'?eKin()+ePot()+state.einner:eKin()+ePot()}),getChart:()=>({version:typeof Chart==='function'?Chart.version:null,open:dom.energyHistory.open,points:chartHistory.total.length,last:chartHistory.total[chartHistory.total.length-1]||null})});
+window.__fadenpendel=Object.freeze({state,advance,reset,setMode,configure,setSpeedMode,setPositionsVisible,setImportantPosition,importantPositionSnapshot,get:()=>({theta:state.theta,omega:state.omega,kin:eKin(),pot:ePot(),einner:state.einner,total:state.mode==='friction'?eKin()+ePot()+state.einner:eKin()+ePot()}),getUI:()=>({speedMode:state.speedMode,timeScale:state.timeScale,showPositions:state.showPositions,selectedPosition:state.selectedPosition,positions:['left','bottom','right'].map(importantPositionSnapshot)}),getChart:()=>({version:typeof Chart==='function'?Chart.version:null,open:dom.energyHistory.open,points:chartHistory.total.length,last:chartHistory.total[chartHistory.total.length-1]||null})});
 })();
 </script>
 <script src="../shared/student-entry.js"></script>
