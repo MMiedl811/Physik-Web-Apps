@@ -23,11 +23,11 @@ Die veröffentlichte Seite ist über die GitHub-Pages-Adresse dieses Repositorie
 | [Energie-Runner](energie-runner/index.html) | 9 | Spielbarer Jump-and-Run: chemische, kinetische, potenzielle und innere Energie werden beim Laufen, Springen, Sammeln und bei Kollisionen bilanziert. |
 | [Treppen-Leistungslabor](mechanische-leistung/index.html) | 9 | Höhenenergie, Leistung und P–t-Fläche beim Treppensteigen; drei wählbare Tempi. |
 | [Freier Fall in Zeitlupe](freier-fall-energie/index.html) | 10 | Energieumwandlung im freien Fall mit und ohne Luftwiderstand (Endgeschwindigkeit). |
-| [Richtungsänderung nach Stoß](impuls/index.html) | 10 | Zweidimensionale Stoßsimulation: Impuls als Vektor und Richtungsänderung. |
+| [Richtungsänderung nach Stoß](impuls/index.html) | 10 | Zweidimensionale Stoßsimulation: Impuls als Vektor, Richtungsänderung und Schwerpunkt (bewegt sich mit konstanter Geschwindigkeit). |
 | [Stoß- und Impulsdiagramme](impulsdiagramm/index.html) | 10 | Grafische Gegenüberstellung von Impuls und Energie nach Stößen. |
 | [Bewegungsdiagramme](diagramme/index.html) | 10 | Abschnittsweise t–x-, t–v- und t–a-Diagramme lesen und verknüpfen. Ein zweiter, bewusst synchron gehaltener Einstieg: [`Physik-Diagrammbastler-Segmente-SplitDashboard.html`](diagramme/Physik-Diagrammbastler-Segmente-SplitDashboard.html). |
-| [Waagrechter Abwurf auf Insel](waagrechter%20Wurf/index.html) | 10 | Überlagerung horizontaler und vertikaler Bewegung eines abgeworfenen Rettungspakets. |
-| [Schwingungen](schwingungen/index.html) | 11 | Federpendel und Fadenpendel im Vergleich mit Zeitverläufen. |
+| [Waagrechter Abwurf auf Insel](waagrechter%20Wurf/index.html) | 10 | Waagrechter Abwurf und schräger Wurf (Abschusswinkel, Kanone) auf eine Insel; Überlagerung der Teilbewegungen. |
+| [Schwingungen](schwingungen/index.html) | 11 | Federpendel und Fadenpendel im Vergleich mit Zeitverläufen und Energiebalken (Umwandlung E_kin ↔ E_pot sichtbar). |
 | [Fadenpendel – Energieumwandlung](fadenpendel-energie/index.html) | 11 | Exakte Pendelgleichung (keine Kleinwinkelnäherung) mit Energiebalken für E_kin, E_pot und Gesamt – mit und ohne Luftreibung (Reibung wird als innere Energie bilanziert). |
 | [Vektor-Labor](vektor-labor/index.html) | 8–12 | Maßstäbliches Konstruktionslabor für Geschwindigkeits-, Kraft- und Beschleunigungsvektoren. |
 
@@ -35,7 +35,7 @@ Die veröffentlichte Seite ist über die GitHub-Pages-Adresse dieses Repositorie
 
 | App | Klasse | Beschreibung |
 |---|---|---|
-| [Energiebalken](energie-faesser/index.html) | 9 | Innere Energie als Energiebalken: Breite proportional zur Wärmekapazität C = m · c, Höhe zur Temperatur. Temperaturabhängiger (kinetischer) und potenzieller Anteil, phasenabhängige Wärmekapazität und Wärmeleitung zwischen zwei Körpern mit Energieerhaltung. |
+| [Energiebalken](energie-faesser/index.html) | 9 | Innere Energie als Energiebalken: Breite proportional zur Wärmekapazität C = m · c, Höhe zur Temperatur. Temperaturabhängiger (kinetischer) und potenzieller Anteil, phasenabhängige Wärmekapazität und Wärmeleitung zwischen zwei Körpern mit Energieerhaltung und sichtbaren, wandernden Energie-Päckchen. |
 
 ### Elektrodynamik
 
@@ -65,6 +65,7 @@ Die Anwendungen basieren überwiegend auf nativem HTML5, CSS und JavaScript. Vie
 - **Didaktische Reduktion:** Konzentration auf klar erkennbare physikalische Zusammenhänge
 - **Interaktivität:** Parameteränderungen und Rückmeldungen in Echtzeit
 - **Visualisierung:** Diagramme, Vektoren und Animationen als zentrale Lernoberfläche
+- **Bewährte Modellierung:** numerische Integration (z. B. Runge-Kutta 4) und Energie-Erhaltungs-Buchführung; bewährte Modellierungskniffe aus quelloffenen Simulationen (u. a. PhET, `github.com/phetsims/*`) werden übernommen, ohne die didaktische Eigenständigkeit aufzugeben
 - **Modellgrenzen:** Vereinfachungen sind in den Apps transparent dokumentiert
 - **No-Install:** direkter Start im Browser
 
