@@ -329,6 +329,11 @@
               <circle id="v2Handle" r="6" fill="var(--c-coin2)" stroke="white" stroke-width="2"/>
             </g>
           </g>
+          <!-- Schwerpunkt (Center of Mass): bewegt sich durch den Stoß mit konstanter Geschwindigkeit -->
+          <g id="cmGroup" style="pointer-events:none;">
+            <circle r="6" fill="#6d28d9" stroke="white" stroke-width="1.5"/>
+            <text y="-10" text-anchor="middle" dominant-baseline="middle" fill="#6d28d9" font-size="12" font-weight="800">S</text>
+          </g>
         </svg>
 
         <div class="stage__controls">
@@ -523,6 +528,7 @@
       svg: document.getElementById('animationSvg'),
       c1: document.getElementById('coin1Group'),
       c2: document.getElementById('coin2Group'),
+      cm: document.getElementById('cmGroup'),
       v1Line: document.getElementById('v1Line'),
       v1Hand: document.getElementById('v1Handle'),
       v1Hit: document.getElementById('v1Hit'),
@@ -669,6 +675,13 @@
       // 1. Animation Stage
       D.c1.setAttribute('transform', `translate(${state.sim.p1.x}, ${state.sim.p1.y})`);
       D.c2.setAttribute('transform', `translate(${state.sim.p2.x}, ${state.sim.p2.y})`);
+
+      // Schwerpunkt: gewichteter Mittelpunkt (m1·p1 + m2·p2) / (m1+m2)
+      // Er bewegt sich durch den Stoß mit konstanter Geschwindigkeit (Impulserhaltung).
+      const mSum = state.m1 + state.m2;
+      const cmX = (state.m1 * state.sim.p1.x + state.m2 * state.sim.p2.x) / mSum;
+      const cmY = (state.m1 * state.sim.p1.y + state.m2 * state.sim.p2.y) / mSum;
+      D.cm.setAttribute('transform', `translate(${cmX}, ${cmY})`);
       
       // Gleicher sichtbarer und physikalischer Radius für beide Körper.
       const r1 = CFG.collisionRadius;
