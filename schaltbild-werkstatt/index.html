@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f3eee4">
 <title>Schaltbild-Werkstatt</title>
+<link rel="stylesheet" href="../shared/student-entry.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23176b68'/%3E%3Cpath d='M10 32h14m18 0h12M24 21v22m8-15v8m10-20v32' stroke='%23fffdf8' stroke-width='4' fill='none'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -133,7 +134,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
 }
 </style>
 </head>
-<body>
+<body data-physik-app="schaltbild-werkstatt" data-student-home="../index.html" data-student-title="Schaltbild-Werkstatt" data-student-summary="Du baust Reihen-, Parallel- und gemischte Schaltungen auf und untersuchst ihre elektrischen Größen." data-student-controls="Wähle zuerst die Schaltungsart. Setze Bauteile ein, stelle ihre Werte ein und vergleiche anschließend Spannungen und Ströme im Schaltbild.">
 <div class="app">
 <header class="topbar">
   <a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a>
@@ -822,5 +823,6 @@ renderControls();renderCircuit();
 window.dispatchEvent(new CustomEvent('circuit-workshop-ready'));
 })();
 </script>
+<script src="../shared/student-entry.js"></script>
 </body>
 </html>

@@ -1,13 +1,92 @@
 (() => {
   'use strict';
 
+  const STUDENT_GUIDANCE = Object.freeze({
+    'magnetfeld-labor': {
+      goal: 'Wie lassen sich Richtung und Verlauf eines Magnetfelds sichtbar machen?',
+      observe: 'Achte darauf, wie sich Kompassnadeln und Feldlinien bei unterschiedlichen Magnetanordnungen ausrichten.'
+    },
+    diagramme: {
+      goal: 'Wie hängen Orts-, Geschwindigkeits- und Beschleunigungsdiagramm derselben Bewegung zusammen?',
+      observe: 'Achte auf Stellen, an denen Steigung, Geschwindigkeit oder Beschleunigung ihr Vorzeichen ändern.'
+    },
+    'fadenpendel-energie': {
+      goal: 'Wie werden beim Fadenpendel Höhenenergie und Bewegungsenergie ineinander umgewandelt?',
+      observe: 'Vergleiche Umkehrpunkte und Tiefpunkt: Wo sind Höhe, Geschwindigkeit und die beiden Energieformen maximal oder minimal?'
+    },
+    'vektor-labor': {
+      goal: 'Wie werden Betrag und Richtung physikalischer Größen als Pfeile dargestellt?',
+      observe: 'Achte darauf, wie Anfangspunkt, Pfeillänge und Pfeilrichtung die Aussage eines Vektors bestimmen.'
+    },
+    schwingungen: {
+      goal: 'Wie beeinflussen die Parameter eines Feder- oder Fadenpendels seine Schwingung?',
+      observe: 'Vergleiche Auslenkung, Geschwindigkeit, Beschleunigung und Kräfte während einer vollständigen Schwingung.'
+    },
+    'energie-runner': {
+      goal: 'Wie wird beim Laufen und Springen chemische Energie in andere Energieformen umgewandelt?',
+      observe: 'Achte beim Beschleunigen, Springen und Landen auf Bewegungs-, Höhen- und innere Energie.'
+    },
+    impulsdiagramm: {
+      goal: 'Wie unterscheiden sich Impuls und kinetische Energie bei verschiedenen Stoßarten?',
+      observe: 'Vergleiche die Werte vor und nach dem Stoß und suche Größen, die erhalten bleiben.'
+    },
+    'energie-faesser': {
+      goal: 'Wie beeinflussen Stoff, Masse und Temperatur die innere Energie eines Körpers?',
+      observe: 'Vergleiche Breite und Höhe der Energiebalken und beobachte den Energieaustausch zwischen zwei Körpern.'
+    },
+    'v-aenderung': {
+      goal: 'Wie entsteht aus Anfangsgeschwindigkeit und Geschwindigkeitsänderung die Endgeschwindigkeit?',
+      observe: 'Achte darauf, wie Betrag und Richtung von Δv den resultierenden Geschwindigkeitspfeil verändern.'
+    },
+    impuls: {
+      goal: 'Wie verändert ein elastischer Stoß die Impulse der beteiligten Körper?',
+      observe: 'Vergleiche die Impulsvektoren vor und nach dem Stoß und prüfe den Gesamtimpuls.'
+    },
+    'freier-fall-energie': {
+      goal: 'Wie wird beim freien Fall Höhenenergie in Bewegungsenergie und mit Luftwiderstand zusätzlich in Energie der Luft umgewandelt?',
+      observe: 'Vergleiche Fall ohne und mit Luftwiderstand und achte auf Geschwindigkeit und Gesamtenergie.'
+    },
+    'mechanische-leistung': {
+      goal: 'Wie hängen Höhenenergie, benötigte Zeit und mechanische Leistung beim Treppensteigen zusammen?',
+      observe: 'Vergleiche langsames und schnelles Treppensteigen: Was ändert sich, obwohl dieselbe Höhe erreicht wird?'
+    },
+    'waagrechter-wurf': {
+      goal: 'Wie überlagern sich waagrechte und senkrechte Bewegung beim Abwurf?',
+      observe: 'Achte darauf, wie Anfangsgeschwindigkeit und Abwurfhöhe Flugbahn, Flugzeit und Reichweite verändern.'
+    },
+    'kondensator-pendel': {
+      goal: 'Wie transportiert eine Pendelkugel Ladung und entlädt dadurch einen Kondensator?',
+      observe: 'Verknüpfe die sichtbaren Ladungstransporte mit Spannung, Ladung und der Fläche im U-Q-Diagramm.'
+    },
+    energiestufenmodell: {
+      goal: 'Welche Energiebeträge kann ein Elektron aufnehmen und welche Übergänge werden dadurch möglich?',
+      observe: 'Vergleiche die zugeführte Energie mit den erlaubten Abständen zwischen den Energieniveaus.'
+    },
+    'schaltbild-werkstatt': {
+      goal: 'Wie hängen Spannung, Stromstärke und Widerstand in Reihen-, Parallel- und gemischten Schaltungen zusammen?',
+      observe: 'Vergleiche Teilspannungen und Teilströme und prüfe, ob die Kirchhoff-Regeln erfüllt sind.'
+    }
+  });
+
   function ready(callback) {
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', callback, { once: true });
     else callback();
   }
 
+  function taskBlock(label, text) {
+    const block = document.createElement('p');
+    block.className = 'student-intro-task';
+    const heading = document.createElement('strong');
+    heading.textContent = label;
+    const copy = document.createElement('span');
+    copy.textContent = text;
+    block.append(heading, copy);
+    return block;
+  }
+
   ready(() => {
     const body = document.body;
+    const appId = body.dataset.physikApp;
     const title = body.dataset.studentTitle;
     const summary = body.dataset.studentSummary;
     const controls = body.dataset.studentControls;
@@ -28,6 +107,11 @@
 
     if (!title || !summary || !controls) return;
 
+    const guidance = STUDENT_GUIDANCE[appId] || {
+      goal: summary,
+      observe: 'Achte darauf, wie sich die dargestellten physikalischen Größen gegenseitig beeinflussen.'
+    };
+
     const overlay = document.createElement('div');
     overlay.className = 'student-intro-overlay';
     overlay.setAttribute('role', 'dialog');
@@ -39,27 +123,22 @@
 
     const eyebrow = document.createElement('p');
     eyebrow.className = 'student-intro-eyebrow';
-    eyebrow.textContent = 'Kurz erklärt';
+    eyebrow.textContent = 'Dein Lernauftrag';
 
     const heading = document.createElement('h2');
     heading.id = 'student-intro-title';
     heading.textContent = title;
 
-    const summaryText = document.createElement('p');
-    summaryText.textContent = summary;
-
-    const controlsText = document.createElement('p');
-    controlsText.className = 'student-intro-controls';
-    const controlsLabel = document.createElement('strong');
-    controlsLabel.textContent = 'So steuerst du: ';
-    controlsText.append(controlsLabel, document.createTextNode(controls));
+    const goal = taskBlock('Heute untersuchst du:', guidance.goal);
+    const observation = taskBlock('Achte besonders auf:', guidance.observe);
+    const firstStep = taskBlock('So beginnst du:', controls);
 
     const button = document.createElement('button');
     button.className = 'student-intro-ok';
     button.type = 'button';
-    button.textContent = 'OK, starten';
+    button.textContent = 'Untersuchung starten';
 
-    card.append(eyebrow, heading, summaryText, controlsText, button);
+    card.append(eyebrow, heading, goal, observation, firstStep, button);
     overlay.append(card);
     body.append(overlay);
     body.classList.add('student-intro-open');

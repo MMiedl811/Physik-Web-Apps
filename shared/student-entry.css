@@ -20,7 +20,9 @@
 }
 
 .student-intro-card {
-  width: min(470px, 100%);
+  width: min(500px, 100%);
+  max-height: calc(100dvh - 28px);
+  overflow-y: auto;
   padding: clamp(20px, 4vw, 30px);
   border: 1px solid var(--student-line);
   border-radius: 22px;
@@ -53,8 +55,27 @@
   line-height: 1.5;
 }
 
-.student-intro-controls {
+.student-intro-task {
   margin-top: 10px !important;
+  padding: 10px 12px;
+  border: 1px solid var(--student-line);
+  border-radius: 13px;
+  background: #f8f4ec;
+}
+
+.student-intro-task strong,
+.student-intro-task span {
+  display: block;
+}
+
+.student-intro-task strong {
+  margin-bottom: 3px;
+  color: var(--student-ink);
+  font-size: .86rem;
+}
+
+.student-intro-task span {
+  color: var(--student-muted);
 }
 
 .student-intro-ok,
