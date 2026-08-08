@@ -229,7 +229,7 @@
                 <input type="search" id="app-search" class="search-input" placeholder="App suchen – z. B. Energie, Stoß, Schwingung, Vektor …" aria-label="Anwendung suchen">
                 <button type="button" id="search-clear" class="search-clear" aria-label="Suche zurücksetzen">✕</button>
             </div>
-            <span class="filter-count" id="filter-count"></span>
+            <span class="filter-count" id="filter-count" role="status" aria-live="polite"></span>
         </div>
 
         <nav class="topic-nav" aria-label="Schnellnavigation zu Themenbereichen">
@@ -239,7 +239,7 @@
             <a href="#topic-atomphysik">Atomphysik</a>
         </nav>
 
-        <div class="section-head"><h2>Alle Anwendungen</h2><span>Nach Themenbereich geordnet – filtern oder zur Klasse springen</span></div>
+        <div class="section-head"><h2>Alle Anwendungen</h2><span>Nach Themenbereich geordnet – suchen oder zum Themenbereich springen</span></div>
         <main id="app-grid" aria-label="Physik-Anwendungen nach Themenbereich">
             <section class="topic-section" id="topic-mechanik" aria-labelledby="mechanik-title">
                 <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="mechanik-title">Mechanik</h2></div><span class="topic-range">Klasse 8–12</span></div>
@@ -252,7 +252,7 @@
                     <a class="card" href="impuls/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls als Vektor</div></a>
                     <a class="card" href="impulsdiagramm/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls und Energie vergleichen</div></a>
                     <a class="card" href="diagramme/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Diagramme lesen und verknüpfen</div></a>
-                    <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter Abwurf auf Insel</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Teilbewegungen überlagern</div></a>
+                    <a class="card" href="waagrechter%20Wurf/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter und schräger Wurf</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Teilbewegungen und Abschusswinkel untersuchen</div></a>
                     <a class="card" href="schwingungen/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Feder- und Fadenpendel</div></a>
                     <a class="card" href="fadenpendel-energie/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🕰️</div><div class="card-title">Fadenpendel – Energieumwandlung</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Höhen- und Bewegungsenergie, mit und ohne Luftreibung</div></a>
                     <a class="card" href="vektor-labor/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 8–12</span>Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
@@ -260,7 +260,7 @@
             </section>
 
             <section class="topic-section" id="topic-waermelehre" aria-labelledby="waermelehre-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="waermelehre-title">Wärmelehre</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="waermelehre-title">Wärmelehre</h2></div><span class="topic-range">Klasse 9</span></div>
                 <div class="card-grid" aria-label="Wärmelehre-Anwendungen">
                     <a class="card" href="energie-faesser/index.html"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🌡️</div><div class="card-title">Energiebalken</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Innere Energie, Temperatur und Wärmeleitung</div></a>
                 </div>
@@ -276,9 +276,9 @@
             </section>
 
             <section class="topic-section" id="topic-atomphysik" aria-labelledby="atomphysik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="atomphysik-title">Atomphysik</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="atomphysik-title">Atomphysik</h2></div><span class="topic-range">Klasse 9</span></div>
                 <div class="card-grid" aria-label="Atomphysik-Anwendungen">
-                    <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Energiestufenmodell</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energieübertragungen deuten</div></a>
+                    <a class="card" href="energiestufenmodell/"><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Quanten-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energiestufen und Übergänge deuten</div></a>
                 </div>
             </section>
         </main>

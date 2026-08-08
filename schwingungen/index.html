@@ -319,7 +319,7 @@
       <span style="flex: 1"></span>
       <span class="category-label">Steuerung:</span>
       <div class="control-group">
-        <button id="playBtn" class="btn-primary">Pause</button>
+        <button id="playBtn" class="btn-primary">Start</button>
         <button id="slowBtn" class="btn-secondary">Slow-Mo</button>
         <button id="resetBtn" class="btn-secondary">Reset</button>
       </div>
@@ -465,7 +465,7 @@
       return 4 * Math.sqrt(L/g) * completeEllipticK(Math.sin(Math.abs(amplitude)/2));
     }
     
-    let canvas, isRunning = true, isSlowMo = false, isDragging = false;
+    let canvas, isRunning = false, isSlowMo = false, isDragging = false;
     let dt = 0.02, g = 9.81;
     let visibleTime = 3; // in Sekunden, wird dynamisch angepasst
     
@@ -768,6 +768,9 @@
 
     function draw() {
       background(255);
+      // p5 stellt deltaTime in Millisekunden bereit. Damit läuft das Modell
+      // unabhängig von 60/120-Hz-Displays und springt nach inaktiven Tabs nicht.
+      dt = Math.min(0.05, Math.max(0.001, deltaTime / 1000));
       
       // Aktuellen Zustand abrufen basierend auf aktivem System
       let currentState = system === 'spring' ? springState : pendulumState;

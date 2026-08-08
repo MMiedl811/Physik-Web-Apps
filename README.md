@@ -49,7 +49,7 @@ Die veröffentlichte Seite ist über die GitHub-Pages-Adresse dieses Repositorie
 
 | App | Klasse | Beschreibung |
 |---|---|---|
-| [Energiestufenmodell](energiestufenmodell/index.html) | 9 | Diskrete Energieniveaus, Anregung und Energieübertragung. |
+| [Quanten-Labor](energiestufenmodell/index.html) | 9 | Diskrete Energieniveaus, Anregung und Energieübertragung. |
 
 ## Zielplattform
 

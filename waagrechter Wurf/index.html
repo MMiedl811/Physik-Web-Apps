@@ -261,7 +261,7 @@
             </div>
         </div>
 
-        <p class="model-note"><strong>Modell:</strong> Ursprung bei <em>x = 0</em> auf Meereshöhe, <em>y</em> nach oben. Ohne Luftwiderstand: <em>x = x₀ + v₀t</em>, <em>y = h − ½gt²</em>.</p>
+        <p class="model-note" id="model-note"><strong>Modell:</strong> Ursprung bei <em>x = 0</em> auf Meereshöhe, <em>y</em> nach oben. Ohne Luftwiderstand: <em>x = x₀ + v₀t</em>, <em>y = h − ½gt²</em>.</p>
         <div class="btn-row">
             <button class="btn btn-primary"   id="btn-play">▶ Start</button>
             <button class="btn btn-secondary" id="btn-reset">↺ Reset</button>
@@ -1330,9 +1330,12 @@ class App {
         document.getElementById('mode-waagrecht').className = 'btn ' + (isSchraeg ? 'btn-secondary' : 'btn-active');
         document.getElementById('mode-schraeg').className   = 'btn ' + (isSchraeg ? 'btn-active' : 'btn-secondary');
 
-        // Untertitel
+        // Untertitel und passende Modellgleichungen
         document.querySelector('.header-subtitle').textContent =
             isSchraeg ? 'Geschoss-Abschuss auf die Insel' : 'Rettungspaket-Abwurf';
+        document.getElementById('model-note').innerHTML = isSchraeg
+            ? '<strong>Modell:</strong> Ursprung bei <em>x = 0</em> auf Meereshöhe, <em>y</em> nach oben. Ohne Luftwiderstand: <em>x = x₀ + v₀ cos(α)t</em>, <em>y = v₀ sin(α)t − ½gt²</em>.'
+            : '<strong>Modell:</strong> Ursprung bei <em>x = 0</em> auf Meereshöhe, <em>y</em> nach oben. Ohne Luftwiderstand: <em>x = x₀ + v₀t</em>, <em>y = h − ½gt²</em>.';
 
         this._fitScaler();
         this._drawStatic();

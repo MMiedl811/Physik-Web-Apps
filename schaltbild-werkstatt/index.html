@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#f3eee4">
-<title>Schaltbild-Werkstatt – Prototyp</title>
+<title>Schaltbild-Werkstatt</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23176b68'/%3E%3Cpath d='M10 32h14m18 0h12M24 21v22m8-15v8m10-20v32' stroke='%23fffdf8' stroke-width='4' fill='none'/%3E%3C/svg%3E">
 <style>
 :root{
@@ -513,8 +513,14 @@ function analyzeCircuit(components){
     }
   });
 
+  let terminalVoltage=sourceVoltage;
+  if(limitActive){
+    if(state.topology==='series')terminalVoltage=componentVoltages.filter(Number.isFinite).reduce((sum,value)=>sum+value,0);
+    else if(state.topology==='parallel')terminalVoltage=componentVoltages.find(Number.isFinite)??0;
+    else terminalVoltage=(componentVoltages[0]||0)+Math.max(0,...componentVoltages.slice(1).filter(Number.isFinite));
+  }
   const severity=issues.reduce((result,issue)=>severityOrder[issue.severity]>severityOrder[result]?issue.severity:result,'ok');
-  return {severity,issues,sourceVoltage,sourceLimit,limitActive,totalCurrent,componentCurrents,componentVoltages,routeCurrents,usesLampApproximation:models.some(model=>model.approximate)};
+  return {severity,issues,sourceVoltage,terminalVoltage,sourceLimit,limitActive,totalCurrent,componentCurrents,componentVoltages,routeCurrents,usesLampApproximation:models.some(model=>model.approximate)};
 }
 
 function componentSymbol(left,right,y,component){
@@ -577,7 +583,10 @@ function sourceTop(xLeft,xRight,y,meterNumbers){
   }else markup+=line(xLeft,y,shortX,y);
   markup+=line(shortX,y-19,shortX,y+19,'symbol')+line(longX,y-31,longX,y+31,'symbol')+line(longX,y,xRight,y);
   markup+=text(shortX-17,y-31,'−','polarity')+text(longX+18,y-31,'+','polarity');
-  const sourceLabel=withUnit(state.sourceVoltage,'V')+(String(state.sourceLimit).trim()?` / max. ${withUnit(state.sourceLimit,'A')}`:'');
+  const operating=lastGeometry.operating;
+  const sourceLabel=operating?.limitActive
+    ? `${formatNumber(operating.terminalVoltage)} V tatsächlich (${formatNumber(operating.sourceVoltage)} V eingestellt) / max. ${formatNumber(operating.sourceLimit)} A`
+    : withUnit(state.sourceVoltage,'V')+(String(state.sourceLimit).trim()?` / max. ${withUnit(state.sourceLimit,'A')}`:'');
   if(state.showValues)markup+=text(state.topology==='series'?cx:805,y+69,sourceLabel,'source-label');
   if(state.sourceVoltmeter){
     const vy=58,left=cx-53,right=cx+53;

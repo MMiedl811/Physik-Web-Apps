@@ -846,24 +846,26 @@
       const dt = Math.min((ts - lastTime) / 1000, 0.05); // Cap dt
       lastTime = ts;
 
-      // Bewegung
+      // Bewegung mit adaptiven Subschritten: Bei hohen Relativgeschwindigkeiten
+      // darf kein Körperpaar zwischen zwei Frames aneinander vorbeispringen.
       const speed = CFG.baseSpeed * state.timeScale;
-      state.sim.p1.x += state.sim.v1.x * speed * dt;
-      state.sim.p1.y += state.sim.v1.y * speed * dt;
-      state.sim.p2.x += state.sim.v2.x * speed * dt;
-      state.sim.p2.y += state.sim.v2.y * speed * dt;
+      const relativeSpeed = Math.hypot(state.sim.v1.x-state.sim.v2.x, state.sim.v1.y-state.sim.v2.y) * speed;
+      const maxStep = CFG.collisionRadius * 0.5;
+      const steps = Math.max(1, Math.ceil(relativeSpeed * dt / maxStep));
+      const subDt = dt / steps;
+      for(let step=0; step<steps; step++) {
+        state.sim.p1.x += state.sim.v1.x * speed * subDt;
+        state.sim.p1.y += state.sim.v1.y * speed * subDt;
+        state.sim.p2.x += state.sim.v2.x * speed * subDt;
+        state.sim.p2.y += state.sim.v2.y * speed * subDt;
 
-      // Kollision Check
-      const r1 = CFG.collisionRadius;
-      const r2 = CFG.collisionRadius;
-      const dx = state.sim.p2.x - state.sim.p1.x;
-      const dy = state.sim.p2.y - state.sim.p1.y;
-      const dist = Math.hypot(dx, dy);
-
-      if(dist < (r1 + r2) && !state.sim.collided && calculateCollision()) {
-        // Setze neue Geschwindigkeiten nur bei einem echten, zulaufenden Stoß.
-        state.sim.v1 = { ...state.sim.resV1 };
-        state.sim.v2 = { ...state.sim.resV2 };
+        const dx = state.sim.p2.x - state.sim.p1.x;
+        const dy = state.sim.p2.y - state.sim.p1.y;
+        const dist = Math.hypot(dx, dy);
+        if(dist < 2 * CFG.collisionRadius && !state.sim.collided && calculateCollision()) {
+          state.sim.v1 = { ...state.sim.resV1 };
+          state.sim.v2 = { ...state.sim.resV2 };
+        }
       }
 
       // Bounds Check (Stop Animation)
