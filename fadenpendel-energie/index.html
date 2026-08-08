@@ -45,8 +45,15 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
 .field label{display:flex;justify-content:space-between;color:var(--muted);font-size:.78rem;font-weight:800}
 .field input{width:100%}
 .explain{padding:12px 16px;border-top:1px solid var(--line);font-size:.86rem;line-height:1.5}
+.energy-history{border-top:1px solid var(--line);background:var(--surface)}
+.energy-history summary{position:relative;display:flex;min-height:48px;align-items:center;justify-content:space-between;gap:12px;padding:11px 16px;font-weight:850;cursor:pointer;list-style:none}
+.energy-history summary::-webkit-details-marker{display:none}.energy-history summary::after{content:'＋';color:var(--petrol);font-size:1.2rem}.energy-history[open] summary::after{content:'−'}
+.energy-history summary span{color:var(--muted);font-size:.74rem;font-weight:700}
+.chart-panel{padding:0 14px 14px}.chart-wrap{position:relative;height:280px;min-height:220px;border:1px solid var(--line);border-radius:14px;background:#fff;padding:8px}
+.chart-wrap canvas{height:100%!important;border:0;border-radius:0;background:#fff;touch-action:pan-y}
+.chart-status{margin:8px 2px 0;color:var(--muted);font-size:.76rem;line-height:1.4}
 .model-note{margin:12px 0 0;padding:12px 16px;color:var(--muted);font-size:.76rem;line-height:1.45}
-@media(max-width:760px){.stage-wrap{grid-template-columns:1fr}.heading p{display:none}.readouts{grid-template-columns:1fr 1fr}.readout:last-child{grid-column:1/-1;border-top:1px solid var(--line)}.controls{grid-template-columns:1fr}}
+@media(max-width:760px){.stage-wrap{grid-template-columns:1fr}.heading p{display:none}.readouts{grid-template-columns:1fr 1fr}.readout:last-child{grid-column:1/-1;border-top:1px solid var(--line)}.controls{grid-template-columns:1fr}.energy-history summary{align-items:flex-start;flex-direction:column;gap:2px;padding-right:50px}.energy-history summary::after{position:absolute;right:18px}.chart-wrap{height:250px}}
 </style>
 </head>
 <body data-physik-app="fadenpendel-energie" data-student-home="../index.html" data-student-title="Fadenpendel – Energieumwandlung" data-student-summary="Du beobachtest, wie Höhen- und Bewegungsenergie beim Fadenpendel ineinander umgewandelt werden – mit und ohne Luftreibung." data-student-controls="Wähle Länge, Auslenkung und Masse. Starte, pausiere oder setze neu auf. Schalte Luftreibung an oder aus.">
@@ -105,6 +112,14 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
     <div class="field"><label>Masse <em>m</em><strong id="lbl-mass">0,5 kg</strong></label><input id="sl-mass" type="range" min="0.2" max="2" step="0.1" value="0.5"></div>
   </div>
 
+  <details class="energy-history" id="energyHistory">
+    <summary>Energie im Zeitverlauf <span>Optionales E(t)-Diagramm</span></summary>
+    <div class="chart-panel">
+      <div class="chart-wrap"><canvas id="energyChart" role="img" aria-label="Zeitdiagramm der kinetischen, potenziellen, inneren und gesamten Energie"></canvas></div>
+      <p class="chart-status" id="chartStatus" aria-live="polite">Das Diagramm startet beim Zurücksetzen und zeichnet die Energieformen über der Modellzeit auf.</p>
+    </div>
+  </details>
+
   <p class="explain" id="explain"><strong>Beobachte:</strong> Am Umkehrpunkt ist die Geschwindigkeit null und die Höhenenergie maximal. Im tiefsten Punkt ist die Höhenenergie null und die Bewegungsenergie maximal. Ohne Luftreibung bleibt die Gesamtenergie erhalten.</p>
 </section>
 
@@ -112,12 +127,15 @@ canvas{width:100%;height:auto;display:block;background:#eef6f3;border:1px solid 
 </main>
 </div>
 
+<script src="../shared/vendor/chart.js-4.5.1.umd.min.js"></script>
 <script>
 (()=>{'use strict';
 const q=s=>document.querySelector(s),fmt=(v,d=2)=>Number(v).toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d}),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const CONFIG={g:9.81,b:0.08};
 const state={mode:'ideal',L:1.0,ampDeg:30,mass:0.5,timeScale:1,playing:false,t:0,theta:0,omega:0,einner:0};
-const dom={canvas:q('#pendulum'),ctx:null,roTheta:q('#ro-theta'),roHeight:q('#ro-height'),roSpeed:q('#ro-speed'),barKin:q('#bar-kin'),barPot:q('#bar-pot'),barTherm:q('#bar-therm'),barTotal:q('#bar-total'),valKin:q('#val-kin'),valPot:q('#val-pot'),valTherm:q('#val-therm'),valTotal:q('#val-total'),itemTherm:q('#item-therm'),play:q('#play'),reset:q('#reset'),resetPos:q('#resetPos'),explain:q('#explain'),timeScale:q('#timeScale'),speedVal:q('#speedVal'),slL:q('#sl-L'),slAmp:q('#sl-amp'),slMass:q('#sl-mass'),lblL:q('#lbl-L'),lblAmp:q('#lbl-amp'),lblMass:q('#lbl-mass')};
+const dom={canvas:q('#pendulum'),ctx:null,roTheta:q('#ro-theta'),roHeight:q('#ro-height'),roSpeed:q('#ro-speed'),barKin:q('#bar-kin'),barPot:q('#bar-pot'),barTherm:q('#bar-therm'),barTotal:q('#bar-total'),valKin:q('#val-kin'),valPot:q('#val-pot'),valTherm:q('#val-therm'),valTotal:q('#val-total'),itemTherm:q('#item-therm'),play:q('#play'),reset:q('#reset'),resetPos:q('#resetPos'),explain:q('#explain'),timeScale:q('#timeScale'),speedVal:q('#speedVal'),slL:q('#sl-L'),slAmp:q('#sl-amp'),slMass:q('#sl-mass'),lblL:q('#lbl-L'),lblAmp:q('#lbl-amp'),lblMass:q('#lbl-mass'),energyHistory:q('#energyHistory'),energyChart:q('#energyChart'),chartStatus:q('#chartStatus')};
+const chartHistory={kin:[],pot:[],inner:[],total:[],nextSample:0,dirty:true,lastPaint:0};
+let energyChart=null;
 
 const ampRad=()=>state.ampDeg*Math.PI/180;
 const height=()=>state.L*(1-Math.cos(state.theta));
@@ -126,6 +144,52 @@ const eKin=()=>0.5*state.mass*Math.pow(state.L*state.omega,2);
 const ePot=()=>state.mass*CONFIG.g*height();
 const eMech=()=>eKin()+ePot();
 const initialE=()=>state.mass*CONFIG.g*state.L*(1-Math.cos(ampRad()));
+
+function energySnapshot(){
+  const kin=eKin(),pot=ePot(),inner=state.mode==='friction'?state.einner:0;
+  return {t:state.t,kin,pot,inner,total:kin+pot+inner};
+}
+function appendChartPoint(s){
+  chartHistory.kin.push({x:s.t,y:s.kin});chartHistory.pot.push({x:s.t,y:s.pot});
+  chartHistory.inner.push({x:s.t,y:s.inner});chartHistory.total.push({x:s.t,y:s.total});
+  if(chartHistory.total.length>2400){chartHistory.kin.shift();chartHistory.pot.shift();chartHistory.inner.shift();chartHistory.total.shift();}
+  chartHistory.dirty=true;
+}
+function resetChartHistory(){
+  chartHistory.kin.length=0;chartHistory.pot.length=0;chartHistory.inner.length=0;chartHistory.total.length=0;
+  chartHistory.nextSample=0;appendChartPoint(energySnapshot());chartHistory.nextSample=0.05;
+  if(energyChart)paintEnergyChart(true);
+}
+function sampleChartHistory(){
+  if(state.t+1e-9<chartHistory.nextSample)return;
+  appendChartPoint(energySnapshot());
+  chartHistory.nextSample=(Math.floor(state.t/0.05)+1)*0.05;
+}
+function createEnergyChart(){
+  if(energyChart)return energyChart;
+  if(typeof Chart!=='function'){
+    dom.chartStatus.textContent='Das lokale Diagramm-Modul konnte nicht geladen werden. Die Energiebalken und die Simulation funktionieren weiterhin.';
+    return null;
+  }
+  energyChart=new Chart(dom.energyChart.getContext('2d'),{
+    type:'line',data:{datasets:[
+      {label:'E_kin',data:chartHistory.kin,borderColor:'#3979b8',backgroundColor:'#3979b8',borderWidth:2,pointRadius:0,tension:0},
+      {label:'E_pot',data:chartHistory.pot,borderColor:'#0f766e',backgroundColor:'#0f766e',borderWidth:2,pointRadius:0,tension:0},
+      {label:'E_inner',data:chartHistory.inner,borderColor:'#cf594d',backgroundColor:'#cf594d',borderWidth:2,pointRadius:0,tension:0,hidden:state.mode!=='friction'},
+      {label:'E_ges',data:chartHistory.total,borderColor:'#7a5aa6',backgroundColor:'#7a5aa6',borderWidth:2,pointRadius:0,borderDash:[7,5],tension:0}
+    ]},
+    options:{animation:false,responsive:true,maintainAspectRatio:false,normalized:true,parsing:false,interaction:{mode:'nearest',axis:'x',intersect:false},plugins:{legend:{position:'bottom',labels:{usePointStyle:true,boxWidth:10}},tooltip:{callbacks:{title:items=>`t = ${fmt(items[0].parsed.x,2)} s`,label:item=>`${item.dataset.label}: ${fmt(item.parsed.y,3)} J`}}},scales:{x:{type:'linear',title:{display:true,text:'Modellzeit t in s'},min:0,ticks:{maxTicksLimit:7}},y:{beginAtZero:true,suggestedMax:Math.max(0.1,initialE()*1.08),title:{display:true,text:'Energie E in J'},ticks:{maxTicksLimit:6}}}}
+  });
+  dom.chartStatus.textContent=`Chart.js ${Chart.version} läuft lokal. Tippe im Diagramm, um Werte abzulesen.`;
+  return energyChart;
+}
+function paintEnergyChart(force=false){
+  if(!dom.energyHistory.open||(!force&&!chartHistory.dirty))return;
+  const chart=createEnergyChart();if(!chart)return;
+  chart.data.datasets[2].hidden=state.mode!=='friction';
+  chart.options.scales.y.suggestedMax=Math.max(0.1,initialE()*1.08);
+  chart.update('none');chartHistory.dirty=false;chartHistory.lastPaint=performance.now();
+}
 
 function accel(th,om){return -(CONFIG.g/state.L)*Math.sin(th)-(state.mode==='friction'?CONFIG.b*om:0);}
 function rk4(dt){
@@ -149,10 +213,12 @@ function advance(dtFrame){
     }
   }
   state.t+=dtFrame;
+  sampleChartHistory();
 }
 function reset(keepMode){
   state.theta=ampRad();state.omega=0;state.einner=0;state.t=0;state.playing=false;
   dom.play.textContent='▶ Start';
+  resetChartHistory();
 }
 
 function resizeCanvas(){
@@ -256,17 +322,19 @@ dom.slL.addEventListener('input',()=>configure({L:dom.slL.value}));
 dom.slAmp.addEventListener('input',()=>configure({ampDeg:dom.slAmp.value}));
 dom.slMass.addEventListener('input',()=>configure({mass:dom.slMass.value}));
 addEventListener('resize',()=>{resizeCanvas();render();});
+dom.energyHistory.addEventListener('toggle',()=>{if(dom.energyHistory.open)paintEnergyChart(true);});
 
 let lastFrame=performance.now();
 function frame(now){
   const dt=Math.min(0.05,Math.max(0,(now-lastFrame)/1000));lastFrame=now;
   if(state.playing)advance(dt*state.timeScale);
   render();
+  if(dom.energyHistory.open&&chartHistory.dirty&&now-chartHistory.lastPaint>80)paintEnergyChart();
   requestAnimationFrame(frame);
 }
 resizeCanvas();reset();updateExplain();render();
 requestAnimationFrame(frame);
-window.__fadenpendel=Object.freeze({state,advance,reset,setMode,configure,get:()=>({theta:state.theta,omega:state.omega,kin:eKin(),pot:ePot(),einner:state.einner,total:state.mode==='friction'?eKin()+ePot()+state.einner:eKin()+ePot()})});
+window.__fadenpendel=Object.freeze({state,advance,reset,setMode,configure,get:()=>({theta:state.theta,omega:state.omega,kin:eKin(),pot:ePot(),einner:state.einner,total:state.mode==='friction'?eKin()+ePot()+state.einner:eKin()+ePot()}),getChart:()=>({version:typeof Chart==='function'?Chart.version:null,open:dom.energyHistory.open,points:chartHistory.total.length,last:chartHistory.total[chartHistory.total.length-1]||null})});
 })();
 </script>
 <script src="../shared/student-entry.js"></script>
