@@ -233,10 +233,12 @@ function drawPendulum(){
   c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,W/dpr,H/dpr);
   const w=W/dpr,hgt=H/dpr;
   const pivotX=w/2,pivotY=32;
-  // Einheitlicher Maßstab über den gesamten L-Regelbereich: längere Fäden erscheinen sichtbar länger,
-  // bleiben aber selbst bei L = 2,5 m und θ = 90° vollständig im Canvas.
-  const scale=Math.max(1,Math.min((w/2-34)/2.5,(hgt-pivotY-34)/2.5));
-  const Lpx=state.L*scale;
+  // Adaptive Bildschirmabbildung über den L-Regelbereich: Die Fadenlänge bleibt monoton,
+  // kurze Pendel bleiben aber lesbar und L = 2,5 m passt auch bei θ = ±90° vollständig hinein.
+  // Die Zeichenfläche ist bewusst kein Längenmaßstab; maßgeblich ist der angezeigte L-Wert.
+  const maxLpx=Math.max(32,Math.min(w/2-34,hgt-pivotY-34));
+  const lengthRatio=(state.L-0.5)/(2.5-0.5);
+  const Lpx=maxLpx*(0.35+0.65*lengthRatio);
   const bobX=pivotX+Lpx*Math.sin(state.theta);
   const bobY=pivotY+Lpx*Math.cos(state.theta);
   const groundY=pivotY+Lpx;
@@ -261,11 +263,12 @@ function drawPendulum(){
   // Aufhängepunkt
   c.fillStyle='#25332f';c.beginPath();c.arc(pivotX,pivotY,4,0,Math.PI*2);c.fill();
   // Winkelbogen von der Vertikalen zum Faden
-  const arcR=26,midAngle=Math.PI/2-state.theta/2;
+  const arcR=Math.max(15,Math.min(26,Lpx*0.32)),midAngle=Math.PI/2-state.theta/2;
   c.strokeStyle='#7a5aa6';c.lineWidth=1.5;
   c.beginPath();c.arc(pivotX,pivotY,arcR,Math.PI/2,Math.PI/2-state.theta,state.theta>0);c.stroke();
   c.fillStyle='#7a5aa6';c.font='700 12px system-ui';c.textAlign='center';
-  c.fillText('θ',pivotX+(arcR+13)*Math.cos(midAngle),pivotY+(arcR+13)*Math.sin(midAngle));
+  const labelSide=state.theta<0?-1:1;
+  c.fillText('θ',pivotX+(arcR+11)*Math.cos(midAngle)+labelSide*9,pivotY+(arcR+11)*Math.sin(midAngle));
   // Label Höhe
   c.fillStyle='#2fa896';c.font='700 11px system-ui';c.textAlign='left';
   c.fillText('h',bobX+8,(groundY+bobY)/2);
