@@ -20,7 +20,8 @@ const isPilotTask=()=>{
   const state=api.getState();
   return state.context==='velocity'&&state.taskIndex===0;
 };
-const snap=value=>Math.round(value*2)/2;
+const pilotState=()=>window.__vectorLabTest.getState();
+const snap=value=>{const state=pilotState();if(!state.snap)return value;const step=state.scale/2;return Math.round(value/step)*step;};
 const arrowAttrs=(color,width=5)=>({strokeColor:color,strokeWidth:width,lastArrow:{type:2,size:7},fixed:true,highlight:false});
 
 function addVector(start,vec,color,label){
@@ -41,8 +42,9 @@ function evaluateFromPoints(){
 function buildBoard(){
   if(board)JXG.JSXGraph.freeBoard(board);
   host.innerHTML='';
+  const state=pilotState(),scale=Number.isFinite(state.scale)&&state.scale>0?state.scale:1;
   board=JXG.JSXGraph.initBoard('jsxStage',{
-    boundingbox:[-2,7,9,-3],axis:true,grid:true,keepaspectratio:true,
+    boundingbox:[-2*scale,7*scale,9*scale,-3*scale],axis:true,grid:true,keepaspectratio:true,
     pan:{enabled:false},zoom:{enabled:false},showCopyright:false,showNavigation:false,
     renderer:'svg',maxFrameRate:30
   });
@@ -52,14 +54,14 @@ function buildBoard(){
   addVector([0,0],[2,3],COLORS.orange,'Δv');
   board.create('arrow',[[4,1],[6,4]],{...arrowAttrs(COLORS.orange,4),dash:2,strokeOpacity:.65});
   board.create('text',[4.8,3.05,'Δv verschoben'],{fontSize:13,strokeColor:COLORS.orange,fixed:true,highlight:false});
-  const state=window.__vectorLabTest.getState();
   const user=state.userArrow||{start:{x:0,y:0},vec:{x:0,y:0}};
-  startPoint=board.create('point',[user.start.x,user.start.y],{name:'Start',size:7,face:'o',fillColor:COLORS.user,strokeColor:'#fff',strokeWidth:3,snapToGrid:true,snapSizeX:.5,snapSizeY:.5,showInfobox:false});
-  endPoint=board.create('point',[user.start.x+user.vec.x,user.start.y+user.vec.y],{name:'Spitze',size:8,face:'o',fillColor:COLORS.user,strokeColor:'#fff',strokeWidth:3,snapToGrid:true,snapSizeX:.5,snapSizeY:.5,showInfobox:false});
+  const pointAttrs={face:'o',fillColor:COLORS.user,strokeColor:'#fff',strokeWidth:3,snapToGrid:state.snap,snapSizeX:scale/2,snapSizeY:scale/2,showInfobox:false};
+  startPoint=board.create('point',[user.start.x,user.start.y],{...pointAttrs,name:'Start',size:7});
+  endPoint=board.create('point',[user.start.x+user.vec.x,user.start.y+user.vec.y],{...pointAttrs,name:'Spitze',size:8});
   board.create('arrow',[startPoint,endPoint],{strokeColor:COLORS.user,strokeWidth:6,lastArrow:{type:2,size:8},highlight:false});
   startPoint.on('drag',evaluateFromPoints);endPoint.on('drag',evaluateFromPoints);
   startPoint.on('up',evaluateFromPoints);endPoint.on('up',evaluateFromPoints);
-  board.create('text',[-1.7,-2.35,'Pilot: Ziehe Start und Spitze. Beide Punkte rasten bei 0,5 ein.'],{fontSize:13,strokeColor:'#68716d',fixed:true,highlight:false});
+  board.create('text',[-1.7*scale,-2.35*scale,state.snap?`Rasterfang: ${scale/2}`:'Rasterfang aus'],{fontSize:13,strokeColor:'#68716d',fixed:true,highlight:false});
 }
 function setRenderer(next){
   renderer=next==='pilot'&&isPilotTask()?'pilot':'original';
@@ -68,7 +70,8 @@ function setRenderer(next){
   pilotBtn.setAttribute('aria-pressed',String(active));
   wrap.classList.toggle('jsx-active',active);
   document.body.classList.toggle('jsx-pilot-active',active);
-  stageTip.textContent=active?'JSXGraph-Pilot: grünen Start- und Spitzenpunkt ziehen · Rasterfang 0,5':'Hilfspfeil: am Schaft verschieben · an den Kreisen verändern · freie Fläche: Ergebnispfeil zeichnen';
+  const state=window.__vectorLabTest.getState();
+  stageTip.textContent=active?`JSXGraph-Pilot: Start und Spitze ziehen · Maßstab ${state.scale} · Rasterfang ${state.snap?'an':'aus'}`:'Hilfspfeil: am Schaft verschieben · an den Kreisen verändern · freie Fläche: Ergebnispfeil zeichnen';
   if(active){buildBoard();requestAnimationFrame(()=>board&&board.resizeContainer(host.clientWidth,host.clientHeight,true));}
 }
 function refreshAvailability(){
@@ -81,6 +84,7 @@ pilotBtn.addEventListener('click',()=>setRenderer('pilot'));
 new ResizeObserver(()=>{if(renderer==='pilot'&&board)board.resizeContainer(host.clientWidth,host.clientHeight,true);}).observe(host);
 new MutationObserver(refreshAvailability).observe(document.getElementById('taskNumber'),{childList:true,characterData:true,subtree:true});
 document.querySelectorAll('[data-context],#nextBtn').forEach(el=>el.addEventListener('click',()=>queueMicrotask(refreshAvailability)));
+document.querySelectorAll('#scaleSelect,#snapToggle').forEach(el=>el.addEventListener('change',()=>{if(renderer==='pilot')buildBoard();}));
 window.addEventListener('vector-lab-ready',refreshAvailability,{once:true});
 refreshAvailability();
 window.__jsxGraphPilot={setRenderer,getRenderer:()=>renderer,isAvailable:isPilotTask,getBoard:()=>board,setArrow(start,vec){setRenderer('pilot');startPoint.setPosition(JXG.COORDS_BY_USER,[start.x,start.y]);endPoint.setPosition(JXG.COORDS_BY_USER,[start.x+vec.x,start.y+vec.y]);evaluateFromPoints();return window.__vectorLabTest.evaluate();}};

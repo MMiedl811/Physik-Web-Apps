@@ -1639,46 +1639,8 @@
           // Scales
           this.scales = this._computeScales();
 
-          // Beim harten Recompute rastern und anschließend zwingend neu kompilieren.
-          if (hard && this.state.snap){
-            const stepX = this.scales.x.minorStep || 0.5;
-            const stepV = this.scales.v.minorStep || 0.5;
-            const stepA = this.scales.a.minorStep || 0.25;
-            const stepT = this.scales.time.minorStep || 0.5;
-
-            this.motions.A.x0 = roundToStep(this.motions.A.x0, stepX);
-            this.motions.B.x0 = roundToStep(this.motions.B.x0, stepX);
-            d.x0A.value = String(this.motions.A.x0);
-            d.x0B.value = String(this.motions.B.x0);
-
-            const t1 = roundToStep(parseFloat(d.t1.value) || 0, stepT);
-            const t2 = roundToStep(parseFloat(d.t2.value) || 0, stepT);
-            d.t1.value = String(t1);
-            d.t2.value = String(t2);
-
-            ["A", "B"].forEach(motionKey => {
-              const container = motionKey === "A" ? d.segmentsA : d.segmentsB;
-              this.motions[motionKey].segments.forEach((seg, index) => {
-                seg.duration = Math.max(0.1, roundToStep(parseFloat(seg.duration) || 0.1, stepT));
-                seg.v0 = roundToStep(parseFloat(seg.v0) || 0, stepV);
-                seg.a = seg.type === "const" ? 0 : roundToStep(parseFloat(seg.a) || 0, stepA);
-                const card = container.querySelector(`[data-seg-id="${seg.id}"]`);
-                if (!card) return;
-                const durationInput = card.querySelector('[data-field="duration"]');
-                const velocityInput = card.querySelector('[data-field="v0"]');
-                const accelerationInput = card.querySelector('[data-field="a"]');
-                const summaryText = card.querySelector('[data-role="summaryText"]');
-                if (durationInput) durationInput.value = String(seg.duration);
-                if (velocityInput) velocityInput.value = String(seg.v0);
-                if (accelerationInput) accelerationInput.value = String(seg.a);
-                if (summaryText) summaryText.textContent = this._segmentSummary(seg, index);
-              });
-            });
-
-            this.compiled.A = MotionEngine.rebuild(this.motions.A);
-            this.compiled.B = MotionEngine.rebuild(this.motions.B);
-            this.scales = this._computeScales();
-          }
+          // Das Darstellungsraster verändert niemals Bewegungsdaten. Rasterfang wird
+          // ausschließlich beim konkreten Benutzereingriff im jeweiligen Feld angewandt.
 
           // Apply step attributes
           this._applyInputSteps();

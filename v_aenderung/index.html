@@ -514,6 +514,7 @@
         let strobePositions = [];
         let hockeyPlayerImage;
         let strobeFrameCounter = 0;
+        let trailTimeAccumulator = 0;
         
         // Farben
         const COLOR_ICE = "#f0f0f5";
@@ -672,6 +673,7 @@
             puckTrail = [];
             strobePositions = [];
             strobeFrameCounter = 0;
+            trailTimeAccumulator = 0;
             currentState = STATE.SETUP;
             activeRunParameters = null;
             isSimulationRunning = false;
@@ -915,6 +917,18 @@
             };
         }
 
+        function vectorDisplayScale(parameters = displayedModelParameters()) {
+            const va = createVector(parameters.va, 0);
+            const dv = vectorForPhysicsAngle(parameters.angle, parameters.dv);
+            const result = p5.Vector.add(va, dv);
+            const points = [va, dv, result];
+            const maxX = Math.max(1, ...points.map(v => abs(v.x)));
+            const maxY = Math.max(1, ...points.map(v => abs(v.y)));
+            const availableX = Math.max(80, width / 2 - 96);
+            const availableY = Math.max(80, height / 2 - 110);
+            return constrain(min(15, availableX / maxX, availableY / maxY), 3, 15);
+        }
+
         window.__vChangeTest = {
             vectorForAngle(angleDegrees, magnitude = 1) {
                 const vector = vectorForPhysicsAngle(angleDegrees, magnitude);
@@ -924,30 +938,36 @@
                 return physicsAngleFromScreenVector(createVector(x, y));
             },
             vectorLabelParts,
-            state() { return { currentState, vectors: showVectorsCheckbox.checked, strobeCount: strobePositions.length, paused: isPaused }; }
+            displayScale(va,dv,angle){return vectorDisplayScale({va,dv,angle});},
+            step(dtSeconds){const previous=window.deltaTime;window.deltaTime=Math.max(0,Number(dtSeconds)||0)*1000;updatePhysics();window.deltaTime=previous;return this.state();},
+            state() { return { currentState, vectors: showVectorsCheckbox.checked, strobeCount: strobePositions.length, paused: isPaused, position:{x:puck.pos.x,y:puck.pos.y} }; }
         };
 
         function updatePhysics() {
             if (currentState === STATE.SETUP || currentState === STATE.STOPPED || isPaused) return;
 
-            let animSpeed = slowmoToggle.checked ? 0.25 : 1.0;
+            const dt = min(0.05, max(0, deltaTime / 1000));
+            const animSpeed = slowmoToggle.checked ? 0.25 : 1.0;
+            const modelDt = dt * animSpeed;
 
             // Stroboskoppositionen in gleichen Modellzeitabständen erfassen.
-            strobeFrameCounter += animSpeed;
-            if (strobeFrameCounter >= 16) {
+            strobeFrameCounter += modelDt;
+            if (strobeFrameCounter >= 16 / 60) {
                 strobePositions.push(puck.pos.copy());
-                strobeFrameCounter = 0;
+                strobeFrameCounter -= 16 / 60;
                 if (strobePositions.length > 16) strobePositions.shift();
             }
 
             // Trail hinzufügen
-            if (frameCount % 2 === 0) {
+            trailTimeAccumulator += modelDt;
+            if (trailTimeAccumulator >= 2 / 60) {
                 puckTrail.push(puck.pos.copy());
+                trailTimeAccumulator -= 2 / 60;
                 if (puckTrail.length > 100) puckTrail.shift();
             }
 
             // Bewegung mit Geschwindigkeitsfaktor
-            let moveStep = p5.Vector.mult(puck.vel, animSpeed);
+            let moveStep = p5.Vector.mult(puck.vel, modelDt * 60);
             puck.pos.add(moveStep);
 
             // Phase 1 -> Phase 2 am Stoßpunkt
@@ -959,6 +979,7 @@
                 
                 puck.vel.add(dV); // Vektoraddition: vE = vA + dv
                 currentState = STATE.MOVING_VE;
+                if (puck.vel.magSq() < 1e-8) stopPuck();
             }
 
             // Kollisionsabfrage Tor
@@ -1070,6 +1091,9 @@
         // Code Beginn: Vektor-Mathematik & Pfeile
         function drawVectors() {
             const parameters = displayedModelParameters();
+            canvasScale = vectorDisplayScale(parameters);
+            const scaleHint = document.querySelector('.scale-hint');
+            if (scaleHint) scaleHint.textContent = `x nach rechts, y nach unten · Pfeile: ${canvasScale.toFixed(1)} px je 1 m/s`;
             let vaMag = parameters.va * canvasScale;
             let dvMag = parameters.dv * canvasScale;
 
