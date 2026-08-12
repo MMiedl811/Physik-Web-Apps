@@ -709,6 +709,9 @@
         slowBtn.style.backgroundColor = isSlowMo ? '#a85a00' : '#475569';
       };
       resetBtn.onclick = () => { 
+        isRunning = false;
+        isDragging = false;
+        playBtn.innerText = "Start";
         resetState(getActiveState());
         if (document.getElementById('cursorToggle').checked) {
           updateCursorValues();
@@ -952,9 +955,7 @@
         stroke(150, 150, 150, 150); strokeWeight(1); drawingContext.setLineDash([5, 5]); line(-w/2 + 20, y0, w/2 - 20, y0); drawingContext.setLineDash([]);
         fill(100); noStroke(); textSize(11); text("Ruhelage (y=0)", -w/2 + 30, y0 - 5);
         fill(37, 99, 235); textAlign(LEFT); textSize(14); text(`y = ${(pos * 100).toFixed(1)} cm`, w/2 - 80, 30);
-        let yNull = y0 + amplitude * 500;
-        stroke(34, 197, 94, 150); strokeWeight(1.5); line(-w/2 + 20, yNull, w/2 - 20, yNull);
-        fill(22, 163, 74); text("Nullniveau E_pot", -w/2 + 30, yNull + 15);
+        fill(22, 163, 74); text("Ruhelage und Nullniveau E_pot", -w/2 + 30, y0 + 15);
         let currentY = y0 - pos * 500;
         drawSpring(0, 0, currentY - 30);
         fill(30, 41, 59); noStroke(); rectMode(CENTER); rect(0, currentY, 90, 60, 8);

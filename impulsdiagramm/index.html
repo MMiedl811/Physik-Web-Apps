@@ -641,6 +641,9 @@
             if (Math.abs(deltaV) < 1e-9) {
                 throw new Error("Relative Geschwindigkeit ist Null - kein Stoß möglich.");
             }
+            if (Math.abs(x2start-x1start)<1e-9 && deltaV<=0) {
+                throw new Error("Wagen entfernen sich voneinander - kein Stoß möglich.");
+            }
             
             let tStoss = (x2start - x1start + v1 * t1start - v2 * t2start) / deltaV;
             let v1atS = v1;
@@ -679,7 +682,7 @@
 
             const EkinNach = 0.5 * m1 * v1n**2 + 0.5 * m2 * v2n**2;
             return {
-                tStoss, xStoss, v1n, v2n,
+                tStoss, xStoss, v1atS, v2atS, v1n, v2n,
                 p1, p2, p1n: m1 * v1n, p2n: m2 * v2n, pGes,
                 EkinVor, EkinNach,
                 deltaE: EkinNach - EkinVor,
@@ -809,8 +812,9 @@
             const content = document.getElementById('velocity-content');
             panel.style.display = 'block';
             
-            const { v1n, v2n, inputs } = data;
-            const { m1, m2, v1, v2, k } = inputs;
+            const { v1atS, v2atS, v1n, v2n, inputs } = data;
+            const { m1, m2, k } = inputs;
+            const v1=v1atS,v2=v2atS;
             
             const frac = (num, den) => `<span class="formula-frac"><span class="num">${num}</span><span class="den">${den}</span></span>`;
             

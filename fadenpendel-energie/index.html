@@ -296,7 +296,7 @@ function drawPendulum(){
   // Die Zeichenfläche ist bewusst kein Längenmaßstab; maßgeblich ist der angezeigte L-Wert.
   const maxLpx=Math.max(32,Math.min(w/2-34,hgt-pivotY-34));
   const lengthRatio=(state.L-0.5)/(2.5-0.5);
-  const Lpx=maxLpx*(0.42+0.58*lengthRatio);
+  const Lpx=maxLpx*(0.72+0.28*lengthRatio);
   const bobX=pivotX+Lpx*Math.sin(state.theta);
   const bobY=pivotY+Lpx*Math.cos(state.theta);
   const groundY=pivotY+Lpx;
@@ -383,6 +383,7 @@ function configure(patch){
   if(patch.L!==undefined)state.L=clamp(+patch.L,0.5,2.5);
   if(patch.ampDeg!==undefined)state.ampDeg=clamp(+patch.ampDeg,10,90);
   if(patch.mass!==undefined)state.mass=clamp(+patch.mass,0.2,2);
+  dom.slL.value=String(state.L);dom.slAmp.value=String(state.ampDeg);dom.slMass.value=String(state.mass);
   dom.lblL.textContent=`${fmt(state.L,1)} m`;
   dom.lblAmp.textContent=`${fmt(state.ampDeg,0)}°`;
   dom.lblMass.textContent=`${fmt(state.mass,1)} kg`;
