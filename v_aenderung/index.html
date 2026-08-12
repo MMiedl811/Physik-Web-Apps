@@ -11,7 +11,7 @@
     <style>
         /* Code Beginn: CSS Grundgerüst & Layout */
         :root {
-            --sidebar-width: 300px;
+            --sidebar-width: 360px;
             --primary-color: #007aff;
             --bg-color: #f5f5f7;
             --sidebar-bg: #ffffff;
@@ -43,7 +43,7 @@
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            padding: 24px;
+            padding: 112px 24px 20px;
             box-sizing: border-box;
             overflow-y: auto;
             z-index: 10;
@@ -61,14 +61,14 @@
         }
 
         h1 {
-            font-size: 1.4rem;
-            margin-bottom: 24px;
+            font-size: 1.35rem;
+            margin: 0 0 18px;
             color: var(--text-color);
             line-height: 1.2;
         }
 
         .control-group {
-            margin-bottom: 24px;
+            margin-bottom: 17px;
         }
 
         label {
@@ -112,7 +112,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 14px;
             cursor: pointer;
             user-select: none;
         }
@@ -173,21 +173,61 @@
         .vec-symbol {
             display: inline-block;
             position: relative;
-            padding-top: .16em;
+            font-family: Georgia, "Times New Roman", serif;
             font-style: italic;
             line-height: 1;
+            white-space: nowrap;
+            padding-top: .12em;
         }
         .vec-symbol::after {
-            content: "→";
+            content: "";
             position: absolute;
-            left: 50%;
-            top: -.78em;
-            transform: translateX(-50%);
-            font-size: .72em;
-            font-style: normal;
-            font-weight: 700;
+            left: .08em;
+            top: -.12em;
+            width: .58em;
+            border-top: .09em solid currentColor;
         }
-        .vec-symbol sub { font-style: normal; }
+        .vec-symbol::before {
+            content: "";
+            position: absolute;
+            left: .52em;
+            top: -.24em;
+            width: .22em;
+            height: .22em;
+            border-top: .09em solid currentColor;
+            border-right: .09em solid currentColor;
+            transform: rotate(45deg);
+        }
+        .vec-symbol sub { font-style: normal; font-size: .7em; }
+        .transport-controls {
+            position: absolute;
+            z-index: 30;
+            left: 50%;
+            bottom: 24px;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            padding: 9px;
+            border-radius: 18px;
+            background: rgba(255,255,255,.94);
+            box-shadow: 0 8px 28px rgba(28,45,57,.22);
+            backdrop-filter: blur(12px);
+        }
+        .transport-controls button {
+            min-height: 52px;
+            min-width: 116px;
+            border: 0;
+            border-radius: 12px;
+            padding: 0 20px;
+            font: inherit;
+            font-weight: 750;
+            cursor: pointer;
+        }
+        #pause-btn { background: #5f6870; color: white; }
+        #pause-btn:disabled { opacity: .45; cursor: default; }
+        .view-options { display: grid; gap: 10px; margin-bottom: 15px; }
+        .view-options .checkbox-group { margin: 0; min-height: 32px; }
+        .strobe-note { color: #5f6368; font-size: .76rem; line-height: 1.35; margin: -4px 0 0 36px; }
         details.extension {
             margin-bottom: 20px;
             border: 1px solid var(--border-color);
@@ -226,11 +266,13 @@
             #app-container { flex-direction: column; min-height: 100vh; height: auto; }
             #sidebar {
                 width: 100%; min-width: 0; max-height: none;
-                padding: 16px; overflow: visible; border-right: 0;
+                padding: 76px 16px 16px; overflow: visible; border-right: 0;
                 border-bottom: 1px solid var(--border-color);
             }
             #sidebar h1 { margin: 0 0 14px; }
             .control-group { margin-bottom: 16px; }
+            .transport-controls { position: fixed; bottom: 14px; }
+            #main-area { padding-bottom: 72px; box-sizing: border-box; }
             .checkbox-group { margin-bottom: 14px; }
             #main-area {
                 min-height: 420px;
@@ -329,12 +371,19 @@
     </style>
     <link rel="stylesheet" href="../shared/atelier.css">
   <link rel="stylesheet" href="../shared/student-entry.css">
+  <style>
+    /* Der gemeinsame Atelier-Stil setzt die Seitenleiste zurück; Platz für den Homebutton sichern. */
+    body[data-physik-app="v-aenderung"] #sidebar { padding: 112px 24px 20px; }
+    @media (orientation: portrait), (max-width: 820px) {
+      body[data-physik-app="v-aenderung"] #sidebar { padding: 76px 16px 16px; }
+    }
+  </style>
 </head>
-<body data-physik-app="v-aenderung" data-student-home="../" data-student-title="Geschwindigkeit und Δv" data-student-summary="Du untersuchst, wie Anfangsgeschwindigkeit und Geschwindigkeitsänderung die Endgeschwindigkeit bestimmen." data-student-controls="Stelle Betrag und Winkel von Δv ein. Tippe anschließend auf „Start / Reset“.">
+<body data-physik-app="v-aenderung" data-student-home="../" data-student-title="Geschwindigkeit und Δv" data-student-summary="Du untersuchst, wie Anfangsgeschwindigkeit und Geschwindigkeitsänderung die Endgeschwindigkeit bestimmen." data-student-controls="Stelle Betrag und Winkel von Δv ein. Tippe anschließend im Eisfeld auf „Start“.">
     <!-- Code Beginn: HTML Struktur -->
     <div id="app-container">
         <aside id="sidebar">
-            <h1>Eishockey-Physik: <span class="vec-symbol">v</span> vs. Δ<span class="vec-symbol">v</span></h1>
+            <h1>Eishockey-Physik: <span class="vec-symbol">v</span> und Δ<span class="vec-symbol">v</span></h1>
             <div class="learning-box">
                 <strong>Geführte Beobachtung</strong>
                 <ol>
@@ -362,19 +411,24 @@
                 <div class="value-display" id="angle-value">0°</div>
             </div>
 
-            <div class="checkbox-group">
-                <input type="checkbox" id="show-vectors">
-                <label for="show-vectors">Vektoren & Beschriftungen anzeigen</label>
-            </div>
-
-            <div class="checkbox-group">
-                <input type="checkbox" id="show-ve-mag">
-                <label for="show-ve-mag">Betrag |<span class="vec-symbol">v<sub>E</sub></span>| anzeigen</label>
-            </div>
-
-            <div class="checkbox-group">
-                <input type="checkbox" id="slowmo-toggle">
-                <label for="slowmo-toggle">Slow Motion (1/4 Speed)</label>
+            <div class="view-options" aria-label="Darstellung">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-vectors">
+                    <label for="show-vectors">Vektoraddition konstruieren</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="show-ve-mag">
+                    <label for="show-ve-mag">Betrag |<span class="vec-symbol">v<sub>E</sub></span>| anzeigen</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="strobe-toggle">
+                    <label for="strobe-toggle">Stroboskopbild anzeigen</label>
+                </div>
+                <div class="strobe-note">Zeigt gleichmäßige Zeitabstände der Puckbewegung.</div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="slowmo-toggle">
+                    <label for="slowmo-toggle">Zeitlupe (¼ Geschwindigkeit)</label>
+                </div>
             </div>
 
             <div class="model-box"><strong>Modellgrenze:</strong> Der Puck ist ein Punktkörper und gleitet reibungsfrei. Δ<span class="vec-symbol">v</span> wird an einem Punkt instantan addiert; Stoßdauer, Rotation und Energieübertragung durch den Schläger werden nicht modelliert.</div>
@@ -387,15 +441,15 @@
                 </div>
             </details>
 
-            <div style="display: flex; gap: 10px; margin-top: auto;">
-                <button id="start-reset-btn" style="flex: 2;">Start / Reset</button>
-                <button id="pause-btn" style="flex: 1; background-color: #8e8e93; color: white; border: none; border-radius: 14px; font-weight: 600; cursor: pointer;">Pause</button>
-            </div>
         </aside>
 
         <main id="main-area">
             <div id="canvas-parent">
-                <div class="scale-hint">Koordinaten: x nach rechts, y nach unten · Vektormaßstab: 15 px je 1 m/s · Bewegung nur modellhaft skaliert</div>
+                <div class="scale-hint">x nach rechts, y nach unten · Pfeile: 15 px je 1 m/s</div>
+                <div class="transport-controls" aria-label="Animation steuern">
+                    <button id="start-reset-btn">▶ Start</button>
+                    <button id="pause-btn" disabled>Pause</button>
+                </div>
                 <div id="game-overlay">
                     <h2>🏆 Game Mode Aktiviert!</h2>
                     <p>Triff das bewegliche Tor, um Punkte zu sammeln!</p>
@@ -452,6 +506,8 @@
         let currentState = STATE.SETUP;
         let activeRunParameters = null;
         let puckTrail = [];
+        let strobePositions = [];
+        let strobeFrameCounter = 0;
         
         // Farben
         const COLOR_ICE = "#f0f0f5";
@@ -473,6 +529,7 @@
         const angleValue = document.getElementById('angle-value');
         const showVectorsCheckbox = document.getElementById('show-vectors');
         const showVeMagCheckbox = document.getElementById('show-ve-mag');
+        const strobeToggle = document.getElementById('strobe-toggle');
         const slowmoToggle = document.getElementById('slowmo-toggle');
         const gameModeToggle = document.getElementById('game-mode-toggle');
         const startBtn = document.getElementById('start-reset-btn');
@@ -603,14 +660,19 @@
             };
             
             puckTrail = [];
+            strobePositions = [];
+            strobeFrameCounter = 0;
             currentState = STATE.SETUP;
             activeRunParameters = null;
             isSimulationRunning = false;
             isPaused = false;
             setModelControlsDisabled(false);
-            startBtn.textContent = "Start";
+            showVectorsCheckbox.checked = false;
+            showVeMagCheckbox.checked = false;
+            startBtn.textContent = "▶ Start";
             pauseBtn.textContent = "Pause";
-            pauseBtn.style.backgroundColor = "#8e8e93";
+            pauseBtn.disabled = true;
+            pauseBtn.style.backgroundColor = "#5f6870";
             
             if (isGameMode && !isGameOver && shotsTaken1 + shotsTaken2 > 0) {
                 showTurnPopup();
@@ -652,6 +714,7 @@
             // Block 4: Touch-Interaktion
             checkTouchInteraction();
             
+            drawStroboscope();
             drawPuck();
 
             // Partikel & Feedback
@@ -815,6 +878,19 @@
         }
         // Code Ende: Hockeyspieler Grafik
 
+        function drawStroboscope() {
+            if (!strobeToggle.checked || strobePositions.length === 0) return;
+            push();
+            noStroke();
+            for (let i = 0; i < strobePositions.length; i++) {
+                const p = strobePositions[i];
+                const alpha = map(i, 0, max(1, strobePositions.length - 1), 45, 145);
+                fill(20, 34, 45, alpha);
+                ellipse(p.x, p.y, puck.size * 0.82);
+            }
+            pop();
+        }
+
         function drawPuck() {
             // Trail zeichnen
             push();
@@ -849,7 +925,8 @@
                 activeRunParameters = readModelParameters();
                 currentState = STATE.MOVING_VA;
                 isSimulationRunning = true;
-                startBtn.textContent = "Reset";
+                startBtn.textContent = "↺ Reset";
+                pauseBtn.disabled = false;
                 setModelControlsDisabled(true);
                 
                 let vaMag = activeRunParameters.va * 0.4; // Skalierung für Animation (verdoppelt)
@@ -891,13 +968,22 @@
             angleFromScreenVector(x, y) {
                 return physicsAngleFromScreenVector(createVector(x, y));
             },
-            vectorLabelParts
+            vectorLabelParts,
+            state() { return { currentState, vectors: showVectorsCheckbox.checked, strobeCount: strobePositions.length, paused: isPaused }; }
         };
 
         function updatePhysics() {
             if (currentState === STATE.SETUP || currentState === STATE.STOPPED || isPaused) return;
 
             let animSpeed = slowmoToggle.checked ? 0.25 : 1.0;
+
+            // Stroboskoppositionen in gleichen Modellzeitabständen erfassen.
+            strobeFrameCounter += animSpeed;
+            if (strobeFrameCounter >= 16) {
+                strobePositions.push(puck.pos.copy());
+                strobeFrameCounter = 0;
+                if (strobePositions.length > 16) strobePositions.shift();
+            }
 
             // Trail hinzufügen
             if (frameCount % 2 === 0) {
@@ -951,8 +1037,8 @@
         function stopPuck() {
             currentState = STATE.STOPPED;
             puck.vel.set(0, 0);
-            // Post-Shot-Automatik: Vektoren einblenden
-            showVectorsCheckbox.checked = true;
+            pauseBtn.disabled = true;
+            pauseBtn.textContent = "Pause";
             
             if (isGameMode) {
                 if (currentPlayer === 1) shotsTaken1++;
@@ -1044,7 +1130,7 @@
 
             let showAll = showVectorsCheckbox.checked;
 
-            if (showAll || currentState === STATE.STOPPED) {
+            if (showAll) {
                 // 1. vA (Blau) ab Stoßpunkt
                 drawArrow(impulsePoint, vA_End, COLOR_VA, "vA", -46);
                 
@@ -1092,6 +1178,10 @@
             let cursor = x - totalWidth / 2;
 
             noStroke();
+            fill(255, 255, 255, 232);
+            rectMode(CENTER);
+            rect(x, y - 9, totalWidth + 18, 32, 9);
+            fill(col);
             textSize(18);
             textStyle(NORMAL);
             text(parts.prefix, cursor, y);
@@ -1138,8 +1228,12 @@
                 pop();
             }
 
-            if (label !== "" && (showVectorsCheckbox.checked || currentState === STATE.STOPPED)) {
-                drawCanvasVectorLabel(label, (base.x + target.x) / 2, (base.y + target.y) / 2 + labelOffset, col);
+            if (label !== "" && showVectorsCheckbox.checked) {
+                const unit = p5.Vector.sub(target, base).normalize();
+                const normal = createVector(-unit.y, unit.x);
+                const labelX = constrain(target.x + unit.x * 24 + normal.x * labelOffset * .35, 48, width - 48);
+                const labelY = constrain(target.y + unit.y * 24 + normal.y * labelOffset * .35, 34, height - 84);
+                drawCanvasVectorLabel(label, labelX, labelY, col);
             }
             pop();
         }
