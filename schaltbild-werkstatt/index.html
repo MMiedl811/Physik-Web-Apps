@@ -182,11 +182,14 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
         </div>
         <label class="check-row full"><input id="sourceVoltmeter" type="checkbox"> Spannung an der Quelle messen</label>
         <label class="check-row full"><input id="totalAmmeter" type="checkbox"> Gesamtstrom messen</label>
-        <label class="motion-toggle full">
-          <input id="valuesToggle" type="checkbox" role="switch" aria-describedby="valuesHint">
-          <span class="toggle-track" aria-hidden="true"></span>
-          <span class="toggle-copy"><strong>Werte anzeigen</strong><small id="valuesHint">Spannungs-, Strom- und Widerstandswerte im Schaltbild</small></span>
-        </label>
+        <div class="field full">
+          <span class="field-label">Berechnete Größen anzeigen</span>
+          <div class="checks" id="valueToggles" aria-label="Berechnete Größen auswählen">
+            <label class="check-row"><input id="showResistance" type="checkbox"> Widerstand R</label>
+            <label class="check-row"><input id="showVoltage" type="checkbox"> Spannung U</label>
+            <label class="check-row"><input id="showCurrent" type="checkbox"> Stromstärke I</label>
+          </div>
+        </div>
         <label class="motion-toggle full">
           <input id="motionToggle" type="checkbox" role="switch" aria-describedby="motionHint">
           <span class="toggle-track" aria-hidden="true"></span>
@@ -253,7 +256,7 @@ const typeDefinitions={
 };
 const makeComponent=(type='lamp')=>({type,...deepCopy(typeDefinitions[type].defaults),voltmeter:false,ammeter:false});
 const initialState={
-  topology:'series',counts:{series:1,parallel:2,mixed:3},sourceVoltage:'6,3',sourceLimit:'',sourceVoltmeter:false,totalAmmeter:false,showValues:false,showMotion:false,flowMode:'electron',
+  topology:'series',counts:{series:1,parallel:2,mixed:3},sourceVoltage:'6,3',sourceLimit:'',sourceVoltmeter:false,totalAmmeter:false,valueDisplay:{resistance:false,voltage:false,current:false},showMotion:false,flowMode:'electron',
   components:[makeComponent('lamp'),makeComponent('lamp'),makeComponent('resistor'),makeComponent('lamp'),makeComponent('resistor')]
 };
 let state=deepCopy(initialState);
@@ -322,7 +325,9 @@ function renderControls(){
 }
 
 function syncDisplayControls(){
-  $('#valuesToggle').checked=state.showValues;
+  $('#showResistance').checked=state.valueDisplay.resistance;
+  $('#showVoltage').checked=state.valueDisplay.voltage;
+  $('#showCurrent').checked=state.valueDisplay.current;
   $('#motionToggle').checked=state.showMotion;
   document.querySelectorAll('[data-flow-mode]').forEach(button=>{
     button.setAttribute('aria-pressed',String(button.dataset.flowMode===state.flowMode));
@@ -521,7 +526,16 @@ function analyzeCircuit(components){
     else terminalVoltage=(componentVoltages[0]||0)+Math.max(0,...componentVoltages.slice(1).filter(Number.isFinite));
   }
   const severity=issues.reduce((result,issue)=>severityOrder[issue.severity]>severityOrder[result]?issue.severity:result,'ok');
-  return {severity,issues,sourceVoltage,terminalVoltage,sourceLimit,limitActive,totalCurrent,componentCurrents,componentVoltages,routeCurrents,usesLampApproximation:models.some(model=>model.approximate)};
+  return {severity,issues,sourceVoltage,terminalVoltage,sourceLimit,limitActive,totalCurrent,componentCurrents,componentVoltages,componentResistances:models.map(model=>model.kind==='resistive'?model.resistance:null),routeCurrents,usesLampApproximation:models.some(model=>model.approximate)};
+}
+
+function operatingValue(component){
+  const operating=lastGeometry.operating,index=component.index,parts=[];
+  const resistance=operating?.componentResistances[index],voltage=operating?.componentVoltages[index],current=operating?.componentCurrents[index];
+  if(state.valueDisplay.resistance&&Number.isFinite(resistance))parts.push(`R = ${formatNumber(resistance)} Ω`);
+  if(state.valueDisplay.voltage&&Number.isFinite(voltage))parts.push(`U = ${formatNumber(voltage)} V`);
+  if(state.valueDisplay.current&&Number.isFinite(current))parts.push(`I = ${formatNumber(current,3)} A`);
+  return parts.join(' · ');
 }
 
 function componentSymbol(left,right,y,component){
@@ -569,8 +583,9 @@ function horizontalElement(x1,x2,y,component,meterNumbers,voltageOffset=-78,labe
     markup+=line(left,y,left,vy)+line(left,vy,center-27,vy)+meter(center,vy,'V',`U${subscript(++meterNumbers.v)}`)+line(center+27,vy,right,vy)+line(right,vy,right,y)+node(left,y)+node(right,y);
   }
   markup+=text(center+labelDx,y+54,component.label,'component-label');
-  if(state.showValues)markup+=text(center+labelDx,y+80,componentValue(component),'value-label');
-  lastGeometry.components.push({index:component.index,type:component.type,label:component.label,x1,x2,y,left,right,cx:center,labelX:center+labelDx,ammeter:hasA,ammeterCenter,voltmeter:component.voltmeter,valueVisible:state.showValues});
+  const shownValue=operatingValue(component);
+  if(shownValue)markup+=text(center+labelDx,y+80,shownValue,'value-label');
+  lastGeometry.components.push({index:component.index,type:component.type,label:component.label,x1,x2,y,left,right,cx:center,labelX:center+labelDx,ammeter:hasA,ammeterCenter,voltmeter:component.voltmeter,valueVisible:Boolean(shownValue)});
   return markup;
 }
 
@@ -588,7 +603,7 @@ function sourceTop(xLeft,xRight,y,meterNumbers){
   const sourceLabel=operating?.limitActive
     ? `${formatNumber(operating.terminalVoltage)} V tatsächlich (${formatNumber(operating.sourceVoltage)} V eingestellt) / max. ${formatNumber(operating.sourceLimit)} A`
     : withUnit(state.sourceVoltage,'V')+(String(state.sourceLimit).trim()?` / max. ${withUnit(state.sourceLimit,'A')}`:'');
-  if(state.showValues)markup+=text(state.topology==='series'?cx:805,y+69,sourceLabel,'source-label');
+  if(state.valueDisplay.voltage||state.valueDisplay.current)markup+=text(state.topology==='series'?cx:805,y+69,sourceLabel,'source-label');
   if(state.sourceVoltmeter){
     const vy=58,left=cx-53,right=cx+53;
     markup+=line(left,y,left,vy)+line(left,vy,cx-27,vy)+meter(cx,vy,'V',`U${subscript(++meterNumbers.v)}`)+line(cx+27,vy,right,vy)+line(right,vy,right,y)+node(left,y)+node(right,y);
@@ -709,7 +724,8 @@ function renderCircuit(){
   else drawing=renderMixed(components,meterNumbers);
   const movement=flowLayer(lastGeometry.electronRoutes,operating);
   lastGeometry.motionVisible=Boolean(movement);
-  const valueDescription=state.showValues?`Spannungsquelle ${withUnit(state.sourceVoltage,'Volt')}.`:'Bauteilwerte sind ausgeblendet.';
+  const shownQuantities=Object.entries(state.valueDisplay).filter(([,shown])=>shown).map(([key])=>({resistance:'Widerstand',voltage:'Spannung',current:'Stromstärke'}[key]));
+  const valueDescription=shownQuantities.length?`Angezeigt: ${shownQuantities.join(', ')}. Spannungsquelle ${withUnit(state.sourceVoltage,'Volt')}.`:'Berechnete Größen sind ausgeblendet.';
   const flowDescription=lastGeometry.motionVisible?` ${state.flowMode==='electron'?'Elektronenbewegung':'Technische Stromrichtung'} ist stromabhängig qualitativ eingeblendet.`:'';
   const warningDescription=operating.severity==='critical'?' Die gewählten Betriebswerte enthalten eine kritische Fachwarnung.':'';
   const description=`Automatisch erzeugtes Schaltbild. ${valueDescription} ${components.map(component=>`${component.label}: ${component.name}`).join(', ')}.${flowDescription}${warningDescription}`;
@@ -727,7 +743,7 @@ function renderCircuit(){
   $('#circuitSvg').innerHTML=`<title id="svgTitle">${escapeXml(title)}</title><desc id="svgDescription">${escapeXml(description)}</desc>${svgStyle}<rect width="1000" height="${viewHeight}" fill="#ffffff"/>${drawing}${movement}`;
   $('#circuitSvg').setAttribute('aria-label',description);
   const sourceDisplay=withUnit(state.sourceVoltage,'V')||'ohne Spannungsangabe';
-  const valueStatus=state.showValues?` · ${sourceDisplay}`:'';
+  const valueStatus=shownQuantities.length?` · ${sourceDisplay}`:'';
   const motionStatus=state.showMotion?` · ${state.flowMode==='electron'?'Elektronen':'technischer Strom'}`:'';
   const warningStatus=operating.severity==='critical'?' · Werte prüfen':'';
   $('#statusText').textContent=`${topologyNames[state.topology]} · ${components.length} ${components.length===1?'Bauteil':'Bauteile'}${valueStatus}${motionStatus}${warningStatus}`;
@@ -755,7 +771,7 @@ function reset(){
   $('#sourceLimit').value=state.sourceLimit;
   $('#sourceVoltmeter').checked=state.sourceVoltmeter;
   $('#totalAmmeter').checked=state.totalAmmeter;
-  $('#valuesToggle').checked=state.showValues;
+  syncDisplayControls();
   $('#motionToggle').checked=state.showMotion;
   renderControls();
   renderCircuit();
@@ -804,7 +820,7 @@ $('#sourceVoltage').addEventListener('input',event=>{state.sourceVoltage=event.t
 $('#sourceLimit').addEventListener('input',event=>{state.sourceLimit=event.target.value;renderCircuit();});
 $('#sourceVoltmeter').addEventListener('change',event=>{state.sourceVoltmeter=event.target.checked;renderCircuit();});
 $('#totalAmmeter').addEventListener('change',event=>{state.totalAmmeter=event.target.checked;renderCircuit();});
-$('#valuesToggle').addEventListener('change',event=>{state.showValues=event.target.checked;renderCircuit();});
+$('#valueToggles').addEventListener('change',event=>{const key={showResistance:'resistance',showVoltage:'voltage',showCurrent:'current'}[event.target.id];if(!key)return;state.valueDisplay[key]=event.target.checked;renderCircuit();});
 $('#motionToggle').addEventListener('change',event=>{state.showMotion=event.target.checked;syncDisplayControls();renderCircuit();});
 $('#flowModeButtons').addEventListener('click',event=>{const button=event.target.closest('[data-flow-mode]');if(!button||button.disabled)return;state.flowMode=button.dataset.flowMode;syncDisplayControls();renderCircuit();});
 $('#resetButton').addEventListener('click',reset);
@@ -816,7 +832,7 @@ window.__circuitWorkshop={
   setComponent:(index,patch)=>{if(index<0||index>4)return false;state.components[index]={...state.components[index],...patch};renderControls();renderCircuit();return true;},
   setSource:patch=>{state={...state,...patch};$('#sourceVoltage').value=state.sourceVoltage;$('#sourceLimit').value=state.sourceLimit;$('#sourceVoltmeter').checked=state.sourceVoltmeter;$('#totalAmmeter').checked=state.totalAmmeter;syncDisplayControls();renderCircuit();},
   setCount:(topology,count)=>{if(!Object.hasOwn(topologyMinimum,topology))return false;state.counts[topology]=Math.max(topologyMinimum[topology],Math.min(5,Number(count)||topologyMinimum[topology]));if(state.topology===topology){renderControls();renderCircuit();}return true;},
-  setDisplay:patch=>{state.showValues=patch.showValues??state.showValues;state.showMotion=patch.showMotion??state.showMotion;if(['electron','current'].includes(patch.flowMode))state.flowMode=patch.flowMode;syncDisplayControls();renderCircuit();return true;},
+  setDisplay:patch=>{if(patch.valueDisplay)state.valueDisplay={...state.valueDisplay,...patch.valueDisplay};state.showMotion=patch.showMotion??state.showMotion;if(['electron','current'].includes(patch.flowMode))state.flowMode=patch.flowMode;syncDisplayControls();renderCircuit();return true;},
   render:renderCircuit,getSvgSource:svgSource,reset
 };
 renderControls();renderCircuit();
