@@ -124,11 +124,14 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
 </details>
 </main>
 </div>
+<script src="dist/field-core.js"></script>
 <script>
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s);
 const TAU=Math.PI*2,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const typedCore=window.MagnetFieldCore;
+if(!typedCore)throw new Error('Der kompilierte TypeScript-Feldkern fehlt.');
 const fieldCanvas=$('#fieldCanvas'),fctx=fieldCanvas.getContext('2d');
 const spaceCanvas=$('#spaceCanvas'),sctx=spaceCanvas.getContext('2d');
 const els={
@@ -152,9 +155,9 @@ function objectId(prefix){return `${prefix}-${idCounter++}`;}
 function makeBar(x=0,y=0,angle=0){return{id:objectId('bar'),kind:'bar',x,y,angle,strength:1};}
 function makeHorse(x=0,y=0,angle=0){return{id:objectId('horse'),kind:'horse',x,y,angle,strength:1};}
 function makeMaterial(x=.35,y=0,angle=0,material='softIron'){return{id:objectId('material'),kind:'material',x,y,angle,material};}
-function rotate(vx,vy,a){const c=Math.cos(a),s=Math.sin(a);return{x:vx*c-vy*s,y:vx*s+vy*c};}
-function localToWorld(o,x,y){const p=rotate(x,y,o.angle);return{x:o.x+p.x,y:o.y+p.y};}
-function worldToLocal(o,x,y){const dx=x-o.x,dy=y-o.y;return rotate(dx,dy,-o.angle);}
+const rotate=typedCore.rotate;
+const localToWorld=typedCore.localToWorld;
+const worldToLocal=typedCore.worldToLocal;
 function preset(name){
   state.preset=name;state.magnets=[];state.materials=[];
   if(name==='single'){state.magnets=[makeBar(0,0,0)];state.compass={x:.58,y:.28};}
@@ -196,17 +199,7 @@ function materialCells(){
   }
   return groups;
 }
-function fieldFromSources(x,y,sources,skipCell=null){
-  let bx=0,by=0;
-  for(const s of sources){
-    if(skipCell&&s.cell===skipCell)continue;
-    const dx=x-s.x,dy=y-s.y,r2=dx*dx+dy*dy+s.soft*s.soft,invR3=1/(r2*Math.sqrt(r2));
-    if(Number.isFinite(s.q)){bx+=s.q*dx*invR3;by+=s.q*dy*invR3;continue;}
-    const dot=s.mx*dx+s.my*dy,f=3*dot/r2;
-    bx+=(f*dx-s.mx)*invR3;by+=(f*dy-s.my)*invR3;
-  }
-  return{x:bx,y:by,mag:Math.hypot(bx,by)};
-}
+const fieldFromSources=typedCore.fieldFromSources;
 function computeSources(){
   const permanent=permanentSources(),groups=materialCells(),induced=groups.flat();
   for(let pass=0;pass<8;pass++){
