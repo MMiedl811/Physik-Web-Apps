@@ -410,7 +410,7 @@ function analyzeCircuit(components){
     return rawCurrent;
   };
 
-  if(sourceVoltage!==null&&!models.some(model=>model.kind==='invalid')){
+  if(sourceVoltage!==null&&!(limitText&&sourceLimit===null)&&!models.some(model=>model.kind==='invalid')){
     if(state.topology==='series'){
       if(models.some(model=>model.kind==='open'||model.kind==='blocked')){
         componentCurrents.fill(0);routeCurrents[0]=0;totalCurrent=0;
