@@ -26,3 +26,15 @@ Die Anwendungen müssen ohne CDN und ohne Netzwerkzugriff funktionieren. Jede Bi
 - CSS: 4.767 Byte (gzip 1.616 Byte), SHA-256 `c35832b173df9689bbc2ba7a50d708717e956badf5faf5c90b0a020b69bbfcce`
 - Verwendet in: `vektor-labor/index.html` ausschließlich als umschaltbarer Pilot für die erste Geschwindigkeitsaufgabe.
 - Zweck: Vergleich von Touch-Geometrie, Rasterfang und responsiver Vektorkonstruktion; die fachliche Auswertung bleibt in der App.
+
+## KaTeX 0.18.4
+
+- Dateien: `katex-0.18.4/katex.min.js`, `katex-0.18.4/katex.min.css` und 20 lokale WOFF2-Schriften
+- Upstream: https://github.com/KaTeX/KaTeX
+- Paket: https://www.npmjs.com/package/katex/v/0.18.4
+- Lizenz: MIT, siehe `katex-0.18.4/LICENSE.md`
+- JavaScript: 272.179 Byte (gzip 75.762 Byte), SHA-256 `2ec5916941ef4383e0314eaabcc712301b06001d9fb68e08d751d2bae5a27a1a`
+- CSS: 24.727 Byte (gzip 3.480 Byte), SHA-256 `180c2d77d434d7da51d6625c50a964d4fd6fdbdb9bc8796a0a016c30c49931fb`
+- Schriften: 20 WOFF2-Dateien, zusammen 259.792 Byte
+- Verwendet in: `v_aenderung/index.html` als umschaltbarer Formelsatz-Pilot.
+- Zweck: sauberer Vergleich der Vektornotation in Überschrift, Beobachtungsaufträgen und zentraler Vektorgleichung; Canvas-Beschriftungen bleiben unverändert.

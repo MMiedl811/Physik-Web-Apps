@@ -7,6 +7,8 @@
     
     <!-- Lokale p5.js-Version: funktioniert auch ohne Internetverbindung. -->
     <script src="../shared/vendor/p5-1.9.0.min.js"></script>
+    <link rel="stylesheet" href="../shared/vendor/katex-0.18.4/katex.min.css">
+    <script src="../shared/vendor/katex-0.18.4/katex.min.js"></script>
     
     <style>
         /* Code Beginn: CSS Grundgerüst & Layout */
@@ -199,6 +201,12 @@
             transform: rotate(45deg);
         }
         .vec-symbol sub { font-style: normal; font-size: .7em; }
+        .formula-renderer-switch { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin:-5px 0 16px; padding:4px; border:1px solid var(--border-color); border-radius:12px; background:#f5f5f7; }
+        .formula-renderer-switch button { min-height:48px; border:0; border-radius:9px; background:transparent; color:#5f6368; font:inherit; font-size:.76rem; font-weight:750; cursor:pointer; }
+        .formula-renderer-switch button[aria-pressed="true"] { background:#007aff; color:white; }
+        .katex-formula { white-space:nowrap; }
+        h1 .katex { font-size:.94em; }
+        .learning-box .katex { font-size:1.04em; }
         .transport-controls {
             position: absolute;
             z-index: 30;
@@ -383,14 +391,18 @@
     <!-- Code Beginn: HTML Struktur -->
     <div id="app-container">
         <aside id="sidebar">
-            <h1>Eishockey-Physik: <span class="vec-symbol">v</span> und Δ<span class="vec-symbol">v</span></h1>
+            <h1>Eishockey-Physik: <span class="katex-formula" data-tex="\vec v \text{ und } \Delta\vec v"><span class="vec-symbol">v</span> und Δ<span class="vec-symbol">v</span></span></h1>
             <div class="learning-box">
                 <strong>Geführte Beobachtung</strong>
                 <ol>
-                    <li>Starte zuerst mit Δ<span class="vec-symbol">v</span> = 0 und beschreibe <span class="vec-symbol">v<sub>E</sub></span>.</li>
-                    <li>Ändere nur den Winkel von Δ<span class="vec-symbol">v</span>. Vergleiche Richtung und Betrag von <span class="vec-symbol">v<sub>E</sub></span>.</li>
-                    <li>Blende die Vektoren ein und prüfe <span class="vec-symbol">v<sub>E</sub></span> = <span class="vec-symbol">v<sub>A</sub></span> + Δ<span class="vec-symbol">v</span>.</li>
+                    <li>Starte zuerst mit <span class="katex-formula" data-tex="\Delta\vec v=0">Δ<span class="vec-symbol">v</span> = 0</span> und beschreibe <span class="katex-formula" data-tex="\vec v_{\mathrm E}"><span class="vec-symbol">v<sub>E</sub></span></span>.</li>
+                    <li>Ändere nur den Winkel von <span class="katex-formula" data-tex="\Delta\vec v">Δ<span class="vec-symbol">v</span></span>. Vergleiche Richtung und Betrag von <span class="katex-formula" data-tex="\vec v_{\mathrm E}"><span class="vec-symbol">v<sub>E</sub></span></span>.</li>
+                    <li>Blende die Vektoren ein und prüfe <span class="katex-formula" data-tex="\vec v_{\mathrm E}=\vec v_{\mathrm A}+\Delta\vec v"><span class="vec-symbol">v<sub>E</sub></span> = <span class="vec-symbol">v<sub>A</sub></span> + Δ<span class="vec-symbol">v</span></span>.</li>
                 </ol>
+            </div>
+            <div class="formula-renderer-switch" id="formulaRendererSwitch" aria-label="Formelsatz vergleichen">
+                <button id="formulaOriginal" type="button" aria-pressed="true">HTML Original</button>
+                <button id="formulaKatex" type="button" aria-pressed="false">KaTeX Pilot</button>
             </div>
             
             <div class="control-group">
@@ -1378,6 +1390,7 @@
         // Code Ende: p5.js Setup & Statische Umgebung
     </script>
 <script src="../shared/student-entry.js"></script>
+<script src="katex-pilot.js"></script>
 </body>
 </html>
 
