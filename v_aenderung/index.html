@@ -201,9 +201,6 @@
             transform: rotate(45deg);
         }
         .vec-symbol sub { font-style: normal; font-size: .7em; }
-        .formula-renderer-switch { display:grid; grid-template-columns:1fr 1fr; gap:5px; margin:-5px 0 16px; padding:4px; border:1px solid var(--border-color); border-radius:12px; background:#f5f5f7; }
-        .formula-renderer-switch button { min-height:48px; border:0; border-radius:9px; background:transparent; color:#5f6368; font:inherit; font-size:.76rem; font-weight:750; cursor:pointer; }
-        .formula-renderer-switch button[aria-pressed="true"] { background:#007aff; color:white; }
         .katex-formula { white-space:nowrap; }
         h1 .katex { font-size:.94em; }
         .learning-box .katex { font-size:1.04em; }
@@ -400,11 +397,7 @@
                     <li>Blende die Vektoren ein und prüfe <span class="katex-formula" data-tex="\vec v_{\mathrm E}=\vec v_{\mathrm A}+\Delta\vec v"><span class="vec-symbol">v<sub>E</sub></span> = <span class="vec-symbol">v<sub>A</sub></span> + Δ<span class="vec-symbol">v</span></span>.</li>
                 </ol>
             </div>
-            <div class="formula-renderer-switch" id="formulaRendererSwitch" aria-label="Formelsatz vergleichen">
-                <button id="formulaOriginal" type="button" aria-pressed="true">HTML Original</button>
-                <button id="formulaKatex" type="button" aria-pressed="false">KaTeX Pilot</button>
-            </div>
-            
+
             <div class="control-group">
                 <label for="va-slider">Anfangsgeschwindigkeit <span class="vec-symbol">v<sub>A</sub></span></label>
                 <input type="range" id="va-slider" min="1" max="25" step="0.1" value="10">
@@ -519,6 +512,7 @@
         let activeRunParameters = null;
         let puckTrail = [];
         let strobePositions = [];
+        let hockeyPlayerImage;
         let strobeFrameCounter = 0;
         
         // Farben
@@ -639,6 +633,10 @@
             angleValue.textContent = e.target.value + '°';
         });
         // Code Ende: UI-Logik & Initialisierung
+
+        function preload() {
+            hockeyPlayerImage = loadImage('assets/hockey-player.svg');
+        }
 
         // Code Beginn: p5.js Setup & Statische Umgebung
         function setup() {
@@ -813,79 +811,24 @@
             line(impulsePoint.x - s, impulsePoint.y + s, impulsePoint.x + s, impulsePoint.y - s);
             pop();
             
-            // Hockeyschläger am Stoßpunkt zeichnen
-            drawHockeyStick();
+            drawHockeyPlayer(displayedModelParameters());
         }
         
-        // Code Beginn: Hockeyspieler Grafik (Vogelperspektive)
-        function drawHockeyStick() {
+        // Spieler schaut in Richtung der resultierenden Endgeschwindigkeit; das Schlägerblatt bleibt am Stoßpunkt.
+        function drawHockeyPlayer(parameters) {
+            if (!hockeyPlayerImage) return;
+            const result = p5.Vector.add(createVector(parameters.va, 0), vectorForPhysicsAngle(parameters.angle, parameters.dv));
+            const heading = result.magSq() > 1e-8 ? result.heading() : 0;
+            const scaleFactor = constrain(min(width / 1450, height / 1050), 0.36, 0.48);
+            const moving = isSimulationRunning && currentState !== STATE.SETUP && currentState !== STATE.STOPPED && !isPaused;
+            const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+            const bob = moving && !reduced ? sin(millis() * 0.005) * 0.8 : 0;
             push();
-            // Position UNTER dem Stoßpunkt (ca. 80 Pixel darunter)
-            translate(impulsePoint.x, impulsePoint.y + 80);
-            
-            // 180 Grad Rotation (umgedreht)
-            rotate(radians(180));
-            
-            // Skalierung anpassen (SVG war 400x400, wir brauchen ca. 120x120)
-            let scaleFactor = 0.35;
+            translate(impulsePoint.x, impulsePoint.y + bob);
+            rotate(heading);
             scale(scaleFactor);
-            
-            // Offset zum Zentrieren (SVG Mitte war 200,200)
-            translate(-200, -200);
-            
-            // Hintergrund Eis (optional, nur wenn benötigt)
-            // fill(240, 248, 255); // #f0f8ff
-            // noStroke();
-            // rect(0, 0, 400, 400);
-            
-            // Handschuhe / Arme (Andeutung der Haltung)
-            stroke(44, 62, 80); // #2c3e50
-            strokeWeight(12);
-            strokeCap(ROUND);
-            line(150, 200, 100, 280);
-            line(250, 200, 140, 300);
-            
-            // Schultern / Torso
-            fill(231, 76, 60); // #e74c3c
-            stroke(192, 57, 43); // #c0392b
-            strokeWeight(3);
-            ellipse(200, 200, 120, 70); // rx=60*2, ry=35*2
-            
-            // Helm
-            fill(255, 255, 255);
-            stroke(189, 195, 199); // #bdc3c7
-            strokeWeight(2);
-            ellipse(200, 200, 44, 44); // r=22*2
-            
-            // Visier-Detail am Helm
-            noFill();
-            stroke(52, 73, 94); // #34495e
-            strokeWeight(2);
-            beginShape();
-            vertex(185, 185);
-            bezierVertex(200, 175, 200, 175, 215, 185);
-            endShape();
-            
-            // Hockeyschläger (Schaft)
-            stroke(121, 85, 72); // #795548
-            strokeWeight(6);
-            strokeCap(ROUND);
-            line(100, 280, 50, 340);
-            
-            // Schlägerblatt
-            fill(44, 62, 80); // #2c3e50
-            noStroke();
-            beginShape();
-            vertex(50, 340);
-            vertex(20, 355);
-            bezierVertex(10, 360, 15, 370, 25, 365);
-            vertex(55, 350);
-            endShape(CLOSE);
-            
-            // Der Puck (kleiner, da er sonst zu groß wirkt)
-            fill(0);
-            ellipse(35, 375, 16, 16); // r=8*2, aber halbiert für bessere Proportion
-            
+            imageMode(CORNER);
+            image(hockeyPlayerImage, -218, -90, 240, 180);
             pop();
         }
         // Code Ende: Hockeyspieler Grafik
@@ -1390,7 +1333,7 @@
         // Code Ende: p5.js Setup & Statische Umgebung
     </script>
 <script src="../shared/student-entry.js"></script>
-<script src="katex-pilot.js"></script>
+<script src="formula-renderer.js"></script>
 </body>
 </html>
 

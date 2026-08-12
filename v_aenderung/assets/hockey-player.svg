@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" role="img" aria-label="Eishockeyspieler in Fahrt">
+  <ellipse cx="112" cy="153" rx="83" ry="10" fill="#183b3a" opacity=".12"/>
+  <g stroke="#183b3a" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M62 116 L38 145 L74 148" fill="none" stroke="#173f5f" stroke-width="17"/>
+    <path d="M113 120 L91 151 L130 153" fill="none" stroke="#225f73" stroke-width="18"/>
+    <path d="M34 151 Q57 156 79 150" fill="none" stroke="#273532" stroke-width="5"/>
+    <path d="M89 156 Q112 161 137 154" fill="none" stroke="#273532" stroke-width="5"/>
+    <path d="M67 53 Q106 34 146 66 L126 122 Q91 139 55 112 Z" fill="#176b68" stroke-width="4"/>
+    <path d="M71 57 Q106 43 140 67 L132 83 Q94 68 63 77 Z" fill="#c85f4a" stroke="none"/>
+    <path d="M72 78 Q39 88 25 117" fill="none" stroke="#183b3a" stroke-width="20"/>
+    <path d="M132 77 Q165 80 180 110" fill="none" stroke="#183b3a" stroke-width="19"/>
+    <circle cx="23" cy="119" r="10" fill="#c85f4a" stroke-width="3"/>
+    <circle cx="180" cy="112" r="10" fill="#c85f4a" stroke-width="3"/>
+    <path d="M87 31 Q104 15 124 29 Q135 38 126 55 Q106 67 87 53 Q78 43 87 31Z" fill="#f7f3ea" stroke-width="4"/>
+    <path d="M93 31 Q108 22 124 31 L130 41 Q111 39 91 46" fill="#d8a13f" stroke-width="4"/>
+    <path d="M126 39 Q143 45 148 56" fill="none" stroke="#183b3a" stroke-width="4"/>
+    <path d="M24 120 L170 112 L218 91" fill="none" stroke="#76533d" stroke-width="7"/>
+    <path d="M216 91 Q229 87 234 96 L219 104 L207 101 Z" fill="#273532" stroke-width="3"/>
+    <path d="M81 91 Q104 83 126 94" fill="none" stroke="#fffdf8" stroke-width="5" opacity=".85"/>
+    <text x="103" y="108" text-anchor="middle" fill="#fffdf8" stroke="none" font-family="system-ui,sans-serif" font-size="18" font-weight="800">7</text>
+  </g>
+</svg>
