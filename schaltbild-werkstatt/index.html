@@ -615,17 +615,17 @@ function componentBlocksFlow(component){
   return component.type==='switch'&&component.switchState==='open'||component.type==='led'&&component.orientation==='right';
 }
 
-function addFlowRoute(points,branch){
+function addFlowRoute(points,currentKey){
   const length=points.slice(1).reduce((sum,point,index)=>sum+Math.hypot(point[0]-points[index][0],point[1]-points[index][1]),0);
   const d=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
-  lastGeometry.electronRoutes.push({branch,points,d,length,start:{x:points[0][0],y:points[0][1]},end:{x:points.at(-1)[0],y:points.at(-1)[1]}});
+  lastGeometry.electronRoutes.push({currentKey,points,d,length,start:{x:points[0][0],y:points[0][1]},end:{x:points.at(-1)[0],y:points.at(-1)[1]}});
 }
 
 function renderSeries(components,meterNumbers){
   const xLeft=82,xRight=918,yTop=118,yBottom=575,segment=(xRight-xLeft)/components.length;
   let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,yBottom)+line(xRight,yTop,xRight,yBottom);
   components.forEach((component,index)=>{markup+=horizontalElement(xLeft+segment*index,xLeft+segment*(index+1),yBottom,component,meterNumbers,-96);});
-  if(components.every(component=>!componentBlocksFlow(component)))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,yBottom],[xRight,yBottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],0);
+  if(components.every(component=>!componentBlocksFlow(component)))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,yBottom],[xRight,yBottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
   return markup;
 }
 
@@ -637,8 +637,10 @@ function renderParallel(components,meterNumbers){
   let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,bottom)+line(xRight,yTop,xRight,bottom);
   components.forEach((component,index)=>{
     markup+=horizontalElement(xLeft,xRight,ys[index],component,meterNumbers,-72,95,100)+node(xLeft,ys[index])+node(xRight,ys[index]);
-    if(!componentBlocksFlow(component))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop]],index);
+    if(!componentBlocksFlow(component))addFlowRoute([[xLeft,ys[index]],[xRight,ys[index]]],index);
   });
+  addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,bottom]],'total');
+  addFlowRoute([[xRight,bottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
   return markup;
 }
 
@@ -652,9 +654,11 @@ function renderMixed(components,meterNumbers){
   markup+=line(xJunction,ys[0],xJunction,bottom);
   branches.forEach((component,index)=>{markup+=horizontalElement(xJunction,xRight,ys[index],component,meterNumbers,-67,95)+node(xRight,ys[index]);});
   [...new Set([...ys,ySeries])].forEach(y=>{markup+=node(xJunction,y);});
-  if(!componentBlocksFlow(components[0]))branches.forEach((component,index)=>{
-    if(!componentBlocksFlow(component))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ySeries],[xJunction,ySeries],[xJunction,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop]],index);
-  });
+  if(!componentBlocksFlow(components[0])){
+    addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ySeries],[xJunction,ySeries]],'total');
+    branches.forEach((component,index)=>{if(!componentBlocksFlow(component))addFlowRoute([[xJunction,ys[index]],[xRight,ys[index]]],index);});
+    addFlowRoute([[xRight,bottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
+  }
   return markup;
 }
 
@@ -663,18 +667,18 @@ function prefersReducedMotion(){return window.matchMedia&&window.matchMedia('(pr
 function flowLayer(routes,operating){
   if(!state.showMotion||!routes.length||prefersReducedMotion())return '';
   const technicalCurrent=state.flowMode==='current';
-  const activeRoutes=routes.map(route=>({route,current:operating.routeCurrents[route.branch]})).filter(({current})=>Number.isFinite(current)&&current>0);
+  const activeRoutes=routes.map(route=>({route,current:route.currentKey==='total'?operating.totalCurrent:operating.routeCurrents[route.currentKey]})).filter(({current})=>Number.isFinite(current)&&current>0);
   if(!activeRoutes.length)return '';
+  const maxCurrent=Math.max(...activeRoutes.map(item=>item.current));
   const particleClass=technicalCurrent?'flow-particle current':'flow-particle electron';
   const particles=activeRoutes.map(({route,current},routeIndex)=>{
     const points=technicalCurrent?[...route.points].reverse():route.points;
     const path=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
-    const baseDuration=route.length/200;
-    // Die Punktzahl hängt nur von der Weglänge ab; allein das Tempo folgt gedämpft der Stromabschätzung.
-    const speedFactor=Math.max(.35,Math.min(3,Math.sqrt(current/.3)));
-    const duration=Math.max(2.5,Math.min(24,baseDuration/speedFactor));
+    // Gleiche Leitergeometrie: gleicher Strom ergibt gleiches Tempo; Teilströme bleiben in ihren Zweigen langsamer.
+    const pathSpeed=55+145*Math.sqrt(current/maxCurrent);
+    const duration=route.length/pathSpeed;
     const dotsForRoute=Math.max(2,Math.min(5,Math.round(route.length/420)));
-    lastGeometry.flowDurations.push({branch:route.branch,current,duration});
+    lastGeometry.flowDurations.push({currentKey:route.currentKey,current,duration,pathSpeed});
     return Array.from({length:dotsForRoute},(_,dotIndex)=>{
       const phase=(dotIndex/dotsForRoute*duration+routeIndex*.37).toFixed(2);
       return `<circle class="${particleClass}" r="7" data-current="${current.toFixed(6)}"><animateMotion path="${path}" dur="${duration.toFixed(2)}s" begin="-${phase}s" repeatCount="indefinite" calcMode="linear"/></circle>`;
