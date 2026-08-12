@@ -110,6 +110,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
 @media(max-width:1050px){
   .workspace{grid-template-columns:360px minmax(0,1fr)}
   .top-actions .action span{display:none}
+  .top-actions .action{min-width:48px;padding-inline:0}
 }
 @media(max-width:850px){
   body{padding:8px}.workspace{grid-template-columns:1fr}.controls{position:static}.preview{order:-1}
@@ -620,6 +621,10 @@ function addFlowRoute(points,currentKey){
   const d=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
   lastGeometry.electronRoutes.push({currentKey,points,d,length,start:{x:points[0][0],y:points[0][1]},end:{x:points.at(-1)[0],y:points.at(-1)[1]}});
 }
+function branchCurrentKey(indices){return{branches:indices};}
+function addVerticalFlowSegments(x,levels,currentKeys){
+  for(let i=0;i<levels.length-1;i++)addFlowRoute([[x,levels[i]],[x,levels[i+1]]],currentKeys[i]);
+}
 
 function renderSeries(components,meterNumbers){
   const xLeft=82,xRight=918,yTop=118,yBottom=575,segment=(xRight-xLeft)/components.length;
@@ -639,8 +644,10 @@ function renderParallel(components,meterNumbers){
     markup+=horizontalElement(xLeft,xRight,ys[index],component,meterNumbers,-72,95,100)+node(xLeft,ys[index])+node(xRight,ys[index]);
     if(!componentBlocksFlow(component))addFlowRoute([[xLeft,ys[index]],[xRight,ys[index]]],index);
   });
-  addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,bottom]],'total');
-  addFlowRoute([[xRight,bottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
+  addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop]],'total');
+  addVerticalFlowSegments(xLeft,[yTop,...ys],ys.map((_,i)=>branchCurrentKey(components.map((__,j)=>j).slice(i))));
+  addVerticalFlowSegments(xRight,[...ys].reverse().concat(yTop),[...ys].reverse().map((_,i)=>branchCurrentKey(components.map((__,j)=>j).slice(0,components.length-i))));
+  addFlowRoute([[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
   return markup;
 }
 
@@ -657,7 +664,10 @@ function renderMixed(components,meterNumbers){
   if(!componentBlocksFlow(components[0])){
     addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ySeries],[xJunction,ySeries]],'total');
     branches.forEach((component,index)=>{if(!componentBlocksFlow(component))addFlowRoute([[xJunction,ys[index]],[xRight,ys[index]]],index);});
-    addFlowRoute([[xRight,bottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
+    const junctionLevels=[...new Set([...ys,ySeries])].sort((a,b)=>a-b);
+    addVerticalFlowSegments(xJunction,junctionLevels,junctionLevels.slice(0,-1).map((_,i)=>branchCurrentKey(ys.map((__,j)=>j).filter(j=>ys[j]<=junctionLevels[i]))));
+    addVerticalFlowSegments(xRight,[...ys].reverse().concat(yTop),[...ys].reverse().map((_,i)=>branchCurrentKey(ys.map((__,j)=>j).slice(0,ys.length-i))));
+    addFlowRoute([[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
   }
   return markup;
 }
@@ -667,15 +677,15 @@ function prefersReducedMotion(){return window.matchMedia&&window.matchMedia('(pr
 function flowLayer(routes,operating){
   if(!state.showMotion||!routes.length||prefersReducedMotion())return '';
   const technicalCurrent=state.flowMode==='current';
-  const activeRoutes=routes.map(route=>({route,current:route.currentKey==='total'?operating.totalCurrent:operating.routeCurrents[route.currentKey]})).filter(({current})=>Number.isFinite(current)&&current>0);
+  const currentForKey=key=>key==='total'?operating.totalCurrent:key&&Array.isArray(key.branches)?key.branches.reduce((sum,index)=>sum+(operating.routeCurrents[index]||0),0):operating.routeCurrents[key];
+  const activeRoutes=routes.map(route=>({route,current:currentForKey(route.currentKey)})).filter(({current})=>Number.isFinite(current)&&current>0);
   if(!activeRoutes.length)return '';
-  const maxCurrent=Math.max(...activeRoutes.map(item=>item.current));
   const particleClass=technicalCurrent?'flow-particle current':'flow-particle electron';
   const particles=activeRoutes.map(({route,current},routeIndex)=>{
     const points=technicalCurrent?[...route.points].reverse():route.points;
     const path=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
     // Gleiche Leitergeometrie: gleicher Strom ergibt gleiches Tempo; Teilströme bleiben in ihren Zweigen langsamer.
-    const pathSpeed=55+145*Math.sqrt(current/maxCurrent);
+    const pathSpeed=Math.max(55,Math.min(230,70+130*Math.sqrt(current/.3)));
     const duration=route.length/pathSpeed;
     const dotsForRoute=Math.max(2,Math.min(5,Math.round(route.length/420)));
     lastGeometry.flowDurations.push({currentKey:route.currentKey,current,duration,pathSpeed});

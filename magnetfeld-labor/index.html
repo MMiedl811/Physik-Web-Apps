@@ -92,7 +92,7 @@ input[type="range"]{min-height:48px;cursor:pointer}input[type="range"]::-webkit-
         <label class="check"><input id="insideToggle" type="checkbox">Rückweg im Magneten</label>
       </div>
       <p class="field-grid-note">Das Magnetnadel-Raster ist die verlässlichste Ansicht: Jede Nadel zeigt die lokale Feldrichtung. Deaktiviere „Nur Richtung“, um die Stärke zusätzlich über die Deckkraft zu vergleichen.</p>
-      <div class="line-density" id="lineDensityControl" hidden><label for="lineDensityInput">Gezeichnete Linien <strong id="lineDensityRead">32 je Magnet</strong></label><input id="lineDensityInput" type="range" min="12" max="48" step="4" value="32"><small>Die Anzahl ist eine wählbare Darstellung. Die Abstände der Linien sind kein verlässliches Maß für die Feldstärke.</small></div>
+      <div class="line-density" id="lineDensityControl" hidden><label for="lineDensityInput">Gezeichnete Linien <strong id="lineDensityRead">32 insgesamt</strong></label><input id="lineDensityInput" type="range" min="12" max="48" step="4" value="32"><small>Die Anzahl ist eine wählbare Darstellung. Die Abstände der Linien sind kein verlässliches Maß für die Feldstärke.</small></div>
       <p class="mini-note">Die Feldlinien-Skizze ist nur eine berechnete Auswahl von Integralkurven – keine Sammlung realer Fäden und keine feste Linienzahl.</p>
     </section>
     <section class="card panel-section full only-2d observation-section">
@@ -238,7 +238,7 @@ function fieldSeeds(o){
     if(ironCandidates)for(let i=half-2;i>=0;i--)parameters.push((i+1)/half);
     if(multiple)return barFluxSeeds(o);
     for(const u of parameters){
-      const height=u<.72?.105+.56*Math.pow(u/.72,1.18):.69*Math.exp(Math.log(3.1)*(u-.72)/.28),family=height<.23?'close':height<.72?'medium':'far';seeds.push({point:localToWorld(o,0,height),family},{point:localToWorld(o,0,-height),family});
+      const height=u<.72?.105+.56*Math.pow(u/.72,1.7):.69*Math.exp(Math.log(3.1)*(u-.72)/.28),family=height<.23?'close':height<.72?'medium':'far';seeds.push({point:localToWorld(o,0,height),family},{point:localToWorld(o,0,-height),family});
     }
   }else{
     const gapCount=Math.round(total*.56/2)*2,outerEach=(total-gapCount)/2;
@@ -289,12 +289,12 @@ function sourceTraceLine(spec){
   const forward=traceBranch(spec.point,1);return{points:forward.points,end:forward.end,leftView:forward.leftView,family:spec.family,owner:spec.owner};
 }
 function computeFieldLines(){
-  const lines=[],endings={};
+  const lines=[],endings={},perMagnetBudget=state.magnets.length>1?Math.max(6,Math.floor(state.lineDensity/state.magnets.length)):state.lineDensity;
   for(const o of state.magnets){
     const sourceSeeded=state.magnets.length>1&&o.kind==='bar',valid=[];
     for(const spec of fieldSeeds(o)){const line=sourceSeeded?sourceTraceLine(spec):fullTraceLine(spec);endings[line.end]=(endings[line.end]||0)+1;if(line.points.length>4&&line.end==='magnet')valid.push(line);}
-    if(sourceSeeded&&valid.length>state.lineDensity){const chosen=new Set();for(let i=0;i<state.lineDensity;i++)chosen.add(Math.min(valid.length-1,Math.floor((i+.5)/state.lineDensity*valid.length)));for(const index of chosen)lines.push(valid[index]);}
-    else lines.push(...valid.slice(0,state.lineDensity));
+    if(sourceSeeded&&valid.length>perMagnetBudget){const chosen=new Set();for(let i=0;i<perMagnetBudget;i++)chosen.add(Math.min(valid.length-1,Math.floor((i+.5)/perMagnetBudget*valid.length)));for(const index of chosen)lines.push(valid[index]);}
+    else lines.push(...valid.slice(0,perMagnetBudget));
   }
   state.traceEndings=endings;
   return lines;
@@ -409,7 +409,7 @@ function syncControls(){
   for(const b of[els.rotateLeft,els.rotateRight,els.remove])b.disabled=!has;els.flip.disabled=!isMagnet;els.strengthField.hidden=!isMagnet;els.materialField.hidden=!(has&&o.kind==='material');
   if(isMagnet){els.strength.value=String(Math.round(o.strength*100));els.strengthRead.textContent=`${Math.round(o.strength*100)} %`;}
   if(o?.kind==='material')els.materialType.value=o.material;
-  els.lineDensity.value=String(state.lineDensity);els.lineDensityRead.textContent=`${state.lineDensity} je Magnet`;
+  els.lineDensity.value=String(state.lineDensity);els.lineDensityRead.textContent=`${state.lineDensity} insgesamt`;
   const ids={single:'presetSingle',opposite:'presetOpposite',like:'presetLike',horse:'presetHorse',iron:'presetIron'};for(const [name,id] of Object.entries(ids)){const button=$('#'+id),active=state.preset===name;button.classList.toggle('primary',active);button.setAttribute('aria-pressed',String(active));}
 }
 function addObject(kind){
@@ -448,7 +448,7 @@ for(const [id,name] of[['presetSingle','single'],['presetOpposite','opposite'],[
 $('#addBarBtn').addEventListener('click',()=>addObject('bar'));$('#addHorseBtn').addEventListener('click',()=>addObject('horse'));$('#addMaterialBtn').addEventListener('click',()=>addObject('material'));
 els.rotateLeft.addEventListener('click',()=>transformSelected(Math.PI/12));els.rotateRight.addEventListener('click',()=>transformSelected(-Math.PI/12));els.flip.addEventListener('click',()=>transformSelected(0,true));els.remove.addEventListener('click',removeSelected);
 els.strength.addEventListener('input',()=>{const o=selectedObject();if(!o||o.kind==='material')return;o.strength=Number(els.strength.value)/100;els.strengthRead.textContent=`${els.strength.value} %`;state.preset='custom';recompute();});
-els.lineDensity.addEventListener('input',()=>{state.lineDensity=Number(els.lineDensity.value);els.lineDensityRead.textContent=`${state.lineDensity} je Magnet`;recompute();});
+els.lineDensity.addEventListener('input',()=>{state.lineDensity=Number(els.lineDensity.value);els.lineDensityRead.textContent=`${state.lineDensity} insgesamt`;recompute();});
 els.materialType.addEventListener('change',()=>{const o=selectedObject();if(!o||o.kind!=='material')return;o.material=els.materialType.value;state.preset='custom';recompute();syncControls();setObservation();});
 function syncLayerControls(){els.directionOnly.disabled=!state.layers.needles;els.lineDensityControl.hidden=!state.layers.lines;}
 syncLayerControls();
