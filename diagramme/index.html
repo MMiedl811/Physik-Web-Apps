@@ -535,9 +535,24 @@
 
     .legend-line--b{ background: var(--motion-b); }
     .legend-line--time{ background: var(--time-marker); }
+
+    /* iPad: Untersuchung zuerst, benutzerdefinierter Editor nachgeordnet. */
+    @media (max-width: 980px){
+      .app{padding:10px}.app__title{margin:0 64px 8px 0;font-size:1.25rem}.app__layout{display:grid;gap:10px}.controls{display:contents}
+      .controls__section{margin:0;padding:10px;border:1px solid var(--grid);border-radius:10px;background:var(--panel);box-shadow:var(--shadow)}
+      .controls>.controls__section:nth-child(3){order:1;display:grid;grid-template-columns:auto minmax(220px,1fr);gap:8px 12px;align-items:end}
+      .controls>.controls__section:nth-child(3) .btn-row{grid-column:1;grid-row:1/span 3;width:220px;margin:0}.controls>.controls__section:nth-child(3) .app-label,.controls>.controls__section:nth-child(3) #timeScrubber{grid-column:2}.controls>.controls__section:nth-child(3) .readout{margin:0}
+      .stage{order:2}.controls>.controls__section:nth-child(1){order:3;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px}.controls>.controls__section:nth-child(1)>*{margin:0!important}.controls>.controls__section:nth-child(1) .quickstart,.controls>.controls__section:nth-child(1) .app-helper{display:none}.controls>.controls__section:nth-child(2){order:4}#deltaDetails{order:5}.student-editor-details{order:6}
+      .app-select,.app-input,.btn,.toggle,.details__summary{min-height:48px}.toggle{padding:6px 2px}.toggle__input{width:24px;height:24px}.track-canvas{aspect-ratio:16/3}.details__summary{display:flex;align-items:center}
+    }
+    @media(max-width:700px){.controls>.controls__section:nth-child(3){grid-template-columns:1fr}.controls>.controls__section:nth-child(3) .btn-row,.controls>.controls__section:nth-child(3) .app-label,.controls>.controls__section:nth-child(3) #timeScrubber{grid-column:1;grid-row:auto;width:auto}.controls>.controls__section:nth-child(1){grid-template-columns:1fr}}
   </style>
   <link rel="stylesheet" href="../shared/atelier.css">
   <link rel="stylesheet" href="../shared/student-entry.css">
+  <style>
+    body[data-physik-app="diagramme"] .student-home{left:auto;right:12px}
+    body[data-physik-app="diagramme"] .app__title{width:calc(100% - 160px);min-height:52px}
+  </style>
 </head>
 
 <body class="app" data-physik-app="diagramme" data-student-home="../" data-student-title="Bewegungsdiagramme" data-student-summary="Du baust eine Bewegung aus Abschnitten auf und vergleichst Ort, Geschwindigkeit und Beschleunigung." data-student-controls="Wähle ein Szenario oder füge Segmente hinzu. Starte die Bewegung und verschiebe den Zeitregler.">
