@@ -85,6 +85,10 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
 .slot-options{display:grid;grid-template-columns:1fr 1fr;gap:7px}
 .slot-options .check-row{padding:7px 9px;font-size:.77rem}
 .small-note{margin:9px 0 0;color:var(--muted);font-size:.77rem;line-height:1.45}
+.secondary-options{grid-column:1/-1;border:1px solid var(--line);border-radius:11px;background:#f7f2e9}
+.secondary-options summary{min-height:48px;padding:13px 11px;cursor:pointer;font-size:.82rem;font-weight:850}
+.secondary-options-body{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:0 9px 9px}
+.secondary-options-body>.full{grid-column:1/-1}
 .reset-button{width:100%;background:#f8f4ec}
 .preview{overflow:hidden;min-width:0}
 .preview-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 17px 12px;border-bottom:1px solid var(--line)}
@@ -125,6 +129,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
 @media(max-height:820px) and (min-width:851px){
   body{padding:7px}.topbar{min-height:48px;margin-bottom:7px}.heading p{display:none}.controls{max-height:calc(100vh - 70px);overflow-y:auto;scrollbar-gutter:stable;padding:12px;gap:12px}
   .control-section{padding-bottom:11px}.diagram-wrap{padding:9px}.explainer-content{padding-bottom:10px}
+  .controls .reset-button{position:sticky;bottom:0;z-index:2}
 }
 @media print{
   @page{size:landscape;margin:12mm}
@@ -183,23 +188,28 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
         </div>
         <label class="check-row full"><input id="sourceVoltmeter" type="checkbox"> Spannung an der Quelle messen</label>
         <label class="check-row full"><input id="totalAmmeter" type="checkbox"> Gesamtstrom messen</label>
-        <div class="field full">
-          <span class="field-label">Berechnete Größen anzeigen</span>
-          <div class="checks" id="valueToggles" aria-label="Berechnete Größen auswählen">
-            <label class="check-row"><input id="showResistance" type="checkbox"> Widerstand R</label>
-            <label class="check-row"><input id="showVoltage" type="checkbox"> Spannung U</label>
-            <label class="check-row"><input id="showCurrent" type="checkbox"> Stromstärke I</label>
+        <details class="secondary-options">
+          <summary>Weitere Anzeigen</summary>
+          <div class="secondary-options-body">
+            <div class="field full">
+              <span class="field-label">Berechnete Größen anzeigen</span>
+              <div class="checks" id="valueToggles" aria-label="Berechnete Größen auswählen">
+                <label class="check-row"><input id="showResistance" type="checkbox"> Widerstand R</label>
+                <label class="check-row"><input id="showVoltage" type="checkbox"> Spannung U</label>
+                <label class="check-row"><input id="showCurrent" type="checkbox"> Stromstärke I</label>
+              </div>
+            </div>
+            <label class="motion-toggle full">
+              <input id="motionToggle" type="checkbox" role="switch" aria-describedby="motionHint">
+              <span class="toggle-track" aria-hidden="true"></span>
+              <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Punktgeschwindigkeit folgt qualitativ der abgeschätzten Stromstärke</small></span>
+            </label>
+            <div class="flow-mode full" id="flowModeButtons" role="group" aria-label="Dargestellte Flussrichtung">
+              <button type="button" data-flow-mode="electron" aria-pressed="true"><span class="flow-dot" aria-hidden="true"></span>Elektronen</button>
+              <button type="button" data-flow-mode="current" aria-pressed="false"><span class="flow-dot current" aria-hidden="true"></span>Technischer Strom</button>
+            </div>
           </div>
-        </div>
-        <label class="motion-toggle full">
-          <input id="motionToggle" type="checkbox" role="switch" aria-describedby="motionHint">
-          <span class="toggle-track" aria-hidden="true"></span>
-          <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Punktgeschwindigkeit folgt qualitativ der abgeschätzten Stromstärke</small></span>
-        </label>
-        <div class="flow-mode full" id="flowModeButtons" role="group" aria-label="Dargestellte Flussrichtung">
-          <button type="button" data-flow-mode="electron" aria-pressed="true"><span class="flow-dot" aria-hidden="true"></span>Elektronen</button>
-          <button type="button" data-flow-mode="current" aria-pressed="false"><span class="flow-dot current" aria-hidden="true"></span>Technischer Strom</button>
-        </div>
+        </details>
       </div>
     </section>
 

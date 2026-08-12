@@ -296,9 +296,19 @@
     @media (min-width: 851px) and (max-height: 850px){
       body[data-physik-app="impuls"].app{ height:auto; min-height:100vh; overflow:auto; }
       body[data-physik-app="impuls"] .app__header{ padding:14px 180px 14px 18px; }
-      body[data-physik-app="impuls"] .app__main{ display:block; padding:8px; overflow:visible; }
-      body[data-physik-app="impuls"] .vector-view{ min-height:300px; padding:10px; }
-      body[data-physik-app="impuls"] .vector-view__svg{ height:260px; }
+      body[data-physik-app="impuls"] .app__main{ display:grid; grid-template-columns:minmax(0,1fr); padding:8px; overflow:visible; }
+      body[data-physik-app="impuls"] .main-content{ display:contents; }
+      body[data-physik-app="impuls"] .app__main>*{ grid-column:1; width:100%; }
+      body[data-physik-app="impuls"] .stage{ order:1; }
+      body[data-physik-app="impuls"] .ext-modebar,
+      body[data-physik-app="impuls"] .model-note{ order:2; }
+      body[data-physik-app="impuls"] .panel{ order:3; }
+      body[data-physik-app="impuls"] .vector-views{ order:4; }
+      body[data-physik-app="impuls"] #animationSvg{ height:280px; }
+      body[data-physik-app="impuls"] .stage__controls{ bottom:8px; }
+      body[data-physik-app="impuls"] .vector-view{ min-height:220px; padding:8px; }
+      body[data-physik-app="impuls"] .vector-view__svg{ height:185px; }
+      body[data-physik-app="impuls"] .model-note{ margin-block:7px; }
       body[data-physik-app="impuls"] .panel{
         display:grid;
         grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(220px,.7fr);

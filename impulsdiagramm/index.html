@@ -472,6 +472,26 @@
     </style>
     <link rel="stylesheet" href="../shared/atelier.css">
   <link rel="stylesheet" href="../shared/student-entry.css">
+  <style>
+    body[data-physik-app="impulsdiagramm"] .student-home{left:auto;right:12px}
+    body[data-physik-app="impulsdiagramm"]>h1{width:calc(100% - 160px);min-height:52px;padding-right:0}
+    @media(min-width:901px) and (max-height:820px){
+      body[data-physik-app="impulsdiagramm"]{padding:10px}
+      body[data-physik-app="impulsdiagramm"]>h1{margin-bottom:8px}
+      body[data-physik-app="impulsdiagramm"] .model-assumptions{display:none}
+      body[data-physik-app="impulsdiagramm"] .container{grid-template-columns:300px minmax(0,1fr);gap:10px}
+      body[data-physik-app="impulsdiagramm"] .controls{padding:10px}
+      body[data-physik-app="impulsdiagramm"] #canvas-container{aspect-ratio:16/9}
+      body[data-physik-app="impulsdiagramm"] #view-container{margin-bottom:8px}
+      body[data-physik-app="impulsdiagramm"] .stage{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
+      body[data-physik-app="impulsdiagramm"] #view-container,
+      body[data-physik-app="impulsdiagramm"] .legend{grid-column:1/-1}
+      body[data-physik-app="impulsdiagramm"] .analysis-panel{margin-top:0;padding:10px;min-width:0}
+      body[data-physik-app="impulsdiagramm"] .analysis-title{margin-bottom:8px}
+      body[data-physik-app="impulsdiagramm"] .velocity-grid,
+      body[data-physik-app="impulsdiagramm"] .energy-comparison{grid-template-columns:1fr;gap:8px}
+    }
+  </style>
 </head>
 <body data-physik-app="impulsdiagramm" data-student-home="../" data-student-title="Stoß und Impulsdiagramme" data-student-summary="Du vergleichst Bewegungs- und Impulsdiagramme bei verschiedenen Stoßarten." data-student-controls="Wähle Stoßart, Massen und Geschwindigkeiten. Beobachte anschließend die Diagramme.">
     <h1>🎯 Stoß-Diagramm Generator Pro</h1>

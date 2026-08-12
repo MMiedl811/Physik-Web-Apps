@@ -7,7 +7,7 @@
 <title>Vektor-Labor – Pfeile konstruieren</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="../shared/student-entry.css">
-<link rel="stylesheet" href="../shared/vendor/jsxgraph-1.13.1.css">
+
 <style>
 :root{
   --paper:#f3eee4;--surface:#fffdf8;--surface-soft:#f8f2e9;--ink:#25332f;--muted:#68716d;
@@ -26,7 +26,6 @@ button{cursor:pointer}.app{width:min(1440px,100%);margin:auto}.topbar{display:fl
 .field{margin-top:11px}.field label,.check-label{display:block;margin-bottom:5px;font-size:.76rem;font-weight:850;color:#4d5a56}.field select{width:100%;padding:0 11px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink)}.scale-readout{margin-top:6px;color:var(--muted);font-size:.75rem;line-height:1.4}.checks{display:grid;gap:6px;margin-top:10px}.check{display:flex;align-items:center;gap:9px;min-height:48px;padding:7px 9px;border:1px solid var(--line);border-radius:11px;background:#fff}.check input{width:24px;height:24px;accent-color:var(--petrol)}.check label{font-size:.8rem;font-weight:760;line-height:1.2}.helper-tools{margin-top:9px;padding:9px;border:1px solid #c9d8d2;border-radius:12px;background:#f2f8f5}.helper-tools>label{display:block;margin-bottom:5px;color:#35544d;font-size:.75rem;font-weight:900}.helper-row{display:grid;grid-template-columns:minmax(0,1fr) 48px 48px;gap:6px}.helper-row select{min-width:0;min-height:48px;padding:0 8px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}.helper-icon{display:grid;min-width:48px;min-height:48px;place-items:center;padding:0;border:1px solid var(--petrol);border-radius:10px;background:#fff;color:var(--petrol);font-size:1.15rem;font-weight:950}.helper-icon.add{background:var(--petrol);color:#fff}.helper-icon:disabled{border-color:var(--line);color:#a0a59f}.helper-status{margin:5px 0 0;color:#60716b;font-size:.68rem;line-height:1.35}.mini-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:10px}.btn{min-height:48px;padding:9px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-weight:850}.btn.primary{border-color:var(--petrol);background:var(--petrol);color:#fff}.btn.primary:hover{background:var(--petrol-dark)}.btn.solution{border-color:#d0b57e;background:#fff7e7;color:#72531b}.btn:disabled{cursor:not-allowed;opacity:.45}
 .stage-card{overflow:hidden}.stage-head{display:flex;align-items:center;gap:10px;min-height:50px;padding:8px 12px;border-bottom:1px solid var(--line)}.stage-head strong{font-size:.88rem}.stage-head span{color:var(--muted);font-size:.76rem}.stage-head .legend{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px 10px;margin-left:auto}.legend-item{display:inline-flex;align-items:center;gap:5px;color:#4f5a56!important;font-size:.7rem!important;font-weight:800}.swatch{width:17px;height:4px;border-radius:99px;background:var(--swatch)}
 .stage-wrap{position:relative;height:clamp(430px,65vh,650px);min-height:430px;background:#fbfaf4;touch-action:none}.stage-wrap svg{display:block;width:100%;height:100%;touch-action:none;user-select:none;-webkit-user-select:none}.paper-shadow{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 32px rgba(75,61,42,.05)}.stage-tip{position:absolute;left:12px;bottom:11px;max-width:calc(100% - 24px);padding:7px 10px;border:1px solid rgba(166,150,124,.55);border-radius:9px;background:rgba(255,253,248,.92);color:#5f665f;font-size:.72rem;font-weight:720;pointer-events:none}.scale-toast{position:absolute;top:12px;left:50%;z-index:5;transform:translateX(-50%);padding:9px 13px;border-radius:11px;background:#25332f;color:#fff;font-size:.78rem;font-weight:800;box-shadow:0 8px 20px rgba(37,51,47,.22);opacity:0;pointer-events:none;transition:opacity .18s}.scale-toast.show{opacity:1}
-.renderer-switch{display:none;grid-template-columns:1fr 1fr;gap:5px;margin-top:10px;padding:4px;border:1px solid var(--line);border-radius:13px;background:var(--surface-soft)}.renderer-switch.available{display:grid}.renderer-switch button{min-height:48px;border:0;border-radius:9px;background:transparent;color:var(--muted);font-size:.75rem;font-weight:850}.renderer-switch button[aria-pressed="true"]{background:var(--petrol);color:#fff}.jsx-stage{position:absolute!important;inset:0!important;width:auto!important;height:auto!important;z-index:3;display:none;background:#fbfaf4;touch-action:none}.stage-wrap.jsx-active>.jsx-stage{display:block}.stage-wrap.jsx-active>#stage,.stage-wrap.jsx-active>.paper-shadow{display:none}.stage-wrap.jsx-active .stage-tip{z-index:4}.jsx-pilot-active .helper-tools{display:none}.jxgbox{border:0!important}.pilot-badge{color:var(--orange);font-weight:900}
 .feedback{min-height:92px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}.feedback-title{margin:0 0 5px;font-size:.9rem}.feedback p{margin:0;color:var(--muted);font-size:.8rem;line-height:1.4}.feedback.good{background:#edf7f1}.feedback.good .feedback-title{color:#236b4a}.feedback.try{background:#fff8e9}.feedback.try .feedback-title{color:#805b19}.criteria{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.criterion{padding:4px 7px;border-radius:999px;background:#eee9df;color:#5f665f;font-size:.69rem;font-weight:850}.criterion.ok{background:#dcefe4;color:#226747}.criterion.no{background:#f5dfdc;color:#93413c}
 .side-stack{display:grid;gap:10px}.readouts{display:grid;gap:7px}.readout{padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface-soft)}.readout small{display:block;color:var(--muted);font-size:.66rem;font-weight:850;letter-spacing:.05em;text-transform:uppercase}.readout strong{display:block;margin-top:3px;font-size:.92rem;font-variant-numeric:tabular-nums}.method{padding:12px}.method h2{margin:0 0 7px;font-size:.94rem}.method p{margin:0;color:var(--muted);font-size:.78rem;line-height:1.48}.method ol{margin:8px 0 0;padding-left:20px;color:#4e5b57;font-size:.78rem;line-height:1.45}.method li+li{margin-top:4px}
 .solution-panel{display:none;padding:12px;border-color:#d5bd8a;background:#fffbf1}.solution-panel.open{display:block}.solution-panel h2{margin:0 0 6px;font-family:Georgia,serif;font-size:1.06rem}.solution-text{min-height:58px;margin:0;color:#5e5b50;font-size:.8rem;line-height:1.45}.step-count{margin-top:7px;color:#8a744a;font-size:.7rem;font-weight:850}.solution-nav{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:8px}
@@ -74,10 +73,7 @@ button{cursor:pointer}.app{width:min(1440px,100%);margin:auto}.topbar{display:fl
       <div class="check"><input id="snapToggle" type="checkbox" checked><label for="snapToggle">Am halben Kästchen einrasten</label></div>
       <div class="check"><input id="magnitudeToggle" type="checkbox"><label for="magnitudeToggle">Beträge an den Pfeilen anzeigen</label></div>
     </div>
-    <div class="renderer-switch" id="rendererSwitch" aria-label="Zeichenfläche vergleichen">
-      <button id="rendererOriginal" type="button" aria-pressed="true">SVG Original</button>
-      <button id="rendererPilot" type="button" aria-pressed="false">JSXGraph Pilot</button>
-    </div>
+
     <div class="helper-tools">
       <label for="helperSource">Beweglicher Hilfspfeil</label>
       <div class="helper-row">
@@ -111,7 +107,7 @@ button{cursor:pointer}.app{width:min(1440px,100%);margin:auto}.topbar{display:fl
         <rect id="gridRect" x="0" y="0" width="100%" height="100%" fill="url(#majorGrid)"/>
         <g id="axesLayer"></g><g id="givenLayer"></g><g id="helperLayer"></g><g id="userLayer"></g><g id="solutionLayer"></g>
       </svg>
-      <div id="jsxStage" class="jsx-stage jxgbox" role="application" aria-label="JSXGraph-Pilot: Endgeschwindigkeit konstruieren"></div>
+
       <div class="paper-shadow"></div>
       <div class="scale-toast" id="scaleToast" role="status"></div>
       <div class="stage-tip" id="stageTip">Hilfspfeil: am Schaft verschieben · an den Kreisen verändern · freie Fläche: Ergebnispfeil zeichnen</div>
@@ -158,7 +154,7 @@ button{cursor:pointer}.app{width:min(1440px,100%);margin:auto}.topbar{display:fl
     <button class="btn primary" value="close" type="submit">Anleitung schließen</button>
   </form>
 </dialog>
-<script src="../shared/vendor/jsxgraph-1.13.1.min.js"></script>
+
 <script>
 (()=>{
 'use strict';
@@ -256,6 +252,6 @@ setTask(0,{keepContext:true});resize();window.dispatchEvent(new CustomEvent('vec
 })();
 </script>
 <script src="../shared/student-entry.js"></script>
-<script src="jsxgraph-pilot.js"></script>
+
 </body>
 </html>
