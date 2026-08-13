@@ -25,14 +25,14 @@
 </header>
 <main class="layout">
 <section class="card scene-card" aria-labelledby="scene-title">
-<h2 class="sr-only" id="scene-title">Person steigt eine Treppe hinauf</h2>
+<h2 class="sr-only" id="scene-title">Bowser steigt eine Treppe hinauf</h2>
 <div class="readouts">
 <div class="readout"><small>Zeit t</small><strong id="time-readout">0,00 s</strong></div>
 <div class="readout"><small>Höhe h</small><strong id="height-readout">0,00 m</strong></div>
 <div class="readout"><small>Höhenenergie E</small><strong id="energy-readout">0 J</strong></div>
 <div class="readout"><small>Leistung P</small><strong id="power-readout">332 W</strong></div>
 </div>
-<div class="scene-wrap"><canvas id="stair-canvas" role="img" aria-label="Eine Person steht unten an einer Treppe und kann hinaufsteigen"></canvas><div class="scene-badge" id="mode-badge">Normal · 332 W</div><div class="goal-badge">Zielhöhe 4,20 m</div></div>
+<div class="scene-wrap"><canvas id="stair-canvas" role="img" aria-label="Eine pixelartige Bowser-Figur steht unten an einer Treppe und kann hinaufsteigen"></canvas><div class="scene-badge" id="mode-badge">Normal · 332 W</div><div class="goal-badge">Zielhöhe 4,20 m</div></div>
 <div class="controls">
 <div class="speed-switch" role="group" aria-label="Steigtempo wählen">
 <button class="speed-button" data-speed="slow" type="button" aria-pressed="false">Langsam<span>179 W</span></button>
@@ -91,16 +91,41 @@ const duration=Math.max(0,t-segment.startTime);const height=clamp(segment.startH
 function getState(){return{...state,segments:state.segments.map(segment=>({...segment})),energy:energyFor(state.height),power:state.playing&&!state.finished?powerFor(state.mode):0,selectedPower:powerFor(state.mode),maxEnergy:MAX_ENERGY,maxTime:MAX_TIME,config:CONFIG};}
 function resizeCanvas(canvas,ctx){const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),width=Math.max(1,Math.round(rect.width)),height=Math.max(1,Math.round(rect.height));if(canvas.width!==Math.round(width*dpr)||canvas.height!==Math.round(height*dpr)){canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);return{w:width,h:height};}
 function roundRect(ctx,x,y,w,h,r){const radius=Math.min(r,w/2,h/2);ctx.beginPath();ctx.roundRect(x,y,w,h,radius);}
+function drawBowser(ctx,phase,playing){
+const bob=playing?Math.round(Math.sin(phase*2)*2):0,step=Math.sin(phase)>=0?1:-1;
+ctx.save();ctx.translate(0,bob);ctx.imageSmoothingEnabled=false;
+const rect=(x,y,w,h,color)=>{ctx.fillStyle=color;ctx.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h));};
+const outline='#34261f',shell='#27734d',shellDark='#174d38',skin='#d99736',skinLight='#f0bd55',belly='#f2cf79',hair='#a83d2f',horn='#f4dfaa',white='#fff4cf',black='#171716',cuff='#202529';
+// Pixel shadow and rear shell establish the heavy, forward-facing silhouette.
+rect(-25,-3,51,5,'rgba(35,31,25,.24)');rect(-23,-56,35,37,outline);rect(-20,-54,30,33,shellDark);rect(-17,-51,25,27,shell);
+for(const [x,y] of [[-16,-52],[-5,-55],[6,-49],[-19,-39],[-7,-42],[6,-35]]){rect(x,y,7,6,white);rect(x+2,y-3,3,3,white);}
+// Tail, legs and clawed feet move in discrete pixel steps.
+rect(-31,-31,14,9,outline);rect(-36,-27,9,7,outline);rect(-30,-29,13,5,skin);rect(-34,-26,7,4,skinLight);
+const leftFoot=step>0?-5:1,rightFoot=step>0?2:-4;
+rect(-17+leftFoot,-23,12,22,outline);rect(-14+leftFoot,-21,8,18,skin);rect(2+rightFoot,-23,12,22,outline);rect(5+rightFoot,-21,8,18,skin);
+rect(-21+leftFoot,-5,18,7,outline);rect(-18+leftFoot,-3,15,4,skinLight);rect(0+rightFoot,-5,19,7,outline);rect(3+rightFoot,-3,15,4,skinLight);
+for(const x of [-17+leftFoot,-10+leftFoot,5+rightFoot,12+rightFoot])rect(x,-5,4,4,white);
+// Torso, belly plates and spiked wristbands.
+rect(-12,-63,31,41,outline);rect(-9,-60,25,36,skin);rect(1,-55,15,28,belly);for(let y=-51;y<=-33;y+=7)rect(3,y,11,2,'#bc8747');
+const arm=playing?step*3:0;rect(13,-56+arm,17,10,outline);rect(17,-54+arm,12,7,skin);rect(25,-57+arm,8,13,cuff);rect(28,-60+arm,3,4,white);rect(-18,-53-arm,12,10,outline);rect(-16,-51-arm,9,7,skin);rect(-22,-55-arm,8,13,cuff);rect(-21,-58-arm,3,4,white);
+// Head, muzzle, horns, red mane and expressive pixel face.
+rect(-10,-88,31,29,outline);rect(-7,-85,25,23,skin);rect(-12,-82,7,18,hair);rect(-15,-77,5,12,hair);rect(16,-84,8,20,hair);
+rect(-8,-91,7,8,outline);rect(-6,-94,5,8,horn);rect(12,-91,7,8,outline);rect(14,-94,5,8,horn);
+rect(3,-75,23,14,outline);rect(5,-73,18,10,skinLight);rect(8,-71,4,3,black);rect(18,-71,4,3,black);
+rect(-3,-82,7,6,white);rect(8,-82,7,6,white);rect(1,-80,3,4,black);rect(9,-80,3,4,black);rect(-4,-86,9,3,hair);rect(7,-86,9,3,hair);
+rect(8,-63,14,4,white);rect(11,-63,3,4,black);rect(17,-63,3,4,black);
+ctx.restore();
+}
 function drawScene(){const ctx=contexts.scene,{w,h}=resizeCanvas(canvases.scene,ctx);ctx.clearRect(0,0,w,h);const sky=ctx.createLinearGradient(0,0,0,h);sky.addColorStop(0,'#cfe4dc');sky.addColorStop(.62,'#edf1df');sky.addColorStop(1,'#e8d7bb');ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
 ctx.fillStyle='rgba(255,253,248,.4)';for(let i=0;i<5;i++){const x=w*(.1+i*.22),y=55+(i%2)*30;ctx.beginPath();ctx.arc(x,y,18,0,Math.PI*2);ctx.arc(x+22,y-7,25,0,Math.PI*2);ctx.arc(x+47,y+1,17,0,Math.PI*2);ctx.fill();}
 const left=Math.max(38,w*.07),right=w-Math.max(42,w*.07),bottom=h-42,top=Math.max(108,h*.26),stairW=(right-left)/CONFIG.stepCount,stairH=(bottom-top)/CONFIG.stepCount;
 ctx.fillStyle='#8e6844';ctx.beginPath();ctx.moveTo(left,bottom);for(let i=0;i<CONFIG.stepCount;i++){ctx.lineTo(left+(i+1)*stairW,bottom-i*stairH);ctx.lineTo(left+(i+1)*stairW,bottom-(i+1)*stairH);}ctx.lineTo(right,bottom);ctx.closePath();ctx.fill();
 ctx.strokeStyle='#5f4936';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(left,bottom);for(let i=0;i<CONFIG.stepCount;i++){ctx.lineTo(left+(i+1)*stairW,bottom-i*stairH);ctx.lineTo(left+(i+1)*stairW,bottom-(i+1)*stairH);}ctx.stroke();
 ctx.fillStyle='rgba(255,253,248,.23)';for(let i=0;i<CONFIG.stepCount;i+=2)ctx.fillRect(left+(i+1)*stairW,bottom-i*stairH-4,stairW,4);
-const progress=clamp(state.height/CONFIG.totalHeight,0,1),stairPosition=progress*(CONFIG.stepCount-1),px=left+(stairPosition+.58)*stairW,py=bottom-(stairPosition+1)*stairH,scale=clamp(w/760,.82,1.15),phase=state.playing?stairPosition*Math.PI*2:0;
-ctx.save();ctx.translate(px,py-2);ctx.scale(scale,scale);const legSwing=Math.sin(phase)*6,armSwing=Math.sin(phase+Math.PI)*7;ctx.strokeStyle='#263834';ctx.lineCap='round';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(0,-28);ctx.lineTo(-7+legSwing,-3);ctx.moveTo(0,-28);ctx.lineTo(10-legSwing,-3);ctx.stroke();ctx.strokeStyle='#fff8e8';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-8+legSwing,-2);ctx.lineTo(-15+legSwing,-2);ctx.moveTo(9-legSwing,-2);ctx.lineTo(16-legSwing,-2);ctx.stroke();ctx.fillStyle='#d49a3a';roundRect(ctx,-14,-62,28,36,9);ctx.fill();ctx.strokeStyle='#263834';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-8,-54);ctx.lineTo(-21+armSwing,-35);ctx.moveTo(8,-54);ctx.lineTo(22-armSwing,-38);ctx.stroke();ctx.fillStyle='#dfad7b';ctx.beginPath();ctx.arc(0,-75,12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#25332f';ctx.beginPath();ctx.arc(-1,-80,12,Math.PI,Math.PI*2);ctx.fill();ctx.fillRect(-12,-81,6,10);ctx.fillStyle='#0f766e';roundRect(ctx,-19,-57,9,25,4);ctx.fill();ctx.restore();
-if(state.height>0){const gaugeX=right+14,gaugeTop=top,gaugeH=bottom-top;ctx.fillStyle='rgba(255,253,248,.72)';roundRect(ctx,gaugeX,gaugeTop,14,gaugeH,7);ctx.fill();ctx.fillStyle=CONFIG.colors[state.mode];roundRect(ctx,gaugeX,bottom-gaugeH*progress,14,gaugeH*progress,7);ctx.fill();ctx.fillStyle='#42534e';ctx.font='750 10px system-ui';ctx.textAlign='right';ctx.fillText(`${fmt(state.height,2)} m`,gaugeX-5,bottom-gaugeH*progress+4);}
-ctx.fillStyle='#42534e';ctx.font='800 12px system-ui';ctx.textAlign='left';ctx.fillText('0 m',left,bottom+21);if(state.finished){ctx.fillStyle='rgba(255,253,248,.94)';roundRect(ctx,w/2-108,22,216,48,14);ctx.fill();ctx.strokeStyle='#d49a3a';ctx.stroke();ctx.fillStyle='#25332f';ctx.font='900 14px system-ui';ctx.textAlign='center';ctx.fillText(`Ziel erreicht in ${fmt(state.time,2)} s`,w/2,51);}canvases.scene.setAttribute('aria-label',`Eine Person ist ${fmt(state.height,2)} Meter hoch gestiegen. Aktuelles Tempo ${CONFIG.labels[state.mode]}, mechanische Leistung ${fmt(powerFor(state.mode),0)} Watt.`);}
+const progress=clamp(state.height/CONFIG.totalHeight,0,1),stairPosition=progress*(CONFIG.stepCount-1),px=left+(stairPosition+.58)*stairW,py=bottom-(stairPosition+1)*stairH,scale=clamp(w/760,.72,1.02),phase=state.playing?stairPosition*Math.PI*2:0;
+ctx.save();ctx.translate(px,py-2);ctx.scale(scale,scale);drawBowser(ctx,phase,state.playing);ctx.restore();
+if(state.height>0){const gaugeX=right+14,gaugeTop=top,gaugeH=bottom-top;ctx.fillStyle='rgba(255,253,248,.72)';roundRect(ctx,gaugeX,gaugeTop,14,gaugeH,7);ctx.fill();ctx.fillStyle=CONFIG.colors[state.mode];roundRect(ctx,gaugeX,bottom-gaugeH*progress,14,gaugeH*progress,7);ctx.fill();if(!state.finished){ctx.fillStyle='#42534e';ctx.font='750 10px system-ui';ctx.textAlign='right';ctx.fillText(`${fmt(state.height,2)} m`,gaugeX-5,bottom-gaugeH*progress+4);}}
+ctx.fillStyle='#42534e';ctx.font='800 12px system-ui';ctx.textAlign='left';ctx.fillText('0 m',left,bottom+21);if(state.finished){ctx.fillStyle='rgba(255,253,248,.94)';roundRect(ctx,w/2-108,22,216,48,14);ctx.fill();ctx.strokeStyle='#d49a3a';ctx.stroke();ctx.fillStyle='#25332f';ctx.font='900 14px system-ui';ctx.textAlign='center';ctx.fillText(`Ziel erreicht in ${fmt(state.time,2)} s`,w/2,51);}canvases.scene.setAttribute('aria-label',`Bowser ist ${fmt(state.height,2)} Meter hoch gestiegen. Aktuelles Tempo ${CONFIG.labels[state.mode]}, mechanische Leistung ${fmt(powerFor(state.mode),0)} Watt.`);}
 function chartGeometry(canvas,ctx){const {w,h}=resizeCanvas(canvas,ctx),m={l:52,r:14,t:17,b:35};return{w,h,m,pw:w-m.l-m.r,ph:h-m.t-m.b,x:t=>m.l+t/MAX_TIME*(w-m.l-m.r),bottom:h-m.b};}
 function drawAxes(ctx,g,yMax,yLabel,ticks){const {w,h,m,pw,ph,bottom}=g;ctx.clearRect(0,0,w,h);ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.font='10px system-ui';ctx.textBaseline='middle';for(let i=0;i<=ticks;i++){const value=yMax*i/ticks,y=bottom-ph*i/ticks;ctx.strokeStyle='#e9e2d7';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(m.l,y);ctx.lineTo(w-m.r,y);ctx.stroke();ctx.fillStyle='#68716d';ctx.textAlign='right';ctx.fillText(fmt(value,0),m.l-6,y);}ctx.strokeStyle='#25332f';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(m.l,m.t);ctx.lineTo(m.l,bottom);ctx.lineTo(w-m.r,bottom);ctx.stroke();ctx.fillStyle='#25332f';ctx.textAlign='center';ctx.textBaseline='top';for(let t=0;t<=15;t+=5){const x=g.x(t);ctx.fillText(String(t),x,bottom+5);}ctx.font='700 10px system-ui';ctx.fillText('Zeit t in s',m.l+pw/2,bottom+19);ctx.save();ctx.translate(12,m.t+ph/2);ctx.rotate(-Math.PI/2);ctx.textBaseline='top';ctx.fillText(yLabel,0,0);ctx.restore();}
 function drawCharts(){drawEnergyChart();drawPowerChart();}
