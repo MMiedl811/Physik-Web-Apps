@@ -943,6 +943,57 @@
             state() { return { currentState, vectors: showVectorsCheckbox.checked, strobeCount: strobePositions.length, paused: isPaused, position:{x:puck.pos.x,y:puck.pos.y} }; }
         };
 
+        // Berechnet den ersten Schnittpunkt der geraden Bewegung von (fromX,fromY)
+        // nach (toX,toY) mit der Bande (Spielrand) oder dem Tor. Liefert
+        // {t,x,y,type} oder null, wenn keine Kollision im Frame stattfindet.
+        function firstCrossing(fromX, fromY, toX, toY) {
+            const dx = toX - fromX, dy = toY - fromY;
+            let best = { t: Infinity, type: 'bande' };
+            const consider = (t, type) => { if (t >= 0 && t <= 1 && t < best.t) best = { t, type }; };
+
+            // Bande: sichtbarer Rand mit 20 px Sicherheitsabstand
+            if (dx > 1e-9) consider((width - 20 - fromX) / dx, 'bande');
+            if (dx < -1e-9) consider((20 - fromX) / dx, 'bande');
+            if (dy > 1e-9) consider((height - 20 - fromY) / dy, 'bande');
+            if (dy < -1e-9) consider((20 - fromY) / dy, 'bande');
+
+            // Tor: Rechteck, in das der Puck eintritt
+            const gx0 = goal.x - goal.width / 2, gx1 = goal.x + goal.width / 2;
+            const gy0 = goal.y - goal.height / 2, gy1 = goal.y + goal.height / 2;
+            if (dy < -1e-9) { const t = (gy1 - fromY) / dy, x = fromX + dx * t; if (x >= gx0 && x <= gx1) consider(t, 'goal'); }
+            if (dy > 1e-9) { const t = (gy0 - fromY) / dy, x = fromX + dx * t; if (x >= gx0 && x <= gx1) consider(t, 'goal'); }
+            if (dx < -1e-9) { const t = (gx1 - fromX) / dx, y = fromY + dy * t; if (y >= gy0 && y <= gy1) consider(t, 'goal'); }
+            if (dx > 1e-9) { const t = (gx0 - fromX) / dx, y = fromY + dy * t; if (y >= gy0 && y <= gy1) consider(t, 'goal'); }
+
+            if (best.t === Infinity) return null;
+            return { t: best.t, x: fromX + dx * best.t, y: fromY + dy * best.t, type: best.type };
+        }
+
+        // Punktgewinn im Spielmodus und Stoppen des Pucks.
+        function scoreGoal() {
+            if (isGameMode) {
+                const distFromCenter = abs(puck.pos.x - goal.x);
+                let points = distFromCenter < goal.width * 0.1 ? 100 : distFromCenter < goal.width * 0.3 ? 50 : 20;
+                addScore(points);
+                spawnConfetti(puck.pos.x, puck.pos.y);
+            }
+            stopPuck();
+        }
+
+        // Bewegt den Puck in der vE-Phase kontinuierlich bis zum ersten
+        // Tor- oder Bandenkontakt; die Endposition hängt damit nicht mehr
+        // von der Schrittweite ab.
+        function advanceVE(dtSeconds) {
+            const step = p5.Vector.mult(puck.vel, dtSeconds * 60);
+            const hit = firstCrossing(puck.pos.x, puck.pos.y, puck.pos.x + step.x, puck.pos.y + step.y);
+            if (hit) {
+                puck.pos.set(hit.x, hit.y);
+                if (hit.type === 'goal') scoreGoal(); else stopPuck();
+            } else {
+                puck.pos.add(step);
+            }
+        }
+
         function updatePhysics() {
             if (currentState === STATE.SETUP || currentState === STATE.STOPPED || isPaused) return;
 
@@ -966,47 +1017,29 @@
                 if (puckTrail.length > 100) puckTrail.shift();
             }
 
-            // Bewegung mit Geschwindigkeitsfaktor
-            let moveStep = p5.Vector.mult(puck.vel, modelDt * 60);
-            puck.pos.add(moveStep);
+            // Bewegung mit Geschwindigkeitsfaktor (Pixel pro Modellsekunde = vel * 60)
+            const frameAdvance = modelDt * 60;
 
-            // Phase 1 -> Phase 2 am Stoßpunkt
-            if (currentState === STATE.MOVING_VA && puck.pos.x >= impulsePoint.x) {
+            // Phase 1 -> Phase 2 exakt am Stoßpunkt: Der Frame wird am Stoßpunkt
+            // unterteilt, damit die Endposition unabhängig von der Schrittweite ist.
+            if (currentState === STATE.MOVING_VA && puck.vel.x > 0 && puck.pos.x + puck.vel.x * frameAdvance >= impulsePoint.x) {
+                const timeToImpulse = (impulsePoint.x - puck.pos.x) / (puck.vel.x * 60);
                 puck.pos.x = impulsePoint.x; // Exakt am Stoßpunkt positionieren
-                
-                let dvMag = activeRunParameters.dv * 0.4; // Skalierung für Animation (verdoppelt)
-                let dV = vectorForPhysicsAngle(activeRunParameters.angle, dvMag);
-                
+
+                const dvMag = activeRunParameters.dv * 0.4; // Skalierung für Animation (verdoppelt)
+                const dV = vectorForPhysicsAngle(activeRunParameters.angle, dvMag);
+
                 puck.vel.add(dV); // Vektoraddition: vE = vA + dv
                 currentState = STATE.MOVING_VE;
                 if (puck.vel.magSq() < 1e-8) stopPuck();
-            }
 
-            // Kollisionsabfrage Tor
-            if (puck.pos.y <= goal.y + goal.height/2 && 
-                puck.pos.x > goal.x - goal.width/2 && 
-                puck.pos.x < goal.x + goal.width/2) {
-                
-                if (isGameMode) {
-                    let distFromCenter = abs(puck.pos.x - goal.x);
-                    let points = 0;
-                    if (distFromCenter < goal.width * 0.1) {
-                        points = 100;
-                    } else if (distFromCenter < goal.width * 0.3) {
-                        points = 50;
-                    } else {
-                        points = 20;
-                    }
-                    addScore(points);
-                    spawnConfetti(puck.pos.x, puck.pos.y);
+                // Restzeit des Frames mit der neuen Geschwindigkeit weiterbewegen.
+                const remainingTime = Math.max(0, modelDt - timeToImpulse);
+                if (remainingTime > 0 && currentState === STATE.MOVING_VE) {
+                    advanceVE(remainingTime);
                 }
-                stopPuck();
-            }
-
-            // Kollisionsabfrage Bande
-            if (puck.pos.x < 20 || puck.pos.x > width - 20 || 
-                puck.pos.y < 20 || puck.pos.y > height - 20) {
-                stopPuck();
+            } else {
+                advanceVE(modelDt);
             }
         }
 
