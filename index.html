@@ -191,7 +191,17 @@
             font-size: 1.1rem;
         }
         .status-work { position: absolute; top: 18px; right: 61px; padding: 5px 8px; border: 1px solid #8f1d16; border-radius: 999px; background: #b42318; color: #fff; font-size: .65rem; font-weight: 900; letter-spacing: .045em; line-height: 1; text-transform: uppercase; }
-        footer { padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
+        footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
+        footer a { color: var(--petrol-dark); font-weight: 780; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+        .overview-dialog { width: min(560px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); color: var(--ink); box-shadow: 0 28px 90px rgba(37, 51, 47, .28); }
+        .overview-dialog::backdrop { background: rgba(37, 51, 47, .62); backdrop-filter: blur(3px); }
+        .overview-dialog__content { padding: clamp(24px, 5vw, 38px); }
+        .overview-dialog .eyebrow { margin-bottom: 10px; }
+        .overview-dialog h2 { margin: 0 0 18px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.8rem, 5vw, 2.5rem); letter-spacing: -.035em; }
+        .overview-dialog p { margin: 0 0 14px; line-height: 1.65; }
+        .overview-dialog button { width: 100%; min-height: 52px; margin-top: 10px; border: 0; border-radius: 15px; background: var(--petrol); color: #fff; font: inherit; font-weight: 850; cursor: pointer; }
+        .overview-dialog button:hover { background: var(--petrol-dark); }
+        .overview-dialog button:focus-visible { outline: 3px solid rgba(15, 118, 110, .35); outline-offset: 3px; }
         @media (max-width: 760px) {
             header { grid-template-columns: 1fr; align-items: start; }
             .hero-note { max-width: 620px; }
@@ -284,11 +294,29 @@
         </main>
         <div class="no-results" id="no-results" role="status">Keine Anwendung gefunden – versuche einen anderen Suchbegriff.</div>
 
-        <footer>&copy; <span id="year"></span> · Physik-Web-Apps</footer>
+        <footer><span>&copy; <span id="year"></span> · Physik-Web-Apps</span><a href="https://github.com/MMiedl811/Physik-Web-Apps" target="_blank" rel="noopener noreferrer">Projekt auf GitHub ↗</a></footer>
     </div>
+    <dialog id="overview-dialog" class="overview-dialog" aria-labelledby="overview-title">
+        <div class="overview-dialog__content">
+            <div class="eyebrow">Vor dem Start</div>
+            <h2 id="overview-title">Überblick</h2>
+            <p>Die Sammlung umfasst Simulationen, Lernspiele und Werkzeuge aus Mechanik, Wärmelehre, Elektrodynamik und Atomphysik. Im Mittelpunkt stehen anschauliche Modelle, interaktive Diagramme und ein visuell-graphischer Zugang zu physikalischen Zusammenhängen.</p>
+            <p>Die Anwendungen werden fortlaufend fachlich, technisch und für die Nutzung auf dem iPad geprüft. Einzelne Inhalte können sich noch verändern.</p>
+            <button type="button" id="overview-confirm">Überblick gelesen – weiter zu den Apps</button>
+        </div>
+    </dialog>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             document.getElementById('year').textContent = new Date().getFullYear();
+
+            const overviewDialog = document.getElementById('overview-dialog');
+            const overviewConfirm = document.getElementById('overview-confirm');
+            overviewDialog.addEventListener('cancel', event => event.preventDefault());
+            overviewDialog.addEventListener('click', event => {
+                if (event.target === overviewDialog) event.preventDefault();
+            });
+            overviewConfirm.addEventListener('click', () => overviewDialog.close());
+            overviewDialog.showModal();
 
             const input = document.getElementById('app-search');
             const clear = document.getElementById('search-clear');
