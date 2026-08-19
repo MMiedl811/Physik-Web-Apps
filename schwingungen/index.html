@@ -322,8 +322,8 @@
       <span class="category-label">Steuerung:</span>
       <div class="control-group">
         <button id="playBtn" class="btn-primary">Start</button>
-        <button id="slowBtn" class="btn-secondary">Slow-Mo</button>
-        <button id="resetBtn" class="btn-secondary">Reset</button>
+        <button id="slowBtn" class="btn-secondary" aria-pressed="false">Zeitlupe</button>
+        <button id="resetBtn" class="btn-secondary">Zurücksetzen</button>
       </div>
     </div>
 
@@ -548,6 +548,7 @@
       const isPendulum = system === 'pendulum';
       document.getElementById('pendulumDisclaimer').style.display = isPendulum ? 'block' : 'none';
       document.getElementById('forceBuildBtn').style.display = isPendulum ? 'block' : 'none';
+      document.getElementById('forceSplitToggle').closest('.control-group').hidden = isPendulum;
       document.getElementById('footerNote').innerHTML = isPendulum
         ? '<strong>Achtung:</strong> Das Fadenpendel schwingt nicht exakt harmonisch. Mit der vorzeichenbehafteten Bogenlänge s = L·θ gilt F<sub>R</sub> = −m·g·sin(s/L); nur für kleine Winkel ist dies näherungsweise linear.'
         : '<strong>Federpendel:</strong> Die Auslenkung wird relativ zur statischen Gleichgewichtslage gemessen; dort gilt F<sub>R</sub> = −D·y.';
@@ -556,6 +557,8 @@
         : '<strong>Untersuchung:</strong> Wovon hängt die Schwingungsdauer des Federpendels ab? Verändere jeweils nur Masse, Federkonstante oder Amplitude.';
       
       // Zustand zurücksetzen (Auto-Reset beim Tabwechsel)
+      isRunning = false;
+      if (playBtn) playBtn.innerText = 'Start';
       resetState(getActiveState());
 
       // Cursor ggf. auf neuen State umstellen
@@ -714,6 +717,7 @@
       slowBtn.onclick = () => { 
         isSlowMo = !isSlowMo; 
         slowBtn.style.backgroundColor = isSlowMo ? '#a85a00' : '#475569';
+        slowBtn.setAttribute('aria-pressed', String(isSlowMo));
       };
       resetBtn.onclick = () => { 
         isRunning = false;
@@ -773,7 +777,9 @@
         }
       });
 
-      window.addEventListener('resize', () => { resizeCanvas(container.offsetWidth, container.offsetHeight); });
+      const syncCanvasSize = () => resizeCanvas(container.clientWidth, container.clientHeight);
+      window.addEventListener('resize', syncCanvasSize);
+      new ResizeObserver(syncCanvasSize).observe(container);
     }
 
     function draw() {
