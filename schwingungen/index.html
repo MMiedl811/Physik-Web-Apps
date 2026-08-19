@@ -9,6 +9,8 @@
   <script src="../shared/vendor/p5-1.9.0.min.js"></script>
 
   <style>
+    .learning-question { margin: 0; padding: 9px 12px; border-left: 4px solid #d69b43; border-radius: 0 12px 12px 0; background: #fff7e7; color: #33413f; font-size: .9rem; line-height: 1.35; }
+    .learning-question strong { color: #176b68; }
     :root {
       --bg-main: #f8fafc;
       --bg-topbar: #0f172a;
@@ -307,14 +309,14 @@
   <link rel="stylesheet" href="../shared/atelier.css">
   <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="schwingungen" data-student-home="../" data-student-title="Feder- und Fadenpendel" data-student-summary="Du vergleichst zwei Schwingungen und beobachtest Auslenkung, Geschwindigkeit und Kräfte." data-student-controls="Wähle das Pendel, ändere die Parameter und nutze Pause, Slow-Mo oder Reset.">
+<body data-physik-app="schwingungen" data-student-home="../" data-student-title="Feder- und Fadenpendel" data-student-summary="Du untersuchst getrennt, wovon die Schwingungsdauer beim Federpendel und beim Fadenpendel abhängt." data-student-controls="Beginne mit dem Federpendel. Ändere nur einen Parameter, starte die Bewegung und vergleiche die Periodendauer. Wechsle danach zum Fadenpendel.">
 
   <header class="topbar">
     <div class="topbar-row">
       <h1>Schwingungen</h1>
       <div class="tabs">
-        <button class="tab-btn active" id="tabSpring" onclick="switchTab('spring')">Federpendel</button>
-        <button class="tab-btn" id="tabPendulum" onclick="switchTab('pendulum')">Fadenpendel</button>
+        <button class="tab-btn active" id="tabSpring" onclick="switchTab('spring')">1 · Federpendel</button>
+        <button class="tab-btn" id="tabPendulum" onclick="switchTab('pendulum')">2 · Fadenpendel</button>
       </div>
       <span style="flex: 1"></span>
       <span class="category-label">Steuerung:</span>
@@ -324,6 +326,8 @@
         <button id="resetBtn" class="btn-secondary">Reset</button>
       </div>
     </div>
+
+    <p class="learning-question" id="learningQuestion"><strong>Untersuchung:</strong> Wovon hängt die Schwingungsdauer des Federpendels ab? Verändere jeweils nur Masse, Federkonstante oder Amplitude.</p>
 
     <div class="topbar-row">
       <div id="springParams" style="display: flex; gap: 15px; align-items: center;">
@@ -547,6 +551,9 @@
       document.getElementById('footerNote').innerHTML = isPendulum
         ? '<strong>Achtung:</strong> Das Fadenpendel schwingt nicht exakt harmonisch. Mit der vorzeichenbehafteten Bogenlänge s = L·θ gilt F<sub>R</sub> = −m·g·sin(s/L); nur für kleine Winkel ist dies näherungsweise linear.'
         : '<strong>Federpendel:</strong> Die Auslenkung wird relativ zur statischen Gleichgewichtslage gemessen; dort gilt F<sub>R</sub> = −D·y.';
+      document.getElementById('learningQuestion').innerHTML = isPendulum
+        ? '<strong>Untersuchung:</strong> Wie verändern Länge und Auslenkungswinkel die Schwingungsdauer? Vergleiche kleine und große Winkel.'
+        : '<strong>Untersuchung:</strong> Wovon hängt die Schwingungsdauer des Federpendels ab? Verändere jeweils nur Masse, Federkonstante oder Amplitude.';
       
       // Zustand zurücksetzen (Auto-Reset beim Tabwechsel)
       resetState(getActiveState());
