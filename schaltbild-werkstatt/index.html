@@ -202,7 +202,7 @@ h1{font-family:Georgia,serif;font-size:clamp(1.45rem,2.6vw,2.15rem);line-height:
             <label class="motion-toggle full">
               <input id="motionToggle" type="checkbox" role="switch" aria-describedby="motionHint">
               <span class="toggle-track" aria-hidden="true"></span>
-              <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Punktgeschwindigkeit folgt qualitativ der abgeschätzten Stromstärke</small></span>
+              <span class="toggle-copy"><strong>Bewegung anzeigen</strong><small id="motionHint">Qualitatives Modell für Richtung und kontinuierlichen Ladungsumlauf</small></span>
             </label>
             <div class="flow-mode full" id="flowModeButtons" role="group" aria-label="Dargestellte Flussrichtung">
               <button type="button" data-flow-mode="electron" aria-pressed="true"><span class="flow-dot" aria-hidden="true"></span>Elektronen</button>
@@ -626,21 +626,16 @@ function componentBlocksFlow(component){
   return component.type==='switch'&&component.switchState==='open'||component.type==='led'&&component.orientation==='right';
 }
 
-function addFlowRoute(points,currentKey){
+function addFlowRoute(points,currentKey,{conserved=false}={}){
   const length=points.slice(1).reduce((sum,point,index)=>sum+Math.hypot(point[0]-points[index][0],point[1]-points[index][1]),0);
   const d=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
-  lastGeometry.electronRoutes.push({currentKey,points,d,length,start:{x:points[0][0],y:points[0][1]},end:{x:points.at(-1)[0],y:points.at(-1)[1]}});
+  lastGeometry.electronRoutes.push({currentKey,points,d,length,conserved,start:{x:points[0][0],y:points[0][1]},end:{x:points.at(-1)[0],y:points.at(-1)[1]}});
 }
-function branchCurrentKey(indices){return{branches:indices};}
-function addVerticalFlowSegments(x,levels,currentKeys){
-  for(let i=0;i<levels.length-1;i++)addFlowRoute([[x,levels[i]],[x,levels[i+1]]],currentKeys[i]);
-}
-
 function renderSeries(components,meterNumbers){
   const xLeft=82,xRight=918,yTop=118,yBottom=575,segment=(xRight-xLeft)/components.length;
   let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,yBottom)+line(xRight,yTop,xRight,yBottom);
   components.forEach((component,index)=>{markup+=horizontalElement(xLeft+segment*index,xLeft+segment*(index+1),yBottom,component,meterNumbers,-96);});
-  if(components.every(component=>!componentBlocksFlow(component)))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,yBottom],[xRight,yBottom],[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
+  if(components.every(component=>!componentBlocksFlow(component)))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,yBottom],[xRight,yBottom],[xRight,yTop],[SOURCE_LONG_X,yTop],[SOURCE_SHORT_X,yTop]],'total',{conserved:true});
   return markup;
 }
 
@@ -656,7 +651,7 @@ function renderParallel(components,meterNumbers){
       // Ein Teilchen behält im gesamten Umlauf seine Zweigzuordnung. Dadurch
       // teilt es sich am Knoten nicht in neue Punkte und verschwindet beim
       // Zusammenführen nicht, sondern läuft als dasselbe Teilchen weiter.
-      addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop],[SOURCE_SHORT_X,yTop]],index);
+      addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop],[SOURCE_SHORT_X,yTop]],index,{conserved:true});
     }
   });
   return markup;
@@ -673,12 +668,9 @@ function renderMixed(components,meterNumbers){
   branches.forEach((component,index)=>{markup+=horizontalElement(xJunction,xRight,ys[index],component,meterNumbers,-67,95)+node(xRight,ys[index]);});
   [...new Set([...ys,ySeries])].forEach(y=>{markup+=node(xJunction,y);});
   if(!componentBlocksFlow(components[0])){
-    addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ySeries],[xJunction,ySeries]],'total');
-    branches.forEach((component,index)=>{if(!componentBlocksFlow(component))addFlowRoute([[xJunction,ys[index]],[xRight,ys[index]]],index);});
-    const junctionLevels=[...new Set([...ys,ySeries])].sort((a,b)=>a-b);
-    addVerticalFlowSegments(xJunction,junctionLevels,junctionLevels.slice(0,-1).map((_,i)=>branchCurrentKey(ys.map((__,j)=>j).filter(j=>ys[j]<=junctionLevels[i]))));
-    addVerticalFlowSegments(xRight,[...ys].reverse().concat(yTop),[...ys].reverse().map((_,i)=>branchCurrentKey(ys.map((__,j)=>j).slice(0,ys.length-i))));
-    addFlowRoute([[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
+    branches.forEach((component,index)=>{
+      if(!componentBlocksFlow(component))addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ySeries],[xJunction,ySeries],[xJunction,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop],[SOURCE_SHORT_X,yTop]],index,{conserved:true});
+    });
   }
   return markup;
 }
@@ -695,8 +687,12 @@ function flowLayer(routes,operating){
   const particles=activeRoutes.map(({route,current},routeIndex)=>{
     const points=technicalCurrent?[...route.points].reverse():route.points;
     const path=points.map((point,index)=>`${index?'L':'M'} ${point[0]} ${point[1]}`).join(' ');
-    // Gleiche Leitergeometrie: gleicher Strom ergibt gleiches Tempo; Teilströme bleiben in ihren Zweigen langsamer.
-    const pathSpeed=Math.max(55,Math.min(230,70+130*Math.sqrt(current/.3)));
+    // Auf geschlossenen Vollrouten bleibt die Identität jedes Punktes erhalten.
+    // In verzweigten Schaltungen laufen alle Punkte auf gemeinsamen Leitern mit
+    // derselben, vom Gesamtstrom abgeleiteten Modellgeschwindigkeit; so gibt es
+    // dort kein physikalisch irreführendes Überholen verschiedener Zweigpunkte.
+    const speedCurrent=route.conserved&&state.topology!=='series'?operating.totalCurrent:current;
+    const pathSpeed=Math.max(55,Math.min(230,70+130*Math.sqrt(speedCurrent/.3)));
     const duration=route.length/pathSpeed;
     const dotsForRoute=Math.max(2,Math.min(5,Math.round(route.length/420)));
     lastGeometry.flowDurations.push({currentKey:route.currentKey,current,duration,pathSpeed});
@@ -718,7 +714,9 @@ function feedbackFor(components,operating){
       messages.push(state.flowMode==='electron'
         ?'Blaue Punkte zeigen die Elektronenbewegung vom Minus- zum Pluspol.'
         :'Rote Punkte zeigen die technische Stromrichtung vom Plus- zum Minuspol.');
-      messages.push('Bei gleicher angenommener Leitergeometrie steigt die Punktgeschwindigkeit qualitativ mit der abgeschätzten Stromstärke; die Zahl der Punkte wird dafür nicht verändert.');
+      messages.push(state.topology==='series'
+        ?'Bei gleicher angenommener Leitergeometrie steigt die Punktgeschwindigkeit qualitativ mit der abgeschätzten Stromstärke; die Zahl der Punkte wird dafür nicht verändert.'
+        :'In der verzweigten Schaltung bleiben die Punkte auf geschlossenen Umläufen erhalten. Ihre Bewegung zeigt vor allem Richtung und Kontinuität; Unterschiede der Teilströme liest du an den Stromwerten ab.');
       if(operating.usesLampApproximation)messages.push('Für Lampen ist das nur eine Nennwert-Näherung, keine exakte Kennlinienberechnung.');
       if(operating.issues.some(issue=>issue.severity==='critical'&&/durchbrennen|Betriebsstrom/.test(issue.text)))messages.push('Die schnelle Bewegung steht nur für den momentanen Modellstrom vor einem möglichen Bauteildefekt, nicht für einen dauerhaften Betrieb.');
     }else if(operating.totalCurrent===0)messages.push('Die abgeschätzte Stromstärke ist 0 A; deshalb werden keine bewegten Punkte gezeigt.');
