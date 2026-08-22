@@ -36,24 +36,8 @@
                 radial-gradient(circle at 92% 8%, rgba(201, 155, 97, .14), transparent 28rem),
                 var(--paper);
         }
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            opacity: .28;
-            background-image: linear-gradient(rgba(91, 74, 53, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(91, 74, 53, .035) 1px, transparent 1px);
-            background-size: 32px 32px;
-            mask-image: linear-gradient(to bottom, black, transparent 72%);
-        }
         .shell { position: relative; width: min(1160px, 100%); margin: auto; }
-        header {
-            display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(220px, 340px);
-            gap: clamp(28px, 6vw, 76px);
-            align-items: center;
-            padding: clamp(40px, 7vw, 76px) 0 clamp(34px, 5vw, 52px);
-        }
+        header { padding: clamp(28px, 5vw, 52px) 0 28px; }
         .eyebrow {
             color: var(--petrol);
             font-size: .78rem;
@@ -62,157 +46,59 @@
             text-transform: uppercase;
         }
         h1 {
-            max-width: 680px;
-            margin: 16px 0 0;
+            margin: 10px 0 0;
             font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(3rem, 6.8vw, 5.6rem);
+            font-size: clamp(2.4rem, 5.4vw, 4.6rem);
             font-weight: 700;
-            line-height: .96;
-            letter-spacing: -.055em;
+            line-height: .98;
+            letter-spacing: -.05em;
         }
         h1 span { color: var(--petrol); }
-        .hero-note {
-            padding: 22px 24px;
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            background: rgba(255, 253, 248, .72);
-            box-shadow: 0 12px 34px rgba(71, 57, 40, .08);
-        }
-        .intro {
-            margin: 0;
-            color: var(--ink);
-            font-size: clamp(1rem, 1.5vw, 1.1rem);
-            line-height: 1.55;
-        }
-        .format-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px 14px;
-            margin: 18px 0 0;
-            padding: 16px 0 0;
-            border-top: 1px solid var(--line);
-            color: var(--muted);
-            font-size: .78rem;
-            font-weight: 760;
-            letter-spacing: .025em;
-            list-style: none;
-        }
-        .format-list li { display: inline-flex; align-items: center; gap: 7px; }
-        .format-list li::before {
-            content: "";
-            width: 7px;
-            height: 7px;
-            flex: 0 0 auto;
-            border-radius: 50%;
-            background: var(--petrol);
-        }
-        .section-head {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: baseline;
-            margin: 0 0 16px;
-        }
-        .section-head h2 { margin: 0; font-size: 1.1rem; letter-spacing: -.02em; }
-        .section-head span { color: var(--muted); font-size: .82rem; }
-        .filter-bar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 18px; }
-        .search-wrap { position: relative; flex: 1; min-width: 240px; }
-        .search-input { width: 100%; min-height: 52px; padding: 12px 48px 12px 18px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--ink); font: inherit; font-size: 1rem; box-shadow: var(--shadow); }
-        .search-input::placeholder { color: var(--muted); }
-        .search-input:focus-visible { outline: 3px solid rgba(15, 118, 110, .3); outline-offset: 2px; }
-        .search-clear { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); display: none; width: 38px; height: 38px; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-soft); color: var(--muted); cursor: pointer; font: inherit; font-size: .95rem; line-height: 1; }
-        .search-clear.visible { display: grid; place-items: center; }
-        .filter-count { color: var(--muted); font-size: .82rem; font-weight: 760; white-space: nowrap; }
-        .topic-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 28px; }
-        .topic-nav a { display: inline-flex; align-items: center; min-height: 48px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: .84rem; font-weight: 800; text-decoration: none; transition: border-color .2s ease, color .2s ease; }
+        .hero-meta { margin: 16px 0 0; color: var(--muted); font-size: .88rem; font-weight: 760; }
+        .topic-nav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 34px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+        .topic-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .84rem; font-weight: 800; text-decoration: none; transition: color .2s ease; }
         .topic-nav a:hover { border-color: var(--petrol); color: var(--petrol); }
         .topic-nav a:focus-visible { outline: 3px solid rgba(15, 118, 110, .3); outline-offset: 2px; }
         .grade-badge { display: inline-block; margin: 0 6px 2px 0; padding: 2px 9px; border: 1px solid color-mix(in srgb, var(--petrol) 32%, var(--line)); border-radius: 999px; background: var(--surface-soft); color: var(--petrol); font-size: .68rem; font-weight: 850; letter-spacing: .02em; white-space: nowrap; }
-        .card.hidden, .topic-section.hidden { display: none; }
-        .no-results { display: none; margin: 26px 0 10px; padding: 26px; border: 1px dashed var(--line); border-radius: 18px; color: var(--muted); text-align: center; }
-        .no-results.visible { display: block; }
-        #app-grid { display: grid; gap: clamp(34px, 5vw, 56px); }
+        #app-grid { display: grid; gap: clamp(28px, 4vw, 42px); }
         .topic-section { min-width: 0; }
-        .topic-head { display: flex; justify-content: space-between; align-items: end; gap: 18px; margin-bottom: 14px; }
-        .topic-kicker { display: block; margin-bottom: 5px; color: var(--petrol); font-size: .7rem; font-weight: 850; letter-spacing: .13em; text-transform: uppercase; }
+        .topic-head { margin-bottom: 12px; }
         .topic-head h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -.035em; }
-        .topic-range { color: var(--muted); font-size: .78rem; font-weight: 760; white-space: nowrap; }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); gap: 14px; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
         .card {
             position: relative;
-            min-height: 180px;
+            min-height: 132px;
             overflow: hidden;
-            padding: 18px;
+            padding: 15px;
             border: 1px solid var(--line);
-            border-radius: 22px;
+            border-radius: 16px;
             background: rgba(255, 253, 248, .95);
             color: var(--ink);
             text-decoration: none;
-            box-shadow: var(--shadow);
+            box-shadow: 0 6px 18px rgba(71, 57, 40, .07);
             transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
         }
-        .card::before {
-            content: "";
-            position: absolute;
-            inset: 0 0 auto;
-            height: 4px;
-            background: var(--card-accent, var(--petrol));
-        }
-        .card:nth-child(4n + 2) { --card-accent: var(--sand); }
-        .card:nth-child(4n + 3) { --card-accent: var(--violet); }
-        .card:nth-child(4n + 4) { --card-accent: var(--clay); }
-        .card:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--card-accent) 64%, var(--line)); box-shadow: 0 22px 50px rgba(71, 57, 40, .15); }
+        .card:hover { transform: translateY(-3px); border-color: var(--petrol); box-shadow: 0 12px 28px rgba(71, 57, 40, .11); }
         .card:focus-visible { outline: 3px solid rgba(15, 118, 110, .34); outline-offset: 4px; }
         .card-icon {
             display: grid;
-            width: 46px;
-            height: 46px;
+            width: 36px;
+            height: 36px;
             place-items: center;
-            margin-bottom: 27px;
+            margin-bottom: 12px;
             border: 1px solid var(--line);
-            border-radius: 16px;
+            border-radius: 11px;
             background: var(--surface-soft);
-            font-size: 1.5rem;
+            font-size: 1.15rem;
         }
-        .card-title { max-width: 190px; overflow-wrap: anywhere; hyphens: auto; font-size: 1.03rem; font-weight: 800; line-height: 1.27; letter-spacing: -.015em; }
-        .card-meta { max-width: 190px; margin-top: 7px; color: var(--muted); font-size: .76rem; line-height: 1.4; }
-        .arrow {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            display: grid;
-            width: 38px;
-            height: 38px;
-            place-items: center;
-            border: 1px solid var(--line);
-            border-radius: 50%;
-            background: var(--surface);
-            color: var(--petrol);
-            font-size: 1.1rem;
-        }
-        .status-work { position: absolute; top: 18px; right: 61px; padding: 5px 8px; border: 1px solid #8f1d16; border-radius: 999px; background: #b42318; color: #fff; font-size: .65rem; font-weight: 900; letter-spacing: .045em; line-height: 1; text-transform: uppercase; }
+        .card-title { overflow-wrap: anywhere; hyphens: auto; font-size: 1rem; font-weight: 800; line-height: 1.24; letter-spacing: -.015em; }
+        .card-meta { margin-top: 6px; color: var(--muted); font-size: .74rem; line-height: 1.35; }
         footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
         footer a { color: var(--petrol-dark); font-weight: 780; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-        .overview-dialog { width: min(560px, calc(100% - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--line); border-radius: 24px; background: var(--surface); color: var(--ink); box-shadow: 0 28px 90px rgba(37, 51, 47, .28); }
-        .overview-dialog::backdrop { background: rgba(37, 51, 47, .62); backdrop-filter: blur(3px); }
-        .overview-dialog__content { padding: clamp(24px, 5vw, 38px); }
-        .overview-dialog .eyebrow { margin-bottom: 10px; }
-        .overview-dialog h2 { margin: 0 0 18px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.8rem, 5vw, 2.5rem); letter-spacing: -.035em; }
-        .overview-dialog p { margin: 0 0 14px; line-height: 1.65; }
-        .overview-dialog button { width: 100%; min-height: 52px; margin-top: 10px; border: 0; border-radius: 15px; background: var(--petrol); color: #fff; font: inherit; font-weight: 850; cursor: pointer; }
-        .overview-dialog button:hover { background: var(--petrol-dark); }
-        .overview-dialog button:focus-visible { outline: 3px solid rgba(15, 118, 110, .35); outline-offset: 3px; }
-        @media (max-width: 760px) {
-            header { grid-template-columns: 1fr; align-items: start; }
-            .hero-note { max-width: 620px; }
-        }
-        @media (max-width: 900px) { .topic-range { white-space: normal; } }
         @media (max-width: 560px) {
             body { padding: 16px; }
-            header { padding-top: 48px; }
-            .section-head { align-items: flex-start; flex-direction: column; gap: 4px; }
-            .topic-head { align-items: flex-start; flex-direction: column; gap: 3px; }
-            .card { min-height: 176px; }
+            header { padding-top: 32px; }
+            .card { min-height: 126px; }
         }
         @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
     </style>
@@ -220,27 +106,10 @@
 <body>
     <div class="shell">
         <header>
-            <div>
-                <div class="eyebrow">Physikunterricht · digitale Lernumgebungen</div>
-                <h1>Interaktive<br><span>Anwendungen</span></h1>
-            </div>
-            <div class="hero-note">
-                <p class="intro">Simulationen, Diagrammwerkzeuge und Lernspiele für den Physikunterricht. Die Anwendungen laufen direkt im Browser und unterstützen das eigenständige Untersuchen physikalischer Zusammenhänge.</p>
-                <ul class="format-list" aria-label="Eigenschaften der Anwendungen">
-                    <li>iPad und Desktop</li>
-                    <li>offline nutzbar</li>
-                    <li>ohne Anmeldung</li>
-                </ul>
-            </div>
+            <div class="eyebrow">Physikunterricht · digitale Lernumgebungen</div>
+            <h1>Interaktive <span>Physik-Anwendungen</span></h1>
+            <p class="hero-meta">24 Apps · iPad und Desktop · offline nutzbar · ohne Anmeldung</p>
         </header>
-
-        <div class="filter-bar" role="search">
-            <div class="search-wrap">
-                <input type="search" id="app-search" class="search-input" placeholder="App suchen – z. B. Energie, Stoß, Schwingung, Vektor …" aria-label="Anwendung suchen">
-                <button type="button" id="search-clear" class="search-clear" aria-label="Suche zurücksetzen">✕</button>
-            </div>
-            <span class="filter-count" id="filter-count" role="status" aria-live="polite"></span>
-        </div>
 
         <nav class="topic-nav" aria-label="Schnellnavigation zu Themenbereichen">
             <a href="#topic-mechanik">Mechanik</a>
@@ -250,113 +119,65 @@
             <a href="#topic-atomphysik">Atomphysik</a>
         </nav>
 
-        <div class="section-head"><h2>Alle Anwendungen</h2><span>Nach Themenbereich geordnet – suchen oder zum Themenbereich springen</span></div>
         <main id="app-grid" aria-label="Physik-Anwendungen nach Themenbereich">
             <section class="topic-section" id="topic-mechanik" aria-labelledby="mechanik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="mechanik-title">Mechanik</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="topic-head"><h2 id="mechanik-title">Mechanik</h2></div>
                 <div class="card-grid" aria-label="Mechanik-Anwendungen">
-                    <a class="card" href="Quizzes/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>48 Fragen, Diagramme und Duellmodus</div></a>
-                    <a class="card" href="v_aenderung/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>Geschwindigkeitsvektoren addieren</div></a>
-                    <a class="card" href="energie-runner/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energieumwandlungen im Jump-and-Run</div></a>
-                    <a class="card" href="mechanische-leistung/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪜</div><div class="card-title">Treppen-Leistungslabor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Höhenenergie, Leistung und P-t-Fläche</div></a>
-                    <a class="card" href="freier-fall-energie/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Energieerhaltung mit und ohne Luftwiderstand</div></a>
-                    <a class="card" href="impuls/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls als Vektor</div></a>
-                    <a class="card" href="impulsdiagramm/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls und Energie vergleichen</div></a>
-                    <a class="card" href="diagramme/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Diagramme lesen und verknüpfen</div></a>
-                    <a class="card" href="waagrechter%20Wurf/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter und schräger Wurf</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Teilbewegungen und Abschusswinkel untersuchen</div></a>
-                    <a class="card" href="schwingungen/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Feder- und Fadenpendel</div></a>
-                    <a class="card" href="wellen-grundlagen/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">〰️</div><div class="card-title">Wellen-Grundlagen</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Erreger, Teilchenschwingung und laufende Welle</div></a>
-                    <a class="card" href="huygens-beugung/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🌊</div><div class="card-title">Huygens-Prinzip und Beugung</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Elementarwellen, Spaltbreite und Beugungsmuster</div></a>
-                    <a class="card" href="newtons-kanonenkugel/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🌍</div><div class="card-title">Newtons Kanonenkugel</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Vom waagrechten Wurf zur Umlaufbahn</div></a>
-                    <a class="card" href="kurvenfahrt-bezugssysteme/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🚙</div><div class="card-title">Kurvenfahrt und Bezugssysteme</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span>Zentripetal- und Zentrifugalkraft vergleichen</div></a>
-                    <a class="card" href="kreisbewegungs-labor/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🎡</div><div class="card-title">Kreisbewegungs-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span>Winkel-, Bahn- und Kraftgrößen verknüpfen</div></a>
-                    <a class="card" href="kepler-gesetze/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🪐</div><div class="card-title">Keplersche Gesetze</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Ellipse, Flächensatz und Umlaufdauer untersuchen</div></a>
-                    <a class="card" href="fadenpendel-energie/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🕰️</div><div class="card-title">Fadenpendel – Energieumwandlung</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Höhen- und Bewegungsenergie, mit und ohne Luftreibung</div></a>
-                    <a class="card" href="vektor-labor/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 8–12</span>Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
+                    <a class="card" href="Quizzes/index.html"><div class="card-icon" aria-hidden="true">⚔️</div><div class="card-title">Physik-Duell: Mechanik</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>48 Fragen, Diagramme und Duellmodus</div></a>
+                    <a class="card" href="v_aenderung/"><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>Geschwindigkeitsvektoren addieren</div></a>
+                    <a class="card" href="energie-runner/"><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energieumwandlungen im Jump-and-Run</div></a>
+                    <a class="card" href="mechanische-leistung/index.html"><div class="card-icon" aria-hidden="true">🪜</div><div class="card-title">Treppen-Leistungslabor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Höhenenergie, Leistung und P-t-Fläche</div></a>
+                    <a class="card" href="freier-fall-energie/"><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Energieerhaltung mit und ohne Luftwiderstand</div></a>
+                    <a class="card" href="impuls/"><div class="card-icon" aria-hidden="true">↗️</div><div class="card-title">Richtungsänderung nach Stoß</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls als Vektor</div></a>
+                    <a class="card" href="impulsdiagramm/"><div class="card-icon" aria-hidden="true">💥</div><div class="card-title">Stoß- und Impulsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Impuls und Energie vergleichen</div></a>
+                    <a class="card" href="diagramme/"><div class="card-icon" aria-hidden="true">📈</div><div class="card-title">Bewegungsdiagramme</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Diagramme lesen und verknüpfen</div></a>
+                    <a class="card" href="waagrechter%20Wurf/"><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter und schräger Wurf</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Teilbewegungen und Abschusswinkel untersuchen</div></a>
+                    <a class="card" href="schwingungen/"><div class="card-icon" aria-hidden="true">🪶</div><div class="card-title">Schwingungen</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Feder- und Fadenpendel</div></a>
+                    <a class="card" href="wellen-grundlagen/index.html"><div class="card-icon" aria-hidden="true">〰️</div><div class="card-title">Wellen-Grundlagen</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Erreger, Teilchenschwingung und laufende Welle</div></a>
+                    <a class="card" href="huygens-beugung/index.html"><div class="card-icon" aria-hidden="true">🌊</div><div class="card-title">Huygens-Prinzip und Beugung</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Elementarwellen, Spaltbreite und Beugungsmuster</div></a>
+                    <a class="card" href="newtons-kanonenkugel/index.html"><div class="card-icon" aria-hidden="true">🌍</div><div class="card-title">Newtons Kanonenkugel</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Vom waagrechten Wurf zur Umlaufbahn</div></a>
+                    <a class="card" href="kurvenfahrt-bezugssysteme/index.html"><div class="card-icon" aria-hidden="true">🚙</div><div class="card-title">Kurvenfahrt und Bezugssysteme</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span>Zentripetal- und Zentrifugalkraft vergleichen</div></a>
+                    <a class="card" href="kreisbewegungs-labor/index.html"><div class="card-icon" aria-hidden="true">🎡</div><div class="card-title">Kreisbewegungs-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span>Winkel-, Bahn- und Kraftgrößen verknüpfen</div></a>
+                    <a class="card" href="kepler-gesetze/index.html"><div class="card-icon" aria-hidden="true">🪐</div><div class="card-title">Keplersche Gesetze</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Ellipse, Flächensatz und Umlaufdauer untersuchen</div></a>
+                    <a class="card" href="fadenpendel-energie/"><div class="card-icon" aria-hidden="true">🕰️</div><div class="card-title">Fadenpendel – Energieumwandlung</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Höhen- und Bewegungsenergie, mit und ohne Luftreibung</div></a>
+                    <a class="card" href="vektor-labor/index.html"><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 8–12</span>Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-optik" aria-labelledby="optik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="optik-title">Optik</h2></div><span class="topic-range">Klasse 11</span></div>
+                <div class="topic-head"><h2 id="optik-title">Optik</h2></div>
                 <div class="card-grid" aria-label="Optik-Anwendungen">
-                    <a class="card" href="young-doppelspalt/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">✨</div><div class="card-title">Youngscher Doppelspalt</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Wellenmodell und Photonenmodell des Lichts</div></a>
+                    <a class="card" href="young-doppelspalt/index.html"><div class="card-icon" aria-hidden="true">✨</div><div class="card-title">Youngscher Doppelspalt</div><div class="card-meta"><span class="grade-badge">Klasse 11</span>Wellenmodell und Photonenmodell des Lichts</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-waermelehre" aria-labelledby="waermelehre-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="waermelehre-title">Wärmelehre</h2></div><span class="topic-range">Klasse 9</span></div>
+                <div class="topic-head"><h2 id="waermelehre-title">Wärmelehre</h2></div>
                 <div class="card-grid" aria-label="Wärmelehre-Anwendungen">
-                    <a class="card" href="energie-faesser/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🌡️</div><div class="card-title">Energiebalken</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Innere Energie, Temperatur und Wärmeleitung</div></a>
+                    <a class="card" href="energie-faesser/index.html"><div class="card-icon" aria-hidden="true">🌡️</div><div class="card-title">Energiebalken</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Innere Energie, Temperatur und Wärmeleitung</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-elektrodynamik" aria-labelledby="elektrodynamik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="elektrodynamik-title">Elektrodynamik</h2></div><span class="topic-range">Klasse 8–12</span></div>
+                <div class="topic-head"><h2 id="elektrodynamik-title">Elektrodynamik</h2></div>
                 <div class="card-grid" aria-label="Elektrodynamik-Anwendungen">
-                    <a class="card" href="schaltbild-werkstatt/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔌</div><div class="card-title">Schaltbild-Werkstatt</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>Reihen-, Parallel- und gemischte Schaltungen mit Messgeräten erstellen</div></a>
-                    <a class="card" href="magnetfeld-labor/index.html"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Magnetfeld-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Feldlinien, Kompass und magnetische Influenz</div></a>
-                    <a class="card" href="kondensator-pendel/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta"><span class="grade-badge">Klasse 12</span>Feldenergie als Fläche im U-Q-Diagramm</div></a>
+                    <a class="card" href="schaltbild-werkstatt/index.html"><div class="card-icon" aria-hidden="true">🔌</div><div class="card-title">Schaltbild-Werkstatt</div><div class="card-meta"><span class="grade-badge">Klasse 8</span>Reihen-, Parallel- und gemischte Schaltungen mit Messgeräten erstellen</div></a>
+                    <a class="card" href="magnetfeld-labor/index.html"><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Magnetfeld-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10</span>Feldlinien, Kompass und magnetische Influenz</div></a>
+                    <a class="card" href="kondensator-pendel/"><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta"><span class="grade-badge">Klasse 12</span>Feldenergie als Fläche im U-Q-Diagramm</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-atomphysik" aria-labelledby="atomphysik-title">
-                <div class="topic-head"><div><span class="topic-kicker">Themenbereich</span><h2 id="atomphysik-title">Atomphysik</h2></div><span class="topic-range">Klasse 9</span></div>
+                <div class="topic-head"><h2 id="atomphysik-title">Atomphysik</h2></div>
                 <div class="card-grid" aria-label="Atomphysik-Anwendungen">
-                    <a class="card" href="energiestufenmodell/"><span class="status-work">In Arbeit</span><span class="arrow" aria-hidden="true">↗</span><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Quanten-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energiestufen und Übergänge deuten</div></a>
+                    <a class="card" href="energiestufenmodell/"><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Quanten-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span>Energiestufen und Übergänge deuten</div></a>
                 </div>
             </section>
         </main>
-        <div class="no-results" id="no-results" role="status">Keine Anwendung gefunden – versuche einen anderen Suchbegriff.</div>
-
         <footer><span>&copy; <span id="year"></span> · Physik-Web-Apps</span><a href="https://github.com/MMiedl811/Physik-Web-Apps" target="_blank" rel="noopener noreferrer">Projekt auf GitHub ↗</a></footer>
     </div>
-    <dialog id="overview-dialog" class="overview-dialog" aria-labelledby="overview-title">
-        <div class="overview-dialog__content">
-            <div class="eyebrow">Vor dem Start</div>
-            <h2 id="overview-title">Überblick</h2>
-            <p>Die Sammlung umfasst Simulationen, Lernspiele und Werkzeuge aus Mechanik, Wärmelehre, Elektrodynamik und Atomphysik. Im Mittelpunkt stehen anschauliche Modelle, interaktive Diagramme und ein visuell-graphischer Zugang zu physikalischen Zusammenhängen.</p>
-            <p>Die Anwendungen werden fortlaufend fachlich, technisch und für die Nutzung auf dem iPad geprüft. Einzelne Inhalte können sich noch verändern.</p>
-            <button type="button" id="overview-confirm">Überblick gelesen – weiter zu den Apps</button>
-        </div>
-    </dialog>
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById('year').textContent = new Date().getFullYear();
-
-            const overviewDialog = document.getElementById('overview-dialog');
-            const overviewConfirm = document.getElementById('overview-confirm');
-            overviewDialog.addEventListener('cancel', event => event.preventDefault());
-            overviewDialog.addEventListener('click', event => {
-                if (event.target === overviewDialog) event.preventDefault();
-            });
-            overviewConfirm.addEventListener('click', () => overviewDialog.close());
-            overviewDialog.showModal();
-
-            const input = document.getElementById('app-search');
-            const clear = document.getElementById('search-clear');
-            const count = document.getElementById('filter-count');
-            const cards = Array.from(document.querySelectorAll('.card'));
-            const sections = Array.from(document.querySelectorAll('.topic-section'));
-            const noResults = document.getElementById('no-results');
-            const total = cards.length;
-
-            const apply = () => {
-                const q = input.value.trim().toLowerCase();
-                let shown = 0;
-                cards.forEach(c => {
-                    const match = !q || c.textContent.toLowerCase().includes(q);
-                    c.classList.toggle('hidden', !match);
-                    if (match) shown++;
-                });
-                sections.forEach(s => s.classList.toggle('hidden', !s.querySelector('.card:not(.hidden)')));
-                clear.classList.toggle('visible', !!q);
-                count.textContent = q ? (shown + ' von ' + total + ' Anwendungen') : (total + ' Anwendungen');
-                noResults.classList.toggle('visible', shown === 0);
-            };
-            input.addEventListener('input', apply);
-            clear.addEventListener('click', () => { input.value = ''; apply(); input.focus(); });
-            apply();
-        });
+        document.getElementById('year').textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
