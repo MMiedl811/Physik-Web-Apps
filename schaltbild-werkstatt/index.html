@@ -652,12 +652,13 @@ function renderParallel(components,meterNumbers){
   let markup=sourceTop(xLeft,xRight,yTop,meterNumbers)+line(xLeft,yTop,xLeft,bottom)+line(xRight,yTop,xRight,bottom);
   components.forEach((component,index)=>{
     markup+=horizontalElement(xLeft,xRight,ys[index],component,meterNumbers,-72,95,100)+node(xLeft,ys[index])+node(xRight,ys[index]);
-    if(!componentBlocksFlow(component))addFlowRoute([[xLeft,ys[index]],[xRight,ys[index]]],index);
+    if(!componentBlocksFlow(component)){
+      // Ein Teilchen behält im gesamten Umlauf seine Zweigzuordnung. Dadurch
+      // teilt es sich am Knoten nicht in neue Punkte und verschwindet beim
+      // Zusammenführen nicht, sondern läuft als dasselbe Teilchen weiter.
+      addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop],[xLeft,ys[index]],[xRight,ys[index]],[xRight,yTop],[SOURCE_LONG_X,yTop],[SOURCE_SHORT_X,yTop]],index);
+    }
   });
-  addFlowRoute([[SOURCE_SHORT_X,yTop],[xLeft,yTop]],'total');
-  addVerticalFlowSegments(xLeft,[yTop,...ys],ys.map((_,i)=>branchCurrentKey(components.map((__,j)=>j).slice(i))));
-  addVerticalFlowSegments(xRight,[...ys].reverse().concat(yTop),[...ys].reverse().map((_,i)=>branchCurrentKey(components.map((__,j)=>j).slice(0,components.length-i))));
-  addFlowRoute([[xRight,yTop],[SOURCE_LONG_X,yTop]],'total');
   return markup;
 }
 
