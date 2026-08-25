@@ -349,7 +349,8 @@
         const lamPx = 26;
         const state = {
           a: 3,
-          phasePx: 0,
+          absoluteTimeSec: 0,
+          emissionStartSec: 0,
           running: true,
           slowMotion: false,
           step: 0,
@@ -392,6 +393,9 @@
         function currentSpeed() {
           return STANDARD_SPEED_PX_S * (state.slowMotion ? SLOW_FACTOR : 1);
         }
+        function timeScale() {
+          return state.slowMotion ? SLOW_FACTOR : 1;
+        }
         function geometry(w, h) {
           const barrierX = w * 0.32,
             fieldTop = 12,
@@ -401,18 +405,41 @@
             gap = Math.min(state.a * lamPx, fieldHeight - 54);
           return { barrierX, fieldTop, fieldBottom, fieldHeight, cy, gap };
         }
-        function frontRadii(w, h, phasePx = state.phasePx) {
+        function emissionPeriodSec() {
+          return lamPx / STANDARD_SPEED_PX_S;
+        }
+        function emissionElapsedSec() {
+          return Math.max(0, state.absoluteTimeSec - state.emissionStartSec);
+        }
+        function emittedFronts(w, h) {
           const g = geometry(w, h),
-            wrapped = ((phasePx % lamPx) + lamPx) % lamPx,
-            farthest = Math.hypot(w - g.barrierX, g.fieldHeight / 2 + g.gap / 2),
-            radii = [];
-          for (let r = wrapped; r <= farthest + lamPx; r += lamPx) radii.push(r);
-          return radii;
+            speed = STANDARD_SPEED_PX_S,
+            period = emissionPeriodSec(),
+            elapsed = emissionElapsedSec(),
+            screenDistance = w - g.barrierX,
+            farthestDistance = Math.hypot(screenDistance, g.fieldHeight / 2 + g.gap / 2),
+            newestIndex = Math.floor((elapsed + 1e-9) / period),
+            oldestVisibleIndex = Math.max(0, Math.ceil((elapsed - farthestDistance / speed) / period)),
+            fronts = [];
+          for (let index = oldestVisibleIndex; index <= newestIndex; index++) {
+            const emitTimeSec = state.emissionStartSec + index * period,
+              ageSec = Math.max(0, state.absoluteTimeSec - emitTimeSec),
+              radiusPx = speed * ageSec;
+            fronts.push(Object.freeze({
+              index,
+              emitTimeSec,
+              ageSec,
+              radiusPx,
+              distanceToScreenPx: screenDistance - radiusPx,
+              hasReachedScreen: radiusPx + 1e-7 >= screenDistance,
+            }));
+          }
+          return fronts;
         }
         function draw() {
           const { w, h } = size();
           const { barrierX, fieldTop, fieldBottom, fieldHeight, cy, gap } = geometry(w, h),
-            phase = ((state.phasePx % lamPx) + lamPx) % lamPx;
+            incomingPhase = (STANDARD_SPEED_PX_S * state.absoluteTimeSec) % lamPx;
           ctx.fillStyle = "#0d1723";
           ctx.fillRect(0, 0, w, fieldBottom);
 
@@ -423,7 +450,7 @@
           ctx.clip();
           ctx.strokeStyle = "#71d4ff";
           ctx.lineWidth = 2.2;
-          for (let x = phase; x < barrierX; x += lamPx) {
+          for (let x = incomingPhase; x < barrierX; x += lamPx) {
             ctx.beginPath();
             ctx.moveTo(x, fieldTop);
             ctx.lineTo(x, fieldBottom);
@@ -437,15 +464,16 @@
           for (let i = 0; i < sourceCount; i++)
             sources.push(cy - gap / 2 + (gap * (i + 0.5)) / sourceCount);
 
-          // 3. Wenige Elementarwellen; der Clip zeigt nur den rechten Halbraum.
+          // 3. Kausaler Emissionszug: jede Front besitzt ihr eigenes Alter.
           if(state.step>=2){
           ctx.save();
           ctx.beginPath();
           ctx.rect(barrierX, fieldTop, w - barrierX, fieldHeight);
           ctx.clip();
-          for (let ring = 0; ring < 2; ring++) {
-            const radius = phase + ring * lamPx;
-            ctx.strokeStyle = `rgba(243,184,91,${0.58 - ring * 0.12})`;
+          const fronts = emittedFronts(w, h);
+          for (const front of fronts) {
+            const radius = front.radiusPx;
+            ctx.strokeStyle = "rgba(243,184,91,.58)";
             ctx.lineWidth = 1.25;
             for (const sourceY of sources) {
               ctx.beginPath();
@@ -454,11 +482,12 @@
             }
           }
 
-          // 4. Räumlich nahtlose Folge neuer Wellenfronten bis zum Schirm.
+          // 4. Die zu jeder Elementarwelle gehörige Einhüllende wächst mit.
           if(state.step>=3){
           ctx.strokeStyle = "#83e7dc";
           ctx.lineWidth = 2.6;
-          for (const envelopeRadius of frontRadii(w, h, phase).slice(1)) {
+          for (const front of fronts) {
+            const envelopeRadius = front.radiusPx;
             ctx.beginPath();
             let started = false;
             for (let i = 0; i <= 180; i++) {
@@ -598,8 +627,19 @@
               ? `Minima: a·sin(θₘ)=mλ · erstes Minimum bei ${((th * 180) / Math.PI).toFixed(1)}°`
               : "a < λ: kein echtes Minimum, nur breites Zentralmaximum";
         }
-        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Nur die nach rechts laufenden Halbkreise werden gezeigt; links entsteht keine rückwärts laufende Welle.'],['4 · Einhüllenden und Profil','Mehrere helle Einhüllenden zeigen aufeinanderfolgende neue Wellenfronten. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.']];
-        function setStep(n){state.step=Math.max(0,Math.min(3,Math.round(Number(n)||0)));document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-current',+b.dataset.step===state.step?'step':'false'));$('#stepTitle').textContent=stepTexts[state.step][0];$('#stepText').textContent=stepTexts[state.step][1];draw()}
+        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.']];
+        function restartEmission() {
+          state.emissionStartSec = state.absoluteTimeSec;
+        }
+        function setStep(n){
+          const nextStep=Math.max(0,Math.min(3,Math.round(Number(n)||0))), previousStep=state.step;
+          if ((nextStep===2 && previousStep!==2) || (nextStep>2 && previousStep<2)) restartEmission();
+          state.step=nextStep;
+          document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-current',+b.dataset.step===state.step?'step':'false'));
+          $('#stepTitle').textContent=stepTexts[state.step][0];
+          $('#stepText').textContent=stepTexts[state.step][1];
+          draw();
+        }
         function setRunning(running) {
           state.running = Boolean(running);
           lastFrameTime = null;
@@ -623,31 +663,39 @@
         }
         function advanceBy(seconds) {
           const dt = Math.max(0, Number(seconds) || 0);
-          if (state.running) state.phasePx = (state.phasePx + currentSpeed() * dt) % lamPx;
+          if (state.running) state.absoluteTimeSec += dt * timeScale();
           draw();
-          return state.phasePx;
+          return state.absoluteTimeSec;
         }
-        function setPhase(phasePx) {
-          state.phasePx = ((Number(phasePx) % lamPx) + lamPx) % lamPx;
+        function setAbsoluteTime(seconds) {
+          state.absoluteTimeSec = Math.max(0, Number(seconds) || 0);
           draw();
-          return state.phasePx;
+          return state.absoluteTimeSec;
         }
         function snapshot(w = cv.getBoundingClientRect().width, h = cv.getBoundingClientRect().height) {
-          const g = geometry(w, h), radii = frontRadii(w, h), visible = radii.slice(1).filter((r) => r > 0);
+          const g = geometry(w, h), fronts = emittedFronts(w, h), screenDistancePx = w - g.barrierX;
           return Object.freeze({
-            phasePx: state.phasePx,
-            speedPxPerSecond: currentSpeed(),
+            absoluteTimeSec: state.absoluteTimeSec,
+            emissionStartSec: state.emissionStartSec,
+            emissionElapsedSec: emissionElapsedSec(),
+            emissionPeriodSec: emissionPeriodSec(),
+            waveSpeedPxPerSecond: STANDARD_SPEED_PX_S,
+            effectiveSpeedPxPerRealSecond: currentSpeed(),
             standardSpeedPxPerSecond: STANDARD_SPEED_PX_S,
             slowFactor: SLOW_FACTOR,
+            timeScale: timeScale(),
             slowMotion: state.slowMotion,
             running: state.running,
             step: state.step,
             slitWidthLambda: state.a,
             wavelengthPx: lamPx,
             barrierX: g.barrierX,
-            incomingFrontX: state.phasePx,
-            envelopeCount: visible.length,
-            rightEdgeGapPx: Math.min(...visible.map((r) => Math.abs(g.barrierX + r - w))),
+            screenDistancePx,
+            incomingFrontX: (STANDARD_SPEED_PX_S * state.absoluteTimeSec) % lamPx,
+            envelopeCount: fronts.length,
+            emissions: Object.freeze(fronts.map((front) => Object.freeze({...front}))),
+            radiiPx: Object.freeze(fronts.map((front) => front.radiusPx)),
+            rightEdgeGapPx: fronts.length ? Math.min(...fronts.map((front) => Math.abs(front.distanceToScreenPx))) : screenDistancePx,
           });
         }
         document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>setStep(+b.dataset.step));
@@ -656,7 +704,8 @@
         };
         $("#slow").onclick = () => setSlowMotion(!state.slowMotion);
         $("#reset").onclick = () => {
-          state.phasePx = 0;
+          state.absoluteTimeSec = 0;
+          state.emissionStartSec = 0;
           setRunning(true);
           setSlowMotion(false);
           setWidth(3);
@@ -672,19 +721,20 @@
           setWidth(+$("#width").value);
         };
         window.__singleSlitTest = Object.freeze({
-          version: 2,
+          version: 3,
           sinc,
           intensity,
           state,
           snapshot,
           draw,
           advanceBy,
-          setPhase,
+          setAbsoluteTime,
+          restartEmission,
           setRunning,
           setSlowMotion,
           setStep,
           setSlitWidth: setWidth,
-          getPhase: () => state.phasePx,
+          getAbsoluteTime: () => state.absoluteTimeSec,
           getSpeed: currentSpeed,
           isSlowMotion: () => state.slowMotion,
           getStep: () => state.step,
@@ -694,7 +744,7 @@
         function frame(now) {
           if (state.running && lastFrameTime !== null) {
             const dt = Math.min(0.1, Math.max(0, (now - lastFrameTime) / 1000));
-            state.phasePx = (state.phasePx + currentSpeed() * dt) % lamPx;
+            state.absoluteTimeSec += dt * timeScale();
           }
           lastFrameTime = now;
           draw();
