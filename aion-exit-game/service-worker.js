@@ -1,4 +1,4 @@
-const CACHE='aion-eva-v2';
+const CACHE='aion-eva-v3';
 const ASSETS=[
   './','./index.html','./assets/hero.png','./assets/intro.webp','./assets/map.webp',
   './assets/scenes/weltbilder.webp','./assets/scenes/kepler.webp','./assets/scenes/exoplaneten.webp',

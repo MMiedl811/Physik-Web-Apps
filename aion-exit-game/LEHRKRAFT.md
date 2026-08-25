@@ -4,8 +4,8 @@
 
 Digitales Exit-Game nach der EVA-Phase „Astronomische Weltbilder“ in Physik 11. Empfohlen: ein iPad pro Team mit drei bis vier Lernenden.
 
-- **Kernmission:** 30–45 Minuten, fünf Archive mit 15 Aufgaben
-- **Vertiefungsmission:** fünf zusätzliche Transferaufträge mit verpflichtenden Teambegründungen; zusammen mit Quellenabgleich und Abschlussauswertung bis zu 90 Minuten
+- **Kernmission:** 60–90 Minuten, fünf Archive mit je sechs Aufgaben (insgesamt 30)
+- **Vertiefungsmission:** fünf zusätzliche Transferaufträge mit verpflichtenden Teambegründungen; zusammen mit Quellenabgleich und Abschlussauswertung bis zu 120 Minuten
 - **Steuerung:** Touch-Steuerkreuz, direkte Sektoranwahl oder Tastatur
 - **Speicherung:** automatisch und ausschließlich lokal im Browser
 

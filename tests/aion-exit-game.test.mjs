@@ -13,7 +13,7 @@ assert.ok(!html.includes('<svg'), 'no inline SVG; precise diagrams use Canvas');
 const sectorIds = [...html.matchAll(/id:\s*'(weltbilder|kepler|exoplaneten|unsichtbar|horizont)'/g)].map(m => m[1]);
 assert.deepEqual([...new Set(sectorIds)], ['weltbilder','kepler','exoplaneten','unsichtbar','horizont']);
 const taskIds = [...html.matchAll(/taskId:\s*'([^']+)'/g)].map(m => m[1]);
-assert.ok(new Set(taskIds).size >= 12, 'at least 12 unique core tasks');
+assert.equal(taskIds.length, 35, '30 core tasks plus 5 transfer tasks');
 assert.equal(new Set(taskIds).size, taskIds.length, 'task IDs unique');
 for (const asset of ['map.webp','hero.png','intro.webp']) {
   assert.ok(fs.statSync(new URL(`../aion-exit-game/assets/${asset}`, import.meta.url)).size > 10000, `${asset} non-empty`);
