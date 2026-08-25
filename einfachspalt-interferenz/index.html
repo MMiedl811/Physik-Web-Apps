@@ -1,25 +1,612 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Einfachspalt – Beugung</title><link rel="icon" href="data:,"><link rel="stylesheet" href="../shared/student-entry.css"><style>
-:root{--paper:#f3eee4;--card:#fffdf8;--ink:#253433;--muted:#65716e;--petrol:#176b68;--gold:#d69b43;--pink:#ff7186;--green:#73e0a8;--line:#d9d0c2}*{box-sizing:border-box}body{margin:0;padding:9px;background:var(--paper);color:var(--ink);font-family:Inter,Avenir Next,system-ui,sans-serif;overflow-x:hidden}.app{max-width:1450px;margin:auto}.top{display:flex;align-items:center;gap:10px;min-height:58px}.home,.btn{min-height:48px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;font-weight:800;padding:8px 13px;cursor:pointer}.home{display:grid;place-items:center;min-width:48px;text-decoration:none}.title{flex:1}.title h1{font:800 clamp(1.25rem,3vw,2rem) Georgia,serif;margin:0}.title p{margin:2px 0;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:9px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 18px #423a2e12}.stage{padding:10px}.stage-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px}.stage-head strong{font-family:Georgia,serif}canvas{display:block;width:100%;height:calc(100vh - 138px);min-height:590px;border:1px solid #ded6c9;border-radius:13px;background:#0d1723}.panel{padding:12px;display:flex;flex-direction:column;gap:9px}.question{padding:10px;border-left:4px solid var(--gold);background:#fff7e7;border-radius:0 12px 12px 0;line-height:1.4}.buttons,.presets{display:grid;grid-template-columns:1fr 1fr;gap:7px}.btn.primary{background:var(--petrol);color:#fff}.btn.active{background:#f7e7c9;border-color:var(--gold)}.row{display:grid;gap:3px}.read{display:flex;justify-content:space-between;font-size:.84rem;font-weight:750}.row input{width:100%;min-height:48px}.stepbox,.formula{padding:9px;border-radius:12px;background:#eef5f3;font-size:.8rem;line-height:1.44}.formula{background:#f6f2ea;text-align:center;font-weight:800}.legend{display:flex;flex-wrap:wrap;gap:8px;font-size:.72rem}.key{display:flex;align-items:center;gap:5px}.sw{width:20px;height:4px;border-radius:3px}.note{font-size:.72rem;color:var(--muted);line-height:1.4}[hidden]{display:none!important}@media(max-width:900px){.layout{grid-template-columns:1fr}canvas{height:520px;min-height:0}.panel{display:grid;grid-template-columns:1fr 1fr}.question,.buttons,.stepbox,.formula,.legend,.note{grid-column:1/-1}}@media(max-width:620px){body{padding:5px}.title p{display:none}.stage-head{align-items:flex-start;flex-direction:column}canvas{height:480px}.panel{display:flex}}
-</style></head><body data-physik-app="einfachspalt-interferenz" data-student-home="../index.html" data-student-title="Einfachspalt – Beugung" data-student-summary="Du beobachtest, wie sich aus den Elementarwellen hinter dem Spalt eine neue Wellenfront bildet und wie daraus das Beugungsmuster mit Minima und Maxima entsteht." data-student-controls="Verändere die Spaltbreite und beobachte die Elementarwellen und die entstehende Wellenfront. Rechts siehst du das zugehörige Intensitätsmuster."><div class="app"><header class="top"><a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a><div class="title"><h1>Einfachspalt – Beugung</h1><p>Elementarwellen bilden die neue Wellenfront – und das Minima-Maxima-Muster</p></div></header><main class="layout"><section class="card stage"><div class="stage-head"><strong>Elementarwellen und entstehende Wellenfront</strong><span id="stageHint"></span></div><canvas id="scene" aria-label="Einfachspalt mit einfallender Welle, Elementarwellen, entstehender Wellenfront und Intensitätsmuster"></canvas></section><aside class="card panel"><div class="question"><strong>Leitfrage:</strong><br>Wie entsteht aus den Elementarwellen eines schmalen Spalts ein Muster mit dunklen und hellen Streifen?</div><div class="buttons"><button class="btn primary" id="play">Pause</button><button class="btn" id="reset">Zurücksetzen</button></div><div class="presets"><button class="btn" data-ratio="0.8">Enger Spalt</button><button class="btn active" data-ratio="3">Mittlerer Spalt</button><button class="btn" data-ratio="6">Breiter Spalt</button></div><div class="row"><div class="read"><label for="width">Spaltbreite a</label><strong id="widthR"></strong></div><input id="width" type="range" min="0.6" max="8" step="0.1" value="3"></div><div class="formula" id="formula">Minima: a · sin(θₘ) = m · λ</div><div class="legend"><span class="key"><i class="sw" style="background:#71d4ff"></i>Wellenfront</span><span class="key"><i class="sw" style="background:#f3b85b"></i>Elementarwellen</span><span class="key"><i class="sw" style="background:#f3b85b"></i>Intensität</span></div><p class="note">Schematisch: Die Wellenlänge ist stark vergrößert, damit die Welle sichtbar wird. Jeder Punkt im Spalt ist Ausgangspunkt einer Elementarwelle; ihre gemeinsame Einhüllende ist die neue Wellenfront. Rechts siehst du die Intensität auf dem fernen Schirm.</p></aside></main></div><script>
-(()=>{'use strict';const $=s=>document.querySelector(s),cv=$('#scene'),ctx=cv.getContext('2d'),TAU=2*Math.PI;const state={a:3,t:0,running:true,step:0};const lamPx=26;
-function size(){const r=cv.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);if(cv.width!==Math.round(r.width*d)||cv.height!==Math.round(r.height*d)){cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d)}ctx.setTransform(d,0,0,d,0,0);return{w:r.width,h:r.height}}
-function label(s,x,y,c='#dce8ed',font='12px system-ui'){ctx.fillStyle=c;ctx.font=font;ctx.fillText(s,x,y)}
-function line(x1,y1,x2,y2,c,w=2,d=[]){ctx.strokeStyle=c;ctx.lineWidth=w;ctx.setLineDash(d);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.setLineDash([])}
-function sinc(x){return Math.abs(x)<1e-10?1:Math.sin(x)/x}
-function intensity(theta){return sinc(Math.PI*state.a*Math.sin(theta))**2}
-function draw(){const{w,h}=size();const bx=w*.34,cy=h*.5,gap=state.a*lamPx,lam=lamPx,sx=w*.88;ctx.fillStyle='#0d1723';ctx.fillRect(0,0,w,h);
-// einfallende Wellenfronten (blau, nach rechts laufend)
-ctx.save();ctx.beginPath();ctx.rect(0,12,bx,12+h-24);ctx.clip();ctx.strokeStyle='#71d4ff';ctx.lineWidth=2.2;for(let x=bx-((state.t*55)%lam);x>0;x-=lam){ctx.beginPath();ctx.moveTo(x,12);ctx.lineTo(x,h-12);ctx.stroke()}ctx.restore();
-// Spalt (Barriere)
-ctx.fillStyle='#2a3646';ctx.fillRect(bx-6,12,12,cy-gap/2-12);ctx.fillRect(bx-6,cy+gap/2,12,h-12-(cy+gap/2));
-// Elementarwellen (gelbe Kreisbögen aus jedem Punkt im Spalt)
-const n=Math.max(5,Math.min(25,Math.round(state.a*5)+3)),src=[];for(let i=0;i<n;i++)src.push(cy-gap/2+gap*(i+.5)/n);ctx.save();ctx.beginPath();ctx.rect(bx,0,w-bx,h);ctx.clip();for(const sy of src){for(let k=0;k<6;k++){const r=((state.t*55+k*lam)%Math.max(lam*6,1));ctx.strokeStyle='rgba(243,184,91,.3)';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(bx,sy,r,-Math.PI/2,Math.PI/2);ctx.stroke()}}ctx.restore();
-// entstehende Wellenfront (blaue Einhüllende)
-ctx.strokeStyle='#71d4ff';ctx.lineWidth=3.5;const ratio=state.a;for(let k=1;k<6;k++){const r=((state.t*55+k*lam)%Math.max(lam*6,1));ctx.beginPath();if(ratio<=1.2)ctx.arc(bx,cy,r,-Math.PI/2,Math.PI/2);else{ctx.moveTo(bx+r,cy-gap/2);ctx.lineTo(bx+r,cy+gap/2);ctx.moveTo(bx,cy-gap/2-r);ctx.arc(bx,cy-gap/2,r,-Math.PI/2,0);ctx.moveTo(bx+r,cy+gap/2);ctx.arc(bx,cy+gap/2,r,0,Math.PI/2)}ctx.stroke()}
-// Schirm mit sinc²-Intensität
-const L=sx-bx,graphW=Math.min(160,w*.13),graphX=w-8-graphW;ctx.fillStyle='#16222f';ctx.fillRect(sx-6,14,12,h-28);ctx.strokeStyle='#dce5e5';ctx.lineWidth=1;ctx.strokeRect(sx-6,14,12,h-28);const nn=Math.floor(h-28);ctx.strokeStyle='#f3b85b';ctx.lineWidth=2.5;ctx.beginPath();for(let py=0;py<nn;py++){const yy=14+py,th=Math.atan2(yy-cy,L),I=Math.pow(intensity(th),.55),x=graphX+I*graphW;py===0?ctx.moveTo(x,yy):ctx.lineTo(x,yy)}ctx.stroke();ctx.strokeStyle='#66758a';ctx.beginPath();ctx.moveTo(graphX,14);ctx.lineTo(graphX,h-14);ctx.stroke();ctx.fillStyle='rgba(243,184,91,.5)';for(let py=0;py<nn;py++){const yy=14+py,th=Math.atan2(yy-cy,L),I=Math.pow(intensity(th),.55);ctx.fillRect(sx+4,yy,Math.max(1,I*9),1)}
-label('einfallende Wellenfront',24,28);label('Spalt',bx-18,cy-gap/2-12);label('Elementarwellen',bx+8,24,'#f3b85b','800 12px system-ui');label('entstehende Wellenfront',w*.5,24,'#71d4ff','800 12px system-ui');label('Schirm',sx-20,16);label('I(θ)',graphX,30,'#f3b85b','800 12px system-ui');label(state.a<1.2?'starke Auffächerung: a ≲ λ':state.a>4?'schwache Auffächerung: a ≫ λ':'merkliche Beugung',w*.55,h-20,'#f3b85b','800 13px system-ui');if(state.running){state.t+=.016;requestAnimationFrame(draw)}}
-function updatePanel(){const th=state.a>=1?Math.asin(1/state.a):0;$('#widthR').textContent='a = '+state.a.toFixed(1)+' λ';$('#stageHint').textContent=state.a<1?'sehr breiter Fleck':state.a<1.5?'breites Zentralmaximum':state.a<4?'mehrere sichtbare Minima':'viele schmale Streifen';$('#formula').textContent=state.a>=1?`Minima: a·sin(θₘ)=mλ · erstes Minimum bei ${(th*180/Math.PI).toFixed(1)}°`:'a < λ: kein echtes Minimum, nur breites Zentralmaximum'}
-document.querySelector('#play').onclick=()=>{state.running=!state.running;$('#play').textContent=state.running?'Pause':'Start';if(state.running)requestAnimationFrame(draw)};$('#reset').onclick=()=>{$('#width').value=3;state.a=3;state.t=0;updatePanel();if(state.running)requestAnimationFrame(draw)};document.querySelectorAll('[data-ratio]').forEach(b=>b.onclick=()=>{$('#width').value=+b.dataset.ratio;state.a=+b.dataset.ratio;document.querySelectorAll('[data-ratio]').forEach(x=>x.classList.toggle('active',x===b));updatePanel()});$('#width').oninput=()=>{state.a=+$('#width').value;document.querySelectorAll('[data-ratio]').forEach(x=>x.classList.toggle('active',Math.abs(state.a-+x.dataset.ratio)<.08));updatePanel()};updatePanel();requestAnimationFrame(draw);
-})();
-</script><script src="../shared/student-entry.js"></script></body></html>
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Einfachspalt – Beugung</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="../shared/student-entry.css" />
+    <style>
+      :root {
+        --paper: #f3eee4;
+        --card: #fffdf8;
+        --ink: #253433;
+        --muted: #65716e;
+        --petrol: #176b68;
+        --gold: #d69b43;
+        --pink: #ff7186;
+        --green: #73e0a8;
+        --line: #d9d0c2;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 9px;
+        background: var(--paper);
+        color: var(--ink);
+        font-family:
+          Inter,
+          Avenir Next,
+          system-ui,
+          sans-serif;
+        overflow-x: hidden;
+      }
+      .app {
+        max-width: 1450px;
+        margin: auto;
+      }
+      .top {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 58px;
+      }
+      .home,
+      .btn {
+        min-height: 48px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: var(--card);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 800;
+        padding: 8px 13px;
+        cursor: pointer;
+      }
+      .home {
+        display: grid;
+        place-items: center;
+        min-width: 48px;
+        text-decoration: none;
+      }
+      .title {
+        flex: 1;
+      }
+      .title h1 {
+        font:
+          800 clamp(1.25rem, 3vw, 2rem) Georgia,
+          serif;
+        margin: 0;
+      }
+      .title p {
+        margin: 2px 0;
+        color: var(--muted);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 380px;
+        gap: 9px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        box-shadow: 0 6px 18px #423a2e12;
+      }
+      .stage {
+        padding: 10px;
+      }
+      .stage-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .stage-head strong {
+        font-family: Georgia, serif;
+      }
+      canvas {
+        display: block;
+        width: 100%;
+        height: calc(100vh - 138px);
+        min-height: 590px;
+        border: 1px solid #ded6c9;
+        border-radius: 13px;
+        background: #0d1723;
+      }
+      .panel {
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+      }
+      .question {
+        padding: 10px;
+        border-left: 4px solid var(--gold);
+        background: #fff7e7;
+        border-radius: 0 12px 12px 0;
+        line-height: 1.4;
+      }
+      .buttons,
+      .presets {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 7px;
+      }
+      .btn.primary {
+        background: var(--petrol);
+        color: #fff;
+      }
+      .btn.active {
+        background: #f7e7c9;
+        border-color: var(--gold);
+      }
+      .row {
+        display: grid;
+        gap: 3px;
+      }
+      .read {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.84rem;
+        font-weight: 750;
+      }
+      .row input {
+        width: 100%;
+        min-height: 48px;
+      }
+      .stepbox,
+      .formula {
+        padding: 9px;
+        border-radius: 12px;
+        background: #eef5f3;
+        font-size: 0.8rem;
+        line-height: 1.44;
+      }
+      .stepbox ol {
+        margin: 0;
+        padding-left: 1.45rem;
+      }
+      .stepbox li + li {
+        margin-top: 0.38rem;
+      }
+      .stepbox strong {
+        color: var(--petrol);
+      }
+      .sequence{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+      .sequence button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:#fffdf8;color:var(--ink);font-weight:800}
+      .sequence button[aria-current="step"]{background:var(--petrol);color:#fff}
+      .formula {
+        background: #f6f2ea;
+        text-align: center;
+        font-weight: 800;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        font-size: 0.72rem;
+      }
+      .key {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .sw {
+        width: 20px;
+        height: 4px;
+        border-radius: 3px;
+      }
+      .note {
+        font-size: 0.72rem;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      @media (max-width: 900px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        canvas {
+          height: 520px;
+          min-height: 0;
+        }
+        .panel {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+        }
+        .question,
+        .buttons,
+        .stepbox,
+        .formula,
+        .legend,
+        .note {
+          grid-column: 1/-1;
+        }
+      }
+      @media (max-width: 620px) {
+        body {
+          padding: 5px;
+        }
+        .title p {
+          display: none;
+        }
+        .stage-head {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        canvas {
+          height: 480px;
+        }
+        .panel {
+          display: flex;
+        }
+      }
+    </style>
+  </head>
+  <body
+    data-physik-app="einfachspalt-interferenz"
+    data-student-home="../index.html"
+    data-student-title="Einfachspalt – Beugung"
+    data-student-summary="Du beobachtest, wie sich aus den Elementarwellen hinter dem Spalt eine neue Wellenfront bildet und wie daraus das Beugungsmuster mit Minima und Maxima entsteht."
+    data-student-controls="Verändere die Spaltbreite und beobachte die Elementarwellen und die entstehende Wellenfront. Rechts siehst du das zugehörige Intensitätsmuster."
+  >
+    <div class="app">
+      <header class="top">
+        <a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a>
+        <div class="title">
+          <h1>Einfachspalt – Beugung</h1>
+          <p>
+            Elementarwellen bilden die neue Wellenfront – und das
+            Minima-Maxima-Muster
+          </p>
+        </div>
+      </header>
+      <main class="layout">
+        <section class="card stage">
+          <div class="stage-head">
+            <strong>Elementarwellen und entstehende Wellenfront</strong
+            ><span id="stageHint"></span>
+          </div>
+          <canvas
+            id="scene"
+            aria-label="Einfachspalt mit einfallender Welle, Elementarwellen, entstehender Wellenfront und Intensitätsmuster"
+          ></canvas>
+        </section>
+        <aside class="card panel">
+          <div class="question">
+            <strong>Leitfrage:</strong><br />Wie entsteht aus den
+            Elementarwellen eines schmalen Spalts ein Muster mit dunklen und
+            hellen Streifen?
+          </div>
+          <div class="buttons">
+            <button class="btn primary" id="play">Pause</button
+            ><button class="btn" id="reset">Zurücksetzen</button>
+          </div>
+          <div class="presets">
+            <button class="btn" data-ratio="0.8">Enger Spalt</button
+            ><button class="btn active" data-ratio="3">Mittlerer Spalt</button
+            ><button class="btn" data-ratio="6">Breiter Spalt</button>
+          </div>
+          <div class="row">
+            <div class="read">
+              <label for="width">Spaltbreite a</label
+              ><strong id="widthR"></strong>
+            </div>
+            <input
+              id="width"
+              type="range"
+              min="0.6"
+              max="8"
+              step="0.1"
+              value="3"
+            />
+          </div>
+          <div class="sequence" aria-label="Vier Schritte"><button data-step="0" aria-current="step">1 · Front</button><button data-step="1">2 · Quellen</button><button data-step="2">3 · Wellen</button><button data-step="3">4 · Ergebnis</button></div>
+          <div class="stepbox"><strong id="stepTitle">1 · Einfallende Front</strong><span id="stepText">Ebene Wellenfronten laufen von links auf die Blende zu.</span></div>
+          <div class="formula" id="formula">Minima: a · sin(θₘ) = m · λ</div>
+          <div class="legend">
+            <span class="key"
+              ><i class="sw" style="background: #71d4ff"></i>einfallende
+              Front</span
+            >
+            <span class="key"
+              ><i class="sw" style="background: #f3b85b"></i
+              >Elementarwellen</span
+            >
+            <span class="key"
+              ><i class="sw" style="background: #67d5c8"></i>Einhüllende</span
+            >
+            <span class="key"
+              ><i class="sw" style="background: #176b68"></i
+              >sinc²-Intensität</span
+            >
+          </div>
+          <p class="note">
+            Schematisch: Die gezeichnete Wellenlänge ist stark vergrößert. Das
+            Intensitätsprofil darunter beschreibt das Fernfeld; es zeigt
+            Intensität, keine Strahlenbahnen.
+          </p>
+        </aside>
+      </main>
+    </div>
+    <script>
+      (() => {
+        "use strict";
+        const $ = (s) => document.querySelector(s),
+          cv = $("#scene"),
+          ctx = cv.getContext("2d"),
+          TAU = 2 * Math.PI;
+        const state = { a: 3, t: 0, running: true, step: 0 };
+        const lamPx = 26;
+        function size() {
+          const r = cv.getBoundingClientRect(),
+            d = Math.min(devicePixelRatio || 1, 2);
+          if (
+            cv.width !== Math.round(r.width * d) ||
+            cv.height !== Math.round(r.height * d)
+          ) {
+            cv.width = Math.round(r.width * d);
+            cv.height = Math.round(r.height * d);
+          }
+          ctx.setTransform(d, 0, 0, d, 0, 0);
+          return { w: r.width, h: r.height };
+        }
+        function label(s, x, y, c = "#dce8ed", font = "12px system-ui") {
+          ctx.fillStyle = c;
+          ctx.font = font;
+          ctx.fillText(s, x, y);
+        }
+        function line(x1, y1, x2, y2, c, w = 2, d = []) {
+          ctx.strokeStyle = c;
+          ctx.lineWidth = w;
+          ctx.setLineDash(d);
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+        function sinc(x) {
+          return Math.abs(x) < 1e-10 ? 1 : Math.sin(x) / x;
+        }
+        function intensity(theta) {
+          return sinc(Math.PI * state.a * Math.sin(theta)) ** 2;
+        }
+        function draw() {
+          const { w, h } = size();
+          const barrierX = w * 0.32,
+            fieldTop = 12,
+            fieldBottom = Math.max(300, h * 0.68),
+            fieldHeight = fieldBottom - fieldTop,
+            cy = fieldTop + fieldHeight / 2,
+            gap = Math.min(state.a * lamPx, fieldHeight - 54),
+            phase = (state.t * 55) % lamPx;
+          ctx.fillStyle = "#0d1723";
+          ctx.fillRect(0, 0, w, fieldBottom);
+
+          // 1. Einfallende ebene Wellen: ausschließlich links der Blende.
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, fieldTop, barrierX, fieldHeight);
+          ctx.clip();
+          ctx.strokeStyle = "#71d4ff";
+          ctx.lineWidth = 2.2;
+          for (let x = barrierX - phase; x > 0; x -= lamPx) {
+            ctx.beginPath();
+            ctx.moveTo(x, fieldTop);
+            ctx.lineTo(x, fieldBottom);
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          // 2. Wenige diskrete Quellen im Spalt.
+          const sourceCount = Math.max(3, Math.min(7, Math.round(state.a) + 2)),
+            sources = [];
+          for (let i = 0; i < sourceCount; i++)
+            sources.push(cy - gap / 2 + (gap * (i + 0.5)) / sourceCount);
+
+          // 3. Elementarwellen: Vollkreise, durch den Clip strikt auf x >= barrierX begrenzt.
+          if(state.step>=2){
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(barrierX, fieldTop, w - barrierX, fieldHeight);
+          ctx.clip();
+          for (let ring = 0; ring < 3; ring++) {
+            const radius = phase + ring * lamPx;
+            ctx.strokeStyle = `rgba(243,184,91,${0.5 - ring * 0.1})`;
+            ctx.lineWidth = 1.25;
+            for (const sourceY of sources) {
+              ctx.beginPath();
+              ctx.arc(barrierX, sourceY, radius, 0, TAU);
+              ctx.stroke();
+            }
+          }
+
+          // 4. Cyanfarbene Einhüllende als neue Wellenfront.
+          if(state.step>=3){
+          const envelopeRadius = phase + 2 * lamPx,
+            envelopeTop = cy - gap / 2 - envelopeRadius,
+            envelopeBottom = cy + gap / 2 + envelopeRadius;
+          ctx.strokeStyle = "#67d5c8";
+          ctx.lineWidth = 3.2;
+          ctx.beginPath();
+          for (let i = 0; i <= 120; i++) {
+            const y = envelopeTop + ((envelopeBottom - envelopeTop) * i) / 120,
+              dy = Math.max(0, Math.abs(y - cy) - gap / 2),
+              x =
+                barrierX +
+                Math.sqrt(Math.max(0, envelopeRadius ** 2 - dy ** 2));
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+          }
+          ctx.stroke();
+          }
+          ctx.restore();
+          }
+
+          // Blende und Quellen liegen über den Wellenzeichnungen.
+          ctx.fillStyle = "#e7dfd1";
+          ctx.fillRect(barrierX - 5, fieldTop, 10, (fieldHeight - gap) / 2);
+          ctx.fillRect(barrierX - 5, cy + gap / 2, 10, (fieldHeight - gap) / 2);
+          ctx.fillStyle = "#f3b85b";
+          if(state.step>=1) for (const sourceY of sources) {
+            ctx.beginPath();
+            ctx.arc(barrierX, sourceY, 3.4, 0, TAU);
+            ctx.fill();
+          }
+          ctx.strokeStyle = "rgba(255,255,255,.7)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(w - 3, fieldTop + 8);
+          ctx.lineTo(w - 3, fieldBottom - 8);
+          ctx.stroke();
+
+          label("einfallende ebene Front", 18, 28);
+          if(state.step>=1) label(
+            "Quellen im Spalt",
+            barrierX + 10,
+            28,
+            "#f3b85b",
+            "800 12px system-ui",
+          );
+          if(state.step>=2) label(
+            "Elementarwellen",
+            barrierX + 10,
+            48,
+            "#f3b85b",
+            "700 12px system-ui",
+          );
+          if(state.step>=3) label(
+            "cyanfarbene Einhüllende",
+            w * 0.56,
+            28,
+            "#67d5c8",
+            "800 12px system-ui",
+          );
+          label("Schirm", w - 52, fieldBottom - 12);
+
+          // Korrektes Fernfeldprofil I/I0 = sinc²(π a/λ · sin θ), unter der Animation.
+          const profileTop = fieldBottom + 30,
+            profileBottom = h - 34,
+            profileLeft = 52,
+            profileRight = w - 20;
+          ctx.fillStyle = "#fffdf8";
+          ctx.fillRect(0, fieldBottom, w, h - fieldBottom);
+          ctx.strokeStyle = "#7d8986";
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.moveTo(profileLeft, profileTop);
+          ctx.lineTo(profileLeft, profileBottom);
+          ctx.lineTo(profileRight, profileBottom);
+          ctx.stroke();
+          if(state.step>=3){
+          ctx.strokeStyle = "#176b68";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          for (let i = 0; i <= 360; i++) {
+            const theta = -Math.PI / 2 + (Math.PI * i) / 360,
+              x = profileLeft + ((profileRight - profileLeft) * i) / 360,
+              y =
+                profileBottom -
+                intensity(theta) * (profileBottom - profileTop - 6);
+            i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+          }
+          ctx.stroke();
+          }
+
+          if (state.step>=3 && state.a >= 1) {
+            const firstMinimum = Math.asin(1 / state.a);
+            for (const sign of [-1, 1]) {
+              const x =
+                profileLeft +
+                ((sign * firstMinimum + Math.PI / 2) / Math.PI) *
+                  (profileRight - profileLeft);
+              ctx.strokeStyle = "#bd5d4d";
+              ctx.setLineDash([5, 4]);
+              ctx.beginPath();
+              ctx.moveTo(x, profileTop);
+              ctx.lineTo(x, profileBottom);
+              ctx.stroke();
+              ctx.setLineDash([]);
+            }
+          }
+          label("I/I₀", 12, profileTop + 5, "#475350");
+          if(state.step>=3) label(
+            "sinc²-Intensitätsprofil",
+            profileLeft + 8,
+            profileTop + 14,
+            "#176b68",
+            "800 13px system-ui",
+          );
+          label("−90°", profileLeft - 13, h - 10, "#475350");
+          label(
+            "θ = 0°",
+            (profileLeft + profileRight) / 2 - 20,
+            h - 10,
+            "#475350",
+          );
+          label("+90°", profileRight - 31, h - 10, "#475350");
+
+          if (state.running) {
+            state.t += 0.016;
+            requestAnimationFrame(draw);
+          }
+        }
+        function updatePanel() {
+          const th = state.a >= 1 ? Math.asin(1 / state.a) : 0;
+          $("#widthR").textContent = "a = " + state.a.toFixed(1) + " λ";
+          $("#stageHint").textContent =
+            state.a < 1
+              ? "sehr breiter Fleck"
+              : state.a < 1.5
+                ? "breites Zentralmaximum"
+                : state.a < 4
+                  ? "mehrere sichtbare Minima"
+                  : "viele schmale Streifen";
+          $("#formula").textContent =
+            state.a >= 1
+              ? `Minima: a·sin(θₘ)=mλ · erstes Minimum bei ${((th * 180) / Math.PI).toFixed(1)}°`
+              : "a < λ: kein echtes Minimum, nur breites Zentralmaximum";
+        }
+        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Nur die nach rechts laufenden Halbkreise werden gezeigt; links entsteht keine rückwärts laufende Welle.'],['4 · Einhüllende und Profil','Die cyanfarbene Einhüllende ist die neue Wellenfront. Das sinc²-Profil zeigt die zugehörigen Minima und Maxima.']];
+        function setStep(n){state.step=Math.max(0,Math.min(3,n));document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-current',+b.dataset.step===state.step?'step':'false'));$('#stepTitle').textContent=stepTexts[state.step][0];$('#stepText').textContent=stepTexts[state.step][1];if(!state.running)draw()}
+        document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>setStep(+b.dataset.step));
+        document.querySelector("#play").onclick = () => {
+          state.running = !state.running;
+          $("#play").textContent = state.running ? "Pause" : "Start";
+          if (state.running) requestAnimationFrame(draw);
+        };
+        $("#reset").onclick = () => {
+          $("#width").value = 3;
+          state.a = 3;
+          state.t = 0;
+          setStep(0);
+          updatePanel();
+          if (state.running) requestAnimationFrame(draw);
+        };
+        document.querySelectorAll("[data-ratio]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              $("#width").value = +b.dataset.ratio;
+              state.a = +b.dataset.ratio;
+              document
+                .querySelectorAll("[data-ratio]")
+                .forEach((x) => x.classList.toggle("active", x === b));
+              updatePanel();
+            }),
+        );
+        $("#width").oninput = () => {
+          state.a = +$("#width").value;
+          document
+            .querySelectorAll("[data-ratio]")
+            .forEach((x) =>
+              x.classList.toggle(
+                "active",
+                Math.abs(state.a - +x.dataset.ratio) < 0.08,
+              ),
+            );
+          updatePanel();
+        };
+        window.__singleSlitTest = Object.freeze({ sinc, intensity, state, setStep });
+        updatePanel();
+        requestAnimationFrame(draw);
+      })();
+    </script>
+    <script src="../shared/student-entry.js"></script>
+  </body>
+</html>
