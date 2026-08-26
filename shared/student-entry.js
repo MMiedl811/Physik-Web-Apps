@@ -11,8 +11,8 @@
       observe: 'Achte auf Stellen, an denen Steigung, Geschwindigkeit oder Beschleunigung ihr Vorzeichen ändern.'
     },
     'fadenpendel-energie': {
-      goal: 'Wie werden beim Fadenpendel Höhenenergie und kinetische Energie ineinander umgewandelt, wenn du das Nullniveau verschiebst?',
-      observe: 'Vergleiche Umkehrpunkte und Tiefpunkt: Wo sind Höhe, Geschwindigkeit und die beiden Energieformen maximal oder minimal?'
+      goal: 'Wie werden beim Fadenpendel Höhenenergie und kinetische Energie umgewandelt – und was geschieht bei Reibung?',
+      observe: 'Vergleiche das ideale Pendel mit dem Reibungsfall: Wie verändern sich Auslenkung, mechanische Energie und innere Energie?'
     },
     'vektor-labor': {
       goal: 'Wie werden Betrag und Richtung physikalischer Größen als Pfeile dargestellt?',
