@@ -87,7 +87,37 @@ function setMode(mode){state.mode=normalizeMode(mode);dom.modeIdeal.classList.to
 function setSpeed(value){state.timeScale=value===1/8?1/8:1;const slow=state.timeScale===1/8;q('#speed-normal').classList.toggle('active',!slow);q('#speed-slow').classList.toggle('active',slow);q('#speed-normal').setAttribute('aria-pressed',!slow);q('#speed-slow').setAttribute('aria-pressed',slow);return snapshot();}
 function resize(){const r=dom.canvas.getBoundingClientRect(),d=Math.min(devicePixelRatio||1,2);dom.canvas.width=Math.round(r.width*d);dom.canvas.height=Math.round(r.height*d);render();}
 
-function draw(){const c=dom.ctx,d=Math.min(devicePixelRatio||1,2),w=dom.canvas.width/d,h=dom.canvas.height/d;c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);const px=w/2,py=34,Lpx=Math.max(80,Math.min(w/2-35,h-py-35)),bx=px+Lpx*Math.sin(state.theta),by=py+Lpx*Math.cos(state.theta),bottom=py+Lpx,refY=bottom-state.y0/L*Lpx;geometry={bottom,Lpx,refY};c.strokeStyle='#25332f';c.lineWidth=3;c.beginPath();c.moveTo(px-38,py-8);c.lineTo(px+38,py-8);c.stroke();c.lineWidth=1;for(let x=px-34;x<=px+34;x+=10){c.beginPath();c.moveTo(x,py-8);c.lineTo(x-6,py-15);c.stroke();}c.save();c.strokeStyle=dragReference?'#cf594d':'#7a5aa6';c.fillStyle=c.strokeStyle;c.lineWidth=dragReference?3:2;c.setLineDash([8,6]);c.beginPath();c.moveTo(8,refY);c.lineTo(w-8,refY);c.stroke();c.setLineDash([]);c.font='800 12px system-ui';c.textAlign='left';c.fillText(`↕ y₀ = ${fmt(state.y0,2)} m`,14,clamp(refY-8,16,h-8));c.restore();c.strokeStyle='#2fa896';c.lineWidth=1.5;c.setLineDash([3,3]);c.beginPath();c.moveTo(bx,by);c.lineTo(bx,refY);c.stroke();c.setLineDash([]);c.fillStyle='#2fa896';c.font='700 11px system-ui';c.fillText('y − y₀',bx+7,(by+refY)/2);c.strokeStyle='#25332f';c.lineWidth=2.5;c.beginPath();c.moveTo(px,py);c.lineTo(bx,by);c.stroke();c.fillStyle=state.mode==='friction'?'#d18428':'#0f766e';c.beginPath();c.arc(bx,by,14,0,Math.PI*2);c.fill();c.fillStyle='#fff';c.font='700 13px system-ui';c.textAlign='center';c.textBaseline='middle';c.fillText('m',bx,by);c.fillStyle='#25332f';c.beginPath();c.arc(px,py,4,0,Math.PI*2);c.fill();}
+function draw(){
+ const c=dom.ctx,d=Math.min(devicePixelRatio||1,2),w=dom.canvas.width/d,h=dom.canvas.height/d;
+ c.setTransform(d,0,0,d,0,0);c.clearRect(0,0,w,h);
+ const px=w/2,py=34,Lpx=Math.max(80,Math.min(w/2-35,h-py-35)),bx=px+Lpx*Math.sin(state.theta),by=py+Lpx*Math.cos(state.theta),bottom=py+Lpx,refY=bottom-state.y0/L*Lpx;
+ geometry={bottom,Lpx,refY};
+
+ // Ruhige, moderne Deckenhalterung statt technischer Schraffur.
+ c.save();
+ c.shadowColor='rgba(37,51,47,.12)';c.shadowBlur=8;c.shadowOffsetY=2;
+ const mount=c.createLinearGradient(px,py-16,px,py-5);mount.addColorStop(0,'#52635e');mount.addColorStop(1,'#25332f');
+ c.fillStyle=mount;c.beginPath();c.roundRect(px-38,py-15,76,9,4.5);c.fill();
+ c.shadowColor='transparent';c.fillStyle='rgba(255,255,255,.38)';c.fillRect(px-31,py-13,62,1);
+ c.restore();
+
+ // Nullniveau und Höhenhilfe bleiben bewusst fachlich klar und zurückhaltend.
+ c.save();c.strokeStyle=dragReference?'#cf594d':'#7a5aa6';c.fillStyle=c.strokeStyle;c.lineWidth=dragReference?3:2;c.setLineDash([8,6]);c.beginPath();c.moveTo(8,refY);c.lineTo(w-8,refY);c.stroke();c.setLineDash([]);c.font='800 12px system-ui';c.textAlign='left';c.fillText(`↕ y₀ = ${fmt(state.y0,2)} m`,14,clamp(refY-8,16,h-8));c.restore();
+ c.save();c.strokeStyle='rgba(47,168,150,.78)';c.lineWidth=1.25;c.setLineDash([3,4]);c.beginPath();c.moveTo(bx,by);c.lineTo(bx,refY);c.stroke();c.setLineDash([]);c.fillStyle='#278f80';c.font='700 11px system-ui';c.textAlign='left';c.fillText('y − y₀',bx+7,(by+refY)/2);c.restore();
+
+ // Feiner Faden mit kaum sichtbarer Lichtkante für klare Kontur auf jedem Display.
+ c.save();c.lineCap='round';c.strokeStyle='rgba(255,255,255,.72)';c.lineWidth=3.2;c.beginPath();c.moveTo(px,py);c.lineTo(bx,by);c.stroke();c.strokeStyle='#334640';c.lineWidth=1.55;c.beginPath();c.moveTo(px,py);c.lineTo(bx,by);c.stroke();c.restore();
+
+ // Kleine, präzise Lagerung.
+ c.save();c.fillStyle='#1f302b';c.beginPath();c.arc(px,py,4.2,0,Math.PI*2);c.fill();c.strokeStyle='rgba(255,255,255,.82)';c.lineWidth=1.25;c.beginPath();c.arc(px-1,py-1,1.5,0,Math.PI*2);c.stroke();c.restore();
+
+ // Hochwertige Metall-/Glaskugel; im Reibungsmodus bleibt die Amber-Codierung erhalten.
+ c.save();c.shadowColor='rgba(25,43,39,.20)';c.shadowBlur=8;c.shadowOffsetY=4;
+ const bob=c.createRadialGradient(bx-5,by-6,1,bx,by,17);if(state.mode==='friction'){bob.addColorStop(0,'#f8d69a');bob.addColorStop(.22,'#e6a244');bob.addColorStop(.7,'#c8751e');bob.addColorStop(1,'#8f4914');}else{bob.addColorStop(0,'#a6ddd5');bob.addColorStop(.2,'#3da99b');bob.addColorStop(.68,'#0f766e');bob.addColorStop(1,'#084c49');}
+ c.fillStyle=bob;c.beginPath();c.arc(bx,by,15,0,Math.PI*2);c.fill();c.shadowColor='transparent';c.strokeStyle='rgba(22,47,42,.28)';c.lineWidth=1;c.stroke();
+ const gleam=c.createRadialGradient(bx-5,by-7,0,bx-5,by-7,6);gleam.addColorStop(0,'rgba(255,255,255,.72)');gleam.addColorStop(1,'rgba(255,255,255,0)');c.fillStyle=gleam;c.beginPath();c.arc(bx-5,by-7,6,0,Math.PI*2);c.fill();
+ c.fillStyle='rgba(255,255,255,.94)';c.font='700 13px system-ui';c.textAlign='center';c.textBaseline='middle';c.fillText('m',bx,by+.5);c.restore();
+}
 function setBar(el,val,scale){const half=el.parentElement.clientHeight/2,hh=Math.abs(val)/scale*half;el.style.height=`${Math.max(0,hh)}px`;el.style.top=val>=0?`${half-hh}px`:`${half}px`;}
 function setValue(el,val){el.textContent=`${fmt(val,2)} J`;el.style.top=val>=0?'4px':'calc(50% + 8px)';}
 function render(){draw();const s=snapshot();dom.theta.textContent=`${fmt(s.theta*180/Math.PI,1)}°`;dom.y.textContent=`${fmt(s.y,2)} m`;dom.speed.textContent=`${fmt(Math.abs(L*state.omega),2)} m/s`;dom.y0.textContent=`${fmt(state.y0,2)} m`;const scale=Math.max(.1,Math.abs(s.height),Math.abs(s.kin),Math.abs(s.inner),Math.abs(s.total))*1.12;setBar(dom.barH,s.height,scale);setBar(dom.barK,s.kin,scale);setBar(dom.barI,s.inner,scale);setBar(dom.barT,s.total,scale);setValue(dom.valH,s.height);setValue(dom.valK,s.kin);setValue(dom.valI,s.inner);setValue(dom.valT,s.total);}
