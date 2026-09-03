@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const html=readFileSync(new URL('../elektrische-felder/index.html',import.meta.url),'utf8');
+assert.match(html,/id="superpositionModeBtn"/);
+assert.match(html,/Vektoren addieren/);
+assert.match(html,/function fieldContributionsAt\(/);
+assert.match(html,/function drawSuperposition\(/);
+assert.match(html,/<sub>res<\/sub> = Σ/);
+assert.match(html,/data-superposition-only/);
+assert.match(html,/setMode\('superposition'\)/);
+assert.match(html,/contributions:state\.probe\.active\?fieldContributionsAt/);
+console.log('electric superposition mode source contract OK');
