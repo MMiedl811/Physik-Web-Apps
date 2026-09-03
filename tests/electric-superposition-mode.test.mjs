@@ -9,4 +9,6 @@ assert.match(html,/<sub>res<\/sub> = Σ/);
 assert.match(html,/data-superposition-only/);
 assert.match(html,/setMode\('superposition'\)/);
 assert.match(html,/contributions:state\.probe\.active\?fieldContributionsAt/);
+assert.match(html,/Symmetrischer Dipol/);
+assert.doesNotMatch(html,/Buchbeispiel|Buchmaßstab|textbook|2,00 V\/m|2,40 V\/m/);
 console.log('electric superposition mode source contract OK');
