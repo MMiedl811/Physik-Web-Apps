@@ -41,7 +41,8 @@
           <button class="btn" id="step">+ 15°</button>
           <button class="btn wide" id="reset">Zurücksetzen</button>
         </div>
-        <label class="toggle"><input id="vectors" type="checkbox"><span>Geschwindigkeit und Beschleunigung als Vektoren anzeigen</span></label>
+        <label class="toggle"><input id="velocityVectors" type="checkbox"><span>Geschwindigkeitsvektoren anzeigen</span></label>
+        <label class="toggle"><input id="accelerationVectors" type="checkbox"><span>Beschleunigungsvektoren anzeigen</span></label>
         <div class="observation"><strong>Achte auf die Verbindungslinie zum Mittelpunkt:</strong> P1 und P2 überstreichen in derselben Zeit dieselbe Winkeländerung Δφ. Die außen sitzende Person legt dabei den längeren Weg zurück.</div>
         <figure class="context">
           <img src="carousel-top-view.svg" alt="Illustration eines Kinderkarussells aus der Draufsicht">
@@ -55,17 +56,18 @@
     'use strict';
     const TAU=2*Math.PI,PERIOD=8;
     const canvas=document.querySelector('#orbit'),ctx=canvas.getContext('2d');
-    const play=document.querySelector('#play'),vectors=document.querySelector('#vectors'),readout=document.querySelector('#angleReadout');
-    const state={elapsed:0,running:false,last:0,vectors:false};
+    const play=document.querySelector('#play'),velocityVectors=document.querySelector('#velocityVectors'),accelerationVectors=document.querySelector('#accelerationVectors'),readout=document.querySelector('#angleReadout');
+    const state={elapsed:0,running:false,last:0,velocityVectors:false,accelerationVectors:false};
 
     function progress(){return Math.min(1,state.elapsed/PERIOD)}
-    function snapshot(){return{elapsed:state.elapsed,progress:progress(),angle:TAU*progress(),degrees:360*progress(),running:state.running,vectors:state.vectors}}
-    function sync(){const done=progress()>=1;play.textContent=state.running?'Pause':done?'Noch einmal':'Start';readout.textContent=`Δφ = ${Math.round(360*progress())}°`;vectors.checked=state.vectors}
-    function reset(){state.elapsed=0;state.running=false;state.last=0;state.vectors=false;sync();draw();return snapshot()}
+    function snapshot(){return{elapsed:state.elapsed,progress:progress(),angle:TAU*progress(),degrees:360*progress(),running:state.running,velocityVectors:state.velocityVectors,accelerationVectors:state.accelerationVectors}}
+    function sync(){const done=progress()>=1;play.textContent=state.running?'Pause':done?'Noch einmal':'Start';readout.textContent=`Δφ = ${Math.round(360*progress())}°`;velocityVectors.checked=state.velocityVectors;accelerationVectors.checked=state.accelerationVectors}
+    function reset(){state.elapsed=0;state.running=false;state.last=0;state.velocityVectors=false;state.accelerationVectors=false;sync();draw();return snapshot()}
     function advance(seconds){state.elapsed=Math.min(PERIOD,Math.max(0,state.elapsed+seconds));if(state.elapsed>=PERIOD)state.running=false;sync();draw();return snapshot()}
     function resize(){const box=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2),w=Math.max(1,Math.round(box.width*d)),h=Math.max(1,Math.round(box.height*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}ctx.setTransform(d,0,0,d,0,0);return{w:box.width,h:box.height}}
     function line(x1,y1,x2,y2,color,width=2,dash=[]){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore()}
-    function arrow(x,y,dx,dy,color,label){const endX=x+dx,endY=y+dy,a=Math.atan2(dy,dx);ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(endX,endY);ctx.stroke();ctx.beginPath();ctx.moveTo(endX,endY);ctx.lineTo(endX-11*Math.cos(a-.45),endY-11*Math.sin(a-.45));ctx.lineTo(endX-11*Math.cos(a+.45),endY-11*Math.sin(a+.45));ctx.closePath();ctx.fill();ctx.font='800 15px system-ui';ctx.fillText(label,endX+7,endY-7);ctx.restore()}
+    function vectorLabel(x,y,base,sub,color){const canvasBox=canvas.getBoundingClientRect();ctx.save();ctx.font='italic 800 16px Georgia,serif';const baseWidth=ctx.measureText(base).width;ctx.font='800 10px system-ui';const subWidth=ctx.measureText(sub).width;x=Math.max(8,Math.min(x,canvasBox.width-baseWidth-subWidth-14));y=Math.max(28,Math.min(y,canvasBox.height-8));ctx.fillStyle='#fffdf8e8';ctx.beginPath();ctx.roundRect(x-5,y-24,baseWidth+subWidth+13,31,8);ctx.fill();ctx.fillStyle=color;ctx.strokeStyle=color;ctx.font='italic 800 16px Georgia,serif';ctx.fillText(base,x,y);ctx.font='800 10px system-ui';ctx.fillText(sub,x+baseWidth+1,y+3);const arrowY=y-18,arrowEnd=x+baseWidth+2;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x-1,arrowY);ctx.lineTo(arrowEnd,arrowY);ctx.lineTo(arrowEnd-4,arrowY-3);ctx.moveTo(arrowEnd,arrowY);ctx.lineTo(arrowEnd-4,arrowY+3);ctx.stroke();ctx.restore()}
+    function arrow(x,y,dx,dy,color,base,sub){const endX=x+dx,endY=y+dy,a=Math.atan2(dy,dx);ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(endX,endY);ctx.stroke();ctx.beginPath();ctx.moveTo(endX,endY);ctx.lineTo(endX-11*Math.cos(a-.45),endY-11*Math.sin(a-.45));ctx.lineTo(endX-11*Math.cos(a+.45),endY-11*Math.sin(a+.45));ctx.closePath();ctx.fill();ctx.restore();vectorLabel(endX+7,endY-7,base,sub,color)}
     function person(x,y,color,label,angle=null){ctx.save();ctx.shadowColor='#25343355';ctx.shadowBlur=6;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,13,0,TAU);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#fffdf8';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='#253433';ctx.font='800 15px system-ui';ctx.textAlign='center';const lx=angle===null?x:x+Math.sin(angle)*26,ly=angle===null?y-19:y+Math.cos(angle)*26+5;ctx.fillText(label,lx,ly);ctx.restore()}
     function roundedLabel(text,x,y){ctx.save();ctx.font='800 14px system-ui';const width=ctx.measureText(text).width+18;ctx.fillStyle='#fffdf8ee';ctx.strokeStyle='#d69b43';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(x-width/2,y-18,width,30,10);ctx.fill();ctx.stroke();ctx.fillStyle='#253433';ctx.textAlign='center';ctx.fillText(text,x,y+2);ctx.restore()}
     function draw(){
@@ -86,22 +88,26 @@
 
       const x1=cx+r1*Math.cos(drawTheta),y1=cy-r1*Math.sin(drawTheta),x2=cx+r2*Math.cos(drawTheta),y2=cy-r2*Math.sin(drawTheta);
       line(cx,cy,x2,y2,'#25343388',2);
-      person(x1,y1,'#4387a0','P1',state.vectors?drawTheta:null);person(x2,y2,'#bd5d4d','P2',state.vectors?drawTheta:null);
-      if(state.vectors){
-        const tx=-Math.sin(drawTheta),ty=-Math.cos(drawTheta),ix=-Math.cos(drawTheta),iy=Math.sin(drawTheta);
+      const showAnyVectors=state.velocityVectors||state.accelerationVectors;
+      person(x1,y1,'#4387a0','P1',showAnyVectors?drawTheta:null);person(x2,y2,'#bd5d4d','P2',showAnyVectors?drawTheta:null);
+      const tx=-Math.sin(drawTheta),ty=-Math.cos(drawTheta),ix=-Math.cos(drawTheta),iy=Math.sin(drawTheta);
+      if(state.velocityVectors){
+        arrow(x1,y1,tx*50,ty*50,'#176b68','v','1');arrow(x2,y2,tx*82,ty*82,'#176b68','v','2');
+      }
+      if(state.accelerationVectors){
         const radialGap=r2-r1,a2Len=Math.min(42,radialGap*.55),a1Len=a2Len*2/3;
-        arrow(x1,y1,tx*50,ty*50,'#176b68','v₁');arrow(x2,y2,tx*82,ty*82,'#176b68','v₂');
-        arrow(x1,y1,ix*a1Len,iy*a1Len,'#d07b2d','a₁');arrow(x2,y2,ix*a2Len,iy*a2Len,'#d07b2d','a₂');
+        arrow(x1,y1,ix*a1Len,iy*a1Len,'#d07b2d','a','1');arrow(x2,y2,ix*a2Len,iy*a2Len,'#d07b2d','a','2');
       }
     }
     function frame(now){if(state.running){if(!state.last)state.last=now;const dt=Math.min(.05,Math.max(0,(now-state.last)/1000));state.last=now;advance(dt)}else state.last=0;requestAnimationFrame(frame)}
     play.addEventListener('click',()=>{if(progress()>=1)state.elapsed=0;state.running=!state.running;state.last=0;sync();draw()});
     document.querySelector('#step').addEventListener('click',()=>{state.running=false;advance(PERIOD/24)});
     document.querySelector('#reset').addEventListener('click',reset);
-    vectors.addEventListener('change',()=>{state.vectors=vectors.checked;draw()});
+    velocityVectors.addEventListener('change',()=>{state.velocityVectors=velocityVectors.checked;draw()});
+    accelerationVectors.addEventListener('change',()=>{state.accelerationVectors=accelerationVectors.checked;draw()});
     window.addEventListener('resize',draw);
     document.body.addEventListener('student-intro:open',()=>{state.running=false;sync()});
-    window.__kreisLab={snapshot,advance,reset,setVectors(value){state.vectors=Boolean(value);sync();draw();return snapshot()}};
+    window.__kreisLab={snapshot,advance,reset,setVelocityVectors(value){state.velocityVectors=Boolean(value);sync();draw();return snapshot()},setAccelerationVectors(value){state.accelerationVectors=Boolean(value);sync();draw();return snapshot()},setVectors(value){state.velocityVectors=Boolean(value);state.accelerationVectors=Boolean(value);sync();draw();return snapshot()}};
     sync();draw();requestAnimationFrame(frame);
   })();
   </script>
