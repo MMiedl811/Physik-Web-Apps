@@ -17,5 +17,6 @@ assert.doesNotMatch(html, /id="radius"|id="period"|id="mass"/);
 assert.doesNotMatch(html, /id="chart"|Zentripetalkraft|data-T=/);
 assert.match(html, /Math\.min\(1,\s*state\.elapsed\s*\/\s*PERIOD\)/);
 assert.match(html, /window\.__kreisLab/);
+assert.match(html, /a2Len=Math\.min\(42,radialGap\*\.55\)/);
 
 console.log('Kreisbewegungs-Labor simplification source contract OK');

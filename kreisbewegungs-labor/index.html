@@ -89,8 +89,9 @@
       person(x1,y1,'#4387a0','P1',state.vectors?drawTheta:null);person(x2,y2,'#bd5d4d','P2',state.vectors?drawTheta:null);
       if(state.vectors){
         const tx=-Math.sin(drawTheta),ty=-Math.cos(drawTheta),ix=-Math.cos(drawTheta),iy=Math.sin(drawTheta);
+        const radialGap=r2-r1,a2Len=Math.min(42,radialGap*.55),a1Len=a2Len*2/3;
         arrow(x1,y1,tx*50,ty*50,'#176b68','v₁');arrow(x2,y2,tx*82,ty*82,'#176b68','v₂');
-        arrow(x1,y1,ix*28,iy*28,'#d07b2d','a₁');arrow(x2,y2,ix*42,iy*42,'#d07b2d','a₂');
+        arrow(x1,y1,ix*a1Len,iy*a1Len,'#d07b2d','a₁');arrow(x2,y2,ix*a2Len,iy*a2Len,'#d07b2d','a₂');
       }
     }
     function frame(now){if(state.running){if(!state.last)state.last=now;const dt=Math.min(.05,Math.max(0,(now-state.last)/1000));state.last=now;advance(dt)}else state.last=0;requestAnimationFrame(frame)}
