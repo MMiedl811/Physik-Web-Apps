@@ -47,8 +47,8 @@
       observe: 'Vergleiche Fall ohne und mit Luftwiderstand und achte auf Geschwindigkeit und Gesamtenergie.'
     },
     'mechanische-leistung': {
-      goal: 'Wie hängen Höhenenergie, benötigte Zeit und mechanische Leistung beim Treppensteigen zusammen?',
-      observe: 'Vergleiche langsames und schnelles Treppensteigen: Was ändert sich, obwohl dieselbe Höhe erreicht wird?'
+      goal: 'Wie hängen Energieänderung, benötigte Zeit und mechanische Leistung beim Treppensteigen und Gewichtheben zusammen?',
+      observe: 'Wähle Treppe oder Gewichtheben und vergleiche: Was ändert sich, obwohl dieselbe Höhe beziehungsweise derselbe Energiezuwachs erreicht wird?'
     },
     'waagrechter-wurf': {
       goal: 'Wie überlagern sich waagrechte und senkrechte Bewegung beim Abwurf?',
