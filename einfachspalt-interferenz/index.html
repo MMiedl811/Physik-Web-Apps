@@ -169,7 +169,7 @@
       .stepbox strong {
         color: var(--petrol);
       }
-      .sequence{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+      .sequence{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
       .sequence button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:#fffdf8;color:var(--ink);font-weight:800}
       .sequence button[aria-current="step"]{background:var(--petrol);color:#fff}
       .formula {
@@ -307,7 +307,7 @@
               value="3"
             />
           </div>
-          <div class="sequence" aria-label="Vier Schritte"><button data-step="0" aria-current="step">1 · Front</button><button data-step="1">2 · Quellen</button><button data-step="2">3 · Wellen</button><button data-step="3">4 · Ergebnis</button></div>
+          <div class="sequence" aria-label="Fünf Schritte"><button data-step="0" aria-current="step">1 · Front</button><button data-step="1">2 · Quellen</button><button data-step="2">3 · Wellen</button><button data-step="3">4 · Ergebnis</button><button data-step="4">5 · Hilfslinien</button></div>
           <div class="stepbox"><strong id="stepTitle">1 · Einfallende Front</strong><span id="stepText">Ebene Wellenfronten laufen von links auf die Blende zu.</span></div>
           <div class="formula" id="formula">Minima: a · sin(θₘ) = m · λ</div>
           <div class="legend">
@@ -325,6 +325,14 @@
             <span class="key"
               ><i class="sw" style="background: #176b68"></i
               >sinc²-Intensität</span
+            >
+            <span class="key"
+              ><i class="sw" style="height: 0; border-top: 3px dashed #73e0a8"></i
+              >konstruktiv</span
+            >
+            <span class="key"
+              ><i class="sw" style="height: 0; border-top: 3px dashed #ff7186"></i
+              >destruktiv</span
             >
           </div>
           <p class="note">
@@ -389,6 +397,17 @@
         }
         function intensity(theta) {
           return sinc(Math.PI * state.a * Math.sin(theta)) ** 2;
+        }
+        // Nebenmaxima des Einfachspalts: tan(β)=β (positive Lösungen).
+        const SIDE_MAXIMA_BETA = [4.493409, 7.725252, 10.904122, 14.066194, 17.220755, 20.371303];
+        function interferenceDirections() {
+          const constructive = [0], destructive = [];
+          for (const beta of SIDE_MAXIMA_BETA) {
+            const sinTheta = beta / (Math.PI * state.a);
+            if (sinTheta < 1) constructive.push(Math.asin(sinTheta));
+          }
+          for (let m = 1; m < state.a; m++) destructive.push(Math.asin(m / state.a));
+          return { constructive, destructive };
         }
         function currentSpeed() {
           return STANDARD_SPEED_PX_S * (state.slowMotion ? SLOW_FACTOR : 1);
@@ -546,6 +565,22 @@
             "#67d5c8",
             "800 12px system-ui",
           );
+          // 5. Richtungen der Fernfeldmaxima/-minima; Hilfslinien, keine Lichtbahnen.
+          if (state.step >= 4) {
+            const screenDistance = w - barrierX - 3,
+              guides = interferenceDirections();
+            const drawGuide = (theta, color, mark) => {
+              for (const sign of theta === 0 ? [1] : [-1, 1]) {
+                const targetY = cy + sign * screenDistance * Math.tan(theta);
+                if (targetY < fieldTop + 14 || targetY > fieldBottom - 14) continue;
+                line(barrierX + 6, cy, w - 5, targetY, color, 1.7, [7, 6]);
+                label(mark, w - 22, targetY - 5, color, "800 12px system-ui");
+              }
+            };
+            guides.constructive.forEach((theta) => drawGuide(theta, "#73e0a8", "K"));
+            guides.destructive.forEach((theta) => drawGuide(theta, "#ff7186", "D"));
+            label("gestrichelte Fernfeldrichtungen (keine Lichtbahnen)", barrierX + 12, fieldBottom - 14, "#dce8ed", "700 11px system-ui");
+          }
           label("Schirm", w - 52, fieldBottom - 12);
 
           // Korrektes Fernfeldprofil I/I0 = sinc²(π a/λ · sin θ), unter der Animation.
@@ -577,21 +612,16 @@
           ctx.stroke();
           }
 
-          if (state.step>=3 && state.a >= 1) {
-            const firstMinimum = Math.asin(1 / state.a);
-            for (const sign of [-1, 1]) {
-              const x =
-                profileLeft +
-                ((sign * firstMinimum + Math.PI / 2) / Math.PI) *
-                  (profileRight - profileLeft);
-              ctx.strokeStyle = "#bd5d4d";
-              ctx.setLineDash([5, 4]);
-              ctx.beginPath();
-              ctx.moveTo(x, profileTop);
-              ctx.lineTo(x, profileBottom);
-              ctx.stroke();
-              ctx.setLineDash([]);
-            }
+          if (state.step>=4) {
+            const guides = interferenceDirections();
+            const profileGuide = (theta, color) => {
+              for (const sign of theta === 0 ? [1] : [-1, 1]) {
+                const x = profileLeft + ((sign * theta + Math.PI / 2) / Math.PI) * (profileRight - profileLeft);
+                line(x, profileTop, x, profileBottom, color, 1.4, [5, 4]);
+              }
+            };
+            guides.constructive.forEach((theta) => profileGuide(theta, "#4ba879"));
+            guides.destructive.forEach((theta) => profileGuide(theta, "#d95f75"));
           }
           label("I/I₀", 12, profileTop + 5, "#475350");
           if(state.step>=3) label(
@@ -626,18 +656,24 @@
             state.a >= 1
               ? `Minima: a·sin(θₘ)=mλ · erstes Minimum bei ${((th * 180) / Math.PI).toFixed(1)}°`
               : "a < λ: kein echtes Minimum, nur breites Zentralmaximum";
+          if (state.step === 4) $("#stepText").textContent = stepTextForState();
         }
-        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.']];
+        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Interferenzrichtungen','Grün gestrichelt: konstruktive Interferenz (Maxima). Rosa gestrichelt: destruktive Interferenz (Minima). Die Linien markieren Fernfeldrichtungen – keine Lichtbahnen.']];
+        function stepTextForState() {
+          return state.step === 4 && state.a < 1
+            ? 'Nur die grün gestrichelte zentrale konstruktive Richtung erscheint: Für a < λ gibt es keine echten Minima und daher keine rosa destruktiven Hilfslinien.'
+            : stepTexts[state.step][1];
+        }
         function restartEmission() {
           state.emissionStartSec = state.absoluteTimeSec;
         }
         function setStep(n){
-          const nextStep=Math.max(0,Math.min(3,Math.round(Number(n)||0))), previousStep=state.step;
+          const nextStep=Math.max(0,Math.min(4,Math.round(Number(n)||0))), previousStep=state.step;
           if ((nextStep===2 && previousStep!==2) || (nextStep>2 && previousStep<2)) restartEmission();
           state.step=nextStep;
           document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-current',+b.dataset.step===state.step?'step':'false'));
           $('#stepTitle').textContent=stepTexts[state.step][0];
-          $('#stepText').textContent=stepTexts[state.step][1];
+          $('#stepText').textContent=stepTextForState();
           draw();
         }
         function setRunning(running) {
@@ -721,9 +757,10 @@
           setWidth(+$("#width").value);
         };
         window.__singleSlitTest = Object.freeze({
-          version: 3,
+          version: 4,
           sinc,
           intensity,
+          interferenceDirections,
           state,
           snapshot,
           draw,
