@@ -320,7 +320,7 @@
             <button class="btn" id="guideDestructive" type="button" aria-pressed="false">Rosa · destruktiv</button>
             <button class="btn" id="guideUndo" type="button">Letzte zurück</button>
             <button class="btn" id="guideClear" type="button">Alle löschen</button>
-            <span class="note wide">Tippe oder ziehe hinter dem Spalt in die gewünschte Richtung. Die Hilfslinie wird bis zum Schirm verlängert.</span>
+            <span class="note wide">Tippe oder ziehe hinter dem Spalt in die gewünschte Richtung. Ziehe danach eine Linie oder ihren Griffpunkt am Schirm, um sie nachzujustieren.</span>
           </div>
           <div class="formula" id="formula">Minima: a · sin(θₘ) = m · λ</div>
           <div class="legend">
@@ -378,6 +378,8 @@
           guideMode: "constructive",
           guides: [],
           previewGuide: null,
+          activeGuideIndex: -1,
+          dragOriginalGuide: null,
         };
         let lastFrameTime = null;
         function size() {
@@ -583,7 +585,14 @@
               const targetY = cy + screenDistance * Math.tan(guide.theta),
                 style = guideStyle(guide.kind);
               if (targetY < fieldTop + 14 || targetY > fieldBottom - 14) continue;
-              line(barrierX + 6, cy, w - 5, targetY, style.color, 1.9, [7, 6]);
+              line(barrierX + 6, cy, w - 9, targetY, style.color, 1.9, [7, 6]);
+              ctx.fillStyle = "#0d1723";
+              ctx.strokeStyle = style.color;
+              ctx.lineWidth = guide === state.guides[state.activeGuideIndex] ? 3 : 2;
+              ctx.beginPath();
+              ctx.arc(w - 9, targetY, guide === state.guides[state.activeGuideIndex] ? 8 : 6, 0, TAU);
+              ctx.fill();
+              ctx.stroke();
               label(style.mark, w - 22, targetY - 5, style.color, "800 12px system-ui");
             };
             label("deine Fernfeldrichtungen (keine Lichtbahnen)", barrierX + 12, fieldBottom - 14, "#dce8ed", "700 11px system-ui");
@@ -661,7 +670,7 @@
               : "a < λ: kein echtes Minimum, nur breites Zentralmaximum";
           if (state.step === 4) $("#stepText").textContent = stepTextForState();
         }
-        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Eigene Hilfslinien','Wähle konstruktiv oder destruktiv und zeichne deine vermuteten Fernfeldrichtungen selbst ein. Deine Markierungen erscheinen zugleich im Intensitätsprofil.']];
+        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Eigene Hilfslinien','Zeichne deine vermuteten Fernfeldrichtungen selbst ein. Bereits gesetzte Linien kannst du mit dem Finger greifen und um das Spaltzentrum drehen.']];
         function stepTextForState() {
           return stepTexts[state.step][1];
         }
@@ -678,6 +687,7 @@
           $('#guideTools').hidden=state.step!==4;
           cv.classList.toggle('construction-active', state.step===4);
           if (state.step!==4) state.previewGuide=null;
+          if (state.step!==4) state.activeGuideIndex=-1;
           draw();
         }
         function setRunning(running) {
@@ -697,6 +707,7 @@
           if (Math.abs(nextWidth - state.a) > 1e-9) {
             state.guides = [];
             state.previewGuide = null;
+            state.activeGuideIndex = -1;
           }
           state.a = nextWidth;
           $("#width").value = state.a;
@@ -753,6 +764,7 @@
           state.emissionStartSec = 0;
           state.guides = [];
           state.previewGuide = null;
+          state.activeGuideIndex = -1;
           setRunning(true);
           setSlowMotion(false);
           setWidth(3);
@@ -772,48 +784,76 @@
           $('#guideConstructive').setAttribute('aria-pressed', String(state.guideMode === 'constructive'));
           $('#guideDestructive').setAttribute('aria-pressed', String(state.guideMode === 'destructive'));
         }
-        function pointerGuide(event) {
+        function pointerGuide(event, kind = state.guideMode) {
           if (state.step !== 4) return null;
           const rect = cv.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top,
             g = geometry(rect.width, rect.height), screenDistance = rect.width - g.barrierX - 3;
           if (x <= g.barrierX || y < g.fieldTop || y > g.fieldBottom) return null;
           const theta = Math.atan2(y - g.cy, Math.max(1, x - g.barrierX)), targetY = g.cy + screenDistance * Math.tan(theta);
           if (targetY < g.fieldTop + 14 || targetY > g.fieldBottom - 14) return null;
-          return Object.freeze({ theta, kind: state.guideMode });
+          return Object.freeze({ theta, kind });
+        }
+        function hitGuide(event) {
+          const rect = cv.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top,
+            g = geometry(rect.width, rect.height), x1 = g.barrierX + 6, x2 = rect.width - 9,
+            screenDistance = x2 - g.barrierX;
+          let best = -1, bestDistance = 28;
+          state.guides.forEach((guide, index) => {
+            const y1 = g.cy, y2 = g.cy + screenDistance * Math.tan(guide.theta),
+              dx = x2 - x1, dy = y2 - y1,
+              t = Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / (dx * dx + dy * dy))),
+              distance = Math.hypot(x - (x1 + t * dx), y - (y1 + t * dy));
+            if (distance < bestDistance) { best = index; bestDistance = distance; }
+          });
+          return best;
         }
         cv.addEventListener('pointerdown', (event) => {
-          const guide = pointerGuide(event);
+          const hit = hitGuide(event), guide = hit >= 0
+            ? pointerGuide(event, state.guides[hit].kind) || state.guides[hit]
+            : pointerGuide(event);
           if (!guide) return;
           cv.setPointerCapture(event.pointerId);
-          state.previewGuide = guide;
+          state.activeGuideIndex = hit;
+          state.dragOriginalGuide = hit >= 0 ? state.guides[hit] : null;
+          if (hit >= 0) state.guides[hit] = guide;
+          else state.previewGuide = guide;
           draw();
         });
         cv.addEventListener('pointermove', (event) => {
           if (!cv.hasPointerCapture(event.pointerId)) return;
-          const guide = pointerGuide(event);
-          if (guide) state.previewGuide = guide;
+          const kind = state.activeGuideIndex >= 0 ? state.guides[state.activeGuideIndex].kind : state.guideMode,
+            guide = pointerGuide(event, kind);
+          if (guide && state.activeGuideIndex >= 0) state.guides[state.activeGuideIndex] = guide;
+          else if (guide) state.previewGuide = guide;
           draw();
         });
         const finishGuide = (event) => {
           if (!cv.hasPointerCapture(event.pointerId)) return;
-          const guide = pointerGuide(event) || state.previewGuide;
-          if (guide) state.guides.push(guide);
+          const kind = state.activeGuideIndex >= 0 ? state.guides[state.activeGuideIndex].kind : state.guideMode,
+            guide = pointerGuide(event, kind) || state.previewGuide;
+          if (state.activeGuideIndex >= 0 && guide) state.guides[state.activeGuideIndex] = guide;
+          else if (guide) state.guides.push(guide);
           state.previewGuide = null;
+          state.activeGuideIndex = -1;
+          state.dragOriginalGuide = null;
           cv.releasePointerCapture(event.pointerId);
           draw();
         };
         cv.addEventListener('pointerup', finishGuide);
         cv.addEventListener('pointercancel', (event) => {
+          if (state.activeGuideIndex >= 0 && state.dragOriginalGuide) state.guides[state.activeGuideIndex] = state.dragOriginalGuide;
           state.previewGuide = null;
+          state.activeGuideIndex = -1;
+          state.dragOriginalGuide = null;
           if (cv.hasPointerCapture(event.pointerId)) cv.releasePointerCapture(event.pointerId);
           draw();
         });
         $('#guideConstructive').onclick=()=>setGuideMode('constructive');
         $('#guideDestructive').onclick=()=>setGuideMode('destructive');
-        $('#guideUndo').onclick=()=>{state.guides.pop();draw();};
-        $('#guideClear').onclick=()=>{state.guides=[];state.previewGuide=null;draw();};
+        $('#guideUndo').onclick=()=>{state.guides.pop();state.activeGuideIndex=-1;draw();};
+        $('#guideClear').onclick=()=>{state.guides=[];state.previewGuide=null;state.activeGuideIndex=-1;draw();};
         window.__singleSlitTest = Object.freeze({
-          version: 5,
+          version: 6,
           sinc,
           intensity,
           setGuideMode,
