@@ -172,6 +172,12 @@
       .sequence{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
       .sequence button{min-height:48px;border:1px solid var(--line);border-radius:12px;background:#fffdf8;color:var(--ink);font-weight:800}
       .sequence button[aria-current="step"]{background:var(--petrol);color:#fff}
+      .guide-tools{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:9px;border-radius:12px;background:#f6f2ea}
+      .guide-tools .wide{grid-column:1/-1}
+      .guide-tools .btn[aria-pressed="true"]{color:#0d1723;border-width:2px}
+      #guideConstructive[aria-pressed="true"]{background:#d9f5e6;border-color:#4ba879}
+      #guideDestructive[aria-pressed="true"]{background:#ffe1e7;border-color:#d95f75}
+      canvas.construction-active{cursor:crosshair;touch-action:none}
       .formula {
         background: #f6f2ea;
         text-align: center;
@@ -309,6 +315,13 @@
           </div>
           <div class="sequence" aria-label="Fünf Schritte"><button data-step="0" aria-current="step">1 · Front</button><button data-step="1">2 · Quellen</button><button data-step="2">3 · Wellen</button><button data-step="3">4 · Ergebnis</button><button data-step="4">5 · Hilfslinien</button></div>
           <div class="stepbox"><strong id="stepTitle">1 · Einfallende Front</strong><span id="stepText">Ebene Wellenfronten laufen von links auf die Blende zu.</span></div>
+          <div class="guide-tools" id="guideTools" hidden aria-label="Werkzeuge für eigene Hilfslinien">
+            <button class="btn" id="guideConstructive" type="button" aria-pressed="true">Grün · konstruktiv</button>
+            <button class="btn" id="guideDestructive" type="button" aria-pressed="false">Rosa · destruktiv</button>
+            <button class="btn" id="guideUndo" type="button">Letzte zurück</button>
+            <button class="btn" id="guideClear" type="button">Alle löschen</button>
+            <span class="note wide">Tippe oder ziehe hinter dem Spalt in die gewünschte Richtung. Die Hilfslinie wird bis zum Schirm verlängert.</span>
+          </div>
           <div class="formula" id="formula">Minima: a · sin(θₘ) = m · λ</div>
           <div class="legend">
             <span class="key"
@@ -362,6 +375,9 @@
           running: true,
           slowMotion: false,
           step: 0,
+          guideMode: "constructive",
+          guides: [],
+          previewGuide: null,
         };
         let lastFrameTime = null;
         function size() {
@@ -398,16 +414,10 @@
         function intensity(theta) {
           return sinc(Math.PI * state.a * Math.sin(theta)) ** 2;
         }
-        // Nebenmaxima des Einfachspalts: tan(β)=β (positive Lösungen).
-        const SIDE_MAXIMA_BETA = [4.493409, 7.725252, 10.904122, 14.066194, 17.220755, 20.371303];
-        function interferenceDirections() {
-          const constructive = [0], destructive = [];
-          for (const beta of SIDE_MAXIMA_BETA) {
-            const sinTheta = beta / (Math.PI * state.a);
-            if (sinTheta < 1) constructive.push(Math.asin(sinTheta));
-          }
-          for (let m = 1; m < state.a; m++) destructive.push(Math.asin(m / state.a));
-          return { constructive, destructive };
+        function guideStyle(kind) {
+          return kind === "destructive"
+            ? { color: "#ff7186", profile: "#d95f75", mark: "D" }
+            : { color: "#73e0a8", profile: "#4ba879", mark: "K" };
         }
         function currentSpeed() {
           return STANDARD_SPEED_PX_S * (state.slowMotion ? SLOW_FACTOR : 1);
@@ -565,21 +575,18 @@
             "#67d5c8",
             "800 12px system-ui",
           );
-          // 5. Richtungen der Fernfeldmaxima/-minima; Hilfslinien, keine Lichtbahnen.
+          // 5. Eigene Fernfeld-Hilfslinien; keine vorgezeichnete Lösung.
           if (state.step >= 4) {
             const screenDistance = w - barrierX - 3,
-              guides = interferenceDirections();
-            const drawGuide = (theta, color, mark) => {
-              for (const sign of theta === 0 ? [1] : [-1, 1]) {
-                const targetY = cy + sign * screenDistance * Math.tan(theta);
-                if (targetY < fieldTop + 14 || targetY > fieldBottom - 14) continue;
-                line(barrierX + 6, cy, w - 5, targetY, color, 1.7, [7, 6]);
-                label(mark, w - 22, targetY - 5, color, "800 12px system-ui");
-              }
+              guides = state.previewGuide ? [...state.guides, state.previewGuide] : state.guides;
+            for (const guide of guides) {
+              const targetY = cy + screenDistance * Math.tan(guide.theta),
+                style = guideStyle(guide.kind);
+              if (targetY < fieldTop + 14 || targetY > fieldBottom - 14) continue;
+              line(barrierX + 6, cy, w - 5, targetY, style.color, 1.9, [7, 6]);
+              label(style.mark, w - 22, targetY - 5, style.color, "800 12px system-ui");
             };
-            guides.constructive.forEach((theta) => drawGuide(theta, "#73e0a8", "K"));
-            guides.destructive.forEach((theta) => drawGuide(theta, "#ff7186", "D"));
-            label("gestrichelte Fernfeldrichtungen (keine Lichtbahnen)", barrierX + 12, fieldBottom - 14, "#dce8ed", "700 11px system-ui");
+            label("deine Fernfeldrichtungen (keine Lichtbahnen)", barrierX + 12, fieldBottom - 14, "#dce8ed", "700 11px system-ui");
           }
           label("Schirm", w - 52, fieldBottom - 12);
 
@@ -613,15 +620,11 @@
           }
 
           if (state.step>=4) {
-            const guides = interferenceDirections();
-            const profileGuide = (theta, color) => {
-              for (const sign of theta === 0 ? [1] : [-1, 1]) {
-                const x = profileLeft + ((sign * theta + Math.PI / 2) / Math.PI) * (profileRight - profileLeft);
-                line(x, profileTop, x, profileBottom, color, 1.4, [5, 4]);
-              }
-            };
-            guides.constructive.forEach((theta) => profileGuide(theta, "#4ba879"));
-            guides.destructive.forEach((theta) => profileGuide(theta, "#d95f75"));
+            const guides = state.previewGuide ? [...state.guides, state.previewGuide] : state.guides;
+            for (const guide of guides) {
+              const x = profileLeft + ((guide.theta + Math.PI / 2) / Math.PI) * (profileRight - profileLeft);
+              line(x, profileTop, x, profileBottom, guideStyle(guide.kind).profile, 1.4, [5, 4]);
+            }
           }
           label("I/I₀", 12, profileTop + 5, "#475350");
           if(state.step>=3) label(
@@ -658,11 +661,9 @@
               : "a < λ: kein echtes Minimum, nur breites Zentralmaximum";
           if (state.step === 4) $("#stepText").textContent = stepTextForState();
         }
-        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Interferenzrichtungen','Grün gestrichelt: konstruktive Interferenz (Maxima). Rosa gestrichelt: destruktive Interferenz (Minima). Die Linien markieren Fernfeldrichtungen – keine Lichtbahnen.']];
+        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Eigene Hilfslinien','Wähle konstruktiv oder destruktiv und zeichne deine vermuteten Fernfeldrichtungen selbst ein. Deine Markierungen erscheinen zugleich im Intensitätsprofil.']];
         function stepTextForState() {
-          return state.step === 4 && state.a < 1
-            ? 'Nur die grün gestrichelte zentrale konstruktive Richtung erscheint: Für a < λ gibt es keine echten Minima und daher keine rosa destruktiven Hilfslinien.'
-            : stepTexts[state.step][1];
+          return stepTexts[state.step][1];
         }
         function restartEmission() {
           state.emissionStartSec = state.absoluteTimeSec;
@@ -674,6 +675,9 @@
           document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-current',+b.dataset.step===state.step?'step':'false'));
           $('#stepTitle').textContent=stepTexts[state.step][0];
           $('#stepText').textContent=stepTextForState();
+          $('#guideTools').hidden=state.step!==4;
+          cv.classList.toggle('construction-active', state.step===4);
+          if (state.step!==4) state.previewGuide=null;
           draw();
         }
         function setRunning(running) {
@@ -689,7 +693,12 @@
           button.textContent = state.slowMotion ? "Zeitlupe aktiv · ¼×" : "Zeitlupe · ¼×";
         }
         function setWidth(value) {
-          state.a = Math.max(0.6, Math.min(8, Number(value)));
+          const nextWidth = Math.max(0.6, Math.min(8, Number(value)));
+          if (Math.abs(nextWidth - state.a) > 1e-9) {
+            state.guides = [];
+            state.previewGuide = null;
+          }
+          state.a = nextWidth;
           $("#width").value = state.a;
           document.querySelectorAll("[data-ratio]").forEach((x) =>
             x.classList.toggle("active", Math.abs(state.a - +x.dataset.ratio) < 0.08),
@@ -742,6 +751,8 @@
         $("#reset").onclick = () => {
           state.absoluteTimeSec = 0;
           state.emissionStartSec = 0;
+          state.guides = [];
+          state.previewGuide = null;
           setRunning(true);
           setSlowMotion(false);
           setWidth(3);
@@ -756,11 +767,58 @@
         $("#width").oninput = () => {
           setWidth(+$("#width").value);
         };
+        function setGuideMode(kind) {
+          state.guideMode = kind === 'destructive' ? 'destructive' : 'constructive';
+          $('#guideConstructive').setAttribute('aria-pressed', String(state.guideMode === 'constructive'));
+          $('#guideDestructive').setAttribute('aria-pressed', String(state.guideMode === 'destructive'));
+        }
+        function pointerGuide(event) {
+          if (state.step !== 4) return null;
+          const rect = cv.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top,
+            g = geometry(rect.width, rect.height), screenDistance = rect.width - g.barrierX - 3;
+          if (x <= g.barrierX || y < g.fieldTop || y > g.fieldBottom) return null;
+          const theta = Math.atan2(y - g.cy, Math.max(1, x - g.barrierX)), targetY = g.cy + screenDistance * Math.tan(theta);
+          if (targetY < g.fieldTop + 14 || targetY > g.fieldBottom - 14) return null;
+          return Object.freeze({ theta, kind: state.guideMode });
+        }
+        cv.addEventListener('pointerdown', (event) => {
+          const guide = pointerGuide(event);
+          if (!guide) return;
+          cv.setPointerCapture(event.pointerId);
+          state.previewGuide = guide;
+          draw();
+        });
+        cv.addEventListener('pointermove', (event) => {
+          if (!cv.hasPointerCapture(event.pointerId)) return;
+          const guide = pointerGuide(event);
+          if (guide) state.previewGuide = guide;
+          draw();
+        });
+        const finishGuide = (event) => {
+          if (!cv.hasPointerCapture(event.pointerId)) return;
+          const guide = pointerGuide(event) || state.previewGuide;
+          if (guide) state.guides.push(guide);
+          state.previewGuide = null;
+          cv.releasePointerCapture(event.pointerId);
+          draw();
+        };
+        cv.addEventListener('pointerup', finishGuide);
+        cv.addEventListener('pointercancel', (event) => {
+          state.previewGuide = null;
+          if (cv.hasPointerCapture(event.pointerId)) cv.releasePointerCapture(event.pointerId);
+          draw();
+        });
+        $('#guideConstructive').onclick=()=>setGuideMode('constructive');
+        $('#guideDestructive').onclick=()=>setGuideMode('destructive');
+        $('#guideUndo').onclick=()=>{state.guides.pop();draw();};
+        $('#guideClear').onclick=()=>{state.guides=[];state.previewGuide=null;draw();};
         window.__singleSlitTest = Object.freeze({
-          version: 4,
+          version: 5,
           sinc,
           intensity,
-          interferenceDirections,
+          setGuideMode,
+          getGuides: () => state.guides.map((guide) => ({...guide})),
+          clearGuides: () => { state.guides=[]; state.previewGuide=null; draw(); },
           state,
           snapshot,
           draw,
