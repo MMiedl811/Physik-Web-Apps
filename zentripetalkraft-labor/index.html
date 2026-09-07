@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kraft und Bewegung – Zentripetalkraft-Labor</title>
+<style>
+:root{--paper:#f5f0e8;--ink:#17353b;--muted:#617276;--petrol:#176b73;--teal:#2b9aa0;--amber:#e5a33a;--red:#c85b50;--line:#d8cfc2}
+*{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#faf7f0,#eee7dc);color:var(--ink);font:16px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+main{width:min(1180px,100% - 28px);margin:auto;padding:20px 0 28px}header{display:flex;justify-content:space-between;align-items:start;gap:20px;margin-bottom:14px}h1{font:700 clamp(1.8rem,4vw,3rem)/1.05 Georgia,serif;margin:0;color:var(--petrol)}.eyebrow{font-size:.74rem;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:6px}.intro{max-width:690px;color:var(--muted);margin:8px 0 0}.overview{color:var(--petrol);text-decoration:none;border:1px solid var(--line);padding:10px 14px;border-radius:12px;background:#fffaf3;white-space:nowrap;font-weight:700}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 285px;gap:14px;align-items:start}.stage-card,.panel{background:rgba(255,252,246,.88);border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 30px #4c3d2413}.stage-card{padding:12px}.stage-wrap{position:relative;width:100%;aspect-ratio:1.62;min-height:390px;overflow:hidden;border-radius:12px;background:#fbf8f1}.stage-wrap canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}.hint{position:absolute;left:14px;bottom:12px;background:#fffdf9df;padding:7px 10px;border-radius:9px;color:var(--muted);font-size:.88rem;pointer-events:none;transition:opacity .25s}.hint.hidden{opacity:0}.panel{padding:16px;display:grid;gap:16px}.panel h2{font-size:1rem;margin:0 0 4px;color:var(--petrol)}.group{display:grid;gap:8px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.choices button,.transport button,.toggle{min-height:48px;border:1px solid #bed0ce;background:#fffaf4;border-radius:10px;color:var(--ink);font-weight:650;cursor:pointer}.choices button[aria-pressed=true],.toggle[aria-pressed=true]{background:var(--petrol);color:white;border-color:var(--petrol)}.transport{display:grid;grid-template-columns:1fr 1fr;gap:8px}.transport button:first-child{background:var(--amber);border-color:var(--amber);color:#302718}.readout{display:grid;grid-template-columns:1fr 1fr;gap:8px}.readout div{background:#f2ece2;border-radius:10px;padding:9px}.readout b{display:block;font-size:1.05rem}.readout small{color:var(--muted)}.status{min-height:24px;color:var(--muted);font-size:.9rem}.help{border-top:1px solid var(--line);padding-top:12px}.help summary{cursor:pointer;font-weight:700;color:var(--petrol)}.help p{font-size:.9rem;color:var(--muted)}.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.82rem;color:var(--muted)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px}.dot.force{background:var(--red)}.dot.velocity{background:var(--teal)}
+@media(max-width:800px){main{padding-top:14px}.layout{grid-template-columns:1fr}.panel{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.panel .help,.panel .status{grid-column:1/-1}.stage-wrap{min-height:0}header{align-items:center}.overview{font-size:.85rem;padding:9px 10px}}
+@media(max-width:560px){main{width:min(100% - 16px,520px)}header{display:block}.overview{display:inline-block;margin-top:10px}.panel{grid-template-columns:1fr}.panel .help,.panel .status{grid-column:auto}.stage-wrap{aspect-ratio:1.08}.intro{font-size:.93rem}.readout{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<main>
+<header><div><div class="eyebrow">Mechanik · freies Kraftlabor</div><h1>Kraft und Bewegung</h1><p class="intro">Kannst du den Ball durch deine Kraft auf eine Kreisbahn zwingen? Die Fläche gibt keine Bahn vor – du untersuchst selbst, was dein Zug bewirkt.</p></div><a class="overview" href="../index.html">Übersicht</a></header>
+<div class="layout">
+<section class="stage-card" aria-label="Simulationsfläche"><div class="stage-wrap"><canvas id="stage" aria-label="Interaktive Fläche: mit Maus oder Finger ziehen"></canvas><div id="hint" class="hint">Fläche gedrückt halten und zum Ziehen bewegen</div></div><div class="legend"><span><i class="dot force"></i>Kraft</span><span><i class="dot velocity"></i>Geschwindigkeit</span><span>Spur = berechnete Bahn</span></div></section>
+<aside class="panel" aria-label="Steuerung">
+<div class="group"><h2>Versuch</h2><div class="transport"><button id="start">Start</button><button id="reset">Neu starten</button></div></div>
+<div class="group"><h2>Startgeschwindigkeit</h2><div class="choices" role="group" aria-label="Startgeschwindigkeit"><button data-speed="slow" aria-pressed="true">Langsam</button><button data-speed="medium" aria-pressed="false">Mittel</button><button data-speed="fast" aria-pressed="false">Schnell</button></div></div>
+<div class="group"><h2>Darstellung</h2><button class="toggle" id="velocityToggle" aria-pressed="false">Geschwindigkeitspfeil einblenden</button></div>
+<div class="readout"><div><small>Geschwindigkeit</small><b id="speedReadout">–</b></div><div><small>Kraftbetrag</small><b id="forceReadout">0</b></div></div>
+<div class="status" id="status" aria-live="polite">Wähle eine Geschwindigkeit und starte den Versuch.</div>
+<details class="help"><summary>Was beobachtest du?</summary><p>Der Zug vom Ball zu deinem Finger bestimmt Richtung und Stärke der Kraft. Ohne Zug fliegt der Ball tangential geradeaus weiter. Für eine Kreisbahn muss die Kraft immer wieder zum selbst gewählten Mittelpunkt zeigen.</p><p>Die Simulation berechnet <strong>m·a = F</strong>. Die Zentripetalkraft ist dabei keine zusätzliche Kraftart, sondern die Rolle der resultierenden Kraft bei der Kreisbewegung.</p></details>
+</aside></div></main>
+<script>
+(() => {
+  'use strict';
+  const canvas = document.getElementById('stage'), ctx = canvas.getContext('2d');
+  const startBtn = document.getElementById('start'), resetBtn = document.getElementById('reset'), status = document.getElementById('status');
+  const speedOut = document.getElementById('speedReadout'), forceOut = document.getElementById('forceReadout'), hint = document.getElementById('hint'), velocityToggle = document.getElementById('velocityToggle');
+  const SPEEDS = { slow: 0.92, medium: 1.28, fast: 1.7 };
+  const model = { x: 0, y: 0, vx: 0, vy: 0, mass: 1, running: false, paused: false, pointer: null, speedKey: 'slow', showVelocity: false, trail: [], time: 0, edge: false };
+  let cssW = 0, cssH = 0, dpr = 1, last = 0, accumulator = 0;
+  const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
+  function resize(){ const r=canvas.getBoundingClientRect(); cssW=r.width; cssH=r.height; dpr=Math.min(2,window.devicePixelRatio||1); canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); draw(); }
+  function reset(){ model.x=cssW*.16; model.y=cssH*.52; model.vx=SPEEDS[model.speedKey]; model.vy=0; model.running=false; model.paused=false; model.pointer=null; model.trail=[]; model.time=0; model.edge=false; startBtn.textContent='Start'; status.textContent='Bereit – starte den Versuch.'; hint.classList.remove('hidden'); updateReadout(SPEEDS[model.speedKey],0); draw(); }
+  function worldPointer(e){ const r=canvas.getBoundingClientRect(); return {x:clamp(e.clientX-r.left,0,cssW), y:clamp(e.clientY-r.top,0,cssH)}; }
+  function force(){ if(!model.pointer) return {x:0,y:0}; const dx=model.pointer.x-model.x, dy=model.pointer.y-model.y; const scale=.00235; return {x:dx*scale,y:dy*scale}; }
+  function step(dt){ const f=force(), ax=f.x/model.mass, ay=f.y/model.mass; model.vx += ax*dt; model.vy += ay*dt; model.x += model.vx*dt; model.y += model.vy*dt; model.time += dt; model.trail.push({x:model.x,y:model.y}); if(model.trail.length>950) model.trail.shift(); const margin=27; if(model.x<margin||model.x>cssW-margin||model.y<margin||model.y>cssH-margin){ model.x=clamp(model.x,margin,cssW-margin); model.y=clamp(model.y,margin,cssH-margin); model.running=false; model.pointer=null; model.edge=true; startBtn.textContent='Start'; status.textContent='Rand erreicht – starte einen neuen Versuch.'; } updateReadout(Math.hypot(model.vx,model.vy),Math.hypot(f.x,f.y)); }
+  function updateReadout(v,f){ speedOut.textContent=v.toFixed(2)+' m/s'; forceOut.textContent=f.toFixed(2)+' N'; }
+  function loop(t){ if(!last) last=t; const frame=Math.min(.05,(t-last)/1000); last=t; if(model.running&&!model.paused){ accumulator+=frame; while(accumulator>=1/120){step(1/120); accumulator-=1/120;} draw(); } requestAnimationFrame(loop); }
+  function arrow(x1,y1,x2,y2,color,width=3){ const a=Math.atan2(y2-y1,x2-x1), len=Math.hypot(x2-x1,y2-y1); if(len<2)return; ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=width;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-10*Math.cos(a-.45),y2-10*Math.sin(a-.45));ctx.lineTo(x2-10*Math.cos(a+.45),y2-10*Math.sin(a+.45));ctx.closePath();ctx.fill(); }
+  function draw(){ if(!cssW||!cssH)return; ctx.clearRect(0,0,cssW,cssH); const g=ctx.createLinearGradient(0,0,cssW,cssH);g.addColorStop(0,'#fffdf8');g.addColorStop(1,'#f1eadf');ctx.fillStyle=g;ctx.fillRect(0,0,cssW,cssH); ctx.strokeStyle='#e7ded0';ctx.lineWidth=1; for(let x=30;x<cssW;x+=42){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,cssH);ctx.stroke()} for(let y=24;y<cssH;y+=42){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(cssW,y);ctx.stroke()}
+    if(model.trail.length>1){ctx.lineWidth=2;ctx.lineCap='round';for(let i=1;i<model.trail.length;i++){const p=model.trail[i-1],q=model.trail[i];ctx.strokeStyle=`rgba(23,107,115,${.08+.55*i/model.trail.length})`;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}}
+    if(model.pointer){ctx.strokeStyle='#c85b5060';ctx.setLineDash([5,5]);ctx.beginPath();ctx.arc(model.pointer.x,model.pointer.y,9,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]); const f=force(); const mag=Math.hypot(f.x,f.y); if(mag>0.0002) arrow(model.x,model.y,model.x+f.x*520,model.y+f.y*520,'#c85b50',3); }
+    if(model.showVelocity){const m=Math.hypot(model.vx,model.vy); if(m>.01) arrow(model.x,model.y,model.x+model.vx/m*58,model.y+model.vy/m*58,'#2b9aa0',3);}
+    ctx.fillStyle='#176b73';ctx.beginPath();ctx.arc(model.x,model.y,12,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffffff80';ctx.beginPath();ctx.arc(model.x-4,model.y-4,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#0e4e55';ctx.lineWidth=2;ctx.stroke();
+  }
+  canvas.addEventListener('pointerdown',e=>{ if(!model.running||model.paused)return; canvas.setPointerCapture(e.pointerId); model.pointer=worldPointer(e); hint.classList.add('hidden'); e.preventDefault(); });
+  canvas.addEventListener('pointermove',e=>{ if(model.pointer){model.pointer=worldPointer(e);e.preventDefault();} });
+  function release(e){ if(model.pointer){model.pointer=null; if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId); } }
+  canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',()=>{model.pointer=null;});
+  startBtn.addEventListener('click',()=>{ if(model.edge){reset();return;} model.running=!model.running; model.paused=false; startBtn.textContent=model.running?'Pause':'Start'; status.textContent=model.running?'Ziehe mit Finger oder Maus in die gewünschte Richtung.':'Pausiert – beim Fortsetzen beginnt keine alte Kraft automatisch.'; if(!model.running)model.pointer=null; });
+  resetBtn.addEventListener('click',reset);
+  document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');model.speedKey=b.dataset.speed;status.textContent=model.running?'Neue Startgeschwindigkeit gilt beim Neustart.':'Startgeschwindigkeit gewählt – starte den Versuch.';}));
+  velocityToggle.addEventListener('click',()=>{model.showVelocity=!model.showVelocity;velocityToggle.setAttribute('aria-pressed',String(model.showVelocity));velocityToggle.textContent=model.showVelocity?'Geschwindigkeitspfeil ausblenden':'Geschwindigkeitspfeil einblenden';draw();});
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){model.pointer=null;if(model.running){model.running=false;startBtn.textContent='Start';status.textContent='Pausiert, weil das Fenster verlassen wurde.';}}});
+  window.addEventListener('resize',resize); resize(); reset(); requestAnimationFrame(loop);
+  window.__zentripetalkraft = { getState:()=>({...model, trailLength:model.trail.length}), setPointer:(x,y)=>{model.pointer={x,y}}, step:(dt)=>step(dt), reset };
+})();
+</script>
+</body>
+</html>
