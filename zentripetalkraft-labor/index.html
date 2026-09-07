@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Kraft und Bewegung – Zentripetalkraft-Labor</title>
+<title>Kraft führt zu einer Kreisbewegung</title>
 <style>
 :root{--paper:#f5f0e8;--ink:#17353b;--muted:#617276;--petrol:#176b73;--teal:#2b9aa0;--amber:#e5a33a;--red:#c85b50;--line:#d8cfc2}
 *{box-sizing:border-box} body{margin:0;background:linear-gradient(135deg,#faf7f0,#eee7dc);color:var(--ink);font:16px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
@@ -15,7 +15,7 @@ main{width:min(1180px,100% - 28px);margin:auto;padding:20px 0 28px}header{displa
 </head>
 <body>
 <main>
-<header><div><div class="eyebrow">Mechanik · freies Kraftlabor</div><h1>Kraft und Bewegung</h1><p class="intro">Kannst du den Ball durch deine Kraft auf eine Kreisbahn zwingen? Die Fläche gibt keine Bahn vor – du untersuchst selbst, was dein Zug bewirkt.</p></div><a class="overview" href="../index.html">Übersicht</a></header>
+<header><div><div class="eyebrow">Mechanik · freies Kraftlabor</div><h1>Kraft führt zu einer Kreisbewegung</h1><p class="intro">Kannst du den Ball durch deine Kraft auf eine Kreisbahn zwingen? Die Fläche gibt keine Bahn vor – du untersuchst selbst, was dein Zug bewirkt.</p></div><a class="overview" href="../index.html">Übersicht</a></header>
 <div class="layout">
 <section class="stage-card" aria-label="Simulationsfläche"><div class="stage-wrap"><canvas id="stage" aria-label="Interaktive Fläche: mit Maus oder Finger ziehen"></canvas><div id="hint" class="hint">Fläche gedrückt halten und zum Ziehen bewegen</div></div><div class="legend"><span><i class="dot force"></i>Kraft</span><span><i class="dot velocity"></i>Geschwindigkeit</span><span>Spur = berechnete Bahn</span></div></section>
 <aside class="panel" aria-label="Steuerung">
@@ -54,7 +54,7 @@ main{width:min(1180px,100% - 28px);margin:auto;padding:20px 0 28px}header{displa
   canvas.addEventListener('pointermove',e=>{ if(model.pointer){model.pointer=worldPointer(e);e.preventDefault();} });
   function release(e){ if(model.pointer){model.pointer=null; if(canvas.hasPointerCapture(e.pointerId))canvas.releasePointerCapture(e.pointerId); } }
   canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',()=>{model.pointer=null;});
-  startBtn.addEventListener('click',()=>{ if(model.edge){reset();return;} model.running=!model.running; model.paused=false; startBtn.textContent=model.running?'Pause':'Start'; status.textContent=model.running?'Ziehe mit Finger oder Maus in die gewünschte Richtung.':'Pausiert – beim Fortsetzen beginnt keine alte Kraft automatisch.'; if(!model.running)model.pointer=null; });
+  startBtn.addEventListener('click',()=>{ if(model.edge){reset();return;} model.running=!model.running; model.paused=false; if(model.running) hint.classList.add('hidden'); startBtn.textContent=model.running?'Pause':'Start'; status.textContent=model.running?'Ziehe mit Finger oder Maus in die gewünschte Richtung.':'Pausiert – beim Fortsetzen beginnt keine alte Kraft automatisch.'; if(!model.running)model.pointer=null; });
   resetBtn.addEventListener('click',reset);
   document.querySelectorAll('[data-speed]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-speed]').forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');model.speedKey=b.dataset.speed;status.textContent=model.running?'Neue Startgeschwindigkeit gilt beim Neustart.':'Startgeschwindigkeit gewählt – starte den Versuch.';}));
   velocityToggle.addEventListener('click',()=>{model.showVelocity=!model.showVelocity;velocityToggle.setAttribute('aria-pressed',String(model.showVelocity));velocityToggle.textContent=model.showVelocity?'Geschwindigkeitspfeil ausblenden':'Geschwindigkeitspfeil einblenden';draw();});
