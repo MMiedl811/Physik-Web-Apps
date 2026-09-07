@@ -33,7 +33,7 @@ main{width:min(1180px,100% - 28px);margin:auto;padding:20px 0 28px}header{displa
   const startBtn = document.getElementById('start'), resetBtn = document.getElementById('reset'), status = document.getElementById('status');
   const speedOut = document.getElementById('speedReadout'), forceOut = document.getElementById('forceReadout'), hint = document.getElementById('hint'), velocityToggle = document.getElementById('velocityToggle');
   const SPEEDS = { slow: 45, medium: 65, fast: 85 };
-  const model = { x: 0, y: 0, vx: 0, vy: 0, mass: 1, running: false, paused: false, pointer: null, speedKey: 'slow', showVelocity: false, trail: [], time: 0, edge: false };
+  const model = { x: 0, y: 0, vx: 0, vy: 0, mass: 0.5, running: false, paused: false, pointer: null, speedKey: 'slow', showVelocity: false, trail: [], time: 0, edge: false };
   let cssW = 0, cssH = 0, dpr = 1, last = 0, accumulator = 0;
   const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
   function resize(){ const r=canvas.getBoundingClientRect(); cssW=r.width; cssH=r.height; dpr=Math.min(2,window.devicePixelRatio||1); canvas.width=Math.round(cssW*dpr); canvas.height=Math.round(cssH*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); draw(); }
