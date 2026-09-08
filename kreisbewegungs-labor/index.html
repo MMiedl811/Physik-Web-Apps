@@ -12,9 +12,9 @@
     body{margin:0;padding:8px;background:var(--paper);color:var(--ink);font-family:Inter,"Avenir Next",system-ui,sans-serif;overflow-x:hidden}
     .app{max-width:1320px;margin:auto}.top{display:flex;align-items:center;gap:10px;min-height:58px}.home,.btn{min-height:48px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);font:inherit;font-weight:800;padding:8px 14px;cursor:pointer}.home{display:grid;place-items:center;min-width:48px;text-decoration:none}.title{flex:1}.title h1{font:800 clamp(1.25rem,3vw,2rem) Georgia,serif;margin:0}.title p{margin:2px 0;color:var(--muted)}
     .layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:10px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:0 6px 18px #423a2e12}.stage{padding:10px}.stage-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:8px}.stage-head strong{font-family:Georgia,serif;font-size:1.05rem}.angle-readout{font-weight:850;color:var(--petrol);font-variant-numeric:tabular-nums}.canvas-wrap{height:calc(100vh - 150px);min-height:480px;position:relative}canvas{width:100%;height:100%;display:block;border-radius:13px;border:1px solid var(--line);background:#edf4f1}.labels{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.pill{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:5px 10px;border-radius:999px;background:#f6f2ea;font-size:.8rem;font-weight:750}.dot{width:13px;height:13px;border-radius:50%}.dot.p1{background:var(--blue)}.dot.p2{background:var(--coral)}.start-marker{border:2px dashed var(--gold);background:transparent}
-    .panel{padding:12px;display:flex;flex-direction:column;gap:10px}.question{padding:11px;border-left:4px solid var(--gold);background:#fff7e7;border-radius:0 12px 12px 0;line-height:1.42}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn.primary{background:var(--petrol);color:#fff}.btn.wide{grid-column:1/-1}.toggle{display:flex;align-items:center;gap:10px;min-height:58px;padding:9px 10px;border-radius:14px;background:#eef5f3;font-size:.88rem;font-weight:800;cursor:pointer}.toggle input{width:26px;height:26px;accent-color:var(--petrol);flex:0 0 auto}.observation{font-size:.86rem;line-height:1.48;color:var(--muted)}.observation strong{color:var(--ink)}.context{margin-top:auto;border-top:1px solid var(--line);padding-top:10px}.context img{display:block;width:100%;height:auto;border-radius:13px}.context p{margin:7px 2px 0;font-size:.78rem;line-height:1.4;color:var(--muted)}
-    @media(max-width:900px){body{padding:5px}.layout{grid-template-columns:1fr}.canvas-wrap{height:500px;min-height:0}.panel{display:grid;grid-template-columns:1fr 1fr}.question,.toggle,.observation{grid-column:1/-1}.context{margin:0;padding:0;border:0}.context img{max-height:180px;object-fit:cover}.buttons{align-content:start}}
-    @media(max-width:620px){.title p{display:none}.stage-head{align-items:flex-start;flex-direction:column;gap:3px}.canvas-wrap{height:430px}.panel{display:flex}.context img{max-height:none}.buttons{grid-template-columns:1fr 1fr}}
+    .panel{padding:12px;display:flex;flex-direction:column;gap:9px}.question{padding:11px;border-left:4px solid var(--gold);background:#fff7e7;border-radius:0 12px 12px 0;line-height:1.42}.buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}.btn.primary{background:var(--petrol);color:#fff}.btn.wide{grid-column:1/-1}.toggles{display:grid;gap:7px}.toggle{display:flex;align-items:center;gap:10px;min-height:52px;padding:7px 10px;border-radius:14px;background:#eef5f3;font-size:.84rem;font-weight:800;cursor:pointer}.toggle input{width:25px;height:25px;accent-color:var(--petrol);flex:0 0 auto}.observation{font-size:.84rem;line-height:1.42;color:var(--muted)}.observation strong{color:var(--ink)}.context{margin-top:auto;border-top:1px solid var(--line);padding-top:9px}.context img{display:block;width:100%;max-height:125px;object-fit:cover;object-position:center;border-radius:13px}.context p{margin:6px 2px 0;font-size:.76rem;line-height:1.35;color:var(--muted)}
+    @media(max-width:900px){body{padding:5px}.layout{grid-template-columns:1fr}.canvas-wrap{height:500px;min-height:0}.panel{display:grid;grid-template-columns:1fr 1fr}.question,.toggles,.observation{grid-column:1/-1}.toggles{grid-template-columns:1fr 1fr}.context{margin:0;padding:0;border:0}.context img{max-height:180px;object-fit:cover}.buttons{align-content:start}}
+    @media(max-width:620px){.title p{display:none}.stage-head{align-items:flex-start;flex-direction:column;gap:3px}.canvas-wrap{height:430px}.panel{display:flex}.toggles{grid-template-columns:1fr}.context img{max-height:none}.buttons{grid-template-columns:1fr 1fr}}
     @media(pointer:coarse){button,.home,.toggle{min-height:48px}}
   </style>
 </head>
@@ -41,9 +41,13 @@
           <button class="btn" id="step">+ 15°</button>
           <button class="btn wide" id="reset">Zurücksetzen</button>
         </div>
-        <label class="toggle"><input id="velocityVectors" type="checkbox"><span>Geschwindigkeitsvektoren anzeigen</span></label>
-        <label class="toggle"><input id="accelerationVectors" type="checkbox"><span>Beschleunigungsvektoren anzeigen</span></label>
-        <div class="observation"><strong>Achte auf die Verbindungslinie zum Mittelpunkt:</strong> P1 und P2 überstreichen in derselben Zeit dieselbe Winkeländerung Δφ. Die außen sitzende Person legt dabei den längeren Weg zurück.</div>
+        <div class="toggles" aria-label="Darstellungen einblenden">
+          <label class="toggle"><input id="paths" type="checkbox"><span>Zurückgelegte Wege anzeigen</span></label>
+          <label class="toggle"><input id="velocityVectors" type="checkbox"><span>Geschwindigkeitsvektoren anzeigen</span></label>
+          <label class="toggle"><input id="accelerationVectors" type="checkbox"><span>Beschleunigungsvektoren anzeigen</span></label>
+          <label class="toggle"><input id="tangent" type="checkbox"><span>Tangentialbahn anzeigen</span></label>
+        </div>
+        <div class="observation"><strong>Achte auf die Verbindungslinie zum Mittelpunkt:</strong> P1 und P2 überstreichen in derselben Zeit dieselbe Winkeländerung Δφ. Die außen sitzende Person legt dabei den längeren Weg zurück. Die violette Tangente zeigt, wohin P2 ohne Kreisführung weiterlaufen würde.</div>
         <figure class="context">
           <img src="carousel-top-view.svg" alt="Illustration eines Kinderkarussells aus der Draufsicht">
           <p><strong>Kontext:</strong> Das Modell zeigt ein Kinderkarussell in der Draufsicht. P1 sitzt innen, P2 weiter außen.</p>
@@ -56,13 +60,13 @@
     'use strict';
     const TAU=2*Math.PI,PERIOD=8;
     const canvas=document.querySelector('#orbit'),ctx=canvas.getContext('2d');
-    const play=document.querySelector('#play'),velocityVectors=document.querySelector('#velocityVectors'),accelerationVectors=document.querySelector('#accelerationVectors'),readout=document.querySelector('#angleReadout');
-    const state={elapsed:0,running:false,last:0,velocityVectors:false,accelerationVectors:false};
+    const play=document.querySelector('#play'),paths=document.querySelector('#paths'),velocityVectors=document.querySelector('#velocityVectors'),accelerationVectors=document.querySelector('#accelerationVectors'),tangent=document.querySelector('#tangent'),readout=document.querySelector('#angleReadout');
+    const state={elapsed:0,running:false,last:0,paths:false,velocityVectors:false,accelerationVectors:false,tangent:false};
 
     function progress(){return Math.min(1,state.elapsed/PERIOD)}
-    function snapshot(){return{elapsed:state.elapsed,progress:progress(),angle:TAU*progress(),degrees:360*progress(),running:state.running,velocityVectors:state.velocityVectors,accelerationVectors:state.accelerationVectors}}
-    function sync(){const done=progress()>=1;play.textContent=state.running?'Pause':done?'Noch einmal':'Start';readout.textContent=`Δφ = ${Math.round(360*progress())}°`;velocityVectors.checked=state.velocityVectors;accelerationVectors.checked=state.accelerationVectors}
-    function reset(){state.elapsed=0;state.running=false;state.last=0;state.velocityVectors=false;state.accelerationVectors=false;sync();draw();return snapshot()}
+    function snapshot(){return{elapsed:state.elapsed,progress:progress(),angle:TAU*progress(),degrees:360*progress(),running:state.running,paths:state.paths,velocityVectors:state.velocityVectors,accelerationVectors:state.accelerationVectors,tangent:state.tangent}}
+    function sync(){const done=progress()>=1;play.textContent=state.running?'Pause':done?'Noch einmal':'Start';readout.textContent=`Δφ = ${Math.round(360*progress())}°`;paths.checked=state.paths;velocityVectors.checked=state.velocityVectors;accelerationVectors.checked=state.accelerationVectors;tangent.checked=state.tangent}
+    function reset(){state.elapsed=0;state.running=false;state.last=0;state.paths=false;state.velocityVectors=false;state.accelerationVectors=false;state.tangent=false;sync();draw();return snapshot()}
     function advance(seconds){state.elapsed=Math.min(PERIOD,Math.max(0,state.elapsed+seconds));if(state.elapsed>=PERIOD)state.running=false;sync();draw();return snapshot()}
     function resize(){const box=canvas.getBoundingClientRect(),d=Math.min(window.devicePixelRatio||1,2),w=Math.max(1,Math.round(box.width*d)),h=Math.max(1,Math.round(box.height*d));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}ctx.setTransform(d,0,0,d,0,0);return{w:box.width,h:box.height}}
     function line(x1,y1,x2,y2,color,width=2,dash=[]){ctx.save();ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore()}
@@ -70,6 +74,8 @@
     function arrow(x,y,dx,dy,color,base,sub){const endX=x+dx,endY=y+dy,a=Math.atan2(dy,dx);ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(endX,endY);ctx.stroke();ctx.beginPath();ctx.moveTo(endX,endY);ctx.lineTo(endX-11*Math.cos(a-.45),endY-11*Math.sin(a-.45));ctx.lineTo(endX-11*Math.cos(a+.45),endY-11*Math.sin(a+.45));ctx.closePath();ctx.fill();ctx.restore();vectorLabel(endX+7,endY-7,base,sub,color)}
     function person(x,y,color,label,angle=null){ctx.save();ctx.shadowColor='#25343355';ctx.shadowBlur=6;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,13,0,TAU);ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#fffdf8';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='#253433';ctx.font='800 15px system-ui';ctx.textAlign='center';const lx=angle===null?x:x+Math.sin(angle)*26,ly=angle===null?y-19:y+Math.cos(angle)*26+5;ctx.fillText(label,lx,ly);ctx.restore()}
     function roundedLabel(text,x,y){ctx.save();ctx.font='800 14px system-ui';const width=ctx.measureText(text).width+18;ctx.fillStyle='#fffdf8ee';ctx.strokeStyle='#d69b43';ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(x-width/2,y-18,width,30,10);ctx.fill();ctx.stroke();ctx.fillStyle='#253433';ctx.textAlign='center';ctx.fillText(text,x,y+2);ctx.restore()}
+    function pathArc(cx,cy,r,theta,color,label,labelFraction){if(theta<.008)return;ctx.save();ctx.strokeStyle=color;ctx.globalAlpha=.82;ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.arc(cx,cy,r,0,-theta,true);ctx.stroke();ctx.globalAlpha=1;const a=theta>=TAU?TAU*labelFraction:theta*labelFraction,x=cx+r*Math.cos(a),y=cy-r*Math.sin(a);roundedLabel(label,x,y);ctx.restore()}
+    function tangentGuide(x,y,tx,ty,w,h){const length=Math.min(145,Math.max(90,Math.min(w,h)*.25)),endX=x+tx*length,endY=y+ty*length;line(x-tx*18,y-ty*18,endX,endY,'#7b5888',3,[8,6]);const lx=Math.max(76,Math.min(w-76,endX+tx*8)),ly=Math.max(30,Math.min(h-12,endY+ty*8));roundedLabel('Tangentialbahn',lx,ly)}
     function draw(){
       const {w,h}=resize(),cx=w/2,cy=h/2+8,R=Math.min(w*.36,h*.38),r1=R*.53,r2=R*.84,theta=TAU*progress(),drawTheta=theta===TAU?TAU:theta%TAU;
       ctx.clearRect(0,0,w,h);ctx.fillStyle='#edf4f1';ctx.fillRect(0,0,w,h);
@@ -78,7 +84,7 @@
       ctx.strokeStyle='#b69f7a';ctx.lineWidth=2;ctx.setLineDash([7,7]);ctx.beginPath();ctx.arc(cx,cy,r1,0,TAU);ctx.stroke();ctx.beginPath();ctx.arc(cx,cy,r2,0,TAU);ctx.stroke();ctx.setLineDash([]);
       ctx.fillStyle='#176b68';ctx.beginPath();ctx.arc(cx,cy,11,0,TAU);ctx.fill();ctx.font='700 13px system-ui';ctx.textAlign='center';ctx.fillStyle='#253433';ctx.fillText('M',cx,cy+29);
 
-      const sx=cx+R,sy=cy;line(cx,cy,sx,sy,'#d69b43',3,[8,6]);roundedLabel('Startlinie',Math.min(w-62,sx+58),sy-28);
+      const sx=cx+R,sy=cy;line(cx,cy,sx,sy,'#d69b43',3,[8,6]);roundedLabel('Startlinie',Math.min(w-62,sx+58),state.paths&&w<500?sy+48:sy-28);
       const startPoints=[r1,r2];for(const radius of startPoints){ctx.save();ctx.strokeStyle='#d69b43';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(cx+radius,cy,17,0,TAU);ctx.stroke();ctx.restore()}
 
       if(theta>0.008){ctx.save();ctx.fillStyle='#d69b4330';ctx.strokeStyle='#d69b43';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(cx,cy);ctx.arc(cx,cy,R*.31,0,-drawTheta,true);ctx.closePath();ctx.fill();ctx.beginPath();ctx.arc(cx,cy,R*.31,0,-drawTheta,true);ctx.stroke();ctx.restore()}
@@ -87,10 +93,15 @@
       roundedLabel(`Δφ = ${Math.round(360*progress())}°`,angleLabel.x,angleLabel.y);
 
       const x1=cx+r1*Math.cos(drawTheta),y1=cy-r1*Math.sin(drawTheta),x2=cx+r2*Math.cos(drawTheta),y2=cy-r2*Math.sin(drawTheta);
+      if(state.paths){
+        pathArc(cx,cy,r1,theta,'#4387a0','b₁',.72);pathArc(cx,cy,r2,theta,'#bd5d4d','b₂',.3);
+        ctx.save();ctx.globalAlpha=.3;person(cx+r1,cy,'#4387a0','');person(cx+r2,cy,'#bd5d4d','');ctx.restore();
+      }
       line(cx,cy,x2,y2,'#25343388',2);
       const showAnyVectors=state.velocityVectors||state.accelerationVectors;
-      person(x1,y1,'#4387a0','P1',showAnyVectors?drawTheta:null);person(x2,y2,'#bd5d4d','P2',showAnyVectors?drawTheta:null);
       const tx=-Math.sin(drawTheta),ty=-Math.cos(drawTheta),ix=-Math.cos(drawTheta),iy=Math.sin(drawTheta);
+      if(state.tangent)tangentGuide(x2,y2,tx,ty,w,h);
+      person(x1,y1,'#4387a0','P1',showAnyVectors?drawTheta:null);person(x2,y2,'#bd5d4d','P2',showAnyVectors?drawTheta:null);
       if(state.velocityVectors){
         arrow(x1,y1,tx*50,ty*50,'#176b68','v','1');arrow(x2,y2,tx*82,ty*82,'#176b68','v','2');
       }
@@ -105,9 +116,11 @@
     document.querySelector('#reset').addEventListener('click',reset);
     velocityVectors.addEventListener('change',()=>{state.velocityVectors=velocityVectors.checked;draw()});
     accelerationVectors.addEventListener('change',()=>{state.accelerationVectors=accelerationVectors.checked;draw()});
+    paths.addEventListener('change',()=>{state.paths=paths.checked;draw()});
+    tangent.addEventListener('change',()=>{state.tangent=tangent.checked;draw()});
     window.addEventListener('resize',draw);
     document.body.addEventListener('student-intro:open',()=>{state.running=false;sync()});
-    window.__kreisLab={snapshot,advance,reset,setVelocityVectors(value){state.velocityVectors=Boolean(value);sync();draw();return snapshot()},setAccelerationVectors(value){state.accelerationVectors=Boolean(value);sync();draw();return snapshot()},setVectors(value){state.velocityVectors=Boolean(value);state.accelerationVectors=Boolean(value);sync();draw();return snapshot()}};
+    window.__kreisLab={snapshot,advance,reset,setPaths(value){state.paths=Boolean(value);sync();draw();return snapshot()},setVelocityVectors(value){state.velocityVectors=Boolean(value);sync();draw();return snapshot()},setAccelerationVectors(value){state.accelerationVectors=Boolean(value);sync();draw();return snapshot()},setTangent(value){state.tangent=Boolean(value);sync();draw();return snapshot()},setVectors(value){state.velocityVectors=Boolean(value);state.accelerationVectors=Boolean(value);sync();draw();return snapshot()}};
     sync();draw();requestAnimationFrame(frame);
   })();
   </script>
