@@ -442,6 +442,10 @@
         function emissionElapsedSec() {
           return Math.max(0, state.absoluteTimeSec - state.emissionStartSec);
         }
+        function incomingFrontX(barrierX) {
+          // At each emission a crest reaches the slit, also after a fresh lesson start.
+          return (barrierX + STANDARD_SPEED_PX_S * emissionElapsedSec()) % lamPx;
+        }
         function emittedFronts(w, h) {
           const g = geometry(w, h),
             speed = STANDARD_SPEED_PX_S,
@@ -470,7 +474,7 @@
         function draw() {
           const { w, h } = size();
           const { barrierX, fieldTop, fieldBottom, fieldHeight, cy, gap } = geometry(w, h),
-            incomingPhase = (STANDARD_SPEED_PX_S * state.absoluteTimeSec) % lamPx;
+            incomingPhase = incomingFrontX(barrierX);
           ctx.fillStyle = "#0d1723";
           ctx.fillRect(0, 0, w, fieldBottom);
 
@@ -670,7 +674,7 @@
               : "a < λ: kein echtes Minimum, nur breites Zentralmaximum";
           if (state.step === 4) $("#stepText").textContent = stepTextForState();
         }
-        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Am Spalt startet jetzt eine Elementarwelle mit Radius 0 und wächst kausal nach rechts.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Eigene Hilfslinien','Zeichne deine vermuteten Fernfeldrichtungen selbst ein. Bereits gesetzte Linien kannst du mit dem Finger greifen und um das Spaltzentrum drehen.']];
+        const stepTexts=[['1 · Einfallende Front','Ebene Wellenfronten laufen von links nach rechts auf die Blende zu.'],['2 · Quellen im Spalt','Wenige Punkte der Wellenfront im Spalt werden zu Quellen neuer Elementarwellen.'],['3 · Elementarwellen','Bei jeder ankommenden Front starten Elementarwellen mit Radius 0. Ältere Wellen wachsen weiter; ein Wechsel zwischen Schritt 3–5 setzt sie nicht zurück.'],['4 · Einhüllenden und Profil','Die cyanfarbene Einhüllende wächst mit den goldenen Elementarwellen bis zum Schirm. Das quantitative Fernfeld wird separat durch das sinc²-Profil beschrieben.'],['5 · Eigene Hilfslinien','Zeichne deine vermuteten Fernfeldrichtungen selbst ein. Bereits gesetzte Linien kannst du mit dem Finger greifen und um das Spaltzentrum drehen.']];
         function stepTextForState() {
           return stepTexts[state.step][1];
         }
@@ -679,7 +683,8 @@
         }
         function setStep(n){
           const nextStep=Math.max(0,Math.min(4,Math.round(Number(n)||0))), previousStep=state.step;
-          if ((nextStep===2 && previousStep!==2) || (nextStep>2 && previousStep<2)) restartEmission();
+          // Steps 3–5 only change visible layers, not the ages of existing waves.
+          if (nextStep>=2 && previousStep<2) restartEmission();
           state.step=nextStep;
           document.querySelectorAll('[data-step]').forEach(b=>b.setAttribute('aria-current',+b.dataset.step===state.step?'step':'false'));
           $('#stepTitle').textContent=stepTexts[state.step][0];
@@ -747,8 +752,9 @@
             wavelengthPx: lamPx,
             barrierX: g.barrierX,
             screenDistancePx,
-            incomingFrontX: (STANDARD_SPEED_PX_S * state.absoluteTimeSec) % lamPx,
-            envelopeCount: fronts.length,
+            incomingFrontX: incomingFrontX(g.barrierX),
+            elementaryGenerationCount: state.step >= 2 ? fronts.length : 0,
+            envelopeCount: state.step >= 3 ? fronts.length : 0,
             emissions: Object.freeze(fronts.map((front) => Object.freeze({...front}))),
             radiiPx: Object.freeze(fronts.map((front) => front.radiusPx)),
             rightEdgeGapPx: fronts.length ? Math.min(...fronts.map((front) => Math.abs(front.distanceToScreenPx))) : screenDistancePx,
@@ -853,7 +859,7 @@
         $('#guideUndo').onclick=()=>{state.guides.pop();state.activeGuideIndex=-1;draw();};
         $('#guideClear').onclick=()=>{state.guides=[];state.previewGuide=null;state.activeGuideIndex=-1;draw();};
         window.__singleSlitTest = Object.freeze({
-          version: 6,
+          version: 7,
           sinc,
           intensity,
           setGuideMode,
