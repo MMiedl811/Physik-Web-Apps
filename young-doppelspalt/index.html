@@ -12,7 +12,7 @@
     [hidden]{display:none!important}@media(max-width:980px){.layout{grid-template-columns:1fr}#screen{height:56vh;min-height:470px}.panel{display:grid;grid-template-columns:1fr 1fr}.question,.law,.note,.readout,.tools{grid-column:1/-1}}@media(max-width:620px){body{padding:5px}.top{align-items:flex-start}.title p{font-size:.8rem}.stage-head{align-items:flex-start;flex-direction:column}.tabs{width:100%}.tab{flex:1;padding:6px}.panel{display:flex}.sequence{grid-template-columns:1fr}#screen{height:54vh;min-height:430px}}
   </style>
 </head>
-<body data-physik-app="young-doppelspalt" data-student-home="../index.html" data-student-title="Youngscher Doppelspalt" data-student-summary="Du beobachtest, wie sich die Elementarwellen beider Spalte überlagern und das Interferenzmuster bilden – und vergleichst es mit einzelnen Photonen." data-student-controls="Starte im Wellenmodell und verfolge die vier Schritte. Verändere dann den Spaltabstand. Wechsle anschließend zu den Photonen.">
+<body data-physik-app="young-doppelspalt" data-student-home="../index.html" data-student-title="Youngscher Doppelspalt" data-student-summary="Du beobachtest, wie sich die Elementarwellen beider Spalte überlagern und das Interferenzmuster bilden – und vergleichst es mit einzelnen Photonen." data-student-controls="Starte im Wellenmodell und verfolge die sechs Schritte. Verändere dann den Spaltabstand. Wechsle anschließend zu den Photonen.">
   <div class="app">
     <header class="top"><a class="home" href="../index.html" aria-label="Zur Übersicht">⌂</a><div class="title"><h1>Youngscher Doppelspalt</h1><p>Von der ebenen Wellenfront zum Interferenzmuster</p></div></header>
     <main class="layout">
@@ -22,8 +22,8 @@
       </section>
       <aside class="card panel">
         <div class="question"><strong>Leitfrage:</strong><br>Wo treffen Wellenberg auf Wellenberg – und wo Wellenberg auf Wellental?</div>
-        <div class="sequence" id="sequence" aria-label="Vier Schritte des Wellenmodells">
-          <button data-stage="0" aria-current="step"><b>1</b>Front</button><button data-stage="1"><b>2</b>Spalte als Quellen</button><button data-stage="2"><b>3</b>Elementarwellen</button><button data-stage="3"><b>4</b>Interferenz &amp; Schirm</button>
+        <div class="sequence" id="sequence" aria-label="Sechs Schritte des Wellenmodells">
+          <button data-stage="0" aria-current="step"><b>1</b>Front</button><button data-stage="1"><b>2</b>Spalte als Quellen</button><button data-stage="2"><b>3</b>Elementarwellen</button><button data-stage="3"><b>4</b>Interferenz &amp; Schirm</button><button data-stage="4"><b>5</b>Eigene Hilfslinien</button><button data-stage="5"><b>6</b>Musterbeispiel zur Kontrolle</button>
         </div>
         <div class="buttons"><button class="btn primary" id="play">Ablauf starten</button><button class="btn" id="slow" aria-pressed="false">Zeitlupe: AUS · 1×</button><button class="btn" id="emit">100 Photonen</button><button class="btn" id="single">1 Photon</button><button class="btn" id="reset">Zurücksetzen</button></div>
         <div class="row"><div class="read"><label for="distance">Spaltabstand d</label><span id="distanceR"></span></div><input id="distance" type="range" min="2" max="10" step="0.1" value="4"></div>
@@ -35,6 +35,7 @@
           <div class="buttons"><button class="btn" id="drawOff">Zeichnen aus</button><button class="btn" id="clearDrawings">Zeichnungen löschen</button></div>
           <div class="draw-status" id="drawStatus" aria-live="polite">Zeichenmodus aus · Wellenfeld bleibt scrollbar.</div>
         </section>
+        <section class="question" id="modelNote" hidden aria-live="polite"><strong>MUSTER · separate Kontrollansicht</strong><br>Alle im Zeichenfeld sichtbaren Ortslinien für deine aktuellen Werte: Grün durchgezogen verbindet Orte mit |Δs| = mλ (Verstärkung), Rosa gestrichelt Orte mit |Δs| = (m + ½)λ (Auslöschung), m = 0, 1, 2, …<br>Vergleiche zuerst die gerade Mittellinie (Δs = 0), dann die symmetrischen Kurvenpaare. Δs ist der Wegunterschied zu den beiden Spaltmitten, keine Lichtbahn.<br>Die Kurven sind exakt für zwei gleichphasige Punktquellen; das Schirmprofil daneben ist die Fernfeldnäherung und muss im Nahfeld nicht genau an den Kurven enden. Die Spaltbreite verändert die Hülle, nicht diese Ortslinien.<br><button class="btn" id="backToOwn">Zurück zu meinen Hilfslinien</button><br>Deine Zeichnung bleibt unverändert gespeichert.</section>
         <label class="switch" id="whichSwitch" hidden><input id="which" type="checkbox">Welcher-Weg-Information vorhanden</label>
         <div class="readout" id="readout"></div>
         <div class="law"><strong>Fernfeld:</strong> <span class="katex-formula">I(θ) = I₀ · sinc²(πa sinθ/λ) · cos²(πd sinθ/λ)</span>. Mit Welcher-Weg-Information bleibt nur die Einzelspalthülle.</div>
@@ -45,7 +46,7 @@
   <script>
   (()=>{'use strict';
     const $=s=>document.querySelector(s),cv=$('#screen'),ctx=cv.getContext('2d'),TAU=2*Math.PI;
-    const stageNames=['Einfallende Wellenfront','Beide Spalte werden zu Quellen','Überlagerte Elementarwellen','Interferenz-Ortslinien und Schirmmuster'];
+    const stageNames=['Einfallende Wellenfront','Beide Spalte werden zu Quellen','Überlagerte Elementarwellen','Interferenz-Ortslinien und Schirmmuster','Eigene Hilfslinien zeichnen','Musterbeispiel zur Kontrolle'];
     const DEFAULTS=Object.freeze({d:4,a:.5,slow:false,autoConstructive:false,autoDestructive:false,drawMode:'none'});
     const state={mode:'wave',d:DEFAULTS.d,a:DEFAULTS.a,which:false,hits:[],t:0,waveT:0,emissionTime:0,emissionFrozen:false,running:false,stage:0,last:performance.now(),slow:false,autoConstructive:false,autoDestructive:false,drawMode:'none',drawings:[],activeStroke:null};
     const lamPx=30,normalSpeed=12,slowFactor=.25,stageSeconds=3.2;
@@ -86,20 +87,58 @@
     function solveLocusY(x,delta,g,h){if(Math.abs(delta)<1e-9)return 0;const half=g.sep/2,limit=Math.max(1,h/2-18),f=y=>Math.hypot(x,y+half)-Math.hypot(x,y-half);if(f(limit)<delta)return null;let lo=0,hi=limit;for(let i=0;i<28;i++){const mid=(lo+hi)/2;if(f(mid)<delta)lo=mid;else hi=mid}return(lo+hi)/2}
     function drawLocus(g,h,target,color,dash,width=2){for(const sign of target===0?[1]:[-1,1]){ctx.beginPath();let begun=false;for(let x=8;x<=g.screenX-g.barrierX;x+=4){const y=solveLocusY(x,Math.abs(target),g,h);if(y===null)continue;const px=g.barrierX+x,py=g.cy+sign*y;if(!begun){ctx.moveTo(px,py);begun=true}else ctx.lineTo(px,py)}if(begun){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.setLineDash(dash);ctx.stroke()}}ctx.setLineDash([])}
     function drawLoci(g,h){if(state.autoConstructive){drawLocus(g,h,0,'rgba(115,224,168,.92)',[],2.8);drawLocus(g,h,lamPx,'rgba(115,224,168,.72)',[],2.2);label('konstruktive Ortslinien: Δs = mλ',g.barrierX+18,h-38,'#73e0a8','700 12px system-ui')}if(state.autoDestructive){drawLocus(g,h,.5*lamPx,'rgba(255,113,134,.85)',[7,5],2.2);label('destruktive Ortslinien: Δs = (m+½)λ',g.barrierX+18,h-20,'#ff91a2','700 12px system-ui')}}
+    function isModel(){return state.mode==='wave'&&state.stage===5}
+    // Exact two-focus hyperbolae: |r1-r2| = qλ. q >= d has no locus at x > 0.
+    // Keep the solution independent of the learner's strokes and auto-line toggles.
+    function modelLoci(g,h){
+      const lines=[],b=drawingBounds(g,h),c=g.sep/2;
+      for(let n=0;n/2<state.d-1e-9;n++){
+        const q=n/2,a=q*lamPx/2,den=c*c-a*a;
+        for(const sign of n===0?[1]:[-1,1]){
+          const points=[];
+          for(let x=b.xMin;x<=b.xMax+2;x+=2){
+            const px=Math.min(x,b.xMax),dx=px-g.barrierX;
+            const y=g.cy+sign*(n===0?0:a*Math.sqrt(1+dx*dx/den));
+            if(y>=b.yMin&&y<=b.yMax)points.push({x:px,y});
+            if(px===b.xMax)break;
+          }
+          if(points.length>1)lines.push({q,sign,type:n%2?'destructive':'constructive',points});
+        }
+      }
+      return lines;
+    }
+    function drawModel(g,h){
+      for(const line of modelLoci(g,h)){
+        ctx.beginPath();line.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));
+        ctx.strokeStyle=line.type==='constructive'?'#73e0a8':'#ff91a2';
+        ctx.lineWidth=line.q===0?3:2.2;ctx.setLineDash(line.type==='constructive'?[]:[7,5]);ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      // Compact label inside the field, readable even on a phone.
+      const x=g.barrierX+12;ctx.fillStyle='#0d1723ed';ctx.fillRect(x-4,17,Math.max(80,g.screenX-x-5),64);
+      label('MUSTER · aktuelle Werte',x,33,'#ffe091','700 12px system-ui');
+      label('|Δs| = mλ',x,52,'#73e0a8','700 12px system-ui');
+      label('|Δs| = (m + ½)λ',x,70,'#ff91a2','700 12px system-ui');
+    }
+    function syncConstructionUI(){
+      const model=isModel();$('#modelNote').hidden=!model;$('#tools').hidden=state.mode!=='wave'||model;
+      cv.classList.toggle('drawing',state.mode==='wave'&&state.stage>=3&&!model&&state.drawMode!=='none');
+    }
     function drawOwnLines(g,h){const b=drawingBounds(g,h);ctx.save();ctx.beginPath();ctx.rect(b.xMin,b.yMin,b.xMax-b.xMin,b.yMax-b.yMin);ctx.clip();for(const stroke of state.drawings.concat(state.activeStroke?[state.activeStroke]:[])){if(!stroke||stroke.points.length<2)continue;ctx.beginPath();stroke.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.strokeStyle=stroke.type==='constructive'?'rgba(115,224,168,.96)':'rgba(255,145,162,.96)';ctx.lineWidth=3;ctx.lineCap='round';ctx.lineJoin='round';ctx.setLineDash(stroke.type==='constructive'?[]:[8,6]);ctx.stroke()}ctx.setLineDash([]);ctx.restore()}
     function drawProfile(g,w,h){const graphX=g.screenX+12,graphW=Math.max(18,w-graphX-10),L=g.screenX-g.barrierX,n=Math.floor(h-28);ctx.fillStyle='#16222f';ctx.fillRect(g.screenX-5,14,10,h-28);ctx.strokeStyle='#dce5e5';ctx.lineWidth=1;ctx.strokeRect(g.screenX-5,14,10,h-28);ctx.fillStyle='rgba(243,184,91,.62)';for(let py=0;py<n;py++){const y=14+py,theta=Math.atan2(y-g.cy,L),I=intensity(theta);ctx.fillRect(g.screenX+5,y,Math.max(1,I*7),1)}ctx.strokeStyle='#f3b85b';ctx.lineWidth=2.5;ctx.beginPath();for(let py=0;py<n;py++){const y=14+py,theta=Math.atan2(y-g.cy,L),I=intensity(theta),x=graphX+I*graphW;py?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke();ctx.strokeStyle='#66758a';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(graphX,14);ctx.lineTo(graphX,h-14);ctx.stroke();label('Schirm',g.screenX-24,13,'#eef4f5','700 12px system-ui');label(whichWayActive()?'sinc²-Hülle':'sinc² · cos²',graphX+2,28,'#f3b85b','700 12px system-ui')}
     function drawPhotons(g){const count=state.hits.length,r=count<=100?4.2:2.1,halo=count<=100?5.4:2.9;for(const y of state.hits){ctx.fillStyle='rgba(4,9,18,.9)';ctx.beginPath();ctx.arc(g.screenX,y,halo,0,TAU);ctx.fill();ctx.fillStyle='#bfe9ff';ctx.beginPath();ctx.arc(g.screenX,y,r,0,TAU);ctx.fill();ctx.strokeStyle='rgba(255,255,255,.8)';ctx.lineWidth=1;ctx.stroke()}}
-    function draw(){const{w,h}=size(),g=geometry(w,h),displayStage=state.mode==='photon'?3:state.stage;ctx.fillStyle='#0d1723';ctx.fillRect(0,0,w,h);drawIncoming(g,h);drawBarrier(g,h);if(state.mode==='wave'&&displayStage>=1)drawSources(g);if(state.mode==='wave'&&displayStage===2)drawScreenMarker(g,h);if(state.mode==='wave'&&displayStage>=2)drawWavelets(g,w,h);if(displayStage>=3){if(state.mode==='wave'){drawLoci(g,h);drawOwnLines(g,h)}drawProfile(g,w,h)}if(state.mode==='photon')drawPhotons(g)}
-    function setStage(stage,redraw=true){const previous=state.stage;state.stage=Math.max(0,Math.min(3,stage));if(previous<2&&state.stage>=2)state.emissionTime=0;if(state.stage<2)state.emissionTime=0;document.querySelectorAll('[data-stage]').forEach(b=>b.setAttribute('aria-current',+b.dataset.stage===state.stage?'step':'false'));if(state.mode==='wave')$('#stageTitle').textContent='Schritt '+(state.stage+1)+': '+stageNames[state.stage];if(redraw)draw()}
-    function setDrawMode(mode){state.drawMode=['constructive','destructive'].includes(mode)?mode:'none';document.querySelectorAll('[data-draw]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.draw===state.drawMode));cv.classList.toggle('drawing',state.drawMode!=='none');$('#drawStatus').textContent=state.drawMode==='none'?'Zeichenmodus aus · Wellenfeld bleibt scrollbar.':(state.drawMode==='constructive'?'Zeichnen: konstruktive Ortslinie (grün, durchgezogen)':'Zeichnen: destruktive Ortslinie (rot, gestrichelt)');}
+    function draw(){const{w,h}=size(),g=geometry(w,h),displayStage=state.mode==='photon'?3:state.stage;ctx.fillStyle='#0d1723';ctx.fillRect(0,0,w,h);drawIncoming(g,h);drawBarrier(g,h);if(state.mode==='wave'&&displayStage>=1)drawSources(g);if(state.mode==='wave'&&displayStage===2)drawScreenMarker(g,h);if(state.mode==='wave'&&displayStage>=2){ctx.save();if(isModel())ctx.globalAlpha=.2;drawWavelets(g,w,h);ctx.restore()}if(displayStage>=3){if(state.mode==='wave'){if(isModel())drawModel(g,h);else{drawLoci(g,h);drawOwnLines(g,h)}}drawProfile(g,w,h)}if(state.mode==='photon')drawPhotons(g)}
+    function setStage(stage,redraw=true){if(state.activeStroke){if(state.activeStroke.points.length>1)state.drawings.push(state.activeStroke);state.activeStroke=null}const previous=state.stage;state.stage=Math.max(0,Math.min(5,stage));if(previous<2&&state.stage>=2)state.emissionTime=0;if(state.stage<2)state.emissionTime=0;document.querySelectorAll('[data-stage]').forEach(b=>b.setAttribute('aria-current',+b.dataset.stage===state.stage?'step':'false'));if(state.mode==='wave')$('#stageTitle').textContent='Schritt '+(state.stage+1)+': '+stageNames[state.stage];syncConstructionUI();if(redraw)draw()}
+    function setDrawMode(mode){state.drawMode=['constructive','destructive'].includes(mode)?mode:'none';document.querySelectorAll('[data-draw]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.draw===state.drawMode));syncConstructionUI();$('#drawStatus').textContent=state.drawMode==='none'?'Zeichenmodus aus · Wellenfeld bleibt scrollbar.':(state.drawMode==='constructive'?'Zeichnen: konstruktive Ortslinie (grün, durchgezogen)':'Zeichnen: destruktive Ortslinie (rot, gestrichelt)');}
     function clearInterferenceState(){state.autoConstructive=false;state.autoDestructive=false;$('#autoConstructive').checked=false;$('#autoDestructive').checked=false;state.drawings=[];state.activeStroke=null;setDrawMode('none')}
     function updateText(){state.d=+$('#distance').value;state.a=+$('#width').value;state.which=$('#which').checked;state.autoConstructive=$('#autoConstructive').checked;state.autoDestructive=$('#autoDestructive').checked;$('#distanceR').textContent='d = '+state.d.toFixed(1)+' λ';$('#widthR').textContent='a = '+state.a.toFixed(1)+' λ';$('#readout').textContent=state.mode==='photon'?state.hits.length+' Treffer · '+(state.which?'Welcher-Weg: sinc²-Einzelspalthülle, keine Interferenz':'Treffer folgen demselben sinc²·cos²-Profil wie das Wellenmodell'):'Langsame Dauerwelle '+(state.slow?'· Zeitlupe ¼×':'· 1×')+' · eigene Ortslinien: '+state.drawings.length;draw()}
-    function setMode(mode){state.mode=mode;$('#waveTab').setAttribute('aria-selected',mode==='wave');$('#photonTab').setAttribute('aria-selected',mode==='photon');$('#whichSwitch').hidden=mode!=='photon';$('#sequence').hidden=mode!=='wave';$('#tools').hidden=mode!=='wave';$('#play').disabled=mode!=='wave';if(mode==='photon'){state.running=false;$('#play').textContent='Ablauf starten';setDrawMode('none');$('#stageTitle').textContent='Photonenmodell: Einzelereignisse bilden das Schirmprofil'}else setStage(state.stage,false);updateText()}
+    function setMode(mode){state.mode=mode;$('#waveTab').setAttribute('aria-selected',mode==='wave');$('#photonTab').setAttribute('aria-selected',mode==='photon');$('#whichSwitch').hidden=mode!=='photon';$('#sequence').hidden=mode!=='wave';$('#tools').hidden=mode!=='wave';$('#play').disabled=mode!=='wave';if(mode==='photon'){state.running=false;$('#play').textContent='Ablauf starten';setDrawMode('none');$('#stageTitle').textContent='Photonenmodell: Einzelereignisse bilden das Schirmprofil'}else setStage(state.stage,false);syncConstructionUI();updateText()}
     function reset(){state.hits=[];state.t=0;state.waveT=0;state.emissionTime=0;state.emissionFrozen=false;state.running=false;state.stage=0;state.slow=DEFAULTS.slow;$('#distance').value=DEFAULTS.d;$('#width').value=DEFAULTS.a;$('#which').checked=false;$('#slow').setAttribute('aria-pressed','false');$('#slow').textContent='Zeitlupe: AUS · 1×';clearInterferenceState();$('#play').textContent='Ablauf starten';setStage(0,false);updateText()}
     function pointerPoint(e){const r=cv.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-    function startStroke(e){if(state.mode!=='wave'||state.stage<3||state.drawMode==='none')return;const{w,h}=size(),b=drawingBounds(geometry(w,h),h),raw=pointerPoint(e);if(raw.x<b.xMin||raw.x>b.xMax||raw.y<b.yMin||raw.y>b.yMax)return;e.preventDefault();state.activeStroke={type:state.drawMode,points:[clampPoint(raw,b)],pointerType:e.pointerType||'mouse'};try{cv.setPointerCapture?.(e.pointerId)}catch(_){}draw()}
-    function moveStroke(e){if(!state.activeStroke)return;e.preventDefault();const{w,h}=size(),b=drawingBounds(geometry(w,h),h),p=clampPoint(pointerPoint(e),b),pts=state.activeStroke.points,last=pts[pts.length-1];if(Math.hypot(p.x-last.x,p.y-last.y)>=2)pts.push(p);draw()}
+    function startStroke(e){if(state.mode!=='wave'||state.stage<3||isModel()||state.drawMode==='none')return;const{w,h}=size(),b=drawingBounds(geometry(w,h),h),raw=pointerPoint(e);if(raw.x<b.xMin||raw.x>b.xMax||raw.y<b.yMin||raw.y>b.yMax)return;e.preventDefault();state.activeStroke={type:state.drawMode,points:[clampPoint(raw,b)],pointerType:e.pointerType||'mouse'};try{cv.setPointerCapture?.(e.pointerId)}catch(_){}draw()}
+    function moveStroke(e){if(isModel()||!state.activeStroke)return;e.preventDefault();const{w,h}=size(),b=drawingBounds(geometry(w,h),h),p=clampPoint(pointerPoint(e),b),pts=state.activeStroke.points,last=pts[pts.length-1];if(Math.hypot(p.x-last.x,p.y-last.y)>=2)pts.push(p);draw()}
     function endStroke(e){if(!state.activeStroke)return;e.preventDefault();if(state.activeStroke.points.length>1)state.drawings.push(state.activeStroke);state.activeStroke=null;try{cv.releasePointerCapture?.(e.pointerId)}catch(_){}updateText()}
+    $('#backToOwn').onclick=()=>{state.running=false;$('#play').textContent='Weiter';setStage(4)};
     $('#waveTab').onclick=()=>setMode('wave');$('#photonTab').onclick=()=>setMode('photon');
     $('#play').onclick=()=>{state.running=!state.running;$('#play').textContent=state.running?'Pause':'Weiter';draw()};
     $('#slow').onclick=()=>{state.slow=!state.slow;$('#slow').setAttribute('aria-pressed',String(state.slow));$('#slow').textContent=state.slow?'Zeitlupe: AN · ¼×':'Zeitlupe: AUS · 1×';updateText()};
@@ -110,18 +149,19 @@
     document.querySelectorAll('[data-draw]').forEach(b=>b.onclick=()=>setDrawMode(b.dataset.draw));$('#drawOff').onclick=()=>setDrawMode('none');$('#clearDrawings').onclick=()=>{state.drawings=[];state.activeStroke=null;updateText()};
     $('#which').oninput=()=>{state.hits=[];if($('#which').checked)clearInterferenceState();updateText()};
     cv.addEventListener('pointerdown',startStroke);cv.addEventListener('pointermove',moveStroke);cv.addEventListener('pointerup',endStroke);cv.addEventListener('pointercancel',endStroke);
-    function snapshot(){const{w,h}=size(),g=geometry(w,h),b=drawingBounds(g,h),emissions=outgoingEmissions(g,h),radii=emissions.map(e=>e.radius);return{running:state.running,waveT:state.waveT,t:state.t,mode:state.mode,d:state.d,a:state.a,which:state.which,stage:state.stage,hits:state.hits.length,slow:state.slow,speedFactor:state.slow?slowFactor:1,autoConstructive:state.autoConstructive,autoDestructive:state.autoDestructive,drawMode:state.drawMode,drawings:state.drawings.map(s=>({type:s.type,pointerType:s.pointerType,points:s.points.map(p=>({...p}))})),drawingBounds:{...b},incoming:{direction:'left-to-right',positions:incomingPositions(g)},outgoing:{absoluteEmissionTime:state.emissionTime,emissionPeriod:emissionPeriod(),emissions:emissions.map(e=>({...e})),ages:emissions.map(e=>e.age),radii,cyanFrontCount:radii.length,goldWaveletsPerSlit:radii.length,screenDistance:g.screenX-g.barrierX,firstScreenContact:emissions.some(e=>e.screenContact),reachesScreen:emissions.some(e=>e.screenContact)},geometry:{...g,w,h}}}
+    function snapshot(){const{w,h}=size(),g=geometry(w,h),b=drawingBounds(g,h),emissions=outgoingEmissions(g,h),radii=emissions.map(e=>e.radius);return{modelVisible:isModel(),modelLines:isModel()?modelLoci(g,h):[],running:state.running,waveT:state.waveT,t:state.t,mode:state.mode,d:state.d,a:state.a,which:state.which,stage:state.stage,hits:state.hits.length,slow:state.slow,speedFactor:state.slow?slowFactor:1,autoConstructive:state.autoConstructive,autoDestructive:state.autoDestructive,drawMode:state.drawMode,drawings:state.drawings.map(s=>({type:s.type,pointerType:s.pointerType,points:s.points.map(p=>({...p}))})),drawingBounds:{...b},incoming:{direction:'left-to-right',positions:incomingPositions(g)},outgoing:{absoluteEmissionTime:state.emissionTime,emissionPeriod:emissionPeriod(),emissions:emissions.map(e=>({...e})),ages:emissions.map(e=>e.age),radii,cyanFrontCount:radii.length,goldWaveletsPerSlit:radii.length,screenDistance:g.screenX-g.barrierX,firstScreenContact:emissions.some(e=>e.screenContact),reachesScreen:emissions.some(e=>e.screenContact)},geometry:{...g,w,h}}}
     function advanceEmissionTime(seconds){const amount=Math.max(0,+seconds||0);state.emissionTime+=amount;draw();return snapshot()}
     function setEmissionTime(seconds){state.emissionFrozen=true;state.emissionTime=Math.max(0,+seconds||0);draw();return snapshot()}
-    window.__youngTest=Object.freeze({advance:seconds=>{advanceSimulation(seconds);draw();return snapshot()},sinc,envelope,intensity,solveLocusY,meanDistance,frontPoint,drawingBounds,clampPoint,emissionPeriod,outgoingEmissions,setMode,setStage,setDrawMode,clearInterferenceState,reset,state,snapshot,advanceEmissionTime,setEmissionTime,resumeEmission:()=>{state.emissionFrozen=false;return snapshot()},advanceWaveTime:seconds=>{const amount=Math.max(0,+seconds||0);const elapsed=amount*(state.slow?slowFactor:1);state.waveT+=elapsed;if(state.stage>=2)state.emissionTime+=elapsed;draw();return snapshot()},addTestStroke:(type,points,pointerType='test')=>{const{w,h}=size(),b=drawingBounds(geometry(w,h),h);state.drawings.push({type:type==='destructive'?'destructive':'constructive',pointerType,points:points.map(p=>clampPoint(p,b))});updateText();return snapshot()}});
+    window.__youngTest=Object.freeze({advance:seconds=>{advanceSimulation(seconds);draw();return snapshot()},sinc,envelope,intensity,modelLoci,solveLocusY,meanDistance,frontPoint,drawingBounds,clampPoint,emissionPeriod,outgoingEmissions,setMode,setStage,setDrawMode,clearInterferenceState,reset,state,snapshot,advanceEmissionTime,setEmissionTime,resumeEmission:()=>{state.emissionFrozen=false;return snapshot()},advanceWaveTime:seconds=>{const amount=Math.max(0,+seconds||0);const elapsed=amount*(state.slow?slowFactor:1);state.waveT+=elapsed;if(state.stage>=2)state.emissionTime+=elapsed;draw();return snapshot()},addTestStroke:(type,points,pointerType='test')=>{const{w,h}=size(),b=drawingBounds(geometry(w,h),h);state.drawings.push({type:type==='destructive'?'destructive':'constructive',pointerType,points:points.map(p=>clampPoint(p,b))});updateText();return snapshot()}});
     // Integrate speed into elapsed model time, never into an absolute phase.
     // Pause freezes both wave trains; the final teaching step keeps emitting.
     function advanceSimulation(seconds){
       if(!state.running||state.mode!=='wave')return;
       const dt=Math.max(0,+seconds||0)*(state.slow?slowFactor:1),previousStage=state.stage,previousT=state.t;
       state.waveT+=dt;
-      state.t=Math.min(4*stageSeconds,state.t+dt);
-      const next=Math.min(3,Math.floor(state.t/stageSeconds));
+      state.t=state.stage>=4?state.t:Math.min(4*stageSeconds,state.t+dt);
+      // Drawing and comparison are deliberate steps, never auto-reveal the solution.
+      const next=state.stage>=4?state.stage:Math.min(3,Math.floor(state.t/stageSeconds));
       if(next!==state.stage)setStage(next,false);
       if(state.stage>=2&&!state.emissionFrozen)state.emissionTime+=previousStage>=2?dt:Math.max(0,previousT+dt-2*stageSeconds);
     }
