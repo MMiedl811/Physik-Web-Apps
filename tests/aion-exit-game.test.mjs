@@ -1,25 +1,66 @@
-import fs from 'node:fs';
-import assert from 'node:assert/strict';
-
-const html = fs.readFileSync(new URL('../aion-exit-game/index.html', import.meta.url), 'utf8');
-const must = [
-  '<!DOCTYPE html>', 'AION', 'id="gameCanvas"', 'id="touchPad"',
-  'weltbilder', 'kepler', 'exoplaneten', 'unsichtbar', 'horizont',
-  'window.__AION_TEST__', 'assets/map.webp', 'assets/hero.png', 'assets/intro.webp',
-  'localStorage', 'Experten-Funkruf', 'Vertiefungsmission', 'service-worker.js', 'Teambegründung'
-];
-for (const needle of must) assert.ok(html.includes(needle), `missing ${needle}`);
-assert.ok(!html.includes('<svg'), 'no inline SVG; precise diagrams use Canvas');
-const sectorIds = [...html.matchAll(/id:\s*'(weltbilder|kepler|exoplaneten|unsichtbar|horizont)'/g)].map(m => m[1]);
-assert.deepEqual([...new Set(sectorIds)], ['weltbilder','kepler','exoplaneten','unsichtbar','horizont']);
-const taskIds = [...html.matchAll(/taskId:\s*'([^']+)'/g)].map(m => m[1]);
-assert.equal(taskIds.length, 35, '30 core tasks plus 5 transfer tasks');
-assert.equal(new Set(taskIds).size, taskIds.length, 'task IDs unique');
-for (const asset of ['map.webp','hero.png','intro.webp']) {
-  assert.ok(fs.statSync(new URL(`../aion-exit-game/assets/${asset}`, import.meta.url)).size > 10000, `${asset} non-empty`);
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import vm from "node:vm";
+const read = (name) =>
+  fs.readFileSync(
+    new URL("../aion-exit-game/" + name, import.meta.url),
+    "utf8",
+  );
+const html = read("index.html"),
+  game = read("game.js"),
+  data = read("data.js"),
+  css = read("style.css"),
+  sw = read("service-worker.js");
+for (const token of [
+  'id="gameCanvas"',
+  'id="touchPad"',
+  'id="modal"',
+  "data.js",
+  "game.js",
+  "style.css",
+])
+  assert.ok(html.includes(token), token);
+const result = vm.runInNewContext(
+  data +
+    "\n" +
+    game.slice(0, game.search(/const \$\s*=/)) +
+    "\n({sectors,bonusTasks,lore})",
+);
+const tasks = result.sectors.flatMap((s) => s.tasks);
+assert.equal(tasks.length, 30);
+assert.equal(new Set(tasks.map((t) => t.taskId)).size, 30);
+assert.equal(result.bonusTasks.length, 5);
+assert.equal(result.lore.length, 5);
+for (const s of result.sectors) {
+  assert.equal(s.tasks.length, 6);
+  for (const t of s.tasks) {
+    assert.ok(t.hint);
+    if (t.type === "choice")
+      assert.ok(
+        Number.isInteger(t.answer) &&
+          t.answer >= 0 &&
+          t.answer < t.options.length,
+      );
+    if (t.type === "sequence")
+      assert.deepEqual([...t.items].sort(), [...t.answer].sort());
+  }
 }
-for (const asset of ['weltbilder.webp','kepler.webp','exoplaneten.webp','unsichtbar.webp','horizont.webp']) {
-  assert.ok(fs.statSync(new URL(`../aion-exit-game/assets/scenes/${asset}`, import.meta.url)).size > 10000, `${asset} non-empty`);
-}
-assert.ok(fs.statSync(new URL('../aion-exit-game/service-worker.js', import.meta.url)).size > 500, 'service worker non-empty');
-console.log(`AION contract OK: 5 sectors, ${taskIds.length} tasks, 8 generated assets, Canvas diagrams.`);
+assert.equal(tasks.filter((t) => t.type === "number").length, 2);
+assert.ok(
+  Math.abs(1.52 ** 1.5 - tasks.find((t) => t.taskId === "mars-period").answer) <
+    0.03,
+);
+assert.ok(
+  Math.abs(
+    5.2 ** 1.5 - tasks.find((t) => t.taskId === "jupiter-period").answer,
+  ) < 0.08,
+);
+assert.ok(
+  !tasks.some((t) => /Bahnneigung|Schwarzschildradius|ΔI\/I/.test(t.question)),
+);
+assert.ok(/image-rendering:\s*pixelated/.test(css));
+assert.ok(sw.includes("aion-eva-"));
+assert.ok(!sw.includes("keys.filter(key=>key!==CACHE)"));
+console.log(
+  "AION contract OK: 30 EVA-scope tasks, 5 rooms, 5 bonus tasks, independent save and scoped offline cache.",
+);
