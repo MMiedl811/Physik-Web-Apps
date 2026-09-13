@@ -1,0 +1,13 @@
+import {createRequire} from 'node:module';import assert from 'node:assert/strict';
+const {chromium}=createRequire(import.meta.url)('/Users/matthias/.cache/physik-tiktok-render/node_modules/playwright');
+const b=await chromium.launch();const errors=[];const p=await b.newPage({viewport:{width:1440,height:900}});p.on('pageerror',e=>errors.push(e.message));
+await p.goto(process.env.CURVE_URL||'http://127.0.0.1:8770/kurvenfahrt-bezugssysteme/');
+await p.getByRole('button',{name:'Untersuchung starten'}).click();
+assert.equal(await p.locator('#forceToggle').getAttribute('aria-pressed'),'false');assert.equal(await p.locator('#explain').isVisible(),false);
+await p.locator('[data-phase="curve"]').click();let curve=await p.evaluate(()=>__curveFramesTest.sample());assert.equal(curve.car.part,'curve');assert.ok(curve.a>0);await p.locator('#forceToggle').click();assert.match(await p.locator('#forceR').innerText(),/N/);assert.equal(await p.locator('#legend').isVisible(),true);
+await p.locator('#driver').click();await p.locator('#explainToggle').click();assert.equal(await p.locator('#explain').isVisible(),true);await p.locator('#closeExplain').click();
+await p.locator('[data-phase="release"]').click();const release=await p.evaluate(()=>__curveFramesTest.sample());assert.equal(release.free,true);assert.equal(release.a,release.car.kappa*release.v*release.v);assert.equal(await p.locator('#forceR').innerText(),'verdeckt');await p.locator('#step').click();const moved=await p.evaluate(()=>__curveFramesTest.sample());assert.notDeepEqual(release.body,moved.body);assert.equal(moved.car.part,'curve');
+await p.locator('#compare').click();assert.equal(await p.locator('#compareDialog').isVisible(),true);await p.locator('#closeCompare2').click();assert.equal(await p.locator('#compareDialog').isVisible(),false);
+await p.locator('#radius').fill('100');await p.locator('#radius').dispatchEvent('input');const wide=await p.evaluate(()=>__curveFramesTest.pathAt(12.5));assert.equal(wide.car,undefined);assert.ok(wide.x>0);await p.locator('#reset').click();const reset=await p.evaluate(()=>__curveFramesTest.sample());assert.equal(reset.car.part,'straight');assert.equal(reset.free,false);
+for(const viewport of [{width:1024,height:768},{width:820,height:1180},{width:390,height:844}]){await p.setViewportSize(viewport);assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:`/tmp/kurvenfahrt-${viewport.width}.png`,fullPage:true})}
+assert.deepEqual(errors,[]);console.log('PASS Kurvenfahrt: shared model, real release, optional explanations, compare dialog, radius geometry, reset, 3 viewports');await b.close();
