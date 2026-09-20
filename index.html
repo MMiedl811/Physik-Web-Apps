@@ -81,17 +81,7 @@
         }
         .card:hover { transform: translateY(-3px); border-color: var(--petrol); box-shadow: 0 12px 28px rgba(71, 57, 40, .11); }
         .card:focus-visible { outline: 3px solid rgba(15, 118, 110, .34); outline-offset: 4px; }
-        .card-icon {
-            display: grid;
-            width: 36px;
-            height: 36px;
-            place-items: center;
-            margin-bottom: 12px;
-            border: 1px solid var(--line);
-            border-radius: 11px;
-            background: var(--surface-soft);
-            font-size: 1.15rem;
-        }
+
         .card-title { overflow-wrap: anywhere; hyphens: auto; font-size: 1rem; font-weight: 800; line-height: 1.24; letter-spacing: -.015em; }
         .card-meta { margin-top: 6px; color: var(--muted); font-size: .74rem; line-height: 1.35; }
         footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
@@ -122,29 +112,29 @@
             <section class="topic-section" id="topic-mechanik" aria-labelledby="mechanik-title">
                 <div class="topic-head"><h2 id="mechanik-title">Mechanik</h2></div>
                 <div class="card-grid" aria-label="Mechanik-Anwendungen">
-                    <a class="card" href="energie-runner/"><div class="card-icon" aria-hidden="true">🍄</div><div class="card-title">Energie-Runner</div><div class="card-meta"><span class="grade-badge">Klasse 9</span><span class="work-badge">In Arbeit</span><br>Energieumwandlungen im Jump-and-Run</div></a>
-                    <a class="card" href="freier-fall-energie/"><div class="card-icon" aria-hidden="true">☁️</div><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta"><span class="grade-badge">Klasse 10</span><span class="work-badge">In Arbeit</span><br>Energieerhaltung mit und ohne Luftwiderstand</div></a>
-                    <a class="card" href="kreisbewegungs-labor/index.html"><div class="card-icon" aria-hidden="true">🎡</div><div class="card-title">Kreisbewegungs-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span><span class="work-badge">In Arbeit</span><br>Winkel-, Bahn- und Kraftgrößen verknüpfen</div></a>
-                    <a class="card" href="mechanische-leistung/index.html"><div class="card-icon" aria-hidden="true">🏋️</div><div class="card-title">Leistungslabor: Treppe &amp; Heben</div><div class="card-meta"><span class="grade-badge">Klasse 9</span><span class="work-badge">In Arbeit</span><br>Treppensteigen und Gewichtheben vergleichen</div></a>
-                    <a class="card" href="newtons-kanonenkugel/index.html"><div class="card-icon" aria-hidden="true">🌍</div><div class="card-title">Newtons Kanonenkugel</div><div class="card-meta"><span class="grade-badge">Klasse 11</span><span class="work-badge">In Arbeit</span><br>Vom waagrechten Wurf zur Umlaufbahn</div></a>
-                    <a class="card" href="waagrechter%20Wurf/"><div class="card-icon" aria-hidden="true">🏝️</div><div class="card-title">Waagrechter und schräger Wurf</div><div class="card-meta"><span class="grade-badge">Klasse 10</span><span class="work-badge">In Arbeit</span><br>Teilbewegungen und Abschusswinkel untersuchen</div></a>
-                    <a class="card" href="zentripetalkraft-labor/index.html"><div class="card-icon" aria-hidden="true">🧲</div><div class="card-title">Kraft führt zu einer Kreisbewegung</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span><span class="work-badge">In Arbeit</span><br>Kraftwirkung und Zentripetalkraft frei untersuchen</div></a>
-                    <a class="card" href="v_aenderung/"><div class="card-icon" aria-hidden="true">🏒</div><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta"><span class="grade-badge">Klasse 8</span><span class="work-badge">In Arbeit</span><br>Geschwindigkeitsvektoren addieren</div></a>
-                    <a class="card" href="vektor-labor/index.html"><div class="card-icon" aria-hidden="true">📐</div><div class="card-title">Vektor-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 8–12</span><span class="work-badge">In Arbeit</span><br>Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
+                    <a class="card" href="energie-runner/"><div class="card-title">Energie-Runner</div><div class="card-meta"><span class="grade-badge">Klasse 9</span><span class="work-badge">In Arbeit</span><br>Energieumwandlungen im Jump-and-Run</div></a>
+                    <a class="card" href="freier-fall-energie/"><div class="card-title">Freier Fall in Zeitlupe</div><div class="card-meta"><span class="grade-badge">Klasse 10</span><span class="work-badge">In Arbeit</span><br>Energieerhaltung mit und ohne Luftwiderstand</div></a>
+                    <a class="card" href="kreisbewegungs-labor/index.html"><div class="card-title">Kreisbewegungs-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span><span class="work-badge">In Arbeit</span><br>Winkel-, Bahn- und Kraftgrößen verknüpfen</div></a>
+                    <a class="card" href="mechanische-leistung/index.html"><div class="card-title">Leistungslabor: Treppe &amp; Heben</div><div class="card-meta"><span class="grade-badge">Klasse 9</span><span class="work-badge">In Arbeit</span><br>Treppensteigen und Gewichtheben vergleichen</div></a>
+                    <a class="card" href="newtons-kanonenkugel/index.html"><div class="card-title">Newtons Kanonenkugel</div><div class="card-meta"><span class="grade-badge">Klasse 11</span><span class="work-badge">In Arbeit</span><br>Vom waagrechten Wurf zur Umlaufbahn</div></a>
+                    <a class="card" href="waagrechter%20Wurf/"><div class="card-title">Waagrechter und schräger Wurf</div><div class="card-meta"><span class="grade-badge">Klasse 10</span><span class="work-badge">In Arbeit</span><br>Teilbewegungen und Abschusswinkel untersuchen</div></a>
+                    <a class="card" href="zentripetalkraft-labor/index.html"><div class="card-title">Kraft führt zu einer Kreisbewegung</div><div class="card-meta"><span class="grade-badge">Klasse 10–11</span><span class="work-badge">In Arbeit</span><br>Kraftwirkung und Zentripetalkraft frei untersuchen</div></a>
+                    <a class="card" href="v_aenderung/"><div class="card-title">Geschwindigkeitsänderung</div><div class="card-meta"><span class="grade-badge">Klasse 8</span><span class="work-badge">In Arbeit</span><br>Geschwindigkeitsvektoren addieren</div></a>
+                    <a class="card" href="vektor-labor/index.html"><div class="card-title">Vektor-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 8–12</span><span class="work-badge">In Arbeit</span><br>Geschwindigkeiten, Kräfte und Beschleunigungen konstruieren</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-elektrodynamik" aria-labelledby="elektrodynamik-title">
                 <div class="topic-head"><h2 id="elektrodynamik-title">Elektrodynamik</h2></div>
                 <div class="card-grid" aria-label="Elektrodynamik-Anwendungen">
-                    <a class="card" href="kondensator-pendel/"><div class="card-icon" aria-hidden="true">🔋</div><div class="card-title">Kondensator-Pendel</div><div class="card-meta"><span class="grade-badge">Klasse 12</span><span class="work-badge">In Arbeit</span><br>Feldenergie als Fläche im U-Q-Diagramm</div></a>
+                    <a class="card" href="kondensator-pendel/"><div class="card-title">Kondensator-Pendel</div><div class="card-meta"><span class="grade-badge">Klasse 12</span><span class="work-badge">In Arbeit</span><br>Feldenergie als Fläche im U-Q-Diagramm</div></a>
                 </div>
             </section>
 
             <section class="topic-section" id="topic-atomphysik" aria-labelledby="atomphysik-title">
                 <div class="topic-head"><h2 id="atomphysik-title">Atomphysik</h2></div>
                 <div class="card-grid" aria-label="Atomphysik-Anwendungen">
-                    <a class="card" href="energiestufenmodell/"><div class="card-icon" aria-hidden="true">⚛️</div><div class="card-title">Quanten-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span><span class="work-badge">In Arbeit</span><br>Energiestufen und Übergänge deuten</div></a>
+                    <a class="card" href="energiestufenmodell/"><div class="card-title">Quanten-Labor</div><div class="card-meta"><span class="grade-badge">Klasse 9</span><span class="work-badge">In Arbeit</span><br>Energiestufen und Übergänge deuten</div></a>
                 </div>
             </section>
         </main>
