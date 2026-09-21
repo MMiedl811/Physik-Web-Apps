@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../elektrische-felder/index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../probeladung-elektrisches-feld/index.html', import.meta.url), 'utf8');
 const landing = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 assert.match(html, /id="fieldModeBtn"/, 'separate field mode tab missing');
