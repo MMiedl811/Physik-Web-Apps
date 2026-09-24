@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const html = readFileSync(new URL('../probeladung-elektrisches-feld/index.html', import.meta.url), 'utf8');
+const html = readFileSync(new URL('../elektrische-felder/index.html', import.meta.url), 'utf8');
 const landing = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
 
 assert.match(html, /id="fieldModeBtn"/, 'separate field mode tab missing');
@@ -21,6 +21,9 @@ assert.doesNotMatch(html, /id="plateControls"[^>]*data-(?:field|motion|superposi
 assert.match(html, /SOURCE_RADIUS=11/, 'field-charge radius should be about 30% smaller than the former 16 px');
 assert.match(html, /function fieldStrengthText\(mag\)/, 'physical field-strength readout helper missing');
 assert.match(html, /E = \$\{fmt\(mag,2\)\} V\/m/, 'probe must report electric field strength in V/m');
+assert.match(html, /COULOMB_NC=8\.9875517923/, 'point-charge field must use Coulomb law for nC and m');
+assert.match(html, /2\*COULOMB_NC\*surfaceDensity/, 'finite capacitor plates must use the SI strip-field factor');
+assert.doesNotMatch(html, /Beispielmaßstab/, 'superposition must not relabel arbitrary display values as V/m');
 assert.doesNotMatch(html, /site-hold\.js/, 'electric-field lab must be public on GitHub Pages');
 assert.match(landing, /href="elektrische-felder\/index\.html"/, 'electric-field lab missing from public landing page');
 
