@@ -12,7 +12,7 @@ assert.match(html, /id="testChargeInput"/, 'test-charge magnitude control missin
 assert.match(html, /id="testMassInput"/, 'test-mass control missing');
 assert.match(html, /id="timeScaleInput"/, 'animation time-scale control missing');
 assert.match(html, /function setMode\(mode\)/, 'mode state transition missing');
-assert.match(html, /testChargeValue\s*\/\s*state\.testMass/, 'q/m acceleration ratio missing');
+assert.match(html, /state\.testChargeValue\*1e-9\/\(state\.testMass\*1e-3\)/, 'SI q/m acceleration ratio missing');
 assert.doesNotMatch(html, /\.72\/\(1\+\.22\*f\.mag\)/, 'old nonlinear force saturation must be removed');
 assert.match(html, /setMotionParameters/, 'deterministic motion parameter API missing');
 assert.match(html, /id="plateControls" hidden/, 'shared plate controls missing');
@@ -22,7 +22,7 @@ assert.match(html, /SOURCE_RADIUS=11/, 'field-charge radius should be about 30% 
 assert.match(html, /function fieldStrengthText\(mag\)/, 'physical field-strength readout helper missing');
 assert.match(html, /E = \$\{fmt\(mag,2\)\} V\/m/, 'probe must report electric field strength in V/m');
 assert.match(html, /COULOMB_NC=8\.9875517923/, 'point-charge field must use Coulomb law for nC and m');
-assert.match(html, /2\*COULOMB_NC\*surfaceDensity/, 'finite capacitor plates must use the SI strip-field factor');
+assert.match(html, /2\*COULOMB_NC\*surfaceDensity/, 'finite plates must use SI surface density');
 assert.doesNotMatch(html, /Beispielmaßstab/, 'superposition must not relabel arbitrary display values as V/m');
 assert.doesNotMatch(html, /site-hold\.js/, 'electric-field lab must be public on GitHub Pages');
 assert.match(landing, /href="elektrische-felder\/index\.html"/, 'electric-field lab missing from public landing page');
