@@ -58,6 +58,16 @@ try {
  await page.locator('#motionBtn').click();await page.waitForTimeout(100);await page.locator('#motionBtn').click();
  const paused=await page.evaluate(()=>__electricFieldLab.getState());assert.equal(paused.motion,false);assert.equal(paused.testCharge.phase,'paused');
  await page.waitForTimeout(100);assert.deepEqual(await page.evaluate(()=>__electricFieldLab.getState().testCharge),paused.testCharge);
+ // The capacitor shortcut starts at the appropriate plate and records the impact automatically.
+ await page.evaluate(()=>{__electricFieldLab.setPreset('capacitor');__electricFieldLab.setMotionParameters({sourceStrength:1,testChargeValue:1,testMass:1,timeScale:1});});
+ await page.locator('#axisStartBtn').click();
+ const measurement1=await page.evaluate(()=>{for(let i=0;i<5&&__electricFieldLab.getState().testCharge.phase!=='finished';i++)__electricFieldLab.stepTestCharge(100);return __electricFieldLab.getState().testCharge;});
+ assert.equal(measurement1.stopReason,'plate');assert.equal(measurement1.x,.4);assert.ok(measurement1.elapsed>0);assert.ok(measurement1.finalSpeed>0);
+ assert.notEqual(await page.locator('#flightTime').textContent(),'—');assert.notEqual(await page.locator('#impactSpeed').textContent(),'—');
+ assert.match(await page.locator('#testText').textContent(),/v ∝ √E/);assert.equal(await page.locator('#motionBtn').textContent(),'↻ Erneut messen');assert.equal(await page.locator('#motionBtn').isEnabled(),true);
+ const measurement2=await page.evaluate(()=>{__electricFieldLab.setMotionParameters({sourceStrength:2});for(let i=0;i<5&&__electricFieldLab.getState().testCharge.phase!=='finished';i++)__electricFieldLab.stepTestCharge(100);return __electricFieldLab.getState().testCharge;});
+ assert.ok(Math.abs(measurement2.finalSpeed/measurement1.finalSpeed-Math.SQRT2)<.002);
+ assert.ok(Math.abs(measurement2.elapsed/measurement1.elapsed-1/Math.SQRT2)<.002);
  for(const size of [{width:1440,height:900},{width:1024,height:768},{width:390,height:844}]){
   await page.setViewportSize(size);
   for(const mode of ['field','motion','superposition']){
