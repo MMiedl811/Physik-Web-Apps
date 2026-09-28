@@ -14,7 +14,7 @@ try {
   lab.setMotionParameters({sourceStrength:1,testChargeValue:1,testMass:1,timeScale:1});
   const E=lab.fieldAt(0,0).ex;
   const samples=[];
-  for(const x of [-.32,0,.32])for(const y of [-.5,0,.5])samples.push(lab.fieldAt(x,y));
+  for(const x of [-.32,0,.32])for(const y of [-2.3,-.5,0,.5,2.3])samples.push(lab.fieldAt(x,y));
   const outside=lab.fieldAt(1,0);
   const lines=lab.traceLines();
   const gradients=[];
@@ -34,10 +34,11 @@ try {
  });
  for(const f of result.gradients){assert.ok(Math.abs(f.ex-f.gx)<1e-6);assert.ok(Math.abs(f.ey-f.gy)<1e-6);}
  const a=result.E*1e-6;
- assert.ok(Math.abs(result.E-8*8.9875517923*Math.atan(4.4/.8))<1e-10);
- for(const f of result.samples){assert.ok(Math.abs(f.mag/result.E-1)<.007);assert.ok(Math.abs(Math.atan2(f.ey,f.ex))<.009);}
- assert.ok(result.outside.mag>0);
- assert.ok(result.lines.some(line=>Math.max(...line.map(p=>p.y))-Math.min(...line.map(p=>p.y))>.1));
+ assert.ok(Math.abs(result.E-1e-9/8.8541878128e-12)<1e-6);
+ for(const f of result.samples){assert.ok(Math.abs(f.mag/result.E-1)<1e-14);assert.ok(f.ey===0);}
+ assert.equal(result.outside.mag,0);
+ assert.ok(result.lines.length>0);
+ for(const line of result.lines){assert.ok(line.every(p=>p.y===line[0].y));assert.equal(line[0].x,-.4);assert.equal(line.at(-1).x,.4);}
  assert.ok(Math.abs(result.normal.x-.5*a*100)<1e-8);
  assert.ok(Math.abs(result.normal.vx-a*10)<1e-8);
  assert.ok(Math.abs(result.normal.y)<1e-12);
@@ -68,7 +69,7 @@ try {
  const measurement2=await page.evaluate(()=>{__electricFieldLab.setMotionParameters({sourceStrength:2});for(let i=0;i<5&&__electricFieldLab.getState().testCharge.phase!=='finished';i++)__electricFieldLab.stepTestCharge(100);return __electricFieldLab.getState().testCharge;});
  assert.ok(Math.abs(measurement2.finalSpeed/measurement1.finalSpeed-Math.SQRT2)<.002);
  assert.ok(Math.abs(measurement2.elapsed/measurement1.elapsed-1/Math.SQRT2)<.002);
- for(const size of [{width:1440,height:900},{width:1024,height:768},{width:390,height:844}]){
+ for(const size of [{width:1440,height:900},{width:1024,height:768},{width:390,height:844},{width:820,height:1180}]){
   await page.setViewportSize(size);
   for(const mode of ['field','motion','superposition']){
    await page.evaluate(mode=>{__electricFieldLab.setMode(mode);__electricFieldLab.setPreset('capacitor');},mode);

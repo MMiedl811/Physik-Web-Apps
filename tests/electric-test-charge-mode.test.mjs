@@ -22,7 +22,7 @@ assert.match(html, /SOURCE_RADIUS=11/, 'field-charge radius should be about 30% 
 assert.match(html, /function fieldStrengthText\(mag\)/, 'physical field-strength readout helper missing');
 assert.match(html, /E = \$\{fmt\(mag,2\)\} V\/m/, 'probe must report electric field strength in V/m');
 assert.match(html, /COULOMB_NC=8\.9875517923/, 'point-charge field must use Coulomb law for nC and m');
-assert.match(html, /2\*COULOMB_NC\*surfaceDensity/, 'finite plates must use SI surface density');
+assert.match(html, /2\*Math.PI\*COULOMB_NC\*state.sourceStrength/, 'ideal sheets must use SI surface density');
 assert.doesNotMatch(html, /Beispielmaßstab/, 'superposition must not relabel arbitrary display values as V/m');
 assert.doesNotMatch(html, /site-hold\.js/, 'electric-field lab must be public on GitHub Pages');
 assert.match(landing, /href="elektrische-felder\/index\.html"/, 'electric-field lab missing from public landing page');

@@ -73,10 +73,10 @@ const capacitor=await page.evaluate(()=>{
   const wide=__electricFieldLab.fieldAt(0,0);
   return {narrow,wide};
 });
-const expectedCenter=8*8.9875517923*Math.atan(3.2/1.2);
+const expectedCenter=1e-9/8.8541878128e-12;
 assert.ok(Math.abs(capacitor.narrow.ex-expectedCenter)/expectedCenter<0.003);
 assert.ok(Math.abs(capacitor.narrow.ey)<1e-9);
-assert.ok(capacitor.wide.mag<capacitor.narrow.mag);
+assert.equal(capacitor.wide.mag,capacitor.narrow.mag);
 await page.locator('#gapSlider').fill('2.4');
 await page.locator('#gapSlider').dispatchEvent('input');
 assert.equal(await page.evaluate(()=>__electricFieldLab.getState().gap),2.4);

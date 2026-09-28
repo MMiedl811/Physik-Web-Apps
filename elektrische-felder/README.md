@@ -18,3 +18,15 @@
 Die bestehende Suite `electric-si-motion.test.mjs` prüft Bewegungs- und Energievergleiche; `electric-app-unified.test.mjs` prüft die drei Modi und den bisherigen App-Einstieg. Die Quellcodeprüfungen `electric-test-charge-mode.test.mjs` und `electric-superposition-mode.test.mjs` ergänzen diese Tests.
 
 Die Browsertests verwenden `ELECTRIC_URL` für eine lokale HTTP-Vorschau. Der neue Test lädt Playwright über die normale Node-Modulauflösung; bei einer vorhandenen externen Installation kann `NODE_PATH` gesetzt werden. Es wurden keine Laufzeitabhängigkeiten der App hinzugefügt.
+
+## Korrektur vom 28.09.2026: idealer Plattenkondensator
+
+Das bisherige endliche Streifenmodell wurde für das Kondensator-Preset durch unendlich ausgedehnte ideale Platten ohne Randfelder ersetzt, in allen drei Modi gemeinsam:
+
+- Jede Platte liefert σ/(2ε₀) senkrecht zur Oberfläche. Innen addieren sich die Beiträge zu E = σ/ε₀, außen heben sie sich auf. E ist unabhängig von y und bei konstantem σ auch vom Plattenabstand.
+- Bei Plattenpositionen ±d/2: φ = −Ex im Inneren, außerhalb konstant auf dem jeweiligen Randwert. Die Mittelebene bleibt bei φ = 0; U = Ed. Auf der idealisierten Fläche wird der Feldmittelwert verwendet; Messungen unmittelbar an der Quelle sind ausgeschlossen.
+- Feldlinien sind gerade und gleichabständig, Äquipotentiallinien parallel zu den Platten. Die Vektorbeiträge werden zur Lesbarkeit parallel versetzt und beschriftet.
+- Der bisherige Längenregler heißt „Gezeigter Abschnitt“ und ändert nur die Darstellung; gestrichelte Fortsetzungen verdeutlichen die unendliche Ausdehnung. Plattenkontakte gelten auch jenseits des durchgezogen gezeichneten Abschnitts.
+- Das entspricht dem Schulmodell eines homogenen Feldes, nicht der Berechnung realer Randfelder. Fachlicher Bezug: [LEIFIphysik](https://www.leifiphysik.de/elektrizitaetslehre/ladungen-elektrisches-feld/grundwissen/homogenes-elektrisches-feld).
+
+Die Regressionstests wurden auf dieses Modell angepasst. `electric-ideal-capacitor.test.mjs` prüft zusätzlich die einzelnen Plattenbeiträge, Außenfeldaufhebung, E = −∇φ, U = Ed, Homogenität bei verschiedenen Geometrien und σ, Konturen sowie einen Aufprall außerhalb des durchgezeichneten Abschnitts. Die Veröffentlichung wurde am 28.09.2026 von Matthias freigegeben.
