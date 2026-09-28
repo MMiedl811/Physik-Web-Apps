@@ -209,25 +209,22 @@
       padding: 16px;
     }
     .energy-card h2 { margin: 0; font-size: 1.05rem; }
-    .energy-card__intro { margin: 6px 0 13px; color: var(--muted); font-size: 0.83rem; line-height: 1.4; }
+    .view-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .view-switch .button { min-width: 0; padding: 8px; font-size: 0.82rem; }
+    .view-switch .button[aria-pressed="true"] { border-color: var(--petrol); background: var(--petrol); color: white; }
+    .energy-view[hidden] { display: none; }
+    .energy-card__intro { margin: 10px 0 12px; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
     .energy-scale {
       position: relative;
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 7px;
-      flex: 1;
       min-height: 335px;
       padding: 26px 0 0;
       border-bottom: 2px solid var(--line);
       background: repeating-linear-gradient(to top, transparent 0 63px, rgba(37, 51, 47, 0.07) 63px 64px);
     }
-    .scale-label {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      color: var(--muted);
-      font-size: 0.72rem;
-    }
+    .scale-label { position: absolute; top: 2px; right: 2px; color: var(--muted); font-size: 0.72rem; }
     .energy-column {
       position: relative;
       display: flex;
@@ -236,18 +233,12 @@
       justify-content: flex-end;
       align-items: stretch;
       height: 300px;
-      align-self: stretch;
       border: 1px solid var(--line);
       border-radius: 12px 12px 5px 5px;
       overflow: hidden;
       background: rgba(217, 207, 191, 0.32);
     }
-    .energy-fill {
-      width: 100%;
-      height: 0;
-      transition: height 120ms linear;
-      background: var(--bar-color);
-    }
+    .energy-fill { width: 100%; height: 0; transition: height 120ms linear; background: var(--bar-color); }
     .energy-value {
       position: absolute;
       inset: 8px 2px auto;
@@ -258,15 +249,7 @@
       text-align: center;
       text-shadow: 0 1px var(--surface);
     }
-    .energy-label {
-      min-height: 52px;
-      padding-top: 7px;
-      color: var(--muted);
-      font-size: 0.72rem;
-      font-weight: 800;
-      line-height: 1.2;
-      text-align: center;
-    }
+    .energy-label { min-height: 52px; padding-top: 7px; color: var(--muted); font-size: 0.72rem; font-weight: 800; line-height: 1.2; text-align: center; }
     .energy-label span { display: block; width: 12px; height: 4px; margin: 5px auto 0; border-radius: 999px; background: var(--bar-color); }
     .energy-item { display: flex; min-width: 0; flex-direction: column; justify-content: flex-end; }
     .energy-item--total { --bar-color: var(--total); }
@@ -274,9 +257,37 @@
     .energy-item--kinetic { --bar-color: var(--kinetic); }
     .energy-item--potential { --bar-color: var(--potential); }
     .energy-item--thermal { --bar-color: var(--thermal); }
-    .energy-item--total .energy-fill {
-      background: repeating-linear-gradient(135deg, var(--total) 0 8px, #4f9b94 8px 14px);
+    .energy-item--total .energy-fill { background: repeating-linear-gradient(135deg, var(--total) 0 8px, #4f9b94 8px 14px); }
+    .energy-total { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; font-size: 0.88rem; font-weight: 800; }
+    .energy-total strong { white-space: nowrap; }
+    .energy-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      width: 86px;
+      height: 300px;
+      margin-top: 12px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 10px 10px 5px 5px;
+      background: var(--surface-soft);
     }
+    .energy-segment { width: 100%; height: 0; flex: 0 0 auto; background: var(--bar-color); }
+    .energy-segment--chemical { --bar-color: var(--chemical); }
+    .energy-segment--kinetic { --bar-color: var(--kinetic); }
+    .energy-segment--potential { --bar-color: var(--potential); }
+    .energy-segment--thermal { --bar-color: var(--thermal); }
+    .energy-legend { display: grid; gap: 9px; align-content: center; margin-top: 12px; }
+    .energy-legend__item { display: flex; flex-wrap: wrap; min-width: 0; align-items: baseline; gap: 6px; font-size: 0.78rem; }
+    .energy-legend__item::before { content: ""; flex: 0 0 9px; height: 9px; border-radius: 2px; background: var(--bar-color); }
+    .energy-legend__item--chemical { --bar-color: var(--chemical); }
+    .energy-legend__item--kinetic { --bar-color: var(--kinetic); }
+    .energy-legend__item--potential { --bar-color: var(--potential); }
+    .energy-legend__item--thermal { --bar-color: var(--thermal); }
+    .energy-legend__item span { min-width: 0; color: var(--muted); }
+    .energy-legend__item strong { margin-left: auto; white-space: nowrap; }
+    #stack-view { grid-template-columns: 86px minmax(0, 1fr); gap: 0 14px; }
+    #stack-view:not([hidden]) { display: grid; }
+    #stack-view .energy-total { grid-column: 1 / -1; }
 
     .mechanics-zoom {
       margin-top: 12px;
@@ -296,7 +307,7 @@
     .mechanics-zoom__note { margin: 5px 0 9px; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
     .mechanics-zoom__grid {
       display: grid;
-      grid-template-columns: 62px 62px minmax(0, 1fr);
+      grid-template-columns: 72px 72px minmax(0, 1fr);
       gap: 10px;
       align-items: end;
     }
@@ -313,7 +324,7 @@
     .zoom-fill { width: 100%; height: 0; transition: height 120ms linear; background: var(--zoom-color); }
     .zoom-item--kinetic { --zoom-color: var(--kinetic); }
     .zoom-item--potential { --zoom-color: var(--potential); }
-    .zoom-label { margin-top: 5px; color: var(--muted); font-size: 0.68rem; font-weight: 800; line-height: 1.25; }
+    .zoom-label { margin-top: 5px; color: var(--muted); font-size: 0.66rem; font-weight: 800; line-height: 1.25; }
     .zoom-value { display: block; color: var(--ink); font-size: 0.72rem; }
     .mechanics-zoom__sum {
       align-self: stretch;
@@ -330,7 +341,7 @@
     .mechanics-zoom__sum strong { margin-top: 4px; color: var(--ink); font-size: 1rem; }
 
     .balance {
-      margin-top: 12px;
+      margin-top: 13px;
       padding: 11px;
       border: 1px solid #c9ddd6;
       border-radius: 13px;
@@ -373,9 +384,9 @@
 
     @media (max-width: 980px) {
       .layout { grid-template-columns: 1fr; }
-      .energy-card { min-height: 400px; }
-      .energy-scale { min-height: 285px; }
+      .energy-card { min-height: 0; }
       .energy-column { height: 250px; }
+      .energy-stack { height: 250px; }
     }
     @media (max-width: 680px) {
       .page { padding: 10px; }
@@ -399,21 +410,20 @@
       .controls-strip { padding: 8px 10px; }
       .model-card { margin-top: 8px; padding: 10px 14px; }
       .energy-card { min-height: 0; padding: 10px; }
-      .energy-card__intro { display: none; }
-      .energy-scale { min-height: 270px; padding-top: 20px; background-size: auto 51px; }
       .energy-column { height: 235px; }
+      .energy-stack { height: 235px; }
       .mechanics-zoom { margin-top: 8px; padding: 8px; }
       .mechanics-zoom__note { display: none; }
       .zoom-column { height: 65px; }
-      .balance { margin-top: 8px; padding: 8px; font-size: 0.72rem; }
     }
     @media (prefers-reduced-motion: reduce) {
       .energy-fill { transition: none; }
+      .zoom-fill { transition: none; }
     }
   </style>
   <link rel="stylesheet" href="../shared/student-entry.css">
 </head>
-<body data-physik-app="energie-runner" data-student-home="../" data-student-title="Energie beim Laufen und Springen" data-student-summary="Du beobachtest, wie chemische Energie in Bewegungs-, Höhen- und innere Energie umgewandelt wird." data-student-controls="Laufe mit den Pfeiltasten oder den Pfeil-Buttons. Springe mit Leertaste, Pfeil nach oben oder „Sprung“.">
+<body data-physik-app="energie-runner" data-student-home="../" data-student-title="Energie beim Laufen und Springen" data-student-summary="Du beobachtest, wie chemische Energie in Bewegungs-, Höhen- und innere Energie umgewandelt wird." data-student-controls="Beschleunige, springe, lande. Nutze die Pfeiltasten oder die Buttons; Leertaste und ↑ lösen einen Sprung aus.">
   <div class="page">
     <header class="topbar">
       <div class="title-block">
@@ -447,7 +457,7 @@
           </div>
         </div>
         <div class="controls-strip">
-          <div class="instructions"><strong>Ziel:</strong> Laufe durch die Retro-Welt, überquere einzelne Brücken, sammle Münzen und springe über Bowser. Münzen geben nur Punkte; der Muffin bringt chemische Energie. <strong>Steuerung:</strong> A/D oder ←/→ · W/↑/Leertaste.</div>
+          <div class="instructions"><strong>Auftrag:</strong> Beschleunige, springe, lande – was passiert mit der Energie? <strong>Tastatur:</strong> A/D oder ←/→ · W/↑/Leertaste.</div>
           <div class="touch-controls" aria-label="Touch-Steuerung">
             <button class="touch-button" id="left-button" type="button" aria-label="Nach links laufen">←</button>
             <button class="touch-button touch-button--jump" id="jump-button" type="button" aria-label="Springen">↑ Sprung</button>
@@ -456,50 +466,51 @@
         </div>
       </section>
 
-      <aside class="energy-card" aria-label="Vertikale Energieanzeigen">
+      <aside class="energy-card" aria-label="Energieanzeige">
         <h2>Energieformen</h2>
-        <p class="energy-card__intro">Alle Balken haben dieselbe Skala. „Gesamt“ ist eine schraffierte Referenz und wird nicht noch einmal zu den vier Energieformen addiert.</p>
-        <div class="energy-scale">
-          <span class="scale-label" id="scale-label">200 kJ</span>
-
-          <div class="energy-item energy-item--total">
-            <div class="energy-column">
-              <div class="energy-value" id="total-value">150,0 kJ</div>
-              <div class="energy-fill" id="total-fill"></div>
+        <div class="view-switch" role="group" aria-label="Darstellung der Energieformen">
+          <button class="button" id="bars-button" type="button" aria-controls="bars-view" aria-pressed="true">Mehrere Balken</button>
+          <button class="button" id="stack-button" type="button" aria-controls="stack-view" aria-pressed="false">Ein Gesamtbalken</button>
+        </div>
+        <div class="energy-view" id="bars-view">
+          <p class="energy-card__intro">Alle Balken haben dieselbe Skala. „Gesamt“ ist die Referenz und wird nicht noch einmal addiert.</p>
+          <div class="energy-scale">
+            <span class="scale-label" id="scale-label">200 kJ</span>
+            <div class="energy-item energy-item--total">
+              <div class="energy-column"><div class="energy-value" id="bar-total-value">150,0 kJ</div><div class="energy-fill" id="bar-total-fill"></div></div>
+              <div class="energy-label">Gesamt<br>(Ref.)<span></span></div>
             </div>
-            <div class="energy-label">Gesamt<br>(Ref.)<span></span></div>
+            <div class="energy-item energy-item--chemical">
+              <div class="energy-column"><div class="energy-value" id="bar-chemical-value">150,0 kJ</div><div class="energy-fill" id="bar-chemical-fill"></div></div>
+              <div class="energy-label">chemisch<span></span></div>
+            </div>
+            <div class="energy-item energy-item--kinetic">
+              <div class="energy-column"><div class="energy-value" id="bar-kinetic-value">0,0 kJ</div><div class="energy-fill" id="bar-kinetic-fill"></div></div>
+              <div class="energy-label">kinetisch<span></span></div>
+            </div>
+            <div class="energy-item energy-item--potential">
+              <div class="energy-column"><div class="energy-value" id="bar-potential-value">0,0 kJ</div><div class="energy-fill" id="bar-potential-fill"></div></div>
+              <div class="energy-label">Höhen<wbr>energie<span></span></div>
+            </div>
+            <div class="energy-item energy-item--thermal">
+              <div class="energy-column"><div class="energy-value" id="bar-thermal-value">0,0 kJ</div><div class="energy-fill" id="bar-thermal-fill"></div></div>
+              <div class="energy-label">Innere Energie<span></span></div>
+            </div>
           </div>
-
-          <div class="energy-item energy-item--chemical">
-            <div class="energy-column">
-              <div class="energy-value" id="chemical-value">150,0 kJ</div>
-              <div class="energy-fill" id="chemical-fill"></div>
-            </div>
-            <div class="energy-label">chemisch<span></span></div>
+        </div>
+        <div class="energy-view" id="stack-view" hidden>
+          <div class="energy-total"><span>Gesamtenergie</span><strong id="total-value">150,0 kJ</strong></div>
+          <div class="energy-stack" role="img" aria-label="Vertikal gestapelte Anteile der vier Energieformen an der Gesamtenergie">
+            <div class="energy-segment energy-segment--chemical" id="chemical-fill"></div>
+            <div class="energy-segment energy-segment--kinetic" id="kinetic-fill"></div>
+            <div class="energy-segment energy-segment--potential" id="potential-fill"></div>
+            <div class="energy-segment energy-segment--thermal" id="thermal-fill"></div>
           </div>
-
-          <div class="energy-item energy-item--kinetic">
-            <div class="energy-column">
-              <div class="energy-value" id="kinetic-value">0,0 kJ</div>
-              <div class="energy-fill" id="kinetic-fill"></div>
-            </div>
-            <div class="energy-label">kinetisch<span></span></div>
-          </div>
-
-          <div class="energy-item energy-item--potential">
-            <div class="energy-column">
-              <div class="energy-value" id="potential-value">0,0 kJ</div>
-              <div class="energy-fill" id="potential-fill"></div>
-            </div>
-            <div class="energy-label">Höhe<span></span></div>
-          </div>
-
-          <div class="energy-item energy-item--thermal">
-            <div class="energy-column">
-              <div class="energy-value" id="thermal-value">0,0 kJ</div>
-              <div class="energy-fill" id="thermal-fill"></div>
-            </div>
-            <div class="energy-label">Innere Energie<span></span></div>
+          <div class="energy-legend">
+            <div class="energy-legend__item energy-legend__item--chemical"><span>Chemische Energie</span><strong id="chemical-value">150,0 kJ</strong></div>
+            <div class="energy-legend__item energy-legend__item--kinetic"><span>Bewegungsenergie</span><strong id="kinetic-value">0,0 kJ</strong></div>
+            <div class="energy-legend__item energy-legend__item--potential"><span>Höhenenergie</span><strong id="potential-value">0,0 kJ</strong></div>
+            <div class="energy-legend__item energy-legend__item--thermal"><span>Innere Energie</span><strong id="thermal-value">0,0 kJ</strong></div>
           </div>
         </div>
 
@@ -513,16 +524,10 @@
             </div>
             <div class="zoom-item zoom-item--potential">
               <div class="zoom-column"><div class="zoom-fill" id="potential-zoom-fill"></div></div>
-              <div class="zoom-label">Höhe <span class="zoom-value" id="potential-zoom-value">0,0 kJ</span></div>
+              <div class="zoom-label">Höhen<wbr>energie <span class="zoom-value" id="potential-zoom-value">0,0 kJ</span></div>
             </div>
             <div class="mechanics-zoom__sum">Mechanische Energie<strong id="mechanical-value">0,0 kJ</strong><span>E<sub>kin</sub> + E<sub>pot</sub></span></div>
           </div>
-        </div>
-
-        <div class="balance">
-          <div class="balance-row"><span>System: Runner + Erde + Umgebung</span><strong id="system-energy">150,0 kJ</strong></div>
-          <div class="balance-row"><span>davon durch Muffins</span><strong id="external-energy">+0,0 kJ</strong></div>
-          <div class="balance-row"><span>Unabhängiger Bilanzrest</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
         </div>
       </aside>
     </main>
@@ -536,6 +541,11 @@
         <div class="formula-box"><strong>Energiebilanz</strong><math display="block" aria-label="E System gleich E chemisch plus E kin plus E pot plus E thermisch"><msub><mi>E</mi><mtext>sys</mtext></msub><mo>=</mo><msub><mi>E</mi><mtext>chem</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>kin</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>pot</mtext></msub><mo>+</mo><msub><mi>E</mi><mtext>th</mtext></msub></math></div>
       </div>
       <p class="model-note"><strong>Systemgrenze:</strong> Runner + Erde + Umgebung; die Bodenlinie hat das Nullniveau h = 0. Der Muffin liegt vor der Aufnahme außerhalb des Systems und führt bei der Aufnahme chemische Energie zu. Mario wird als Körper mit 60 kg modelliert. Im freien Flug bleibt die mechanische Energie aus Bewegungs- und Höhenenergie <strong>ohne Steuereingriff</strong> erhalten. Steuern in der Luft führt zusätzlich chemische Energie zu. Beim Laufen und Springen werden vereinfachend 25 % der eingesetzten chemischen Energie mechanisch nutzbar; der übrige Anteil wird sofort als innere Energie bilanziert. Reibung, unelastische Landungen und der Rückprall an Bowser wandeln mechanische Energie in innere Energie um. Der „Unabhängige Bilanzrest“ vergleicht die Gesamtenergie mit der Summe aller Energieformen, ohne den Rest automatisch umzubuchen. Münzen verändern nur den Punktestand und sind keine Energieform.</p>
+      <div class="balance">
+        <div class="balance-row"><span>System: Runner + Erde + Umgebung</span><strong id="system-energy">150,0 kJ</strong></div>
+        <div class="balance-row"><span>davon durch Muffins</span><strong id="external-energy">+0,0 kJ</strong></div>
+        <div class="balance-row"><span>Unabhängiger Bilanzrest</span><strong class="balance-ok" id="balance-error">0 J</strong></div>
+      </div>
     </details>
   </div>
 
@@ -571,6 +581,11 @@
       const overlayRestart = document.getElementById('overlay-restart');
       const gameOverOverlay = document.getElementById('game-over');
       const eventMessage = document.getElementById('event-message');
+      const barsView = document.getElementById('bars-view');
+      const stackView = document.getElementById('stack-view');
+      const barsButton = document.getElementById('bars-button');
+      const stackButton = document.getElementById('stack-button');
+      const scaleLabel = document.getElementById('scale-label');
 
       const readouts = {
         time: document.getElementById('time-readout'),
@@ -587,11 +602,9 @@
         mechanical: document.getElementById('mechanical-value'),
         system: document.getElementById('system-energy'),
         external: document.getElementById('external-energy'),
-        balance: document.getElementById('balance-error'),
-        scale: document.getElementById('scale-label')
+        balance: document.getElementById('balance-error')
       };
       const fills = {
-        total: document.getElementById('total-fill'),
         chemical: document.getElementById('chemical-fill'),
         kinetic: document.getElementById('kinetic-fill'),
         potential: document.getElementById('potential-fill'),
@@ -599,6 +612,10 @@
         kineticZoom: document.getElementById('kinetic-zoom-fill'),
         potentialZoom: document.getElementById('potential-zoom-fill')
       };
+      const barReadouts = Object.fromEntries(['total', 'chemical', 'kinetic', 'potential', 'thermal']
+        .map(key => [key, document.getElementById(`bar-${key}-value`)]));
+      const barFills = Object.fromEntries(['total', 'chemical', 'kinetic', 'potential', 'thermal']
+        .map(key => [key, document.getElementById(`bar-${key}-fill`)]));
 
       const input = { left: false, right: false, jumpQueued: false };
       const platforms = [];
@@ -651,6 +668,7 @@
           coins: freshCoins(),
           bowser: { x: CONFIG.bowserX, collisionCooldown: 0, passed: false },
           messageUntil: 0,
+          controlMode: 'idle',
           balanceCorrection: 0
         };
         input.left = false;
@@ -705,6 +723,7 @@
         const baseChemical = CONFIG.runMetabolicPower * dt;
 
         if (proposedK > oldK) {
+          state.controlMode = 'accelerating';
           const mechanicalNeed = proposedK - oldK;
           const chemicalNeed = Math.max(baseChemical, mechanicalNeed / CONFIG.efficiency);
           const chemicalUsed = Math.min(state.chemical, chemicalNeed);
@@ -715,6 +734,7 @@
           state.chemical -= chemicalUsed;
           state.thermal += chemicalUsed - mechanicalAvailable;
         } else {
+          state.controlMode = proposedK < oldK ? 'braking' : 'holding';
           const chemicalUsed = Math.min(state.chemical, baseChemical);
           state.chemical -= chemicalUsed;
           state.thermal += chemicalUsed + (oldK - proposedK);
@@ -826,6 +846,7 @@
         state.time += dt;
 
         const direction = (controls.right ? 1 : 0) - (controls.left ? 1 : 0);
+        state.controlMode = 'idle';
         if ((controls.jumpQueued || controls.jumpPressed) && state.onGround) jump();
         input.jumpQueued = false;
 
@@ -961,20 +982,26 @@
 
       function updateUI() {
         const s = snapshot();
+        const values = { chemical: s.chemical, kinetic: s.kinetic, potential: s.potential, thermal: s.thermal };
         const scaleStep = s.systemEnergy >= 100000 ? 50000 : 10000;
         const maxEnergy = Math.max(40000, (Math.floor(s.systemEnergy / scaleStep) + 1) * scaleStep);
-        const values = { total: s.systemEnergy, chemical: s.chemical, kinetic: s.kinetic, potential: s.potential, thermal: s.thermal };
+        const barValues = { total: s.systemEnergy, ...values };
+        Object.entries(barValues).forEach(([key, value]) => {
+          barFills[key].style.height = `${Math.max(0, Math.min(100, value / maxEnergy * 100))}%`;
+          barReadouts[key].textContent = formatKJ(value);
+        });
+        scaleLabel.textContent = formatKJ(maxEnergy).replace(',0', '');
         Object.entries(values).forEach(([key, value]) => {
-          fills[key].style.height = `${Math.max(0, Math.min(100, value / maxEnergy * 100))}%`;
+          fills[key].style.height = `${Math.max(0, Math.min(100, value / s.systemEnergy * 100))}%`;
           readouts[key].textContent = formatKJ(value);
         });
+        readouts.total.textContent = formatKJ(s.systemEnergy);
         const mechanicalScale = 5000;
         fills.kineticZoom.style.height = `${Math.max(0, Math.min(100, s.kinetic / mechanicalScale * 100))}%`;
         fills.potentialZoom.style.height = `${Math.max(0, Math.min(100, s.potential / mechanicalScale * 100))}%`;
         readouts.kineticZoom.textContent = formatKJ(s.kinetic);
         readouts.potentialZoom.textContent = formatKJ(s.potential);
         readouts.mechanical.textContent = formatKJ(s.kinetic + s.potential);
-        readouts.scale.textContent = formatKJ(maxEnergy).replace(',0', '');
         readouts.time.textContent = `${formatNumber(s.time)} s`;
         readouts.height.textContent = `${formatNumber(s.y)} m`;
         readouts.speed.textContent = `${formatNumber(Math.hypot(s.vx, s.vy))} m/s`;
@@ -983,8 +1010,13 @@
         readouts.external.textContent = `+${formatKJ(s.externalAdded)}`;
         readouts.balance.textContent = `${formatNumber(Math.abs(s.balanceCorrection), 0)} J`;
         if (state.time > state.messageUntil && !state.gameOver) {
-          if (!state.onGround) eventMessage.textContent = 'Im Flug: Bewegung ↔ Höhe; Steuern nutzt zusätzlich chemische Energie';
-          else if (Math.abs(state.vx) > 0.25) eventMessage.textContent = 'Laufen: chemische Energie → Bewegung + innere Energie';
+          if (!state.onGround) eventMessage.textContent = state.controlMode === 'idle'
+            ? 'Im Flug: Bewegungsenergie ↔ Höhenenergie.'
+            : 'Im Flug: Bewegung ↔ Höhe; Steuern nutzt chemische Energie.';
+          else if (state.controlMode === 'accelerating') eventMessage.textContent = 'Beschleunigen: chemische Energie → Bewegung + innere Energie.';
+          else if (state.controlMode === 'braking') eventMessage.textContent = 'Bremsen: Bewegung und chemische Energie → innere Energie.';
+          else if (state.controlMode === 'holding') eventMessage.textContent = 'Tempo halten: chemische Energie → innere Energie.';
+          else if (Math.abs(state.vx) > 0.25) eventMessage.textContent = 'Ausrollen: Bewegungsenergie → innere Energie (Reibung).';
           else eventMessage.textContent = 'Stillstand: Die Energiebalken bleiben konstant.';
         }
       }
@@ -1330,6 +1362,15 @@
         pauseButton.textContent = running ? '⏸ Pause' : '▶ Weiter';
         setMessage(running ? 'Simulation läuft weiter.' : 'Simulation pausiert.', 1.5);
       });
+      function setEnergyView(view) {
+        const showBars = view === 'bars';
+        barsView.hidden = !showBars;
+        stackView.hidden = showBars;
+        barsButton.setAttribute('aria-pressed', String(showBars));
+        stackButton.setAttribute('aria-pressed', String(!showBars));
+      }
+      barsButton.addEventListener('click', () => setEnergyView('bars'));
+      stackButton.addEventListener('click', () => setEnergyView('stack'));
       restartButton.addEventListener('click', resetState);
       overlayRestart.addEventListener('click', resetState);
       document.body.addEventListener('student-intro:close', () => resetState(), { once: true });
