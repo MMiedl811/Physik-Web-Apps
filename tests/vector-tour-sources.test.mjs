@@ -27,6 +27,9 @@ try{
  await page.locator('#helpBtn').click();await page.locator('#restartTour').click();await page.locator('#tourNext').click();await page.locator('#tourBack').click();assert.match(await page.locator('#tourProgress').innerText(),/1 von 4/i);
  await page.keyboard.press('Escape');assert.equal(await page.locator('#tourDialog').isVisible(),false);
  await page.locator('[data-context="electric"]').click();
+ await page.locator('#taskHeading').waitFor();
+ assert.match(await page.locator('#modelNote').innerText(), /P ist nur der Beobachtungspunkt.*keine zusätzliche Ladung/);
+ assert.match(await page.locator('#sceneExplanation').innerText(), /P ist der Feldort, keine positive oder negative Ladung/);
  assert.equal(await page.locator('#situation').isVisible(),true);
  for(let i=0;i<5;i++)await page.locator('#nextBtn').click();
  const expected=[[-2.4,0], [20/Math.sqrt(61)-4.8,24/Math.sqrt(61)+6.4]];

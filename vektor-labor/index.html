@@ -180,7 +180,7 @@ const els={stage:$('#stage'),wrap:$('#stageWrap'),axes:$('#axesLayer'),helpers:$
 const COLORS={blue:'#3066a6',orange:'#c66a2b',violet:'#7756a5',red:'#b84b4b',green:'#26825d',gold:'#a8781f',ink:'#25332f',solution:'#b84b4b',user:'#0f766e'};
 const SCALE_VALUES=[0.5,1,2,5,10,20,50];
 const CONTEXTS={
- electric:{unit:'N/C',name:'Elektrische Feldstärke',scaleValues:[0.5,1,2,5,10,20,50],model:'Alle Feldbeiträge gelten am selben Punkt P. Es gilt <span class="vector">E</span> = <span class="vector">F</span>/q für eine positive Probeladung; 1 N/C = 1 V/m. Die Feldrichtung ist die Kraftrichtung auf eine positive Probeladung. Eine negative Ladung erfährt die entgegengesetzte Kraft. Hilfspfeile werden nur zum Konstruieren verschoben: Daraus folgt keine Aussage über das Feld an anderen Orten. Das Blatt zeigt Feldvektoren, keine Feldlinien oder Teilchenbahnen.'},
+ electric:{unit:'N/C',name:'Elektrische Feldstärke',scaleValues:[0.5,1,2,5,10,20,50],model:'P ist nur der Beobachtungspunkt bzw. Feldort – dort sitzt keine zusätzliche Ladung. Zur Definition von <span class="vector">E</span> denkt man sich in P eine positive Probeladung q; ihre Kraft zeigt in <span class="vector">E</span>-Richtung. Diese Probeladung ist keine Quelle und wird nicht mitgerechnet. Es gilt <span class="vector">E</span> = <span class="vector">F</span>/q; 1 N/C = 1 V/m. Eine negative Ladung erfährt die entgegengesetzte Kraft. Hilfspfeile werden nur zum Konstruieren verschoben: Daraus folgt keine Aussage über das Feld an anderen Orten. Das Blatt zeigt Feldvektoren, keine Feldlinien oder Teilchenbahnen.'},
  velocity:{unit:'m/s',name:'Geschwindigkeit',scaleValues:[0.5,1,2,5,10],model:'Geschwindigkeitspfeile beschreiben Betrag und Richtung relativ zum gewählten Bezugssystem. Die Konstruktion behandelt die Änderung als idealisierten Vektorschritt.'},
  force:{unit:'N',name:'Kraft',scaleValues:[0.5,1,2,5,10,20,50],model:'Kräfte werden als gleichzeitig wirkende Kräfte am markierten Angriffspunkt addiert. Das Verschieben eines Kraftpfeils ist hier nur ein geometrischer Konstruktionsschritt.'},
  acceleration:{unit:'m/s²',name:'Beschleunigung',scaleValues:[0.5,1,2,5,10],model:'Die resultierende Beschleunigung ist die Vektorsumme gleichzeitig betrachteter Beschleunigungsanteile im selben Bezugssystem.'}
@@ -245,9 +245,9 @@ function renderSituation(){
  const source=(x,y,sign,name)=>{scene.append(svgEl('circle',{cx:x,cy:y,r:13,fill:sign>0?'#c66a2b':'#3066a6',stroke:'#25332f'}));const n=svgEl('text',{x,y:y+5,fill:'white','text-anchor':'middle','font-size':20,'font-weight':900});n.textContent=sign>0?'+':'−';scene.append(n);label(name,x,y+29);};
  let description='';
  if(t.id==='e-plates'){
-  title.textContent='Idealer Kondensator: positive Platte links, negative Platte rechts, P dazwischen.';
+ title.textContent='Idealer Kondensator: positive Platte links, negative Platte rechts, P = Feldort (keine Ladung) dazwischen.';
   for(const [x,sign] of [[65,1],[235,-1]]){scene.append(svgEl('rect',{x:x-7,y:20,width:14,height:130,fill:sign>0?'#c66a2b':'#3066a6'}));for(const y of [45,85,125])label(sign>0?'+':'−',x,y);}
-  scene.append(svgEl('circle',{cx:150,cy:85,r:5,fill:'#0f766e'}));label('P',150,108);description='Ideale Platten ohne Randeffekte. Die Skizze zeigt den Aufbau; das Blatt darunter die Feldvektoren am Punkt P.';
+ scene.append(svgEl('circle',{cx:150,cy:85,r:5,fill:'#0f766e'}));label('P',150,108);description='Ideale Platten ohne Randeffekte. P ist hier nur der Feldort, keine Ladung. Die Skizze zeigt den Aufbau; das Blatt darunter die Feldvektoren am Punkt P.';
  }else{
   const P=t.scene?.P||V(0,0),fields=t.id==='e-missing'?[t.given[0].vec,t.target.vec]:t.id==='e-cancel'?[t.given[0].vec,t.target.vec]:t.given.map(a=>a.vec);
   const charges=t.scene?.charges||fields.map(v=>({x:-v.x/mag(v)*3,y:-v.y/mag(v)*3,sign:1}));
@@ -255,11 +255,11 @@ function renderSituation(){
   if(t.scene?.metric){scene.append(svgEl('line',{x1:X(minX),y1:Y(0),x2:X(maxX),y2:Y(0),stroke:'#adbcb5'}));scene.append(svgEl('line',{x1:X(0),y1:Y(minY),x2:X(0),y2:Y(maxY),stroke:'#adbcb5'}));label('x / cm',270,Y(0)-6);label('y / cm',X(0)+25,14);}
   charges.forEach((q,i)=>{scene.append(svgEl('line',{x1:X(q.x),y1:Y(q.y),x2:X(P.x),y2:Y(P.y),stroke:'#98aaa1','stroke-dasharray':'4 4'}));source(X(q.x),Y(q.y),q.sign,`Q${i+1}${t.scene?.metric?` (${q.x}|${q.y})`:''}`);});
   scene.append(svgEl('circle',{cx:X(P.x),cy:Y(P.y),r:5,fill:'#0f766e'}));label(t.scene?.metric?`P (${P.x}|${P.y})`:'P',X(P.x),Y(P.y)-13);
-  title.textContent=charges.map((q,i)=>`Q${i+1} ${q.sign>0?'positiv':'negativ'} bei (${q.x}|${q.y})`).join(', ')+`; P bei (${P.x}|${P.y}).`;
+  title.textContent=charges.map((q,i)=>`Q${i+1} ${q.sign>0?'positiv':'negativ'} bei (${q.x}|${q.y})`).join(', ')+`; P = Feldort (keine Ladung) bei (${P.x}|${P.y}).`;
   description=t.id==='e-dipole-sources'?'Gleich große, entgegengesetzte Quellladungen. P liegt jeweils 5 cm von beiden entfernt. Die Feldbeträge an P sind vorgegeben.':t.scene?.metric?'Ortsangaben in cm. Die Feldbeträge an P sind vorgegeben; die Ladungsbeträge müssen nicht gleich sein.': 'Ein möglicher Aufbau mit positiven Punktladungen. Ihre Ladungsbeträge sind so gewählt, dass die vorgegebenen Feldbeiträge an P entstehen.';
  }
  $('#sceneCaption').textContent=t.scene?.metric?'Lageskizze: Koordinaten in cm. Darunter: eigener Pfeilmaßstab in V/m.':'Schematische Lageskizze, nicht maßstäblich. Darunter: Feldstärkemaßstab.';
- $('#sceneExplanation').textContent=description;$('#directionChoice').hidden=!t.sourceExercise;$('#direction1').value='';$('#direction2').value='';$('#directionStatus').textContent=t.sourceExercise?'Richtung über die Kraft auf eine positive Probeladung bestimmen.':'Alle Feldvektoren auf dem Blatt beginnen am selben Feldort P.';
+ $('#sceneExplanation').textContent=`P ist der Feldort, keine positive oder negative Ladung. Die Feldrichtung ist so definiert, wie die Kraft auf eine positive Probeladung in P wirken würde. ${description}`;$('#directionChoice').hidden=!t.sourceExercise;$('#direction1').value='';$('#direction2').value='';$('#directionStatus').textContent=t.sourceExercise?'Richtung über die Kraft auf eine positive Probeladung bestimmen.':'Alle Feldvektoren auf dem Blatt beginnen am selben Feldort P.';
 }
 $('#directionCheck').addEventListener('click',()=>{
  const correct=task().scene.charges.every((q,i)=>$('#direction'+(i+1)).value===(q.sign>0?'away':'toward'));
@@ -324,7 +324,7 @@ new ResizeObserver(resize).observe(els.wrap);
 window.__vectorLabTest={TASKS,getState:()=>({context:state.context,taskIndex:state.taskIndex,scale:state.currentScale,snap:els.snap.checked,userArrow:cloneArrow(state.userArrow),helperArrows:state.helperArrows.map(cloneArrow),selectedHelperId:state.selectedHelperId}),setContext:changeContext,setTask:index=>setTask(index),setUserArrow:(start,vec)=>{state.userArrow={start:{...start},vec:{...vec}};render();return evaluate();},addHelper:addHelperFromSource,setHelper:(id,start,vec)=>{const helper=state.helperArrows.find(item=>item.id===id);if(!helper)return null;helper.start={...start};helper.vec={...vec};state.selectedHelperId=id;render();return cloneArrow(helper);},deleteSelectedHelper,evaluate,mag,add,sub,vectorEnd,currentTask:()=>task(),openSolution,closeSolution};
 const TOUR_KEY='vector-lab-tour-v1';let tourStep=0,tourReturn=null,tourScroll={x:0,y:0};
 const tourSteps=[
- {target:'.segmented',title:'1. Thema und Aufgabe wählen',text:'Wähle eine physikalische Größe. Lies darunter, welcher Pfeil gesucht ist. Bei elektrischen Feldern zeigt eine Skizze die Quellen und den Feldort P.'},
+ {target:'.segmented',title:'1. Thema und Aufgabe wählen',text:'Wähle eine physikalische Größe. Lies darunter, welcher Pfeil gesucht ist. Bei elektrischen Feldern zeigt eine Skizze die Quellen und den Feldort P. P ist keine Ladung; die positive Probeladung ist nur ein Gedankenmodell für die Feldrichtung.'},
  {target:'.helper-tools',title:'2. Hilfspfeile einsetzen',text:'Wähle eine Vorlage und tippe auf ＋. Ziehe die Kopie am Schaft, um sie parallel zu verschieben. Die Kreise verändern Länge und Richtung. Das ist eine Konstruktionshilfe.'},
  {target:'#stageWrap',title:'3. Deinen Ergebnispfeil zeichnen',text:'Ziehe auf einer freien Stelle des karierten Blatts vom verlangten Anfangspunkt zur Spitze. Beachte den Maßstab. Für schräge Pfeile kannst du „Einrasten“ ausschalten.'},
  {target:'.mini-actions',title:'4. Prüfen und weiterlernen',text:'„Prüfen“ bewertet deinen Pfeil. „Lösung“ erklärt die Konstruktion schrittweise, „Neu zeichnen“ leert das Blatt. Mit „Nächste Aufgabe“ geht es weiter. Diese Einführung findest du jederzeit unter „Hilfe“.'}

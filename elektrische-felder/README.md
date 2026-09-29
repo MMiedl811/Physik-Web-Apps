@@ -25,7 +25,7 @@ Das bisherige endliche Streifenmodell wurde für das Kondensator-Preset durch un
 
 - Jede Platte liefert σ/(2ε₀) senkrecht zur Oberfläche. Innen addieren sich die Beiträge zu E = σ/ε₀, außen heben sie sich auf. E ist unabhängig von y und bei konstantem σ auch vom Plattenabstand.
 - Bei Plattenpositionen ±d/2: φ = −Ex im Inneren, außerhalb konstant auf dem jeweiligen Randwert. Die Mittelebene bleibt bei φ = 0; U = Ed. Auf der idealisierten Fläche wird der Feldmittelwert verwendet; Messungen unmittelbar an der Quelle sind ausgeschlossen.
-- Feldlinien sind gerade und gleichabständig, Äquipotentiallinien parallel zu den Platten. Die Vektorbeiträge werden zur Lesbarkeit parallel versetzt und beschriftet.
+- Feldlinien sind gerade und gleichabständig, Äquipotentiallinien parallel zu den Platten. Die Richtungspfeile auf den Feldlinien sind statisch und bewegen sich nicht. Die Vektorbeiträge werden zur Lesbarkeit parallel versetzt und beschriftet.
 - Der bisherige Längenregler heißt „Gezeigter Abschnitt“ und ändert nur die Darstellung; gestrichelte Fortsetzungen verdeutlichen die unendliche Ausdehnung. Plattenkontakte gelten auch jenseits des durchgezogen gezeichneten Abschnitts.
 - Das entspricht dem Schulmodell eines homogenen Feldes, nicht der Berechnung realer Randfelder. Fachlicher Bezug: [LEIFIphysik](https://www.leifiphysik.de/elektrizitaetslehre/ladungen-elektrisches-feld/grundwissen/homogenes-elektrisches-feld).
 

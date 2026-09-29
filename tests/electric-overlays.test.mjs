@@ -28,6 +28,8 @@ try{
  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[],failed=[],requests=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>failed.push(r.url()));page.on('request',r=>requests.push(r.url()));
  await page.goto(`${base}/elektrische-felder/`);await page.getByRole('button',{name:'Untersuchung starten'}).click();
+ assert.equal(await page.evaluate(()=>__electricFieldLab.getState().flow),false,'field-line arrows must be static');
+ assert.equal(await page.locator('#flowToggle').count(),0,'animated field-line control must be removed');
  const reports=[];
  for(const preset of ['free','single','negative','dipole','equal','capacitor']){
   await page.locator(`[data-preset="${preset}"]`).click();
