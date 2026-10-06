@@ -2,94 +2,118 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f3eee4">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f5f5f7">
     <title>Interaktive Physik-Anwendungen</title>
     <link rel="icon" href="data:,">
     <style>
         :root {
-            --paper: #f3eee4;
-            --paper-deep: #e8dfd1;
-            --surface: #fffdf8;
-            --surface-soft: #f8f2e9;
-            --ink: #25332f;
-            --muted: #68716d;
-            --petrol: #0f766e;
-            --petrol-dark: #0b5d57;
-            --line: #d9cfbf;
-            --sand: #c99b61;
-            --clay: #b9644f;
-            --violet: #72558f;
-            --shadow: 0 16px 42px rgba(71, 57, 40, .10);
-            --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            --paper: #f5f5f7;
+            --surface: #ffffff;
+            --surface-soft: #eaf3ff;
+            --ink: #1d1d1f;
+            --muted: #626269;
+            --action: #0066cc;
+            --action-pressed: #0055aa;
+            --line: #dedee3;
+            --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
         * { box-sizing: border-box; }
-        html { background: var(--paper); }
+        html { background: var(--paper); scroll-padding-top: 20px; }
         body {
             min-height: 100vh;
             margin: 0;
-            padding: clamp(18px, 4vw, 48px);
+            padding: 24px max(24px, env(safe-area-inset-right)) 16px max(24px, env(safe-area-inset-left));
             color: var(--ink);
-            font-family: var(--font);
-            background:
-                radial-gradient(circle at 8% 2%, rgba(15, 118, 110, .11), transparent 30rem),
-                radial-gradient(circle at 92% 8%, rgba(201, 155, 97, .14), transparent 28rem),
-                var(--paper);
+            font: 400 17px/1.5 var(--font);
+            background: var(--paper);
         }
-        .shell { position: relative; width: min(1160px, 100%); margin: auto; }
-        header { padding: clamp(28px, 5vw, 52px) 0 28px; }
-        .eyebrow {
-            color: var(--petrol);
-            font-size: .78rem;
-            font-weight: 850;
-            letter-spacing: .15em;
-            text-transform: uppercase;
-        }
+        .shell { width: min(1160px, 100%); margin: auto; }
+        header { padding: clamp(24px, 4vw, 48px) 0 28px; }
+        .eyebrow { color: var(--muted); font-size: .88rem; font-weight: 500; }
         h1 {
-            margin: 10px 0 0;
-            font-family: Georgia, "Times New Roman", serif;
-            font-size: clamp(2.4rem, 5.4vw, 4.6rem);
-            font-weight: 700;
-            line-height: .98;
-            letter-spacing: -.05em;
+            max-width: 1000px;
+            margin: 12px 0 0;
+            font-size: clamp(2.1rem, 4.5vw, 3.5rem);
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -.035em;
+            overflow-wrap: break-word;
         }
-        h1 span { color: var(--petrol); }
-        .hero-meta { margin: 16px 0 0; color: var(--muted); font-size: .88rem; font-weight: 760; }
-        .topic-nav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0 0 34px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
-        .topic-nav a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); font-size: .84rem; font-weight: 800; text-decoration: none; transition: color .2s ease; }
-        .topic-nav a:hover { border-color: var(--petrol); color: var(--petrol); }
-        .topic-nav a:focus-visible { outline: 3px solid rgba(15, 118, 110, .3); outline-offset: 2px; }
-        .grade-badge { display: inline-block; margin: 0 6px 2px 0; padding: 2px 9px; border: 1px solid color-mix(in srgb, var(--petrol) 32%, var(--line)); border-radius: 999px; background: var(--surface-soft); color: var(--petrol); font-size: .68rem; font-weight: 850; letter-spacing: .02em; white-space: nowrap; }
-        .work-badge { display: inline-block; margin: 0 0 2px; padding: 2px 9px; border: 1px solid #c85151; border-radius: 999px; background: #fff0ed; color: #a22f2f; font-size: .68rem; font-weight: 900; letter-spacing: .03em; white-space: nowrap; }
-        #app-grid { display: grid; gap: clamp(28px, 4vw, 42px); }
-        .topic-section { min-width: 0; }
-        .topic-head { margin-bottom: 12px; }
-        .topic-head h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(1.7rem, 3vw, 2.35rem); letter-spacing: -.035em; }
-        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+        h1 span { color: var(--ink); }
+        .hero-meta { max-width: 760px; margin: 18px 0 0; color: var(--muted); font-size: 1rem; line-height: 1.6; }
+        .topic-nav { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 40px; }
+        .topic-nav a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 48px;
+            min-height: 48px;
+            padding: 10px 20px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: var(--action);
+            background: var(--surface);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        a:focus-visible { outline: 3px solid var(--action); outline-offset: 4px; }
+        .topic-nav a:active { color: var(--action-pressed); background: var(--surface-soft); }
+        .grade-badge, .work-badge {
+            display: inline-block;
+            margin: 0 6px 8px 0;
+            padding: 3px 9px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--paper);
+            color: var(--muted);
+            font-size: .75rem;
+            font-weight: 500;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+        .work-badge { border-color: #edc784; background: #fff4df; color: #784500; }
+        #app-grid { display: grid; gap: 40px; }
+        .topic-section { min-width: 0; scroll-margin-top: 20px; }
+        .topic-head { margin-bottom: 16px; }
+        .topic-head h2 { margin: 0; font-size: clamp(1.5rem, 2.8vw, 2rem); font-weight: 600; line-height: 1.2; letter-spacing: -.025em; }
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); gap: 16px; }
         .card {
             position: relative;
-            min-height: 132px;
-            overflow: hidden;
-            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 0;
+            min-height: 190px;
+            padding: 24px;
             border: 1px solid var(--line);
-            border-radius: 16px;
-            background: rgba(255, 253, 248, .95);
+            border-radius: 20px;
+            background: var(--surface);
             color: var(--ink);
             text-decoration: none;
-            box-shadow: 0 6px 18px rgba(71, 57, 40, .07);
-            transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+            transition: border-color .15s ease, background-color .15s ease;
         }
-        .card:hover { transform: translateY(-3px); border-color: var(--petrol); box-shadow: 0 12px 28px rgba(71, 57, 40, .11); }
-        .card:focus-visible { outline: 3px solid rgba(15, 118, 110, .34); outline-offset: 4px; }
-
-        .card-title { overflow-wrap: anywhere; hyphens: auto; font-size: 1rem; font-weight: 800; line-height: 1.24; letter-spacing: -.015em; }
-        .card-meta { margin-top: 6px; color: var(--muted); font-size: .74rem; line-height: 1.35; }
-        footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 44px 0 12px; color: #7a807c; font-size: .84rem; }
-        footer a { color: var(--petrol-dark); font-weight: 780; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-        @media (max-width: 560px) {
-            body { padding: 16px; }
-            header { padding-top: 32px; }
-            .card { min-height: 126px; }
+        .card::after { content: 'Öffnen →'; display: block; margin-top: auto; padding-top: 16px; color: var(--action); font-size: .94rem; font-weight: 600; }
+        .card:active { border-color: var(--action); background: #f0f6ff; }
+        .card-title { overflow-wrap: anywhere; hyphens: auto; font-size: 1.12rem; font-weight: 600; line-height: 1.3; letter-spacing: -.015em; }
+        .card-meta { overflow-wrap: anywhere; hyphens: auto; margin-top: 12px; color: var(--muted); font-size: .94rem; line-height: 1.5; }
+        footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 40px; padding: 20px 0 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
+        footer a { display: inline-flex; align-items: center; min-height: 48px; color: var(--action); font-weight: 500; text-underline-offset: 4px; }
+        @media (hover: hover) and (pointer: fine) {
+            .card:hover { border-color: var(--action); }
+            .topic-nav a:hover { border-color: var(--action); background: var(--surface-soft); }
+        }
+        @media (max-width: 1000px) { .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+        @media (max-width: 600px) {
+            body { padding: 16px max(16px, env(safe-area-inset-right)) 16px max(16px, env(safe-area-inset-left)); }
+            header { padding: 24px 0; }
+            .topic-nav { margin-bottom: 32px; gap: 8px; }
+            .topic-nav a { padding-inline: 16px; }
+            .card-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+            .card { min-height: 174px; padding: 20px; }
+            #app-grid { gap: 32px; }
         }
         @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
     </style>

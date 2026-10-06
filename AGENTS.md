@@ -18,6 +18,10 @@ Aus dem aktuellen Prompt hält Codex Ziel, In-Scope, Out-of-Scope, Akzeptanzkrit
 
 Vanilla HTML/CSS/JavaScript und lokale Laufzeit-Assets sind Standard; Offlinefähigkeit, stabile App-Links und Desktop-/iPad-Bedienbarkeit erhalten. Fachmodell, sichtbare Erklärung und Darstellung müssen konsistent sein. Private Obsidian-Inhalte oder persönliche Pfade nie in öffentliche Dateien übernehmen. Obsidian ist nur Hintergrundwissen, niemals automatisch eine Produktanforderung.
 
+## Designsprache
+
+Bei neuen Apps und ausdrücklich beauftragten Designänderungen zuerst `DESIGN.md` lesen und anwenden. Sie beschreibt die abgestimmte Apple-inspirierte Gestaltung und die iPad-Bedienregeln. Bestehende Apps nur im beauftragten Umfang umgestalten; physikalische Farbcodierungen und Modelle bewahren.
+
 ## Nachweise und Abschluss
 
 Prüfungen dem Änderungsrisiko anpassen und nur tatsächlich ausgeführte Tests mit Ergebnis berichten; bei relevanten Änderungen auch visuell prüfen. Der Abschluss nennt geänderte Dateien, Prüfungen mit Resultat und offene Risiken. Keine Tests behaupten.
