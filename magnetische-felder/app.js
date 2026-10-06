@@ -56,7 +56,7 @@ function drawSingles() {
   ctx.strokeStyle = colors.single; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
   for (const w of state.wires) {
     const center = pixel(w);
-    const radii = singleFieldRadii(w, state.wires, geometry.scale, state.rings);
+    const radii = singleFieldRadii(geometry.scale, state.rings);
     // Thin crowded rings without merging their strokes into a filled annulus.
     ctx.lineWidth = radii.length > 1 ? Math.min(1, (radii[1] - radii[0]) * geometry.scale * 0.7) : 1;
     for (const radius of radii) {
