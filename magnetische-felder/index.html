@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>Magnetische Felder · Feldbaukasten</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="page">
+  <header class="topbar">
+    <a class="home" href="../index.html" aria-label="Zur App-Übersicht">← Übersicht</a>
+    <div><h1>Magnetische Felder</h1><p>Leiter setzen. Einzelfelder vergleichen. Eine Spule bauen.</p></div>
+  </header>
+  <div class="layout">
+    <aside class="controls" aria-label="Feldbaukasten bedienen">
+      <section><h2>Leiter bauen</h2>
+        <div class="tools" role="group" aria-label="Werkzeug">
+          <button data-tool="out" aria-pressed="true"><span class="symbol">•</span> Aus der Ebene</button>
+          <button data-tool="in" aria-pressed="false"><span class="symbol">×</span> In die Ebene</button>
+          <button data-tool="move" aria-pressed="false">Auswählen / Verschieben</button>
+        </div>
+        <p id="toolHelp" class="hint">Tippe auf einen freien Rasterpunkt, um einen Leiter zu setzen.</p>
+
+      </section>
+      <section><h2>Felder anzeigen</h2>
+        <label class="switch"><input id="single" type="checkbox"><span>Einzelfelder</span><span class="sample single" aria-hidden="true"></span></label>
+        <label class="switch"><input id="total" type="checkbox" checked><span>Gesamtfeld</span><span class="sample total" aria-hidden="true"></span></label>
+        <p class="hint">• / ×: technische Stromrichtung. Pfeile: Feldrichtung.</p>
+      </section>
+      <section><h2>Anordnung</h2>
+        <button id="coil" class="primary">Spulenbeispiel</button>
+        <button id="pairSame" aria-label="Zwei Leiter: beide in die Ebene"><span aria-hidden="true">× ×</span> Beide in die Ebene</button>
+        <button id="pairOpposite" aria-label="Zwei Leiter: links in die Ebene, rechts aus der Ebene"><span aria-hidden="true">× •</span> Entgegengesetzt</button>
+        <button id="clear">Alles leeren</button>
+        <p class="hint">Ersetzt die Anordnung. Danach frei veränderbar.</p>
+      </section>
+
+    </aside>
+    <section class="stage" aria-label="Magnetfeld und Koordinatenraster">
+      <div class="stage-head"><strong id="count">0 / 64 Leiter</strong><span id="displayState">Gesamtfeld</span></div>
+      <div class="canvas-wrap"><canvas id="field" tabindex="0" aria-label="Leiterraster. Pfeiltasten bewegen den Rastercursor, Enter setzt oder wählt einen Leiter. Im Verschieben-Werkzeug bewegen Pfeiltasten den ausgewählten Leiter. Escape hebt die Auswahl auf; Entf löscht." aria-describedby="keyboardHelp"></canvas></div>
+      <p id="status" class="status" role="status" aria-live="polite">Wähle eine Stromrichtung und setze den ersten Leiter.</p>
+      <section id="selectionPanel"><h2>Ausgewählter Leiter</h2>
+        <p id="selectedInfo" class="hint">Wähle einen Leiter auf dem Raster.</p>
+        <button id="reverse" disabled>Stromrichtung umkehren</button>
+        <button id="remove" disabled>Löschen</button>
+      </section>
+      <details><summary>Bedienung mit der Tastatur</summary><p id="keyboardHelp">Tab führt zum Raster. Pfeiltasten bewegen den Cursor, Enter setzt oder wählt einen Leiter. Mit „Auswählen / Verschieben“ und gewähltem Leiter verschieben die Pfeiltasten den Leiter. Escape hebt die Auswahl auf. Entf löscht den gewählten Leiter.</p></details>
+    </section>
+  </div>
+  <p class="model">Vereinfachtes 2D-Modell langer gerader Leiter. Zwei entgegengesetzte Leiterreihen veranschaulichen die Feldüberlagerung einer Spule. Im mittleren Innenbereich entsteht ein nahezu homogenes Feld; nahe den Leitern und an den Enden ist es gekrümmt. Alle Leiter haben die gleiche Stromstärke. Das Gesamtfeld hat keine Quellen oder Senken: Seine Linien kreuzen sich nicht und sind geschlossen oder setzen sich außerhalb des Bildes fort. Gestrichelte Kreise zeigen einzelne Beiträge; durchgezogene Linien das Gesamtfeld.</p>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>
