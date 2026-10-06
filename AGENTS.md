@@ -22,6 +22,10 @@ Vanilla HTML/CSS/JavaScript und lokale Laufzeit-Assets sind Standard; Offlinefä
 
 Bei neuen Apps und ausdrücklich beauftragten Designänderungen zuerst `DESIGN.md` lesen und anwenden. Sie beschreibt die abgestimmte Apple-inspirierte Gestaltung und die iPad-Bedienregeln. Bestehende Apps nur im beauftragten Umfang umgestalten; physikalische Farbcodierungen und Modelle bewahren.
 
+## Schrittweise Designumstellung
+
+Bei Aufträgen zur schrittweisen Designumstellung zuerst `PLAN.md` lesen. Nach dem jeweiligen Auftrag dort Umbau, tatsächlich ausgeführte Prüfungen, offene Punkte und Veröffentlichungsstand aktualisieren. `PLAN.md` ist die zentrale Fortschrittsliste; Einträge ersetzen weder einen Arbeitsauftrag noch eine Releasefreigabe.
+
 ## Nachweise und Abschluss
 
 Prüfungen dem Änderungsrisiko anpassen und nur tatsächlich ausgeführte Tests mit Ergebnis berichten; bei relevanten Änderungen auch visuell prüfen. Der Abschluss nennt geänderte Dateien, Prüfungen mit Resultat und offene Risiken. Keine Tests behaupten.

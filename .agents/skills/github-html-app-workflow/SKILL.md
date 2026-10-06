@@ -12,6 +12,8 @@ description: Entwickle, ändere und veröffentliche statische HTML-Apps im Proje
 3. Den kleinsten kohärenten Umfang umsetzen. Bestehende Modi, App-Pfade und Gestaltung erhalten, sofern der Auftrag keine Änderung verlangt. Bei nicht durch Git gesichertem Arbeitsstand vor größeren Eingriffen einen getrennten Snapshot erstellen. Keine routinemäßigen Backups bei jeder einzelnen Bearbeitung.
 4. Bei Modelländerungen die passende Referenz aus dem Review-Skill lesen: allgemeine Modellprüfung oder Wellenoptik. Bestehende Methodenaufrufe nach Signaturänderungen prüfen. Neue Darstellung darf bestehende Modellzustände nicht verändern.
 
+Bei neuen Apps und beauftragten Designänderungen `DESIGN.md` im Repository-Hauptordner lesen. Bei schrittweiser Designumstellung zusätzlich `PLAN.md` lesen und den aktuellen Stand mit Git und dem Auftrag abgleichen. Gestaltungsregeln und Fortschrittsliste dort pflegen, nicht im Skill duplizieren.
+
 ## Nachweis passend zur Änderung
 
 - HTML-/JS-Änderungen: betroffene HTML-Struktur, doppelte IDs, geänderte lokale Links und JavaScript-Syntax prüfen. Nur ausführbare Inline-Skripte extrahieren; JSON-Datenblöcke nicht als JavaScript prüfen, Module im Modulmodus behandeln. Vorhandene relevante Tests nutzen.
@@ -29,4 +31,4 @@ Vor Commit den vollständigen vorgesehenen Diff, `git diff --check` und Status p
 
 Nach autorisiertem Push Remote-SHA, Deployment zum Commit und geänderte Live-Dateien prüfen. Cache-Busting allein beweist keinen aktuellen Inhalt; Inhalt oder charakteristische Änderung vergleichen. Bei verzögerter Veröffentlichung begrenzt nachprüfen und den tatsächlichen Status berichten, ohne einen noch laufenden Build als Codefehler darzustellen.
 
-Abschluss knapp: Änderung, tatsächlich ausgeführte Prüfungen, relevante Einschränkungen und gegebenenfalls Commit/Live-Link. Wiederverwendbare Entscheidungen im Projektlog dokumentieren.
+Abschluss knapp: Änderung, tatsächlich ausgeführte Prüfungen, relevante Einschränkungen und gegebenenfalls Commit/Live-Link. Bei der schrittweisen Designumstellung `PLAN.md` mit Umbau, tatsächlich ausgeführten Prüfungen, offenen Punkten und Veröffentlichungsstand aktualisieren. Nur belegte Ergebnisse eintragen; ein Planeintrag ersetzt keine Arbeits- oder Releasefreigabe.
