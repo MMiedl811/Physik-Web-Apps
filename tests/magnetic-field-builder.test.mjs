@@ -1,8 +1,17 @@
 import assert from 'node:assert/strict';
 import { fieldAt, fieldLines, spule, leiterpaar, WIRE_RADIUS, fluxAt, LINE_BOUNDS } from '../magnetische-felder/field-core.mjs';
-import { arrowMarkers } from '../magnetische-felder/field-display.mjs';
+import { arrowMarkers, singleFieldRadii } from '../magnetische-felder/field-display.mjs';
 const close = (actual, expected, tolerance = 1e-10) => assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} ≠ ${expected}`);
 const out = [{ x: 0, y: 0, sign: 1 }];
+for (const arrangement of [out, leiterpaar(), leiterpaar(true), spule()]) {
+  for (const count of [1, 2, 5, 10]) for (const scale of [14, 21, 24, 42]) for (const wire of arrangement) {
+    const radii = singleFieldRadii(wire, arrangement, scale, count);
+    assert.equal(radii.length, count, 'selected ring count for every conductor');
+    assert.ok(radii.every(r => Number.isFinite(r) && r > WIRE_RADIUS));
+    for (let i = 1; i < radii.length; i++) assert.ok(radii[i] > radii[i - 1], 'distinct concentric rings');
+    for (const other of arrangement) if (other !== wire) assert.ok(2 * radii.at(-1) < Math.hypot(wire.x - other.x, wire.y - other.y), 'individual contributions remain separate');
+  }
+}
 // Independently expected directions by the right-hand rule.
 for (const [x, y, bx, by] of [[1,0,0,1],[0,1,-1,0],[-1,0,0,-1],[0,-1,1,0]]) {
   const f = fieldAt(x, y, out); close(f.bx, bx); close(f.by, by);

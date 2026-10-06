@@ -1,8 +1,8 @@
 import { DOMAIN, WIRE_RADIUS, MAX_WIRES, fieldAt, fieldLines, spule, leiterpaar } from './field-core.mjs';
-import { arrowMarkers } from './field-display.mjs';
+import { arrowMarkers, singleFieldRadii } from './field-display.mjs';
 const $ = id => document.getElementById(id);
 const canvas = $('field'), ctx = canvas.getContext('2d');
-const state = { wires: [], tool: 'out', selected: null, single: false, total: true, cursor: { x: 0, y: 0 } };
+const state = { wires: [], tool: 'out', selected: null, single: false, total: true, rings: 5, cursor: { x: 0, y: 0 } };
 let nextId = 1, lines = [], dirty = true, frame = null, drag = null, geometry;
 const colors = { total: '#006b73', single: '#617981', ink: '#1d1d1f', action: '#0066cc' };
 const selected = () => state.wires.find(w => w.id === state.selected);
@@ -15,6 +15,7 @@ function updateControls() {
   $('selectedInfo').textContent = w ? `(${w.x} | ${w.y}) · ${w.sign > 0 ? '• Aus der Ebene' : '× In die Ebene'}` : 'Wähle einen Leiter auf dem Raster.';
   $('reverse').disabled = $('remove').disabled = !w;
   $('displayState').textContent = state.single && state.total ? 'Einzelfelder + Gesamtfeld' : state.single ? 'Einzelfelder' : state.total ? 'Gesamtfeld' : 'Felder ausgeblendet';
+  $('rings').value = String(state.rings);
   document.querySelectorAll('[data-tool]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.tool === state.tool)));
   $('toolHelp').textContent = state.tool === 'move' ? 'Tippe auf einen Leiter, um ihn auszuwählen. Ziehe ihn auf einen freien Rasterpunkt.' : 'Rasterpunkt: setzen. Leiter: auswählen.';
 }
@@ -52,18 +53,20 @@ function drawGrid() {
   q = pixel({ x: 0, y: 6 }); ctx.fillText('y', q.x + 8, q.y - 12);
 }
 function drawSingles() {
-  ctx.strokeStyle = colors.single; ctx.lineWidth = 1.2; ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = colors.single; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
   for (const w of state.wires) {
     const center = pixel(w);
-    const nearest = Math.min(...state.wires.filter(other => other !== w).map(other => Math.hypot(w.x - other.x, w.y - other.y)));
-    const outer = Math.min(3.5, nearest * 0.43);
-    // Separate source contributions are exact circles. Limit their extent in
-    // multi-source views so the overlay does not look like a crossing total field.
-    for (let radius = outer; radius > WIRE_RADIUS * 1.3; radius /= 1.85) {
+    const radii = singleFieldRadii(w, state.wires, geometry.scale, state.rings);
+    // Thin crowded rings without merging their strokes into a filled annulus.
+    ctx.lineWidth = radii.length > 1 ? Math.min(1, (radii[1] - radii[0]) * geometry.scale * 0.7) : 1;
+    for (const radius of radii) {
       ctx.beginPath(); ctx.arc(center.x, center.y, radius * geometry.scale, 0, Math.PI * 2); ctx.stroke();
-      if (radius * geometry.scale > 8) {
+      if (radius === radii.at(-1) && radius * geometry.scale > 8) {
+        const gap = radii.length > 1 ? (radius - radii.at(-2)) * geometry.scale : Infinity;
+        const size = Math.min(2.5, gap * 0.8);
+        if (size < 1) continue;
         const angle = Math.PI / 4, p = { x: w.x + radius * Math.cos(angle), y: w.y + radius * Math.sin(angle) };
-        arrow(p, { x: -w.sign * Math.sin(angle), y: w.sign * Math.cos(angle) }, colors.single, 2.5);
+        arrow(p, { x: -w.sign * Math.sin(angle), y: w.sign * Math.cos(angle) }, colors.single, size);
       }
     }
   }
@@ -164,6 +167,7 @@ canvas.addEventListener('focus', () => refresh()); canvas.addEventListener('blur
 document.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', () => { state.tool = b.dataset.tool; refresh(); }));
 $('single').addEventListener('change', e => { state.single = e.target.checked; refresh(); });
 $('total').addEventListener('change', e => { state.total = e.target.checked; refresh(); });
+$('rings').addEventListener('change', e => { state.rings = Number(e.target.value); refresh(); });
 $('reverse').addEventListener('click', () => { const w = selected(); if (w) { w.sign *= -1; message(`Stromrichtung bei (${w.x} | ${w.y}) umgekehrt.`); refresh(true); } });
 $('remove').addEventListener('click', remove);
 function loadExample(wires, text) {
