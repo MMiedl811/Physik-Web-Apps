@@ -27,7 +27,7 @@ Nächster Schritt: Im nächsten Umbauauftrag zwei Apps als erstes Paket auswähl
 | [Vektor-Labor](vektor-labor/index.html) | Offen | Nicht geprüft | Nein |
 | [Drei-Finger-Quiz](drei-finger-quiz/index.html) | Offen | Nicht geprüft | Nein |
 | [Feldvektor-Werkstatt](feldvektor-werkstatt/) | Offen | Nicht geprüft | Nein |
-| [Elektrische Felder](elektrische-felder/index.html) | Gesamte Oberfläche nach `DESIGN.md` angepasst (07.10.2026) | Chromium: alle Modi, Desktop/iPad-Formate, Zoom und Regression erfolgreich; Details unten | UI-Release freigegeben; Veröffentlichung läuft |
+| [Elektrische Felder](elektrische-felder/index.html) | Gesamte Oberfläche nach `DESIGN.md` angepasst (07.10.2026) | Chromium: alle Modi, Desktop/iPad-Formate, Zoom und Regression erfolgreich; Details unten | Ja; `481cc64`, Pages bestätigt (07.10.2026) |
 | [Kondensator-Pendel](kondensator-pendel/) | Offen | Nicht geprüft | Nein |
 | [Quanten-Labor](energiestufenmodell/) | Offen | Nicht geprüft | Nein |
 
@@ -66,4 +66,4 @@ Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` u
 - **Darstellungspräzision:** das neue Canvas-Format deckte im bestehenden Regressionstest einen Fehler sehr kurzer Äquipotentialsegmente auf. Schnittpunkte werden mit 20 statt 12 Bisektionsschritten bestimmt; Feldberechnung und Konturwerte unverändert. Danach alle Konturprüfungen erfolgreich.
 - **Prüfungen:** `electric-ui.test.mjs`, `electric-field-views.test.mjs`, `electric-ideal-capacitor.test.mjs`, `electric-overlays.test.mjs` und `electric-superposition-mode.test.mjs` erfolgreich. Echte Browseraktionen für Modi, Vorzeichen, Start/Pause, Reset, Checkboxen, Tastaturtabs, Einstieg, Erklärung und Navigation; keine Browser-/Requestfehler, ausschließlich lokale Laufzeit-Assets. HTML-IDs eindeutig, Inline-JS-Syntax und `git diff --check` erfolgreich. Neue Textkontraste ≥ 4,5:1; Eingabeumrisse ≥ 3:1.
 - **Visuell:** Chromium 1440×900, 1024×768, 820×1180 und 390×844 angesehen; alle drei Modi, Potential-/Konturansicht sowie Einstieg. Zusätzlich 720×450 als Layoutäquivalent von 200 % Desktopzoom und verdoppelte UI-Schrift geprüft/angesehen; lange Buttonwörter umbrechen ohne Überlappung. Keine horizontalen Überläufe; keine globale Scrollsperre nach Einstieg. Kein echter iPad-Hardwaretest.
-- **Veröffentlichung:** ausdrücklich freigegeben, Release wird nach Push durch Remote-SHA und Vergleich der ausgelieferten Pages-Datei bestätigt. Separater Checkout bewahrt fremde lokale Änderungen und unveröffentlichte Commits.
+- **Veröffentlichung:** ausdrücklich freigegeben und veröffentlicht: App/Test/UI-Dokumentation im Commit `481cc64`; Remote-SHA bestätigt. Live-App-Datei am 07.10.2026 bytegleich zum Release; `electric-ui.test.mjs` auch auf der öffentlichen Pages-App erfolgreich. Separater Checkout bewahrt fremde lokale Änderungen und unveröffentlichte Commits. Keine offenen Punkte im beauftragten Umfang.
