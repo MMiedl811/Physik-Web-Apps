@@ -27,7 +27,7 @@ Nächster Schritt: Im nächsten Umbauauftrag zwei Apps als erstes Paket auswähl
 | [Vektor-Labor](vektor-labor/index.html) | Offen | Nicht geprüft | Nein |
 | [Drei-Finger-Quiz](drei-finger-quiz/index.html) | Offen | Nicht geprüft | Nein |
 | [Feldvektor-Werkstatt](feldvektor-werkstatt/) | Offen | Nicht geprüft | Nein |
-| [Elektrische Felder](elektrische-felder/index.html) | Offen | Nicht geprüft | Nein |
+| [Elektrische Felder](elektrische-felder/index.html) | Anzeigegruppe gezielt angepasst (07.10.2026); übriges Design offen | Chromium: Feldansichten und Regressionstests erfolgreich, Details unten | Ja; `2fbab80`, Pages bestätigt (07.10.2026) |
 | [Kondensator-Pendel](kondensator-pendel/) | Offen | Nicht geprüft | Nein |
 | [Quanten-Labor](energiestufenmodell/) | Offen | Nicht geprüft | Nein |
 
@@ -47,3 +47,12 @@ In der Tabelle je App kurz Datum, Ergebnis und verbleibende Einschränkungen erg
 Es gibt bereits unveröffentlichte App-Änderungen, unter anderem im Commit `ce3449c`, sowie den lokalen Fadenpendel-Versuch. Vor jedem Release den aktuellen Diff prüfen und ausschließlich das beauftragte Paket veröffentlichen. Die lokale Übersicht enthält zwei zusätzliche Einträge; die hier erfassten 14 Apps entsprechen dem GitHub-Stand `05a15b7`.
 
 Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` und dem `AGENTS.md`-Verweis ausdrücklich freigegeben. Dieser Dokumentationsrelease enthält keine App-Änderungen. Künftige Veröffentlichungsfreigaben ergeben sich aus dem jeweiligen aktuellen Auftrag.
+
+## Elektrische Felder: Einzel- und Gesamtfeld (7. Oktober 2026)
+
+- **Umfang:** ausschließlich neue Feldlinienansichten, zugehörige Bediengruppe und Erklärung. Zwei unabhängige Checkboxen mit mindestens 48-px-Touchflächen, sichtbarem Fokus und Linienmustern nach `DESIGN.md`. Standard/Reset: nur Gesamtfeld. Auswahl bleibt bei Voreinstellungs- und Moduswechsel erhalten. Die übrige App wurde nicht auf das neue Design umgestellt.
+- **Darstellung:** analytische radiale Einzelfeldlinien bei Punktladungen, versetzte horizontale Einzelbeiträge beider idealer Platten; gestrichelt in vorhandenen Quellenfarben. Bestehende Gesamtfeldlinien bleiben durchgezogen und grün. Messwerte, Potential, Äquipotentiallinien und Bewegung beruhen weiterhin auf dem Gesamtfeld; Pfeile sind statisch.
+- **Neue Prüfung:** `tests/electric-field-views.test.mjs` erfolgreich. Vier Schalterkombinationen mit unterschiedlichen Canvas-Bildern; analytische Quellenrichtungen und radiale Übereinstimmung bei Einzelladungen; Plattenbeiträge innen/außen; unveränderte Feld-/Potentialwerte und deterministische Bewegung; Reset, Moduspersistenz, Tastatur/Fokus, Touchflächen, Navigation und lokale Laufzeit-Assets.
+- **Regression:** `electric-ideal-capacitor.test.mjs` erfolgreich (450 Modellpunkte, Außenfeld, Potentialgradient, Kollision); `electric-overlays.test.mjs` erfolgreich (Potential/Äquipotentiallinien, Bewegung und Reset); `electric-superposition-mode.test.mjs` erfolgreich. HTML-IDs, Inline-JS-Syntax und `git diff --check` erfolgreich.
+- **Visuell angesehen:** Chromium 1440×900, 1024×768 und 820×1180, Standard sowie Dipol/Kondensator mit beiden Ebenen; zusätzlich 390×844, 720×450 als Layoutäquivalent zu 200 % Desktopzoom sowie separat verdoppelte Textgrößen der neuen Anzeigegruppe. Keine horizontalen Überläufe; ein langer Textumbruch bei vergrößerter Schrift wurde korrigiert. Kein Test auf einem echten iPad und keine vollständige Designprüfung der übrigen App.
+- **Veröffentlichung:** nach ausdrücklicher Freigabe veröffentlicht. App und neuer Test: Commit `2fbab80`; Remote-SHA bestätigt, live ausgelieferte App-Datei am 07.10.2026 bytegleich geprüft; `electric-field-views.test.mjs` auch auf der öffentlichen Pages-App erfolgreich. Release aus separatem Checkout des aktuellen Remote-Stands; fremde lokale Änderungen und unveröffentlichte Commits nicht mit veröffentlicht. Keine offenen Punkte im beauftragten Umfang.
