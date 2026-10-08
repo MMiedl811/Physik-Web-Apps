@@ -35,7 +35,7 @@ try{
  for(const size of [{width:1440,height:900},{width:1024,height:768},{width:820,height:1180}]){
   await page.setViewportSize(size);
   await page.locator('#superpositionModeBtn').click();
-  await page.locator('#lengthSlider').fill('4.4');await page.locator('#lengthSlider').dispatchEvent('input');
+  assert.equal(await page.locator('#lengthSlider').count(),0);
   await page.evaluate(()=>__electricFieldLab.placeProbe(-.23,.55));
   await page.screenshot({path:`${tmpdir()}/ideal-capacitor-${size.width}.png`,fullPage:true});
   await page.locator('#fieldModeBtn').click();await page.locator('#backgroundSelect').selectOption('potential');await page.locator('#equipotentialToggle').check();
