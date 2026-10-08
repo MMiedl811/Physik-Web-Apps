@@ -1,6 +1,6 @@
 # Designsprache von Physik-Web-Apps
 
-Stand: 6. Oktober 2026. Von Matthias gewählte Richtung: Apple-inspiriert, hell, ruhig und gut mit dem Finger bedienbar. Gilt für neue Apps und ausdrücklich beauftragte Designänderungen. Diese Datei ist eine Arbeitsanweisung für die Umsetzung; sie lädt kein CSS und verändert bestehende Apps nicht automatisch.
+Stand: 8. Oktober 2026. Von Matthias gewählte Richtung: Apple-inspiriert, hell, ruhig und gut mit dem Finger bedienbar. Gilt für neue Apps und ausdrücklich beauftragte Designänderungen. Diese Datei ist eine Arbeitsanweisung für die Umsetzung; sie lädt kein CSS und verändert bestehende Apps nicht automatisch.
 
 ## 1. Ziel und Herkunft
 
@@ -95,13 +95,30 @@ App-Pfade, Themen, Klassenstufen und Status erhalten, sofern kein inhaltlicher A
 
 Vor der Umsetzung diese Datei und die betroffene App lesen. Nur benötigte Rollen in lokale CSS-Variablen übernehmen; keine ungenutzte Komponentenbibliothek anlegen. Bei Konflikten gelten der aktuelle Auftrag und die Projektregeln. Bestehende Fachfarben oder Modelle nicht aufgrund der Designvorlage ändern.
 
-Nach relevanten Designänderungen:
+### Verbindliche Abschlussprüfung bei UI-Änderungen
 
-1. Desktop, 1024 × 768 und 820 × 1180 rendern und tatsächlich ansehen; zusätzlich schmale Fenster bzw. 200 % Zoom prüfen.
-2. Überlauf, abgeschnittenen Text, Touchflächen, Fokus und Zustandsunterscheidung kontrollieren; nicht nur den Ausgangszustand prüfen.
-3. Relevante Controls mit echten Browseraktionen bedienen; Front Page → App → Front Page prüfen.
-4. Browserfehler, fehlende lokale Assets, externe Laufzeit-Requests, HTML-IDs und JS-Syntax prüfen; `git diff --check` ausführen.
-5. Viewport-Emulation ausdrücklich von Tests auf einem echten iPad unterscheiden. Veröffentlichung getrennt von lokalem Testen nachweisen.
+Die Bedien- und Layoutprüfung gehört zur Umsetzung, bevor eine UI-Änderung als fertig gemeldet wird. Bestätigte Fehler selbst beheben und die betroffenen Zustände erneut prüfen. Die Kontrolle durch Matthias ist keine vorgesehene Ersatzprüfung. Das gilt im beauftragten App-Umfang; es löst keinen ungefragten Umbau anderer Apps aus.
+
+1. **Zustände festlegen:** alle Untersuchungsmodi, umgeschaltete/ausgeblendete Bediengruppen sowie relevante Zustände wie bereit, laufend, pausiert, beendet und Reset berücksichtigen. Lange Buttontexte, Extremwerte und geöffnete Zusatztexte einbeziehen, soweit vorhanden. Der Ausgangszustand allein genügt nicht.
+2. **Breiten und Browser prüfen:** Desktop, 1024 × 768 und 820 × 1180 sowie schmale Mehrfensterbreite und 200 % Zoom bzw. ausdrücklich benanntes Layoutäquivalent prüfen. Bei iPad-relevanten UI-Änderungen Chromium und WebKit mit Touch-Kontext verwenden. WebKit ist eine Safari-Näherung, kein echter iPad-Test. Fehlt ein Browser, die Prüflücke offen nennen.
+3. **Tatsächlich ansehen:** Screenshots der relevanten Modi in beiden iPad-Formaten und des kritischen Desktopzustands öffnen und beurteilen. Messungen wie `getBoundingClientRect()`, `scrollWidth` oder bestandene Tests ergänzen die Sichtprüfung; sie beweisen keine korrekt sichtbare native Kontrollfläche oder sinnvoll angeordnete Karte.
+4. **Bedienen und nachmessen:** relevante Controls mit echten Browseraktionen bedienen. Mindestens 48 × 48 CSS-px Trefferfläche, sichtbare Auswahl/Fokus, vollständige Texte und Messwerte, Abstände und fehlenden horizontalen Überlauf kontrollieren. Nach Moduswechseln und Größenänderungen prüfen, nachdem das Layout aktualisiert wurde. Den betroffenen Weg Übersicht → App → Übersicht erhalten.
+5. **Technik und Abschluss:** Browser-/Assetfehler, externe Laufzeit-Requests, eindeutige HTML-IDs, ausführbares JavaScript und `git diff --check` prüfen. Gefundene Fehler mit einer gezielten Regression absichern, wenn ein reproduzierbarer Zustand dies sinnvoll ermöglicht. Geprüfte Browser, Größen und Zustände sowie verbleibende Einschränkungen in `PLAN.md` bzw. im Abschluss nennen. Lokale Prüfung, Push und Live-Veröffentlichung getrennt nachweisen.
+
+### Typische Layoutfolgen im Code
+
+Bei einer Modernisierung gezielt die folgenden Ursachen kontrollieren. Eine andere Kartengröße oder ein sinnvoller Textumbruch ist für sich noch kein Fehler.
+
+| Codeänderung oder Zustand | Zu prüfende sichtbare Folge | Passende Korrektur |
+| --- | --- | --- |
+| Ein Modus blendet Grid-Kinder aus | Leere Spalten, falsche Platzierung oder unnötige Leerflächen bleiben zurück | Spalten/Spans an die sichtbaren Gruppen anpassen; alle Modi erneut prüfen |
+| Karten stehen in derselben Grid-Zeile | Kurze Informationskarte wird ohne Nutzen auf die Höhe einer langen Karte gestreckt | Bei unabhängigem Inhalt am Zeilenanfang ausrichten; keine pauschalen festen Höhen |
+| Ein Werkzeug bleibt allein in einer zweispaltigen Gruppe | Button nutzt nur halbe Breite; Text wird unnötig zerstückelt | Im betreffenden Zustand volle Gruppenbreite nutzen; 48-px-Fläche erhalten |
+| Fieldset/Legend trifft auf gewöhnliche Kartenüberschriften | Überschrift und erste Eingabe beginnen versetzt | Semantik erhalten und Innenabstände/Legendenposition browserübergreifend abstimmen |
+| Native Selects, Slider oder Buttons erhalten neue CSS-Maße | Gemessene Touchfläche stimmt, sichtbare Kontrollfläche ist trotzdem klein oder versetzt | In WebKit tatsächlich ansehen; nötigenfalls app-lokales Erscheinungsbild anpassen, native Bedienung erhalten |
+| Canvas wird kleiner, Objekt wird gezogen oder verlässt die Ansicht | Text wird am Rand abgeschnitten oder ein außerhalb liegendes Symbol bleibt sichtbar | Beschriftungen getrennt von Modellkoordinaten platzieren und begrenzen; außerhalb liegende Objekte passend ausblenden; Physik unverändert lassen |
+
+Fachmodell und physikalische Farben durch Layoutkorrekturen nicht verändern. Prüfungen auf einem echten iPad gesondert benennen; emulierte Viewports oder Touch-Kontexte nicht als Hardwareprüfung ausgeben.
 
 ## 9. Freigegebene Richtung und aktueller Umfang
 
