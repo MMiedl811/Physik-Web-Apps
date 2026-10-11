@@ -3,7 +3,7 @@ import {createRequire} from 'node:module';
 import {readFileSync} from 'node:fs';
 import {defaultState,solve,validate,importState} from '../feldvektor-werkstatt/model.mjs';
 // Independently rounded Coulomb reference: 10 pC at 5 cm gives about 35.95 V/m.
-const s=defaultState();s.sources=[{id:1,x:0,y:0,q:1e-11}];s.point={x:3,y:4};
+const s=defaultState();s.mode="charges";s.sources=[{id:1,x:0,y:0,q:1e-11}];s.point={x:3,y:4};
 const at5=solve(s);assert.ok(Math.abs(at5.magnitude-35.95)<.002);assert.ok(Math.abs(at5.fields[0].x-21.5701243)<1e-6);assert.ok(Math.abs(at5.fields[0].y-28.7601657)<1e-6);
 s.point={x:6,y:8};const at10=solve(s);assert.ok(Math.abs(at10.magnitude/at5.magnitude-.25)<1e-12);
 s.sources[0].q=-2e-11;assert.ok(Math.abs(solve(s).res.x/at10.res.x+2)<1e-12);
@@ -21,11 +21,11 @@ const browser=await chromium.launch();
 try{
  const page=await browser.newPage({viewport:{width:1440,height:900}}),errors=[],requests=[],failed=[];
  page.on('pageerror',e=>errors.push(e.message));page.on('request',r=>requests.push(r.url()));page.on('requestfailed',r=>failed.push(r.url()));
- await page.goto(base+'/feldvektor-werkstatt/');await page.waitForFunction(()=>window.__fieldVectorWorkshop);
+ await page.goto(base+'/feldvektor-werkstatt/');await page.waitForFunction(()=>window.__fieldVectorWorkshop);await page.locator('#mode').selectOption('charges');
  const state=()=>page.evaluate(()=>__fieldVectorWorkshop.getState()),result=()=>page.evaluate(()=>__fieldVectorWorkshop.getResult());
  const fill=async(id,v)=>page.locator('#'+id).fill(String(v));
  await page.screenshot({path:'/tmp/workshop-v2-default.png',fullPage:true});
- assert.equal((await state()).sources.length,2);assert.ok(Math.abs((await result()).magnitude-43.1402486)<1e-6);
+ assert.equal((await state()).sources.length,2);assert.ok(Math.abs((await result()).magnitude-2.4)<1e-6);
  // Physical charge is unchanged by unit selection; moving P changes E by inverse square.
  await page.locator('#example').selectOption('single');assert.equal(await page.locator('#q1').inputValue(),'10');
  const qBefore=(await state()).sources[0].q;await page.locator('#unit1').selectOption('nC');assert.equal(await page.locator('#q1').inputValue(),'0.01');assert.equal((await state()).sources[0].q,qBefore);

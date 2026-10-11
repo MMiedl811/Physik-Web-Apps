@@ -9,3 +9,9 @@ Leeres Spielfeld, Einzelquelle, Dipol, vier Quellen und zwei Schulbuchvorlagen. 
 Schulbuchvorlagen: Dipol ergibt zunächst (−2,4|0) V/m. Die positiven Quellen ergeben etwa (−2,24|9,47) V/m, Betrag 9,73 V/m (grafisch gerundet 10 V/m). Diese Vorlagen verwenden aus den ursprünglichen Feldbeträgen berechnete Ladungen.
 
 Prüfung: `tests/field-vector-workshop.test.mjs` prüft Coulombgesetz, Vorzeichen, Abstandsgesetz, vier Quellen und Nullfeld, Singularität, gemeinsame Pfeilmaßstäbe, echte Browserbedienung, Rückgängig, PNG und JSON Version 1/2 sowie Desktop- und Tabletansichten. Die Veröffentlichung der Überarbeitung vom 01.10.2026 ist von Matthias beauftragt.
+
+## Eingabemodi
+
+Standard ist **Feldstärken in P eingeben**: E₁ bis E₄ in V/m kommen aus der Aufgabe; Quellpositionen und Vorzeichen bestimmen die Richtung. Beim Verschieben von P bleiben die vorgegebenen Beträge erhalten. Das ist ein Aufgabenmodell, kein Feld unveränderlicher Ladungsbeträge.
+
+Der zweite Modus **Quellladungen eingeben** verwendet feste Ladungsbeträge in pC/nC und berechnet die Beiträge in P nach Coulomb. Beim Moduswechsel erhält die App die Einzelfelder am aktuellen P und ermittelt passende Ladungsbeträge automatisch. Gespeicherte Aufbauten behalten ihren Modus; ältere v2-Dateien ohne Modus gelten als Quellladungsaufbauten.
