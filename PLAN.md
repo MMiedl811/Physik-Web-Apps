@@ -1,14 +1,14 @@
 # Schrittweise Designumstellung
 
-Stand: 6. Oktober 2026. Ziel: Die 14 Apps der veröffentlichten Front Page nach `DESIGN.md` gestalten und auf Desktop sowie iPad gut bedienbar halten. Modelle, Inhalte, fachliche Farben und App-Links bleiben erhalten, sofern der aktuelle Auftrag nichts anderes verlangt.
+Stand: 12. Oktober 2026. Ziel: Die Apps der sichtbaren Front Page nach `DESIGN.md` gestalten und auf Desktop sowie iPad gut bedienbar halten. Modelle, Inhalte, fachliche Farben und App-Links bleiben erhalten, sofern der aktuelle Auftrag nichts anderes verlangt.
 
 ## Vorgehen und Zuständigkeit
 
-In kleinen Paketen von zwei bis drei Apps arbeiten. Matthias beauftragt das nächste Paket und entscheidet über Veröffentlichung; Codex setzt es um, prüft es und aktualisiert diese Datei am Ende des Auftrags, auch bei offenen Problemen. Ein Eintrag in dieser Liste ist keine automatische Arbeits- oder Releasefreigabe.
+Schrittweise eine App oder ein kleines Paket gemäß aktuellem Auftrag bearbeiten. Matthias beauftragt den nächsten Umbau und entscheidet über Veröffentlichung; Codex setzt ihn um, prüft ihn und aktualisiert diese Datei am Ende des Auftrags, auch bei offenen Problemen. Ein Eintrag in dieser Liste ist keine automatische Arbeits- oder Releasefreigabe.
 
 `DESIGN.md` enthält die Gestaltungsregeln. **Diese Datei ist die zentrale Buchführung für Fortschritt und Prüfstand.** Erinnerungen enthalten nur einen Verweis hierher, keine zweite Statusliste. Vor jeder Fortsetzung aktuellen Git- und Veröffentlichungsstand prüfen. Prüfungen nach späteren Änderungen erneut bewerten.
 
-Nächster Schritt: Im nächsten Umbauauftrag zwei Apps als erstes Paket auswählen; die Auswahl ist noch offen. Die Buchführung ist eingerichtet; Workflow-Skill und Plan werden mit ausdrücklicher Freigabe veröffentlicht. In diesem Auftrag wird keine weitere App umgebaut.
+Nächster Schritt: Bei einem neuen Umbauauftrag eine sichtbare App mit „Offen“ auswählen. Zuerst aktuelle Frontpage, Git-Status und diese Tabelle abgleichen; ausgeblendete Apps nicht automatisch aufnehmen. Das Leistungslabor ist lokal umgestellt und noch nicht veröffentlicht.
 
 ## Prüfstand der Designumstellung
 
@@ -19,13 +19,16 @@ Nächster Schritt: Im nächsten Umbauauftrag zwei Apps als erstes Paket auswähl
 | [Energie-Runner](energie-runner/) | Offen | Nicht geprüft | Nein |
 | [Freier Fall in Zeitlupe](freier-fall-energie/) | Offen | Nicht geprüft | Nein |
 | [Kreisbewegungs-Labor](kreisbewegungs-labor/index.html) | Offen | Nicht geprüft | Nein |
-| [Leistungslabor: Treppe & Heben](mechanische-leistung/index.html) | Offen | Nicht geprüft | Nein |
+| [Leistungslabor: Treppe & Heben](mechanische-leistung/index.html) | Lokal umgestellt (12.10.2026) | Chromium/WebKit mit Touch, beide Versuche, Desktop/iPad/schmale Fenster, Textvergrößerung; Details unten | Nein |
 | [Newtons Kanonenkugel](newtons-kanonenkugel/index.html) | Offen | Nicht geprüft | Nein |
 | [Waagrechter und schräger Wurf](waagrechter%20Wurf/) | Offen | Nicht geprüft | Nein |
 | [Kraft führt zu einer Kreisbewegung](zentripetalkraft-labor/index.html) | Offen | Nicht geprüft | Nein |
 | [Geschwindigkeitsänderung](v_aenderung/) | Offen | Nicht geprüft | Nein |
 | [Vektor-Labor](vektor-labor/index.html) | Offen | Nicht geprüft | Nein |
 | [Drei-Finger-Quiz](drei-finger-quiz/index.html) | Offen | Nicht geprüft | Nein |
+| [Leiterschleife im Magnetfeld](leiterschleife-magnetfeld/index.html) | Offen (älteres Design im Quelltext) | Nicht geprüft | Nein |
+| [Induktion am bewegten Leiterstab](induktion-leiterstab/index.html) | Offen (älteres Design im Quelltext) | Nicht geprüft | Nein |
+| [Magnetische Felder](magnetische-felder/) | Neue Designsprache im lokalen Quelltext vorhanden | In diesem Auftrag nicht geprüft; vor einer Fertigmeldung separat prüfen | Nicht bestätigt |
 | [Feldvektor-Werkstatt](feldvektor-werkstatt/) | Offen | Nicht geprüft | Nein |
 | [Elektrische Felder](elektrische-felder/index.html) | Gesamte Oberfläche nach `DESIGN.md` angepasst (07.10.2026) | Chromium: alle Modi, Desktop/iPad-Formate, Zoom und Regression erfolgreich; Details unten | Ja; `481cc64`, Pages bestätigt (07.10.2026) |
 | [Kondensator-Pendel](kondensator-pendel/) | Offen | Nicht geprüft | Nein |
@@ -44,7 +47,7 @@ In der Tabelle je App kurz Datum, Ergebnis und verbleibende Einschränkungen erg
 
 ## Lokale Arbeit und Veröffentlichung
 
-Es gibt bereits unveröffentlichte App-Änderungen, unter anderem im Commit `ce3449c`, sowie den lokalen Fadenpendel-Versuch. Vor jedem Release den aktuellen Diff prüfen und ausschließlich das beauftragte Paket veröffentlichen. Die lokale Übersicht enthält zwei zusätzliche Einträge; die hier erfassten 14 Apps entsprechen dem GitHub-Stand `05a15b7`.
+Es gibt bereits unveröffentlichte App-Änderungen, unter anderem im Commit `ce3449c`, sowie den lokalen Fadenpendel-Versuch. Vor jedem Release den aktuellen Diff prüfen und ausschließlich das beauftragte Paket veröffentlichen. Historische Ausgangsliste: 14 Apps am GitHub-Stand `05a15b7`. Am 12.10.2026 enthält die lokale Frontpage 17 sichtbare App-Links; die Tabelle erfasst diese 17 Apps. Neu erfasste Einträge bestätigen keine früheren Prüfungen oder Veröffentlichungen.
 
 Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` und dem `AGENTS.md`-Verweis ausdrücklich freigegeben. Dieser Dokumentationsrelease enthält keine App-Änderungen. Künftige Veröffentlichungsfreigaben ergeben sich aus dem jeweiligen aktuellen Auftrag.
 
@@ -107,3 +110,11 @@ Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` u
 - **Prüfung:** `field-vector-default-mode.test.mjs` und angepasster bestehender `field-vector-workshop.test.mjs`: unabhängige Vektorsumme, Coulomb- und Abstandsreferenz, Konversion, echte P-Platzierung, Feldwerteingaben, Vorlagen, bis zu vier Quellen, JSON-Kompatibilität, PNG, Ziehen/Tastatur/Rückgängig. Chromium und WebKit mit Touch, Desktop 1440×900, 1024×768, 820×1180, 600×900 und 720×450 als Zoom-Layoutäquivalent. Keine Browser-/Requestfehler oder horizontalen Überläufe; sichtbare Eingaben/Buttons mindestens 48 px hoch.
 - **Visuell:** Desktop sowie beide iPad-Formate mit Feldwerteingabe und Quellladungsmodus angesehen. Native Auswahldarstellung und Fokus app-lokal angepasst; Quellenbeschriftungen am Achsenrand unterhalb der Achsenwerte. Keine vollständige Designmigration oder echter iPad-Hardwaretest.
 - **Veröffentlichung:** am 11.10.2026 nach ausdrücklicher Freigabe veröffentlicht: App und Tests in Commit `ea23d3a`; Remote-SHA und erfolgreicher Pages-Workflow bestätigt. Alle vier Laufzeitdateien live bytegleich zum geprüften Release. Neuer Standardmodus-Test auch auf der öffentlichen App in Chromium und WebKit erfolgreich. Andere lokale Arbeiten und der lokal vorhandene Aufgabenmodus nicht enthalten.
+
+## Leistungslabor: Designumstellung (12. Oktober 2026)
+
+- **Auftrag:** eine sichtbare App auswählen und nach `DESIGN.md` modernisieren; Fortschritt für neue Sessions dokumentieren. Gewählt: Leistungslabor mit Treppenlauf und Gewichtheben. Veröffentlichung im Folgeauftrag ausdrücklich freigegeben (12.10.2026).
+- **Umbau:** app-lokale helle Flächen, Systemschrift, blaue Aktionen, sichtbare Übersichtsnavigation, Auswahl-/Druck-/Fokuszustände, mindestens 48-px-Controls, größere Messwerte und Canvas-Achsen. Simulation und Diagramme ab 820 px nebeneinander, darunter gestapelt. Einstieg und Formelerklärung ebenfalls angepasst. Statusanzeigen oberhalb der Szene verdecken keine Figuren; Hubhöhenbeschriftung oberhalb der Personen platziert. Lange Texte umbrechen auch bei vergrößerter Schrift. Fachmodell, Szenen und physikalische Farben bewahrt; Diagrammzeiger an die größeren Achsenränder angepasst.
+- **Prüfung:** `tests/power-lab-design.test.mjs` erfolgreich in Chromium und WebKit mit Touch-Kontext: 1440×900, 1024×768, 820×1180, 600×900, 720×450 als 200-%-Zoom-Layoutäquivalent und 390×900; beide Modi, Start/Pause, Tempoauswahl, Zeitregler an Extremwerten, Diagrammprüfung per Tastatur, Reset, Formeln, Einstieg und Übersicht → App → Übersicht. Zusätzlich verdoppelte UI-Textgrößen; kein horizontaler Überlauf, keine zu kleinen Controls, doppelten IDs, Browser-/Assetfehler oder externen Laufzeit-Requests. Unabhängige Zahlenreferenzen: Treppen-Zielenergie 2678,13 J, Hebeleistungen bei 5 s/1 s gerundet 137 W/687 W. Physikfunktionen im Quelltext mit dem Ausgangsstand verglichen und unverändert. Inline-JS-Syntax und `git diff --check` erfolgreich.
+- **Visuell:** Screenshots beider Modi in Chromium und WebKit auf Desktop und beiden iPad-Formaten sowie schmale Fenster und vergrößerte Schrift angesehen. Emulation, kein echter iPad-Hardwaretest. Lokale HTTP-Nutzung mit ausschließlich lokalen Assets geprüft; Offline-Neuladen einer gehosteten Seite nicht geprüft.
+- **Stand:** Lokal und im isolierten Release-Checkout geprüft; Veröffentlichung ausdrücklich freigegeben, Pages-Bestätigung folgt. Geändert: `mechanische-leistung/index.html`, neuer gezielter UI-Test und diese Fortschrittsdatei. `AGENTS.md` verweist bereits auf die zentrale Liste und bleibt unverändert. Andere vorhandene lokale Änderungen und unveröffentlichte Commits nicht übernommen.
