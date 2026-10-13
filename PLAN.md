@@ -1,6 +1,6 @@
 # Schrittweise Designumstellung
 
-Stand: 12. Oktober 2026. Ziel: Die Apps der sichtbaren Front Page nach `DESIGN.md` gestalten und auf Desktop sowie iPad gut bedienbar halten. Modelle, Inhalte, fachliche Farben und App-Links bleiben erhalten, sofern der aktuelle Auftrag nichts anderes verlangt.
+Stand: 13. Oktober 2026. Ziel: Die Apps der sichtbaren Front Page nach `DESIGN.md` gestalten und auf Desktop sowie iPad gut bedienbar halten. Modelle, Inhalte, fachliche Farben und App-Links bleiben erhalten, sofern der aktuelle Auftrag nichts anderes verlangt.
 
 ## Vorgehen und Zuständigkeit
 
@@ -8,7 +8,7 @@ Schrittweise eine App oder ein kleines Paket gemäß aktuellem Auftrag bearbeite
 
 `DESIGN.md` enthält die Gestaltungsregeln. **Diese Datei ist die zentrale Buchführung für Fortschritt und Prüfstand.** Erinnerungen enthalten nur einen Verweis hierher, keine zweite Statusliste. Vor jeder Fortsetzung aktuellen Git- und Veröffentlichungsstand prüfen. Prüfungen nach späteren Änderungen erneut bewerten.
 
-Nächster Schritt: Bei einem neuen Umbauauftrag eine sichtbare App mit „Offen“ auswählen. Zuerst aktuelle Frontpage, Git-Status und diese Tabelle abgleichen; ausgeblendete Apps nicht automatisch aufnehmen. Leistungslabor und Drei-Finger-Quiz sind umgestellt und veröffentlicht (12.10.2026). Für einen nächsten Auftrag eine andere sichtbare App mit offenem Stand auswählen.
+Nächster Schritt: Bei einem neuen Umbauauftrag eine sichtbare App mit „Offen“ auswählen. Zuerst aktuelle Frontpage, Git-Status und diese Tabelle abgleichen; ausgeblendete Apps nicht automatisch aufnehmen. Leistungslabor und Drei-Finger-Quiz sind umgestellt und veröffentlicht (12.10.2026); Kondensator-Pendel folgt im aktuellen Auftrag. Für einen nächsten Auftrag eine andere sichtbare App mit offenem Stand auswählen.
 
 ## Prüfstand der Designumstellung
 
@@ -26,12 +26,12 @@ Nächster Schritt: Bei einem neuen Umbauauftrag eine sichtbare App mit „Offen�
 | [Geschwindigkeitsänderung](v_aenderung/) | Offen | Nicht geprüft | Nein |
 | [Vektor-Labor](vektor-labor/index.html) | Offen | Nicht geprüft | Nein |
 | [Drei-Finger-Quiz](drei-finger-quiz/index.html) | Umgestellt (12.10.2026) | Chromium/WebKit im Release-Checkout, alle 12 Aufgaben und sechs Fenstergrößen erfolgreich; Details unten | Ja; `ce7d824`, Pages bestätigt (12.10.2026) |
-| [Leiterschleife im Magnetfeld](leiterschleife-magnetfeld/index.html) | Offen (älteres Design im Quelltext) | Nicht geprüft | Nein |
-| [Induktion am bewegten Leiterstab](induktion-leiterstab/index.html) | Offen (älteres Design im Quelltext) | Nicht geprüft | Nein |
+| [Leiterschleife im Magnetfeld](leiterschleife-magnetfeld/index.html) | Offen; nur in der lokalen Übersicht sichtbar | Nicht geprüft | Nein |
+| [Induktion am bewegten Leiterstab](induktion-leiterstab/index.html) | Offen; nur in der lokalen Übersicht sichtbar | Nicht geprüft | Nein |
 | [Magnetische Felder](magnetische-felder/) | Neue Designsprache im lokalen Quelltext vorhanden | In diesem Auftrag nicht geprüft; vor einer Fertigmeldung separat prüfen | Nicht bestätigt |
 | [Feldvektor-Werkstatt](feldvektor-werkstatt/) | Offen | Nicht geprüft | Nein |
 | [Elektrische Felder](elektrische-felder/index.html) | Gesamte Oberfläche nach `DESIGN.md` angepasst (07.10.2026) | Chromium: alle Modi, Desktop/iPad-Formate, Zoom und Regression erfolgreich; Details unten | Ja; `481cc64`, Pages bestätigt (07.10.2026) |
-| [Kondensator-Pendel](kondensator-pendel/) | Offen | Nicht geprüft | Nein |
+| [Kondensator-Pendel](kondensator-pendel/) | Umgestellt (13.10.2026) | Chromium/WebKit im Release-Checkout, Bedienung, Energiebilanz und sechs Fenstergrößen erfolgreich; Details unten | Release freigegeben; Pages-Bestätigung folgt |
 | [Quanten-Labor](energiestufenmodell/) | Offen | Nicht geprüft | Nein |
 
 ## Bereits vorhandene Ergebnisse
@@ -47,7 +47,7 @@ In der Tabelle je App kurz Datum, Ergebnis und verbleibende Einschränkungen erg
 
 ## Lokale Arbeit und Veröffentlichung
 
-Es gibt bereits unveröffentlichte App-Änderungen, unter anderem im Commit `ce3449c`, sowie den lokalen Fadenpendel-Versuch. Vor jedem Release den aktuellen Diff prüfen und ausschließlich das beauftragte Paket veröffentlichen. Historische Ausgangsliste: 14 Apps am GitHub-Stand `05a15b7`. Am 12.10.2026 enthält die lokale Frontpage 17 sichtbare App-Links; die Tabelle erfasst diese 17 Apps. Neu erfasste Einträge bestätigen keine früheren Prüfungen oder Veröffentlichungen.
+Es gibt bereits unveröffentlichte App-Änderungen, unter anderem im Commit `ce3449c`, sowie den lokalen Fadenpendel-Versuch. Vor jedem Release den aktuellen Diff prüfen und ausschließlich das beauftragte Paket veröffentlichen. Historische Ausgangsliste: 14 Apps am GitHub-Stand `05a15b7`. Am 12.10.2026 enthält die lokale Frontpage 17 sichtbare App-Links; die Tabelle erfasst diese 17 Apps. Neu erfasste Einträge bestätigen keine früheren Prüfungen oder Veröffentlichungen. Abgleich am 13.10.2026: Die veröffentlichte Frontpage hat 15 App-Links; Leiterschleife und Induktion am Leiterstab stehen nur in der lokalen Übersicht. Für neue Umstellungen die veröffentlichte Frontpage als Auswahlgrundlage verwenden; ausgeblendete Apps bleiben zurückgestellt.
 
 Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` und dem `AGENTS.md`-Verweis ausdrücklich freigegeben. Dieser Dokumentationsrelease enthält keine App-Änderungen. Künftige Veröffentlichungsfreigaben ergeben sich aus dem jeweiligen aktuellen Auftrag.
 
@@ -127,3 +127,12 @@ Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` u
 - **Prüfungen:** vier bestehende Modelltests in `three-finger-quiz.test.mjs` erfolgreich. Neuer `three-finger-design.test.mjs` im separaten Release-Checkout in Chromium und WebKit mit Touch erfolgreich: alle zwölf Aufgaben mit falscher und richtiger Antwort, Kraft-/Feld-/Bewegungs-/Ladungsfragen, Pause, erneut abspielen und beendete Animation, Wechsel über Select und Vor/Zurück, Auswahl-/Fokuszustände, Fortschritt, offene Erklärung und Übersicht → App → Übersicht. Fenster: 1440×900, 1024×768, 820×1180, 600×900, 720×450 als Zoom-Layoutäquivalent und 390×844; zusätzlich verdoppelte UI-Schrift. Kein horizontaler Überlauf, keine zu kleinen Controls, doppelten IDs, Browser-/Assetfehler oder externen Laufzeit-Requests. JS-Syntax, lokale Scriptpfade und `git diff --check` erfolgreich. Neue Textkontraste mindestens 4,5:1, notwendige Control-Ränder mindestens 3:1.
 - **Visuell:** Desktop, beide iPad-Formate, schmale Fenster und Textvergrößerung angesehen; richtige/falsche Antworten, eingeschränkte Richtungswahl, Ladungswahl und paralleler Kraftfall einschließlich beendeter Animation. Native Auswahl in WebKit tatsächlich angesehen. Kein echter iPad-Hardwaretest; Offline-Neuladen der gehosteten Seite nicht geprüft.
 - **Stand:** veröffentlicht am 12.10.2026 mit Commit `ce7d824`; Remote-SHA und erfolgreicher Pages-Lauf `38279700707` bestätigt. Alle drei Live-Laufzeitdateien bytegleich zum geprüften Release. Öffentlicher automatisierter Quiz-Browsertest nicht ausgeführt: die Ausführung außerhalb der Sandbox wurde nicht freigegeben. Die vollständige lokale Prüfung im Release-Checkout ist bestanden. Geändert: `drei-finger-quiz/index.html`, `drei-finger-quiz/app.js`, neuer UI-Test und `PLAN.md`. Andere lokale Arbeiten und unveröffentlichte Commits bleiben außerhalb des Releases.
+
+
+## Kondensator-Pendel: Designumstellung (13. Oktober 2026)
+
+- **Auftrag:** nächste öffentlich sichtbare App nach der Designsprache umstellen, prüfen und wie im vorherigen Auftrag direkt veröffentlichen. Gewählt: Kondensator-Pendel. Andere Apps, Frontpage und gemeinsame Assets bleiben unverändert.
+- **Umbau:** app-lokale helle Karten, Systemschrift, blaue Bedienaktionen, sichtbare Übersichtsnavigation, mindestens 48-px-Controls, Fokus-/Druck-/Deaktiviert-Zustände. Simulation und Diagramm ab 820 px nebeneinander, schmale Fenster gestapelt. Messwerte, Energieangaben und Canvas-Achsen vergrößert. Modellhinweis und Bewegungsnotiz außerhalb der Szene; Diagrammlegende außerhalb des Canvas. Plattenbeschriftungen auf die verfügbare Breite begrenzt. Qges mit einer Dezimalstelle passend zur Messwertanzeige, auch bei 2,5 nC. Einstieg, Herleitung und Parameter gestaltet; Fokus nach Einstieg auf Start. Physikfunktionen, qualitative Animation und physikalische Farben bewahrt.
+- **Prüfung:** `tests/capacitor-pendulum-design.test.mjs` in Chromium und WebKit mit Touch im isolierten Release-Checkout erfolgreich: 1440×900, 1024×768, 820×1180, 600×900, 720×450 als 200-%-Zoom-Layoutäquivalent und 390×844. Start/Pause, tatsächlich animierter Einzelschritt, Entladung, Neustart nach Entladung, Reset, 10/20/40 Ladungsschritte, alle Tempi, Parametergrenzen 50/1000 V und 0,05/5 nF, offene Erklärung, native Auswahl, Fokus, Übersicht → App → Übersicht. Zusätzlich verdoppelte UI-Schrift; kein horizontaler Überlauf, keine zu kleinen Controls, doppelten IDs, Browser-/Assetfehler oder externen Laufzeit-Requests. Plattenbeschriftungen innerhalb des Canvas. Unabhängige Referenzen für alle Ladungsschritte: U linear, gespeicherte Energie quadratisch, Energiebilanz exakt; im Standardfall E0 = 20 µJ und vollständige Rechtecksumme E0·(1+1/N). Modell- und Animationsfunktionen mit dem Ausgangsstand verglichen und unverändert. Inline-JS-Syntax, eindeutige IDs und `git diff --check` erfolgreich; Textkontraste ≥ 4,5:1, Eingabeumrisse ≥ 3:1.
+- **Visuell:** Desktop sowie beide iPad-Formate in Chromium/WebKit angesehen, einschließlich Ausgangszustand, entladenem Kondensator, Parametern und nativen Selects. Schmale Fenster, Einstieg und vergrößerte Schrift angesehen. Kein echter iPad-Hardwaretest. Lokale HTTP-Nutzung mit lokalen Assets geprüft; Offline-Neuladen der gehosteten Seite nicht geprüft.
+- **Stand:** lokal und im separaten Release-Checkout umgesetzt und geprüft; Veröffentlichung freigegeben, Live-Bestätigung folgt. Dateien: `kondensator-pendel/index.html`, neuer UI-Test und `PLAN.md`. Fremde lokale Arbeiten und unveröffentlichte Commits bleiben außerhalb des Releases.
