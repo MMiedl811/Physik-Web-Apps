@@ -1,6 +1,6 @@
 # Schrittweise Designumstellung
 
-Stand: 13. Oktober 2026. Ziel: Die Apps der sichtbaren Front Page nach `DESIGN.md` gestalten und auf Desktop sowie iPad gut bedienbar halten. Modelle, Inhalte, fachliche Farben und App-Links bleiben erhalten, sofern der aktuelle Auftrag nichts anderes verlangt.
+Stand: 14. Oktober 2026. Ziel: Die Apps der sichtbaren Front Page nach `DESIGN.md` gestalten und auf Desktop sowie iPad gut bedienbar halten. Modelle, Inhalte, fachliche Farben und App-Links bleiben erhalten, sofern der aktuelle Auftrag nichts anderes verlangt.
 
 ## Vorgehen und Zuständigkeit
 
@@ -22,7 +22,7 @@ Nächster Schritt: Bei einem neuen Umbauauftrag eine sichtbare App mit „Offen�
 | [Leistungslabor: Treppe & Heben](mechanische-leistung/index.html) | Umgestellt (12.10.2026) | Chromium/WebKit lokal, im Release-Checkout und öffentlich erfolgreich; Details unten | Ja; `5aa94df`, Pages bestätigt (12.10.2026) |
 | [Newtons Kanonenkugel](newtons-kanonenkugel/index.html) | Umgestellt (13.10.2026) | Chromium/WebKit im Release-Checkout, vier Szenarien und sechs Fenstergrößen erfolgreich; Details unten | Veröffentlichung ausstehend |
 | [Waagrechter und schräger Wurf](waagrechter%20Wurf/) | Offen | Nicht geprüft | Nein |
-| [Kraft führt zu einer Kreisbewegung](zentripetalkraft-labor/index.html) | Offen | Nicht geprüft | Nein |
+| [Kraft führt zu einer Kreisbewegung](zentripetalkraft-labor/index.html) | Umgestellt (14.10.2026) | Chromium/WebKit im Release-Checkout, Bedienung und sechs Fenstergrößen erfolgreich; Details unten | Veröffentlichung ausstehend |
 | [Geschwindigkeitsänderung](v_aenderung/) | Offen | Nicht geprüft | Nein |
 | [Vektor-Labor](vektor-labor/index.html) | Offen | Nicht geprüft | Nein |
 | [Drei-Finger-Quiz](drei-finger-quiz/index.html) | Umgestellt (12.10.2026) | Chromium/WebKit im Release-Checkout, alle 12 Aufgaben und sechs Fenstergrößen erfolgreich; Details unten | Ja; `ce7d824`, Pages bestätigt (12.10.2026) |
@@ -156,3 +156,12 @@ Matthias hat die Anpassung und Veröffentlichung von Workflow-Skill, `PLAN.md` u
 - **Prüfung:** neuer `tests/newton-design.test.mjs` in Chromium und WebKit mit Touch im isolierten Release-Checkout erfolgreich: 1440×900, 1024×768, 820×1180, 600×900, 720×450 als Zoom-Layoutäquivalent und 390×844. Alle vier Vorlagen, Start/Pause mit Stillstandsprüfung, Einzelschritt, Zeitlupe, Reset, Aufprall, Flucht und Neustart, gültige/ungültige Geschwindigkeitseingaben, Slidergrenze, Auswahl-/Fokuszustände, Formeln, offene Modellgrenzen und Übersicht → App → Übersicht. Zusätzlich verdoppelte UI-Schrift; keine horizontalen Überläufe, zu kleinen Controls, doppelten IDs, Browser-/Assetfehler oder externen Laufzeit-Requests. Canvas-Textgrenzen geprüft. Unabhängige Referenzen: Beschleunigung bei r = 6571 km, Kraftpfeillänge bei doppeltem Abstand, Kreisbahnradius nach 1000 s innerhalb 2 m und relativer Energiedrift < 10⁻⁷. Inline-JS-Syntax und `git diff --check` erfolgreich. Neue Textkontraste ≥ 4,5:1, Control-Ränder ≥ 3:1.
 - **Visuell:** Desktop, beide iPad-Formate, schmale Fenster, Einstieg, Eingabefehler und vergrößerte Schrift angesehen; Kreisbahn, Aufprall, Flucht und Fallenlassen einschließlich Endzuständen. Bestätigte Umbruchprobleme korrigiert und erneut geprüft. Emulation, kein echter iPad-Hardwaretest. Lokale HTTP-Nutzung mit ausschließlich lokalen Assets geprüft; Offline-Neuladen der gehosteten Seite nicht geprüft.
 - **Stand:** Veröffentlichung ausstehend. Dateien: `newtons-kanonenkugel/index.html`, neuer UI-Test und `PLAN.md`. Release aus separatem Checkout; fremde lokale Arbeiten und unveröffentlichte Commits bleiben außerhalb des Releases.
+
+
+## Kraft führt zu einer Kreisbewegung: Designumstellung (14. Oktober 2026)
+
+- **Auftrag:** nächste sichtbare App umstellen, prüfen und im bestehenden Veröffentlichungsauftrag direkt veröffentlichen. Öffentliche Frontpage geprüft; App dort sichtbar. Andere Apps und gemeinsame Assets unverändert.
+- **Umbau:** app-lokale helle Karten, Systemschrift, blaue Aktionen, klare Auswahlränder, sichtbarer Fokus, mindestens 48-px-Controls und deutsche Dezimalkommas. Simulation und Steuerung ab 820 px nebeneinander, darunter gestapelt; Auswahl- und Messwertgruppen passen sich vergrößerter Schrift an. Heller Canvas mit neutralem Raster; Bedienhinweis unterhalb der Szene statt über dem Ball. Physikalische Farben, Kraftskalierung, Pointersteuerung und Integration bewahrt; sechs Modell-/Zeit-/Pointerfunktionen exakt mit Ausgangsstand verglichen.
+- **Prüfung:** neuer `tests/centripetal-design.test.mjs` in Chromium und WebKit mit Touch erfolgreich: 1440×900, 1024×768, 820×1180, 600×900, 720×450 als Zoom-Layoutäquivalent und 390×844. Alle Startgeschwindigkeiten, Start/Pause mit Stillstandsprüfung, Geschwindigkeitspfeil, echtes Ziehen und Loslassen per Zeiger, Randkontakt und Reset, geöffnete Erklärung, Fokus und Übersicht → App → Übersicht. Zusätzlich verdoppelte UI-Schrift; keine horizontalen Überläufe, zu kleinen Controls, doppelten IDs, Browser-/Assetfehler oder externen Laufzeit-Requests. Unabhängige Referenz: kräftefrei 8,5 px in 0,1 s bei 85 px/s; bei Finger 100 px oberhalb nach 0,1 s vy = −2,4 px/s und Δy = −0,24 px. Inline-JS-Syntax und `git diff --check` erfolgreich. Neue UI-Kontraste wie bei Newton: Text ≥ 4,5:1, notwendige Control-Ränder ≥ 3:1.
+- **Visuell:** Desktop, beide iPad-Formate in Chromium/WebKit, Ziehen mit Kraft und Geschwindigkeitspfeil, geöffnete Erklärung, schmale Fenster und Textvergrößerung angesehen. Lange Überschriften und Auswahltexte vor Abschluss korrigiert. Kein echter iPad-Hardwaretest; Zeigergeste im Touch-Kontext, kein physischer Finger. Lokale HTTP-Nutzung ohne externe Laufzeit-Assets geprüft; Offline-Neuladen der gehosteten Seite nicht geprüft.
+- **Stand:** Veröffentlichung ausstehend. Dateien: `zentripetalkraft-labor/index.html`, neuer UI-Test und `PLAN.md`. Fremde lokale Arbeiten und unveröffentlichte Commits bleiben außerhalb des Releases.
