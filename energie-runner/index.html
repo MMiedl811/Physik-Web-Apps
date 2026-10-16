@@ -3,437 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f3eee4">
+  <meta name="theme-color" content="#f5f5f7">
   <title>Energie-Runner – Energieumwandlungen</title>
-  <style>
-    :root {
-      --paper: #f3eee4;
-      --surface: #fffdf8;
-      --surface-soft: #f7f1e8;
-      --ink: #25332f;
-      --muted: #6b736f;
-      --line: #d9cfbf;
-      --petrol: #0f766e;
-      --petrol-dark: #0b5d57;
-      --total: #0f766e;
-      --chemical: #a86424;
-      --kinetic: #1769aa;
-      --potential: #6d4aa2;
-      --thermal: #b64a45;
-      --shadow: 0 14px 38px rgba(67, 54, 39, 0.10);
-      --radius: 20px;
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    * { box-sizing: border-box; }
-    html { background: var(--paper); }
-    body {
-      min-height: 100vh;
-      margin: 0;
-      color: var(--ink);
-      font-family: var(--font);
-      background:
-        radial-gradient(circle at 10% 0%, rgba(15, 118, 110, 0.08), transparent 30rem),
-        var(--paper);
-    }
-    button { font: inherit; }
-
-    .page {
-      width: min(1480px, 100%);
-      margin: 0 auto;
-      padding: clamp(12px, 2vw, 26px);
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 16px;
-    }
-    .title-block h1 {
-      margin: 0;
-      font-size: clamp(1.45rem, 3vw, 2.25rem);
-      letter-spacing: -0.035em;
-    }
-    .title-block p {
-      margin: 5px 0 0;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-    .top-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-    .button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 46px;
-      padding: 10px 16px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: var(--surface);
-      color: var(--ink);
-      font-weight: 750;
-      text-decoration: none;
-      cursor: pointer;
-      touch-action: manipulation;
-    }
-    .button:hover { border-color: var(--petrol); }
-    .button--primary { border-color: var(--petrol); background: var(--petrol); color: #fff; }
-    .button--primary:hover { background: var(--petrol-dark); }
-    .button:disabled { opacity: 0.58; cursor: not-allowed; }
-    .button:focus-visible,
-    .touch-button:focus-visible,
-    summary:focus-visible {
-      outline: 3px solid rgba(15, 118, 110, 0.30);
-      outline-offset: 3px;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 380px;
-      gap: 16px;
-      align-items: start;
-    }
-    .game-card,
-    .energy-card,
-    .model-card {
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      background: rgba(255, 253, 248, 0.96);
-      box-shadow: var(--shadow);
-    }
-
-    .game-card { overflow: hidden; }
-    .game-status {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 9px;
-      padding: 11px 14px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface-soft);
-    }
-    .status-chip {
-      padding: 7px 10px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: var(--surface);
-      color: var(--muted);
-      font-size: 0.83rem;
-      font-weight: 700;
-    }
-    .status-chip strong { color: var(--ink); }
-    .status-chip--score { border-color: #dfc57a; background: #fff8dd; color: #806114; }
-    #event-message { margin-left: auto; color: var(--petrol-dark); }
-
-    .canvas-wrap {
-      position: relative;
-      min-height: 460px;
-      overflow: hidden;
-      border: 6px solid #2d453d;
-      border-width: 6px 0;
-      background: #c7dfd4;
-      box-shadow: inset 0 0 0 3px rgba(255, 253, 248, 0.30);
-    }
-    .canvas-wrap::after {
-      content: "";
-      position: absolute;
-      z-index: 2;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.11;
-      background: repeating-linear-gradient(to bottom, transparent 0 3px, #243a33 3px 4px);
-    }
-    #game-canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      min-height: 460px;
-      image-rendering: pixelated;
-      touch-action: none;
-    }
-    .game-over {
-      position: absolute;
-      z-index: 6;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-      background: rgba(37, 51, 47, 0.72);
-      backdrop-filter: blur(5px);
-    }
-    .game-over[hidden] { display: none; }
-    .game-over__panel {
-      max-width: 430px;
-      padding: 24px;
-      border-radius: 18px;
-      background: var(--surface);
-      color: var(--ink);
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
-    .game-over__panel h2 { margin-top: 0; }
-
-    .controls-strip {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: center;
-      padding: 12px 14px 14px;
-      border-top: 1px solid var(--line);
-      background: var(--surface);
-    }
-    .instructions { color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
-    .touch-controls { display: flex; gap: 9px; }
-    .touch-button {
-      min-width: 62px;
-      min-height: 54px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      background: var(--surface-soft);
-      color: var(--ink);
-      font-size: 1.15rem;
-      font-weight: 850;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-    }
-    .touch-button.is-active { border-color: var(--petrol); background: var(--petrol); color: white; }
-    .touch-button--jump { min-width: 96px; border-color: #c9b5db; color: var(--potential); }
-
-    .energy-card {
-      display: flex;
-      flex-direction: column;
-      min-height: 100%;
-      padding: 16px;
-    }
-    .energy-card h2 { margin: 0; font-size: 1.05rem; }
-    .view-switch { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
-    .view-switch .button { min-width: 0; padding: 8px; font-size: 0.82rem; }
-    .view-switch .button[aria-pressed="true"] { border-color: var(--petrol); background: var(--petrol); color: white; }
-    .energy-view[hidden] { display: none; }
-    .energy-card__intro { margin: 10px 0 12px; color: var(--muted); font-size: 0.8rem; line-height: 1.4; }
-    .energy-scale {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 7px;
-      min-height: 335px;
-      padding: 26px 0 0;
-      border-bottom: 2px solid var(--line);
-      background: repeating-linear-gradient(to top, transparent 0 63px, rgba(37, 51, 47, 0.07) 63px 64px);
-    }
-    .scale-label { position: absolute; top: 2px; right: 2px; color: var(--muted); font-size: 0.72rem; }
-    .energy-column {
-      position: relative;
-      display: flex;
-      min-width: 0;
-      flex-direction: column;
-      justify-content: flex-end;
-      align-items: stretch;
-      height: 300px;
-      border: 1px solid var(--line);
-      border-radius: 12px 12px 5px 5px;
-      overflow: hidden;
-      background: rgba(217, 207, 191, 0.32);
-    }
-    .energy-fill { width: 100%; height: 0; transition: height 120ms linear; background: var(--bar-color); }
-    .energy-value {
-      position: absolute;
-      inset: 8px 2px auto;
-      z-index: 2;
-      color: var(--ink);
-      font-size: clamp(0.67rem, 1.2vw, 0.78rem);
-      font-weight: 850;
-      text-align: center;
-      text-shadow: 0 1px var(--surface);
-    }
-    .energy-label { min-height: 52px; padding-top: 7px; color: var(--muted); font-size: 0.72rem; font-weight: 800; line-height: 1.2; text-align: center; }
-    .energy-label span { display: block; width: 12px; height: 4px; margin: 5px auto 0; border-radius: 999px; background: var(--bar-color); }
-    .energy-item { display: flex; min-width: 0; flex-direction: column; justify-content: flex-end; }
-    .energy-item--total { --bar-color: var(--total); }
-    .energy-item--chemical { --bar-color: var(--chemical); }
-    .energy-item--kinetic { --bar-color: var(--kinetic); }
-    .energy-item--potential { --bar-color: var(--potential); }
-    .energy-item--thermal { --bar-color: var(--thermal); }
-    .energy-item--total .energy-fill { background: repeating-linear-gradient(135deg, var(--total) 0 8px, #4f9b94 8px 14px); }
-    .energy-total { display: flex; justify-content: space-between; gap: 10px; margin-top: 14px; font-size: 0.88rem; font-weight: 800; }
-    .energy-total strong { white-space: nowrap; }
-    .energy-stack {
-      display: flex;
-      flex-direction: column-reverse;
-      width: 86px;
-      height: 300px;
-      margin-top: 12px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 10px 10px 5px 5px;
-      background: var(--surface-soft);
-    }
-    .energy-segment { width: 100%; height: 0; flex: 0 0 auto; background: var(--bar-color); }
-    .energy-segment--chemical { --bar-color: var(--chemical); }
-    .energy-segment--kinetic { --bar-color: var(--kinetic); }
-    .energy-segment--potential { --bar-color: var(--potential); }
-    .energy-segment--thermal { --bar-color: var(--thermal); }
-    .energy-legend { display: grid; gap: 9px; align-content: center; margin-top: 12px; }
-    .energy-legend__item { display: flex; flex-wrap: wrap; min-width: 0; align-items: baseline; gap: 6px; font-size: 0.78rem; }
-    .energy-legend__item::before { content: ""; flex: 0 0 9px; height: 9px; border-radius: 2px; background: var(--bar-color); }
-    .energy-legend__item--chemical { --bar-color: var(--chemical); }
-    .energy-legend__item--kinetic { --bar-color: var(--kinetic); }
-    .energy-legend__item--potential { --bar-color: var(--potential); }
-    .energy-legend__item--thermal { --bar-color: var(--thermal); }
-    .energy-legend__item span { min-width: 0; color: var(--muted); }
-    .energy-legend__item strong { margin-left: auto; white-space: nowrap; }
-    #stack-view { grid-template-columns: 86px minmax(0, 1fr); gap: 0 14px; }
-    #stack-view:not([hidden]) { display: grid; }
-    #stack-view .energy-total { grid-column: 1 / -1; }
-
-    .mechanics-zoom {
-      margin-top: 12px;
-      padding: 12px;
-      border: 1px solid #d6cbe4;
-      border-radius: 14px;
-      background: #f8f4fb;
-    }
-    .mechanics-zoom__header {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      align-items: baseline;
-      font-size: 0.82rem;
-    }
-    .mechanics-zoom__header span { color: var(--muted); font-size: 0.73rem; }
-    .mechanics-zoom__note { margin: 5px 0 9px; color: var(--muted); font-size: 0.72rem; line-height: 1.35; }
-    .mechanics-zoom__grid {
-      display: grid;
-      grid-template-columns: 72px 72px minmax(0, 1fr);
-      gap: 10px;
-      align-items: end;
-    }
-    .zoom-item { text-align: center; }
-    .zoom-column {
-      display: flex;
-      align-items: flex-end;
-      height: 104px;
-      overflow: hidden;
-      border: 1px solid var(--line);
-      border-radius: 9px 9px 4px 4px;
-      background: rgba(255,255,255,0.64);
-    }
-    .zoom-fill { width: 100%; height: 0; transition: height 120ms linear; background: var(--zoom-color); }
-    .zoom-item--kinetic { --zoom-color: var(--kinetic); }
-    .zoom-item--potential { --zoom-color: var(--potential); }
-    .zoom-label { margin-top: 5px; color: var(--muted); font-size: 0.66rem; font-weight: 800; line-height: 1.25; }
-    .zoom-value { display: block; color: var(--ink); font-size: 0.72rem; }
-    .mechanics-zoom__sum {
-      align-self: stretch;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 10px;
-      border-radius: 10px;
-      background: white;
-      color: var(--muted);
-      font-size: 0.73rem;
-      line-height: 1.35;
-    }
-    .mechanics-zoom__sum strong { margin-top: 4px; color: var(--ink); font-size: 1rem; }
-
-    .balance {
-      margin-top: 13px;
-      padding: 11px;
-      border: 1px solid #c9ddd6;
-      border-radius: 13px;
-      background: #eef7f3;
-      font-size: 0.79rem;
-      line-height: 1.45;
-    }
-    .balance-row { display: flex; justify-content: space-between; gap: 12px; }
-    .balance-row + .balance-row { margin-top: 4px; }
-    .balance-ok { color: var(--petrol-dark); font-weight: 850; }
-
-    .model-card {
-      margin-top: 16px;
-      padding: 15px 17px;
-    }
-    .model-card summary {
-      display: flex;
-      align-items: center;
-      min-height: 44px;
-      cursor: pointer;
-      font-weight: 850;
-    }
-    .model-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 12px;
-      margin-top: 13px;
-    }
-    .formula-box {
-      min-width: 0;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-      background: var(--surface-soft);
-      line-height: 1.45;
-    }
-    .formula-box strong { display: block; margin-bottom: 7px; color: var(--petrol-dark); }
-    .formula-box math { font-size: 1.08rem; }
-    .model-note { margin: 13px 0 0; color: var(--muted); font-size: 0.86rem; line-height: 1.5; }
-
-    @media (max-width: 980px) {
-      .layout { grid-template-columns: 1fr; }
-      .energy-card { min-height: 0; }
-      .energy-column { height: 250px; }
-      .energy-stack { height: 250px; }
-    }
-    @media (max-width: 680px) {
-      .page { padding: 10px; }
-      .topbar { align-items: flex-start; flex-direction: column; }
-      .top-actions { width: 100%; justify-content: stretch; }
-      .top-actions .button { flex: 1; }
-      .canvas-wrap, #game-canvas { min-height: 420px; }
-
-      .controls-strip { grid-template-columns: 1fr; }
-      .touch-controls { justify-content: stretch; }
-      .touch-button { flex: 1; }
-      .model-grid { grid-template-columns: 1fr; }
-      #event-message { width: 100%; margin-left: 0; }
-    }
-    @media (max-height: 820px) and (min-width: 700px) {
-      .page { padding: 8px 12px; }
-      .topbar { margin-bottom: 8px; }
-      .title-block p { display: none; }
-      .game-status { padding: 7px 10px; }
-      .canvas-wrap, #game-canvas { min-height: 430px; height: 430px; }
-      .controls-strip { padding: 8px 10px; }
-      .model-card { margin-top: 8px; padding: 10px 14px; }
-      .energy-card { min-height: 0; padding: 10px; }
-      .energy-column { height: 235px; }
-      .energy-stack { height: 235px; }
-      .mechanics-zoom { margin-top: 8px; padding: 8px; }
-      .mechanics-zoom__note { display: none; }
-      .zoom-column { height: 65px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .energy-fill { transition: none; }
-      .zoom-fill { transition: none; }
-    }
-  </style>
   <link rel="stylesheet" href="../shared/student-entry.css">
+<style>
+:root{--paper:#f5f5f7;--surface:#fff;--surface-soft:#eaf3ff;--ink:#1d1d1f;--muted:#626269;--line:#dedee3;--control:#85858b;--action:#0066cc;--pressed:#0055aa;--petrol:#0f766e;--petrol-dark:#0b5d57;--total:#0f766e;--chemical:#a86424;--kinetic:#1769aa;--potential:#6d4aa2;--thermal:#b64a45;--student-paper:var(--paper);--student-surface:var(--surface);--student-ink:var(--ink);--student-muted:var(--muted);--student-accent:var(--action);--student-line:var(--line)}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button{font:inherit;touch-action:manipulation}.page{max-width:1180px;margin:auto;padding:20px max(20px,env(safe-area-inset-right)) 32px max(20px,env(safe-area-inset-left))}.topbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;margin-bottom:20px}.title-block{min-width:0}.title-block h1{margin:0;font-size:clamp(24px,3vw,32px);line-height:1.2;font-weight:600;letter-spacing:-.03em}.title-block p{font-size:14px;color:var(--muted);margin:8px 0 0}.top-actions{display:flex;flex-wrap:wrap;gap:8px}.button,.touch-button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:48px;padding:10px 16px;border:1px solid var(--control);border-radius:999px;background:var(--surface);color:var(--ink);font-weight:600;cursor:pointer;text-decoration:none;overflow-wrap:anywhere}.button--primary{background:var(--action);border-color:var(--action);color:#fff}.button:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed}:is(button,a,summary):focus{outline:3px solid var(--action);outline-offset:3px}:is(.button,.touch-button):active{background:var(--surface-soft)}.button--primary:active{background:var(--pressed)}@media(hover:hover){.button:not(.button--primary):not(:disabled):hover{background:var(--surface-soft)}}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:16px;align-items:start}.game-card,.energy-card,.model-card{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:20px}.game-card{overflow:hidden}.game-status{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-bottom:1px solid var(--line)}.status-chip{min-width:0;padding:8px 12px;border-radius:12px;background:var(--paper);color:var(--muted);font-size:14px;overflow-wrap:anywhere;hyphens:auto}.status-chip strong{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}.status-chip--score{background:#fff8dd;color:#725614}#event-message{flex-basis:100%}.canvas-wrap{position:relative;height:clamp(390px,48vh,500px);overflow:hidden;background:#c7dfd4}#game-canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.controls-strip{padding:12px 16px;border-bottom:1px solid var(--line)}.touch-controls{display:flex;flex-wrap:wrap;gap:8px}.touch-button{flex:1 1 3em;user-select:none;-webkit-user-select:none;touch-action:none}.touch-button--jump{flex-basis:6em}.touch-button.is-active{border:2px solid var(--action);padding:9px 15px;background:var(--surface-soft);color:var(--action)}.instructions{padding:16px;color:var(--muted);font-size:14px;overflow-wrap:anywhere}.game-over{position:absolute;z-index:6;inset:0;display:grid;place-items:center;padding:16px;background:rgba(37,51,47,.72)}.game-over[hidden]{display:none}.game-over__panel{min-width:0;max-width:430px;max-height:100%;overflow:auto;padding:20px;border:1px solid var(--line);border-radius:20px;background:var(--surface);text-align:center}.game-over__panel h2{font-size:24px;font-weight:600;line-height:1.2;margin:0 0 16px;overflow-wrap:anywhere;hyphens:auto}.game-over__panel p{margin:0 0 16px;overflow-wrap:anywhere}
+.energy-card{padding:16px;container-type:inline-size}.energy-card h2{font-size:18px;font-weight:600;margin:0}.view-switch{display:flex;flex-wrap:wrap;gap:8px;padding:4px;border:1px solid var(--line);border-radius:16px;background:var(--paper);margin-top:16px}.view-switch .button{flex:1 1 8em;min-width:0;padding:10px 12px}.view-switch .button[aria-pressed=true]{border:2px solid var(--action);padding:9px 11px;background:var(--surface-soft);color:var(--action)}.energy-view[hidden]{display:none!important}.energy-card__intro{font-size:14px;color:var(--muted);margin:16px 0;overflow-wrap:anywhere}.energy-scale{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;padding-top:2em;border-bottom:1px solid var(--line)}.scale-label{position:absolute;top:0;right:0;color:var(--muted);font-size:14px}.energy-item{min-width:0}.energy-column{position:relative;display:flex;align-items:flex-end;height:240px;border:1px solid var(--line);border-radius:12px 12px 0 0;overflow:hidden;background:var(--paper)}.energy-fill{width:100%;height:0;transition:height 120ms linear;background:var(--bar-color)}.energy-value{position:absolute;inset:8px 2px auto;padding:4px 0;background:var(--surface);color:var(--ink);font-size:14px;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.energy-label{padding:8px 0;color:var(--muted);font-size:14px;line-height:1.4;text-align:center;overflow-wrap:anywhere;hyphens:auto}.energy-label span{display:block;width:16px;height:4px;margin:8px auto 0;background:var(--bar-color)}.energy-item--total{--bar-color:var(--total)}.energy-item--chemical{--bar-color:var(--chemical)}.energy-item--kinetic{--bar-color:var(--kinetic)}.energy-item--potential{--bar-color:var(--potential)}.energy-item--thermal{--bar-color:var(--thermal)}.energy-item--total .energy-fill{background:repeating-linear-gradient(135deg,var(--total) 0 8px,#4f9b94 8px 14px)}.energy-total{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-top:16px;font-size:16px}.energy-total strong{font-weight:600;font-variant-numeric:tabular-nums}.energy-stack{display:flex;flex-direction:column-reverse;width:64px;height:300px;overflow:hidden;border:1px solid var(--line);border-radius:12px;background:var(--paper)}.energy-segment{width:100%;height:0;flex:0 0 auto;background:var(--bar-color)}.energy-segment--chemical{--bar-color:var(--chemical)}.energy-segment--kinetic{--bar-color:var(--kinetic)}.energy-segment--potential{--bar-color:var(--potential)}.energy-segment--thermal{--bar-color:var(--thermal)}.energy-legend{display:grid;align-content:center;gap:12px;min-width:0}.energy-legend__item{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;min-width:0;font-size:14px;overflow-wrap:anywhere}.energy-legend__item:before{content:'';flex:0 0 12px;height:4px;background:var(--bar-color)}.energy-legend__item--chemical{--bar-color:var(--chemical)}.energy-legend__item--kinetic{--bar-color:var(--kinetic)}.energy-legend__item--potential{--bar-color:var(--potential)}.energy-legend__item--thermal{--bar-color:var(--thermal)}.energy-legend__item span{min-width:0;color:var(--muted)}.energy-legend__item strong{font-weight:600;font-variant-numeric:tabular-nums}#stack-view:not([hidden]){display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px}#stack-view .energy-total{grid-column:1/-1}.mechanics-zoom{margin-top:16px;padding:12px;border:1px solid #d6cbe4;border-radius:12px;background:#f8f4fb}.mechanics-zoom__header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font-size:16px}.mechanics-zoom__header strong{font-weight:600}.mechanics-zoom__header span{font-size:14px;color:var(--muted)}.mechanics-zoom__note{font-size:14px;color:var(--muted);margin:12px 0;overflow-wrap:anywhere}.mechanics-zoom__grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.zoom-item{min-width:0;text-align:center}.zoom-column{display:flex;align-items:flex-end;height:104px;overflow:hidden;border:1px solid var(--line);border-radius:12px 12px 0 0;background:var(--surface)}.zoom-fill{width:100%;height:0;background:var(--zoom-color);transition:height 120ms linear}.zoom-item--kinetic{--zoom-color:var(--kinetic)}.zoom-item--potential{--zoom-color:var(--potential)}.zoom-label{margin-top:8px;font-size:14px;color:var(--muted);overflow-wrap:anywhere;hyphens:auto}.zoom-value{display:block;font-size:16px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}.mechanics-zoom__sum{grid-column:1/-1;padding:12px;background:var(--surface);border-radius:12px;font-size:14px;color:var(--muted)}.mechanics-zoom__sum strong{display:block;font-size:18px;color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}.balance{margin-top:16px;padding:12px;background:var(--paper);border-radius:12px;font-size:14px;overflow-wrap:anywhere}.balance-row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}.balance-row+.balance-row{margin-top:8px}.balance-row strong{font-weight:600;font-variant-numeric:tabular-nums}.balance-ok{color:var(--petrol-dark)}.model-card{margin-top:16px;padding:0 16px 16px}.model-card summary{display:flex;align-items:center;min-height:48px;padding:12px 0;font-size:18px;font-weight:600;cursor:pointer;overflow-wrap:anywhere;hyphens:auto}.model-card summary:before{content:'▸';margin-right:8px}.model-card[open] summary:before{content:'▾'}.model-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,20em),1fr));gap:12px;margin-top:12px}.formula-box{min-width:0;padding:12px;background:var(--paper);border-radius:12px;overflow-wrap:anywhere}.formula-box strong{display:block;font-weight:600;margin-bottom:12px}.formula-box math{font-size:16px;overflow:auto}.model-note{font-size:14px;color:var(--muted);margin:16px 0 0;overflow-wrap:anywhere}.student-intro-card{font-family:inherit;box-shadow:none}.student-intro-eyebrow{font-size:14px;font-weight:600;color:var(--muted);letter-spacing:0}.student-intro-card h2{font-weight:600}.student-intro-task{background:var(--paper)}.student-intro-ok{font:600 16px/1.5 system-ui,sans-serif;border-radius:999px}.student-intro-ok:focus{outline:3px solid var(--action)}.student-intro-ok:active{background:var(--pressed)}
+@media(max-width:1000px){.layout{grid-template-columns:minmax(0,1fr) 340px}}
+@media(max-width:819px){.layout{grid-template-columns:1fr}}
+@media(max-width:560px){.page{padding:16px max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left))}.top-actions{width:100%}.top-actions .button{flex:1 1 6em}}
+@container(max-width:18em){.energy-scale{grid-template-columns:repeat(2,minmax(0,1fr))}.mechanics-zoom__grid{grid-template-columns:1fr}.mechanics-zoom__sum{grid-column:auto}}
+@media(prefers-reduced-motion:reduce){.energy-fill,.zoom-fill{transition:none}}
+</style>
 </head>
 <body data-physik-app="energie-runner" data-student-home="../" data-student-title="Energie beim Laufen und Springen" data-student-summary="Du beobachtest, wie chemische Energie in Bewegungs-, Höhen- und innere Energie umgewandelt wird." data-student-controls="Beschleunige, springe, lande. Nutze die Pfeiltasten oder die Buttons; Leertaste und ↑ lösen einen Sprung aus.">
   <div class="page">
     <header class="topbar">
       <div class="title-block">
-        <h1>🍄 Energie-Runner</h1>
+        <h1>Energie-Runner</h1>
         <p>Chemische Energie wird in Bewegung, Höhe und innere Energie umgewandelt.</p>
       </div>
       <div class="top-actions">
-        <a class="button" href="../" aria-label="Zurück zur Übersicht">⌂ Übersicht</a>
-        <button class="button" id="pause-button" type="button">⏸ Pause</button>
-        <button class="button button--primary" id="restart-button" type="button">↻ Neustart</button>
+        <a class="button" href="../" aria-label="Zurück zur Übersicht">Übersicht</a>
+        <button class="button button--primary" id="pause-button" type="button">⏸ Pause</button>
+        <button class="button" id="restart-button" type="button">↻ Neustart</button>
       </div>
     </header>
 
@@ -446,6 +41,14 @@
           <div class="status-chip status-chip--score">Münzen <strong id="score-readout">0</strong></div>
           <div class="status-chip" id="event-message" aria-live="polite">Bewege Mario und beobachte die Energiebalken.</div>
         </div>
+        <div class="controls-strip">
+
+          <div class="touch-controls" aria-label="Touch-Steuerung">
+            <button class="touch-button" id="left-button" type="button" aria-label="Nach links laufen">←</button>
+            <button class="touch-button touch-button--jump" id="jump-button" type="button" aria-label="Springen">↑ Sprung</button>
+            <button class="touch-button" id="right-button" type="button" aria-label="Nach rechts laufen">→</button>
+          </div>
+        </div>
         <div class="canvas-wrap" id="canvas-wrap">
           <canvas id="game-canvas" aria-label="Mario läuft durch eine Retro-Welt mit einzelnen Brücken, sammelt Münzen und springt über Bowser"></canvas>
           <div class="game-over" id="game-over" hidden>
@@ -456,14 +59,7 @@
             </div>
           </div>
         </div>
-        <div class="controls-strip">
           <div class="instructions"><strong>Auftrag:</strong> Beschleunige, springe, lande – was passiert mit der Energie? <strong>Tastatur:</strong> A/D oder ←/→ · W/↑/Leertaste.</div>
-          <div class="touch-controls" aria-label="Touch-Steuerung">
-            <button class="touch-button" id="left-button" type="button" aria-label="Nach links laufen">←</button>
-            <button class="touch-button touch-button--jump" id="jump-button" type="button" aria-label="Springen">↑ Sprung</button>
-            <button class="touch-button" id="right-button" type="button" aria-label="Nach rechts laufen">→</button>
-          </div>
-        </div>
       </section>
 
       <aside class="energy-card" aria-label="Energieanzeige">
@@ -1147,12 +743,16 @@
         ctx.restore();
 
         ctx.save();
-        ctx.font = '800 11px ui-monospace, monospace';
-        ctx.fillStyle = '#fffdf8';
-        ctx.fillRect(Math.round(screenX - 29), Math.round(footY - 17 * pixel), 58, 20);
-        ctx.strokeStyle = '#25332f'; ctx.lineWidth = 2; ctx.strokeRect(Math.round(screenX - 29), Math.round(footY - 17 * pixel), 58, 20);
-        ctx.fillStyle = '#8d3f35'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('BOWSER', Math.round(screenX), Math.round(footY - 17 * pixel + 10));
+        ctx.font = '600 14px system-ui, sans-serif';
+        if (screenX >= 0 && screenX <= viewWidth) {
+          const labelWidth = ctx.measureText('BOWSER').width + 16;
+          const labelX = Math.max(labelWidth/2+4, Math.min(viewWidth-labelWidth/2-4, screenX));
+          ctx.fillStyle = '#fffdf8';
+          ctx.fillRect(labelX-labelWidth/2, Math.round(footY-17*pixel), labelWidth, 24);
+          ctx.strokeStyle = '#25332f'; ctx.lineWidth = 2; ctx.strokeRect(labelX-labelWidth/2, Math.round(footY-17*pixel), labelWidth, 24);
+          ctx.fillStyle = '#8d3f35'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('BOWSER', labelX, Math.round(footY-17*pixel+12));
+        }
         ctx.restore();
       }
 
@@ -1261,9 +861,9 @@
         for (let h = 1; h <= 5; h += 1) {
           const y = worldToY(h);
           ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(viewWidth, y); ctx.stroke();
-          ctx.fillStyle = '#6b736f'; ctx.font = '12px ui-monospace, monospace';
+          ctx.fillStyle = '#4c5650'; ctx.font = '500 14px system-ui, sans-serif';
           ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-          ctx.fillText(`${h} m`, 7, y - 5);
+          if (y >= 22 && y < viewHeight - 10) ctx.fillText(`${h} m`, 7, y - 5);
         }
 
         drawRetroTerrain(groundY, scale);
@@ -1293,7 +893,7 @@
         ctx.lineWidth = 2;
         ctx.strokeRect(14, 14, 164, 34);
         ctx.fillStyle = '#25332f';
-        ctx.font = '700 13px ui-monospace, monospace';
+        ctx.font = '600 14px system-ui, sans-serif';
         ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
         ctx.fillText(`x = ${formatNumber(state.x)} m`, 28, 36);
       }
@@ -1327,6 +927,7 @@
       });
       window.addEventListener('keyup', event => setKey(event.key, false));
       window.addEventListener('resize', resizeCanvas);
+      new ResizeObserver(resizeCanvas).observe(wrap);
 
       function bindHoldButton(id, property) {
         const button = document.getElementById(id);
@@ -1373,7 +974,7 @@
       stackButton.addEventListener('click', () => setEnergyView('stack'));
       restartButton.addEventListener('click', resetState);
       overlayRestart.addEventListener('click', resetState);
-      document.body.addEventListener('student-intro:close', () => resetState(), { once: true });
+      document.body.addEventListener('student-intro:close', () => { resetState(); pauseButton.focus({preventScroll:true}); }, { once: true });
 
       window.__energyRunner = {
         ready: true,
