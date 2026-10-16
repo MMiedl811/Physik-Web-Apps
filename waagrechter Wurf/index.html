@@ -2,213 +2,38 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f5f5f7">
     <title>Waagrechter Wurf – Rettungspaket</title>
-    <style>
-        /* =====================================================
-           DESIGN-SYSTEM
-           ===================================================== */
-        :root {
-            --color-accent:       #1976d2;
-            --color-accent-dk:    #1565c0;
-            --color-border:       #cfd8dc;
-            --color-panel-bg:     #ffffff;
-            --color-body-bg:      #f1f8ff;
-            --color-text:         #1a237e;
-            --color-text-light:   #546e7a;
-            --color-success:      #2e7d32;
-            --color-danger:       #c62828;
-            --color-warn:         #e65100;
-            --radius-btn:         10px;
-            --shadow-btn:         0 2px 6px rgba(0,0,0,0.12);
-            --shadow-panel:       0 -2px 16px rgba(21,101,192,0.10);
-            --font:               -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-
-        *, *::before, *::after {
-            margin: 0; padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: var(--font);
-            background: var(--color-body-bg);
-            color: var(--color-text);
-            overflow: hidden;
-            touch-action: manipulation;
-            height: 100vh;
-            height: 100dvh;
-        }
-
-        /* ---- APP-LAYOUT ---- */
-        #app {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            height: 100dvh;
-        }
-
-        /* ---- Header ---- */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.5rem 1rem;
-            background: var(--color-panel-bg);
-            border-bottom: 1px solid var(--color-border);
-            flex-shrink: 0;
-        }
-
-        .header-title    { font-size: 1rem; font-weight: 700; color: var(--color-accent); }
-        .header-subtitle { font-size: 0.72rem; color: var(--color-text-light); }
-
-        /* ---- Canvas ---- */
-        .canvas-wrap {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            min-height: 0;
-        }
-
-        #simCanvas { width: 100%; height: 100%; display: block; }
-
-        /* Landing-Banner */
-        #landing-banner {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0.85);
-            background: white;
-            border-radius: 14px;
-            padding: 0.9rem 1.5rem;
-            font-size: 1.15rem;
-            font-weight: 700;
-            text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-            z-index: 10;
-        }
-        #landing-banner.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        #landing-banner.hit  { border-left: 5px solid var(--color-success); color: var(--color-success); }
-        #landing-banner.miss { border-left: 5px solid var(--color-danger);  color: var(--color-danger);  }
-
-        /* ---- Panel ---- */
-        .panel {
-            background: var(--color-panel-bg);
-            border-top: 1px solid var(--color-border);
-            box-shadow: var(--shadow-panel);
-            padding: 0.75rem 1rem 0.7rem;
-            flex-shrink: 0;
-            overflow-y: auto;
-            max-height: 46vh;
-        }
-
-        /* Slider-Grid: 2 Spalten, bei breiteren Screens 3 */
-        .slider-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.5rem 1rem;
-            margin-bottom: 0.75rem;
-        }
-        @media (min-width: 560px) { .slider-grid { grid-template-columns: 1fr 1fr 1fr; } }
-        @media (min-width: 760px) { .slider-grid { grid-template-columns: repeat(5, 1fr); } }
-
-        .slider-row { display: flex; flex-direction: column; gap: 0.22rem; }
-        .slider-row input:disabled { opacity: 0.5; cursor: not-allowed; }
-        .model-note { margin: -0.15rem 0 0.65rem; color: var(--color-text-light); font-size: 0.72rem; line-height: 1.35; }
-
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.78rem;
-            color: var(--color-text-light);
-        }
-        .slider-label strong { color: var(--color-text); font-size: 0.85rem; }
-
-        input[type="range"] {
-            width: 100%;
-            height: 6px;
-            -webkit-appearance: none;
-            appearance: none;
-            background: linear-gradient(to right,
-                var(--color-accent) var(--pct, 50%),
-                var(--color-border) var(--pct, 50%));
-            border-radius: 3px;
-            outline: none;
-            cursor: pointer;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px; height: 24px;
-            background: var(--color-panel-bg);
-            border: 2.5px solid var(--color-accent);
-            border-radius: 50%;
-            box-shadow: var(--shadow-btn);
-            cursor: pointer;
-        }
-        input[type="range"]::-moz-range-thumb {
-            width: 22px; height: 22px;
-            background: var(--color-panel-bg);
-            border: 2.5px solid var(--color-accent);
-            border-radius: 50%; cursor: pointer;
-        }
-
-        /* Buttons */
-        .btn-row { display: flex; gap: 0.55rem; flex-wrap: wrap; }
-
-        /* Modus-Umschalter */
-        .mode-row {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-        .mode-row .btn { flex: 1; min-width: 120px; }
-
-        .btn {
-            flex: 1; min-width: 76px;
-            padding: 0.65rem 0.7rem;
-            font-size: 0.88rem;
-            font-weight: 600;
-            border: none;
-            border-radius: var(--radius-btn);
-            cursor: pointer;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-            box-shadow: var(--shadow-btn);
-            white-space: nowrap;
-        }
-        .btn:active { transform: scale(0.96); }
-
-        .btn-primary   { background: var(--color-accent); color: white; }
-        .btn-secondary { background: #eceff1; color: var(--color-text); }
-        .btn-active    { background: var(--color-accent); color: white; }
-        .btn-warn      { background: #fff3e0; color: var(--color-warn); border: 1px solid #ffcc80; }
-        .btn-warn.slo-active { background: var(--color-warn); color: white; border-color: var(--color-warn); }
-    </style>
-    <link rel="stylesheet" href="../shared/atelier.css">
-  <link rel="stylesheet" href="../shared/student-entry.css">
+    <link rel="stylesheet" href="../shared/student-entry.css">
+<style>
+:root{--paper:#f5f5f7;--surface:#fff;--ink:#1d1d1f;--muted:#626269;--action:#0066cc;--pressed:#0055aa;--soft:#eaf3ff;--line:#dedee3;--control:#85858b;--color-success:#2e7d32;--color-danger:#a22f2f;--student-paper:var(--paper);--student-surface:var(--surface);--student-ink:var(--ink);--student-muted:var(--muted);--student-accent:var(--action);--student-line:var(--line)}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input{font:inherit;touch-action:manipulation}#app{max-width:1180px;margin:auto;padding:20px max(20px,env(safe-area-inset-right)) 32px max(20px,env(safe-area-inset-left))}.header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;margin-bottom:20px}.header>div{flex:1;min-width:0}.header-title{font-size:clamp(24px,3vw,32px);line-height:1.2;font-weight:600;letter-spacing:-.03em;margin:0}.header-subtitle{font-size:14px;color:var(--muted);margin-top:8px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;align-items:start;gap:16px}.scene-card,.panel{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:20px}.scene-card{overflow:hidden}.canvas-wrap{height:clamp(440px,65vh,650px);min-width:0;position:relative;overflow:hidden}#simCanvas{display:block;width:100%;height:100%;max-width:100%}.scene-values{display:flex;flex-wrap:wrap;gap:8px;padding:16px;border-bottom:1px solid var(--line)}.scene-value{min-width:0;padding:8px 12px;border-radius:12px;background:var(--paper);font-size:14px;color:var(--muted)}.scene-value strong{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}.panel{padding:16px}.mode-row,.btn-row{display:flex;flex-wrap:wrap;gap:8px}.mode-row{padding:4px;background:var(--paper);border:1px solid var(--line);border-radius:16px;margin-bottom:16px}.btn,.home{display:inline-flex;align-items:center;justify-content:center;min-width:48px;min-height:48px;padding:10px 12px;border:1px solid var(--control);border-radius:999px;background:var(--surface);color:var(--ink);font-weight:600;text-decoration:none;cursor:pointer;overflow-wrap:anywhere}.home{color:var(--action)}.mode-row .btn,.btn-row .btn{flex:1 1 8em;min-width:0}.btn-primary{background:var(--action);border-color:var(--action);color:#fff}.btn-active,.slo-active{border:2px solid var(--action);padding:9px 11px;background:var(--soft);color:var(--action)}.slider-grid{display:grid;gap:12px;margin-bottom:16px}.slider-row{min-width:0}.slider-label{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;color:var(--muted);font-size:16px}.slider-label strong{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}.model-note{font-size:14px;color:var(--muted);padding:12px;background:var(--paper);border-radius:12px;margin:0 0 16px;overflow-wrap:anywhere}input[type=range]{width:100%;height:48px;min-width:48px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:4px;background:linear-gradient(to right,var(--action) var(--pct,50%),var(--control) var(--pct,50%))}input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;margin-top:-10px;border:2px solid var(--surface);border-radius:50%;background:var(--action)}input[type=range]::-moz-range-track{height:4px;border-radius:4px;background:var(--control)}input[type=range]::-moz-range-thumb{width:20px;height:20px;border:2px solid var(--surface);border-radius:50%;background:var(--action)}input:disabled{cursor:not-allowed}input:disabled::-webkit-slider-thumb{background:var(--muted)}.slider-row:has(input:disabled) .slider-label{color:var(--muted)}:is(button,input,a):focus{outline:3px solid var(--action);outline-offset:3px}:is(.btn,.home):active{background:var(--soft)}.btn-primary:active{background:var(--pressed)}@media(hover:hover){:is(.home,.btn:not(.btn-primary)):hover{background:var(--soft)}}#landing-banner{padding:0 16px;color:var(--muted);font-size:16px;overflow-wrap:anywhere}#landing-banner:not(.show){display:none}#landing-banner.show{padding:16px;border-top:1px solid var(--line)}#landing-banner.hit{color:var(--color-success)}#landing-banner.miss{color:var(--color-danger)}.student-intro-card{font-family:inherit;box-shadow:none}.student-intro-eyebrow{color:var(--muted);font-size:14px;font-weight:600;letter-spacing:0}.student-intro-card h2{font-weight:600}.student-intro-task{background:var(--paper)}.student-intro-ok{font:600 16px/1.5 system-ui,sans-serif;border-radius:999px}.student-intro-ok:focus{outline:3px solid var(--action)}.student-intro-ok:active{background:var(--pressed)}
+@media(max-width:1000px){.layout{grid-template-columns:minmax(0,1fr) 300px}}
+@media(max-width:819px){.layout{grid-template-columns:1fr}.canvas-wrap{height:460px}}
+@media(max-width:560px){#app{padding:16px max(16px,env(safe-area-inset-right)) 24px max(16px,env(safe-area-inset-left))}.header>div{flex-basis:100%}.canvas-wrap{height:400px}}
+</style>
 </head>
 <body data-physik-app="waagrechter-wurf" data-student-home="../" data-student-title="Waagrechter Abwurf" data-student-summary="Du beobachtest, wie sich waagrechte und senkrechte Bewegung beim Abwurf überlagern." data-student-controls="Stelle Höhe und Anfangsgeschwindigkeit ein. Tippe anschließend auf „Start“.">
 <div id="app">
     <div class="header">
         <div>
-            <div class="header-title">✈️ Waagrechter Wurf</div>
+            <h1 class="header-title">Waagrechter und schräger Wurf</h1>
             <div class="header-subtitle">Rettungspaket-Abwurf</div>
         </div>
-        <button class="btn btn-secondary" id="btn-reset-hdr"
-                style="flex:none;min-height:48px;padding:0.45rem 0.85rem;font-size:0.82rem;">↺ Reset</button>
+        <a class="home" aria-label="Zur Übersicht" href="../index.html">Übersicht</a>
+        <button class="btn btn-secondary" id="btn-reset-hdr">↺ Reset</button>
     </div>
 
-    <div class="canvas-wrap">
-        <canvas id="simCanvas"></canvas>
-        <div id="landing-banner"></div>
-    </div>
+    <main class="layout"><section class="scene-card" aria-label="Wurfsimulation">
+    <div class="scene-values" aria-label="Aktuelle Messwerte"><div class="scene-value">Zeit t <strong id="value-t">–</strong></div><div class="scene-value">Ort x <strong id="value-x">–</strong></div><div class="scene-value">Höhe y <strong id="value-y">–</strong></div><div class="scene-value">vₓ <strong id="value-vx">–</strong></div><div class="scene-value">vᵧ <strong id="value-vy">–</strong></div></div>
+    <div class="canvas-wrap"><canvas id="simCanvas" aria-label="Flugbahn mit Insel und optionalen Geschwindigkeitsvektoren"></canvas></div>
+    <div id="landing-banner" role="status"></div></section>
 
     <div class="panel">
         <div class="mode-row">
-            <button class="btn btn-active" id="mode-waagrecht">🏢 Abwurf (waagrecht)</button>
-            <button class="btn btn-secondary" id="mode-schraeg">🚀 Schräger Wurf</button>
+            <button class="btn btn-active" id="mode-waagrecht" aria-pressed="true">🏢 Abwurf (waagrecht)</button>
+            <button class="btn btn-secondary" id="mode-schraeg" aria-pressed="false">🚀 Schräger Wurf</button>
         </div>
         <div class="slider-grid">
             <!-- Höhe (nur im waagrechten Modus) -->
@@ -217,7 +42,7 @@
                     <span>Höhe <em>h</em></span>
                     <strong id="lbl-h">80 m</strong>
                 </div>
-                <input type="range" id="sl-h" min="10" max="300" step="1" value="80">
+                <input type="range" id="sl-h" aria-label="Höhe h" min="10" max="300" step="1" value="80">
             </div>
             <!-- Winkel (nur im schrägen Modus) -->
             <div class="slider-row" id="slider-alpha" style="display:none;">
@@ -225,7 +50,7 @@
                     <span>Winkel <em>α</em></span>
                     <strong id="lbl-alpha">45°</strong>
                 </div>
-                <input type="range" id="sl-alpha" min="10" max="80" step="1" value="45">
+                <input type="range" id="sl-alpha" aria-label="Winkel α" min="10" max="80" step="1" value="45">
             </div>
             <!-- Abwurfposition x -->
             <div class="slider-row">
@@ -233,7 +58,7 @@
                     <span>Abwurf <em>x₀</em></span>
                     <strong id="lbl-xs">0 m</strong>
                 </div>
-                <input type="range" id="sl-xs" min="-150" max="150" step="5" value="0">
+                <input type="range" id="sl-xs" aria-label="Abwurfposition x₀" min="-150" max="150" step="5" value="0">
             </div>
             <!-- Geschwindigkeit -->
             <div class="slider-row">
@@ -241,15 +66,15 @@
                     <span>Geschw. <em>v₀</em></span>
                     <strong id="lbl-v0">25 m/s</strong>
                 </div>
-                <input type="range" id="sl-v0" min="5" max="120" step="1" value="25">
+                <input type="range" id="sl-v0" aria-label="Anfangsgeschwindigkeit v₀" min="5" max="120" step="1" value="25">
             </div>
             <!-- g -->
             <div class="slider-row">
                 <div class="slider-label">
                     <span>Fallbeschl. <em>g</em></span>
-                    <strong id="lbl-g">9.81 m/s²</strong>
+                    <strong id="lbl-g">9,81 m/s²</strong>
                 </div>
-                <input type="range" id="sl-g" min="1.62" max="9.81" step="0.01" value="9.81">
+                <input type="range" id="sl-g" aria-label="Fallbeschleunigung g" min="1.62" max="9.81" step="0.01" value="9.81">
             </div>
             <!-- Insel -->
             <div class="slider-row">
@@ -257,7 +82,7 @@
                     <span>🏝 Insel <em>x</em></span>
                     <strong id="lbl-xi">150 m</strong>
                 </div>
-                <input type="range" id="sl-xi" min="50" max="400" step="5" value="150">
+                <input type="range" id="sl-xi" aria-label="Inselposition x" min="50" max="400" step="5" value="150">
             </div>
         </div>
 
@@ -265,12 +90,12 @@
         <div class="btn-row">
             <button class="btn btn-primary"   id="btn-play">▶ Start</button>
             <button class="btn btn-secondary" id="btn-reset">↺ Reset</button>
-            <button class="btn btn-warn"      id="btn-slo">🐢 Tempo: 100 %</button>
-            <button class="btn btn-secondary" id="btn-vec">📐 Vektoren</button>
-            <button class="btn btn-secondary" id="btn-traj">〰 Parabel</button>
+            <button class="btn btn-warn"      id="btn-slo" aria-pressed="false">🐢 Tempo: 100 %</button>
+            <button class="btn btn-active" id="btn-vec" aria-pressed="true">📐 Vektoren</button>
+            <button class="btn btn-secondary" id="btn-traj" aria-pressed="false">〰 Parabel</button>
         </div>
     </div>
-</div>
+</main></div>
 
 <script>
 /* =====================================================
@@ -404,6 +229,7 @@ class Renderer {
      * }
      */
     draw(snap) {
+        this.lastSnap = snap;
         const W = this.scaler.logW;
         const H = this.scaler.logH;
         const ctx = this.ctx;
@@ -444,7 +270,7 @@ class Renderer {
         }
 
         // Info-Overlay
-        if (snap.overlay) this._drawInfoOverlay(snap.overlay, W);
+        this._drawInfoOverlay(snap.overlay, W);
     }
 
     /* ---- Himmel ---- */
@@ -521,12 +347,12 @@ class Renderer {
         const sc  = this.scaler;
         const oX  = sc.toCanvasX(0);
         const oY  = sc.toCanvasY(0);
-        const font = 'bold 11px ' + getComputedStyle(document.body).fontFamily;
+        const font = '500 14px ' + getComputedStyle(document.body).fontFamily;
 
         ctx.save();
 
         // Gitterlinien (zuerst, im Hintergrund)
-        const xStep = sc.niceStep(sc.xMax - sc.xMin, 6);
+        const xStep = sc.niceStep(sc.xMax - sc.xMin, Math.max(2, Math.floor((W - 2 * sc.pad) / 90)));
         const yStep = sc.niceStep(sc.yMax - sc.yMin, 5);
         ctx.strokeStyle = 'rgba(25,25,80,0.09)';
         ctx.lineWidth   = 1;
@@ -847,9 +673,9 @@ class Renderer {
         const vyPx = -vy * scale;  // Canvas y ist invertiert
 
         if (Math.abs(vxPx) > 5)
-            this._arrow(cx, cy, cx + vxPx, cy, '#1565c0', `vx = ${Math.abs(vx).toFixed(1)} m/s`);
+            this._arrow(cx, cy, cx + vxPx, cy, '#1565c0', 'vₓ');
         if (Math.abs(vyPx) > 5)
-            this._arrow(cx, cy, cx, cy + vyPx, '#c62828', `vy = ${vy.toFixed(1)} m/s`);
+            this._arrow(cx, cy, cx, cy + vyPx, '#c62828', 'vᵧ');
     }
 
     _arrow(x1, y1, x2, y2, color, label) {
@@ -866,12 +692,14 @@ class Renderer {
         ctx.lineTo(x2 - hLen * Math.cos(angle + 0.42), y2 - hLen * Math.sin(angle + 0.42));
         ctx.closePath(); ctx.fill();
 
-        const lx = (x1 + x2) / 2, ly = (y1 + y2) / 2 - 12;
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center';
+        ctx.font = '600 14px system-ui, sans-serif';
         const tw = ctx.measureText(label).width;
+        const horizontal = Math.abs(y2-y1) < 1;
+        const lx = Math.max(tw/2+8, Math.min(this.scaler.logW-tw/2-8, horizontal ? (x1+x2)/2 : x1-26));
+        const ly = Math.max(24, Math.min(this.scaler.logH-12, horizontal ? y1-20 : (y1+y2)/2+5));
+        ctx.textAlign = 'center';
         ctx.fillStyle = 'rgba(255,255,255,0.78)';
-        ctx.fillRect(lx - tw/2 - 3, ly - 11, tw + 6, 15);
+        ctx.fillRect(lx - tw/2 - 3, ly - 17, tw + 6, 22);
         ctx.fillStyle = color;
         ctx.fillText(label, lx, ly);
         ctx.restore();
@@ -879,27 +707,10 @@ class Renderer {
 
     /* ---- Info-Overlay ---- */
     _drawInfoOverlay(data, W) {
-        const ctx   = this.ctx;
-        const lines = [
-            `t  = ${data.t.toFixed(2)} s`,
-            `x  = ${data.x.toFixed(1)} m`,
-            `y  = ${data.y.toFixed(1)} m`,
-            `vx = ${data.vx.toFixed(1)} m/s`,
-            `vy = ${data.vy.toFixed(1)} m/s`
-        ];
-        const lh = 15, pad = 8, bw = 130, bh = lines.length * lh + pad * 2;
-        const bx = W - bw - 10, by = 10;
-
-        ctx.save();
-        ctx.fillStyle   = 'rgba(255,255,255,0.88)';
-        ctx.strokeStyle = 'rgba(21,101,192,0.25)';
-        ctx.lineWidth   = 1;
-        this._rRect(ctx, bx, by, bw, bh, 8);
-        ctx.fill(); ctx.stroke();
-
-        ctx.font = '11px monospace'; ctx.fillStyle = '#1a237e'; ctx.textAlign = 'left';
-        lines.forEach((l, i) => ctx.fillText(l, bx + pad, by + pad + 11 + i * lh));
-        ctx.restore();
+        for (const [key, unit] of [['t','s'],['x','m'],['y','m'],['vx','m/s'],['vy','m/s']]) {
+            document.getElementById('value-' + key).textContent = data
+                ? data[key].toFixed(key === 't' ? 2 : 1).replace('.', ',') + ' ' + unit : '–';
+        }
     }
 
     _rRect(ctx, x, y, w, h, r) {
@@ -1250,7 +1061,7 @@ class App {
             { id: 'sl-alpha', key: 'alpha', lbl: 'lbl-alpha', fmt: v => `${v}°`      },
             { id: 'sl-xs',    key: 'xs',    lbl: 'lbl-xs',    fmt: v => `${v} m`     },
             { id: 'sl-v0',    key: 'v0',    lbl: 'lbl-v0',    fmt: v => `${v} m/s`   },
-            { id: 'sl-g',     key: 'g',     lbl: 'lbl-g',     fmt: v => `${parseFloat(v).toFixed(2)} m/s²` },
+            { id: 'sl-g',     key: 'g',     lbl: 'lbl-g',     fmt: v => `${parseFloat(v).toFixed(2).replace('.',',')} m/s²` },
             { id: 'sl-xi',    key: 'xi',    lbl: 'lbl-xi',    fmt: v => `${v} m`     }
         ];
         this._sliders = sliders.map(({ id }) => document.getElementById(id));
@@ -1275,11 +1086,14 @@ class App {
         document.getElementById('mode-waagrecht').addEventListener('click', () => this._onSwitchMode('waagrecht'));
         document.getElementById('mode-schraeg').addEventListener('click',   () => this._onSwitchMode('schraeg'));
 
-        window.addEventListener('resize', () => {
+        const resizeScene = () => {
             this.renderer.resize();
             this._fitScaler();
             if (this._phase === 'idle') this._drawStatic();
-        });
+            else if (this.renderer.lastSnap) this.renderer.draw(this.renderer.lastSnap);
+        };
+        window.addEventListener('resize', resizeScene);
+        new ResizeObserver(resizeScene).observe(this.renderer.canvas.parentElement);
     }
 
     _onSliderChange() {
@@ -1321,6 +1135,8 @@ class App {
 
         this.state.mode = mode;
         const isSchraeg = mode === 'schraeg';
+        document.getElementById('mode-waagrecht').setAttribute('aria-pressed', String(!isSchraeg));
+        document.getElementById('mode-schraeg').setAttribute('aria-pressed', String(isSchraeg));
 
         // Höhe <-> Winkel einblenden
         document.getElementById('slider-h').style.display     = isSchraeg ? 'none' : '';
@@ -1362,19 +1178,27 @@ class App {
         const btn = document.getElementById('btn-slo');
         btn.textContent = isSlo ? '🐢 Tempo: 100 %' : '🐢 Tempo: 20 %';
         btn.classList.toggle('slo-active', !isSlo);
+        btn.setAttribute('aria-pressed', String(!isSlo));
     }
 
     _onToggleVectors() {
         this.showVectors = !this.showVectors;
+        document.getElementById('btn-vec').setAttribute('aria-pressed', String(this.showVectors));
         const btn = document.getElementById('btn-vec');
         btn.className = 'btn ' + (this.showVectors ? 'btn-active' : 'btn-secondary');
+        if (this._phase !== 'idle' && this.renderer.lastSnap) this.renderer.draw({...this.renderer.lastSnap, showVectors:this.showVectors});
     }
 
     _onToggleTraj() {
         this.showPreTraj = !this.showPreTraj;
+        document.getElementById('btn-traj').setAttribute('aria-pressed', String(this.showPreTraj));
         const btn = document.getElementById('btn-traj');
         btn.className = 'btn ' + (this.showPreTraj ? 'btn-active' : 'btn-secondary');
         if (this._phase === 'idle') this._drawStatic();
+        else if (this.renderer.lastSnap) {
+            const {h,v0,g,xs,mode,alpha} = this.state;
+            this.renderer.draw({...this.renderer.lastSnap, preTrajectory:this.showPreTraj ? this.physics.trajectory(h,v0,g,xs,90,mode,alpha) : null});
+        }
     }
 
     _updateSliderFill(el) {
@@ -1393,6 +1217,8 @@ class App {
    START
    ===================================================== */
 const app = new App();
+window.__projectileTest = { app, Physics };
+document.body.addEventListener('student-intro:close', () => document.getElementById('btn-play').focus({preventScroll:true}));
 </script>
 <script src="../shared/student-entry.js"></script>
 </body>
