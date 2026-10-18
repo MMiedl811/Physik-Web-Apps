@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Physik Applet: Geschwindigkeit vs. Geschwindigkeitsänderung</title>
     
     <!-- Lokale p5.js-Version: funktioniert auch ohne Internetverbindung. -->
@@ -10,168 +10,42 @@
     <link rel="stylesheet" href="../shared/vendor/katex-0.18.4/katex.min.css">
     <script src="../shared/vendor/katex-0.18.4/katex.min.js"></script>
     
-    <style>
-        /* Code Beginn: CSS Grundgerüst & Layout */
-        :root {
-            --sidebar-width: 360px;
-            --primary-color: #007aff;
-            --bg-color: #f5f5f7;
-            --sidebar-bg: #ffffff;
-            --text-color: #1d1d1f;
-            --border-color: #d2d2d7;
-        }
+<style>
 
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            width: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            overflow: hidden;
-            touch-action: pan-y;
-        }
-
-        #app-container {
-            display: flex;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        #sidebar {
-            width: var(--sidebar-width);
-            min-width: var(--sidebar-width);
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            padding: 112px 24px 20px;
-            box-sizing: border-box;
-            overflow-y: auto;
-            z-index: 10;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-        }
-
-        #main-area {
-            flex-grow: 1;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #e5e5e7; /* Etwas dunklerer Hintergrund für den Canvas-Bereich */
-        }
-
-        h1 {
-            font-size: 1.35rem;
-            margin: 0 0 18px;
-            color: var(--text-color);
-            line-height: 1.2;
-        }
-
-        .control-group {
-            margin-bottom: 17px;
-        }
-
-        label {
-            display: block;
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: var(--text-color);
-        }
-
-        /* iPad-optimierte Slider */
-        input[type="range"] {
-            width: 100%;
-            margin-bottom: 8px;
-            -webkit-appearance: none;
-            height: 12px;
-            background: #d2d2d7;
-            border-radius: 6px;
-            outline: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 28px;
-            height: 28px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            border: 2px solid white;
-        }
-
-        .value-display {
-            font-size: 0.9rem;
-            color: #86868b;
-            text-align: right;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 14px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 24px;
-            height: 24px;
-            cursor: pointer;
-        }
-
-        .checkbox-group label {
-            margin-bottom: 0;
-            font-weight: 500;
-            cursor: pointer;
-        }
-
-        #start-reset-btn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 18px;
-            border-radius: 14px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            margin-top: auto;
-            -webkit-tap-highlight-color: transparent;
-            box-shadow: 0 4px 12px rgba(0,122,255,0.3);
-        }
-
-        #start-reset-btn:active {
-            background-color: #0056b3;
-            transform: scale(0.98);
-        }
-
-        #canvas-parent {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            touch-action: none; /* Nur die Zeichenfläche beansprucht Ziehgesten. */
-        }
-
-        .learning-box {
-            padding: 12px;
-            margin-bottom: 18px;
-            border-radius: 12px;
-            background: #f0f7ff;
-            border: 1px solid #b8d8ff;
-            font-size: .88rem;
-            line-height: 1.45;
-        }
-        .learning-box strong { display: block; margin-bottom: 4px; }
-        .learning-box ol { margin: 6px 0 0; padding-left: 20px; }
+@import url("../shared/student-entry.css") layer(student-entry);
+:root{--paper:#f5f5f7;--surface:#fff;--ink:#1d1d1f;--muted:#626269;--action:#0066cc;--action-pressed:#0055aa;--surface-soft:#eaf3ff;--line:#dedee3;--control-line:#85858b;--student-paper:var(--paper);--student-surface:var(--surface);--student-ink:var(--ink);--student-muted:var(--muted);--student-line:var(--line);--student-accent:var(--action)}
+*{box-sizing:border-box}
+html,body{height:auto;min-height:100%;width:auto;overflow:visible;margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{padding:20px max(20px,env(safe-area-inset-right)) 32px max(20px,env(safe-area-inset-left))}
+button,input,summary{font:inherit;touch-action:manipulation}button,a,summary{min-width:48px;min-height:48px}button{cursor:pointer;border:1px solid var(--control-line);background:var(--surface);color:var(--ink);border-radius:12px;padding:10px 16px;font-weight:600}button:active{background:var(--surface-soft)}button:disabled{background:#eeeef0;color:var(--muted);cursor:default}:focus-visible{outline:3px solid var(--action);outline-offset:3px}
+#app-container{max-width:1180px;margin:auto;display:grid;grid-template-columns:300px minmax(0,1fr);align-items:start;gap:16px}
+.app-header{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+h1{overflow-wrap:anywhere;min-width:0;max-width:100%;margin:0;font-size:clamp(24px,2.8vw,32px);font-weight:600;letter-spacing:-.025em;line-height:1.25}
+.home-link{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid var(--control-line);border-radius:12px;text-decoration:none;color:var(--action)}
+#sidebar,#main-area{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:20px}
+#sidebar{padding:16px;overflow:visible;width:auto;min-width:0}
+#main-area{position:sticky;top:20px;overflow:hidden}
+.control-group{margin-bottom:16px}label{font-weight:600;overflow-wrap:anywhere;min-width:0}small{font-size:14px;color:var(--muted);font-weight:400}
+.control-group>label{display:block;line-height:1.45}input[type=range]{display:block;width:100%;height:48px;margin:0;accent-color:var(--action)}input:disabled{cursor:default}
+.value-display{font-size:14px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.view-options{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+.checkbox-group{display:flex;align-items:center;gap:12px;min-height:48px;position:relative}
+.checkbox-group input{width:24px;height:24px;margin:0;flex:none;accent-color:var(--action)}
+.checkbox-group label{font-size:16px;font-weight:400;min-height:48px;display:block;flex:1;cursor:pointer;padding:12px 0}
+.checkbox-group label::before{content:"";position:absolute;inset:0}
+.strobe-note{font-size:14px;color:var(--muted);margin:-4px 0 4px}
+details{display:block;border-top:1px solid var(--line);margin-top:16px;padding-top:4px}summary{display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:600}summary::before{content:'＋'}details[open] summary::before{content:'−'}
+.learning-box{display:block;font-size:14px;color:var(--muted);line-height:1.5;padding-top:8px}.learning-box ol{padding-left:20px;margin:8px 0}.learning-box li+li{margin-top:8px}.model-box{font-size:14px;color:var(--muted);padding-top:8px}.model-box strong{color:var(--ink)}
+.transport-controls{position:static;display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.transport-controls button{flex:1;min-width:112px}#start-reset-btn{background:var(--action);color:white;border-color:var(--action)}#start-reset-btn:active{background:var(--action-pressed)}
+#canvas-parent{width:100%;height:clamp(360px,49vw,520px);position:relative;touch-action:none}canvas{display:block;max-width:100%}
+.scale-hint{position:static;padding:12px 16px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
+#game-overlay,#turn-popup,#winner-screen{position:absolute;z-index:100;left:50%;top:50%;transform:translate(-50%,-50%);width:calc(100% - 32px);max-width:480px;max-height:calc(100% - 32px);overflow:auto;padding:20px;border:2px solid var(--action);border-radius:16px;background:var(--surface);color:var(--ink);text-align:center;display:none}
+#game-overlay h2,#winner-screen h1{font-size:24px;font-weight:600;color:var(--ink);line-height:1.3;margin:0 0 12px}#game-overlay p,#winner-screen p{margin:8px 0}#game-overlay button,#winner-screen button{background:var(--action);color:white;border-color:var(--action);margin-top:12px;max-width:100%;overflow-wrap:anywhere}
+#turn-popup{pointer-events:none;font-weight:600;font-size:20px;max-width:320px}#winner-screen{flex-direction:column;z-index:200;align-items:center;justify-content:flex-start;gap:8px}
+.student-intro-card{font-family:inherit;box-shadow:none}
+@media(max-width:819px){body{padding:16px}#app-container{grid-template-columns:minmax(0,1fr)}#main-area{grid-row:2;position:relative;top:auto}#sidebar{grid-row:3}#canvas-parent{height:400px}.app-header{grid-row:1}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
         .vec-symbol {
             display: inline-block;
             position: relative;
@@ -201,202 +75,18 @@
             transform: rotate(45deg);
         }
         .vec-symbol sub { font-style: normal; font-size: .7em; }
-        .katex-formula { white-space:nowrap; }
+        .katex-formula { white-space:nowrap;display:inline-block;max-width:100%;overflow-x:auto;vertical-align:middle;padding:4px 0; }
         h1 .katex { font-size:.94em; }
         .learning-box .katex { font-size:1.04em; }
-        .transport-controls {
-            position: absolute;
-            z-index: 30;
-            left: 50%;
-            bottom: 24px;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 10px;
-            padding: 9px;
-            border-radius: 18px;
-            background: rgba(255,255,255,.94);
-            box-shadow: 0 8px 28px rgba(28,45,57,.22);
-            backdrop-filter: blur(12px);
-        }
-        .transport-controls button {
-            min-height: 52px;
-            min-width: 116px;
-            border: 0;
-            border-radius: 12px;
-            padding: 0 20px;
-            font: inherit;
-            font-weight: 750;
-            cursor: pointer;
-        }
-        #pause-btn { background: #5f6870; color: white; }
-        #pause-btn:disabled { opacity: .45; cursor: default; }
-        .view-options { display: grid; gap: 10px; margin-bottom: 15px; }
-        .view-options .checkbox-group { margin: 0; min-height: 32px; }
-        .strobe-note { color: #5f6368; font-size: .76rem; line-height: 1.35; margin: -4px 0 0 36px; }
-        details.extension {
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px 12px;
-            background: #fafafa;
-        }
-        details.extension summary { font-weight: 700; cursor: pointer; }
-        details.extension .checkbox-group { margin: 14px 0 4px; }
-        .scale-hint {
-            position: absolute;
-            left: 14px;
-            bottom: 14px;
-            z-index: 5;
-            padding: 6px 9px;
-            border-radius: 8px;
-            background: rgba(255,255,255,.88);
-            color: #5f6368;
-            font-size: .76rem;
-            pointer-events: none;
-        }
-        .model-box {
-            margin: 0 0 16px;
-            padding: 10px 12px;
-            border: 1px solid #d9cfbf;
-            border-radius: 11px;
-            background: #fffaf0;
-            color: #5f655f;
-            font-size: .78rem;
-            line-height: 1.4;
-        }
-        .model-box strong { color: var(--text-color); }
 
-        @media (orientation: portrait), (max-width: 820px) {
-            body, html { overflow: auto; }
-            #app-container { flex-direction: column; min-height: 100vh; height: auto; }
-            #sidebar {
-                width: 100%; min-width: 0; max-height: none;
-                padding: 76px 16px 16px; overflow: visible; border-right: 0;
-                border-bottom: 1px solid var(--border-color);
-            }
-            #sidebar h1 { margin: 0 0 14px; }
-            .control-group { margin-bottom: 16px; }
-            .transport-controls { position: fixed; bottom: 14px; }
-            #main-area { padding-bottom: 72px; box-sizing: border-box; }
-            .checkbox-group { margin-bottom: 14px; }
-            #main-area {
-                min-height: 420px;
-                height: 42dvh;
-                max-height: 470px;
-                flex: none;
-            }
-        }
-
-        /* Game Overlay Styles */
-        #game-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            text-align: center;
-            z-index: 100;
-            display: none;
-            max-width: 80%;
-            border: 3px solid var(--primary-color);
-        }
-
-        #game-overlay h2 {
-            margin-top: 0;
-            color: var(--primary-color);
-        }
-
-        #game-overlay button {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-
-        /* Turn Pop-up Styles */
-        #turn-popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-            text-align: center;
-            z-index: 110;
-            display: none;
-            font-size: 1.5rem;
-            font-weight: bold;
-            border: 4px solid #007aff;
-        }
-
-        /* Winner Screen Styles */
-        #winner-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-            color: white;
-            text-align: center;
-        }
-
-        #winner-screen h1 {
-            font-size: 3rem;
-            color: #ffcc00;
-            margin-bottom: 20px;
-        }
-
-        #winner-screen button {
-            background: #ffcc00;
-            color: black;
-            border: none;
-            padding: 15px 40px;
-            border-radius: 10px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 30px;
-        }
-        /* Code Ende: CSS Grundgerüst & Layout */
-    </style>
-    <link rel="stylesheet" href="../shared/atelier.css">
-  <link rel="stylesheet" href="../shared/student-entry.css">
-  <style>
-    /* Der gemeinsame Atelier-Stil setzt die Seitenleiste zurück; Platz für den Homebutton sichern. */
-    body[data-physik-app="v-aenderung"] #sidebar { padding: 112px 24px 20px; }
-    @media (orientation: portrait), (max-width: 820px) {
-      body[data-physik-app="v-aenderung"] #sidebar { padding: 76px 16px 16px; }
-    }
-  </style>
+</style>
 </head>
 <body data-physik-app="v-aenderung" data-student-home="../" data-student-title="Geschwindigkeit und Δv" data-student-summary="Du untersuchst, wie Anfangsgeschwindigkeit und Geschwindigkeitsänderung die Endgeschwindigkeit bestimmen." data-student-controls="Stelle Betrag und Winkel von Δv ein. Tippe anschließend im Eisfeld auf „Start“.">
     <!-- Code Beginn: HTML Struktur -->
     <div id="app-container">
+        <header class="app-header">            <h1>Eishockey-Physik: <span class="katex-formula" data-tex="\vec v \text{ und } \Delta\vec v"><span class="vec-symbol">v</span> und Δ<span class="vec-symbol">v</span></span></h1><a class="home-link" href="../index.html" aria-label="Zur Übersicht">← Übersicht</a></header>
         <aside id="sidebar">
-            <h1>Eishockey-Physik: <span class="katex-formula" data-tex="\vec v \text{ und } \Delta\vec v"><span class="vec-symbol">v</span> und Δ<span class="vec-symbol">v</span></span></h1>
-            <div class="learning-box">
-                <strong>Geführte Beobachtung</strong>
-                <ol>
-                    <li>Starte zuerst mit <span class="katex-formula" data-tex="\Delta\vec v=0">Δ<span class="vec-symbol">v</span> = 0</span> und beschreibe <span class="katex-formula" data-tex="\vec v_{\mathrm E}"><span class="vec-symbol">v<sub>E</sub></span></span>.</li>
-                    <li>Ändere nur den Winkel von <span class="katex-formula" data-tex="\Delta\vec v">Δ<span class="vec-symbol">v</span></span>. Vergleiche Richtung und Betrag von <span class="katex-formula" data-tex="\vec v_{\mathrm E}"><span class="vec-symbol">v<sub>E</sub></span></span>.</li>
-                    <li>Blende die Vektoren ein und prüfe <span class="katex-formula" data-tex="\vec v_{\mathrm E}=\vec v_{\mathrm A}+\Delta\vec v"><span class="vec-symbol">v<sub>E</sub></span> = <span class="vec-symbol">v<sub>A</sub></span> + Δ<span class="vec-symbol">v</span></span>.</li>
-                </ol>
-            </div>
+
 
             <div class="control-group">
                 <label for="va-slider">Anfangsgeschwindigkeit <span class="vec-symbol">v<sub>A</sub></span></label>
@@ -436,7 +126,7 @@
                 </div>
             </div>
 
-            <div class="model-box"><strong>Modellgrenze:</strong> Der Puck ist ein Punktkörper und gleitet reibungsfrei. Δ<span class="vec-symbol">v</span> wird an einem Punkt instantan addiert; Stoßdauer, Rotation und Energieübertragung durch den Schläger werden nicht modelliert.</div>
+
 
             <details class="extension">
                 <summary>Optionale Erweiterung</summary>
@@ -446,17 +136,27 @@
                 </div>
             </details>
 
+            <details class="notes"><summary>Beobachtung und Modell</summary>            <div class="learning-box">
+                <strong>Geführte Beobachtung</strong>
+                <ol>
+                    <li>Starte zuerst mit <span class="katex-formula" data-tex="\Delta\vec v=0">Δ<span class="vec-symbol">v</span> = 0</span> und beschreibe <span class="katex-formula" data-tex="\vec v_{\mathrm E}"><span class="vec-symbol">v<sub>E</sub></span></span>.</li>
+                    <li>Ändere nur den Winkel von <span class="katex-formula" data-tex="\Delta\vec v">Δ<span class="vec-symbol">v</span></span>. Vergleiche Richtung und Betrag von <span class="katex-formula" data-tex="\vec v_{\mathrm E}"><span class="vec-symbol">v<sub>E</sub></span></span>.</li>
+                    <li>Blende die Vektoren ein und prüfe <span class="katex-formula" data-tex="\vec v_{\mathrm E}=\vec v_{\mathrm A}+\Delta\vec v"><span class="vec-symbol">v<sub>E</sub></span> = <span class="vec-symbol">v<sub>A</sub></span> + Δ<span class="vec-symbol">v</span></span>.</li>
+                </ol>
+            </div>
+            <div class="model-box"><strong>Modellgrenze:</strong> Der Puck ist ein Punktkörper und gleitet reibungsfrei. Δ<span class="vec-symbol">v</span> wird an einem Punkt instantan addiert; Stoßdauer, Rotation und Energieübertragung durch den Schläger werden nicht modelliert.</div></details>
         </aside>
 
         <main id="main-area">
-            <div id="canvas-parent">
-                <div class="scale-hint">x nach rechts, y nach unten · Pfeile: 15 px je 1 m/s</div>
                 <div class="transport-controls" aria-label="Animation steuern">
                     <button id="start-reset-btn">▶ Start</button>
                     <button id="pause-btn" disabled>Pause</button>
                 </div>
-                <div id="game-overlay">
-                    <h2>🏆 Game Mode Aktiviert!</h2>
+
+            <div id="canvas-parent">
+
+                <div id="game-overlay" role="dialog" aria-modal="true" aria-labelledby="game-title">
+                    <h2 id="game-title">🏆 Spielmodus aktiviert</h2>
                     <p>Triff das bewegliche Tor, um Punkte zu sammeln!</p>
                     <p><b>Mitte (Gold):</b> 100 Pkt<br>
                        <b>Seite (Silber):</b> 50 Pkt<br>
@@ -465,13 +165,14 @@
                        Jeder hat 5 Versuche!</p>
                     <button id="close-overlay">Alles klar!</button>
                 </div>
-                <div id="turn-popup">Spieler 1 ist dran!</div>
-                <div id="winner-screen">
+                <div id="turn-popup" role="status">Spieler 1 ist dran!</div>
+                <div id="winner-screen" role="dialog" aria-modal="true" aria-labelledby="winner-text">
                     <h1 id="winner-text">Spieler 1 gewinnt!</h1>
                     <p id="final-scores">Score 1: 0 | Score 2: 0</p>
                     <button id="restart-game">Nochmal spielen</button>
                 </div>
             </div>
+                <div class="scale-hint">x nach rechts, y nach unten · Pfeile: 15 px je 1 m/s</div>
         </main>
     </div>
     <!-- Code Ende: HTML Struktur -->
@@ -571,10 +272,12 @@
             isGameMode = e.target.checked;
             if (isGameMode) {
                 gameOverlay.style.display = 'block';
+                closeOverlayBtn.focus();
                 goal.width = 240; // Doppelt so groß im Game Mode
             } else {
                 gameOverlay.style.display = 'none';
                 winnerScreen.style.display = 'none';
+                turnPopup.style.display = 'none';
                 resetGameStats();
                 goal.width = 120; // Standardgröße
             }
@@ -584,6 +287,7 @@
         closeOverlayBtn.addEventListener('click', () => {
             gameOverlay.style.display = 'none';
             showTurnPopup();
+            gameModeToggle.focus();
         });
 
         restartGameBtn.addEventListener('click', () => {
@@ -591,6 +295,7 @@
             resetGameStats();
             initEnvironment();
             showTurnPopup();
+            startBtn.focus();
         });
 
         function resetGameStats() {
@@ -614,11 +319,19 @@
             }, 1500);
         }
 
+        gameOverlay.addEventListener('keydown', event => {
+            if(event.key === 'Escape') closeOverlayBtn.click();
+            if(event.key === 'Tab') { event.preventDefault(); closeOverlayBtn.focus(); }
+        });
+        winnerScreen.addEventListener('keydown', event => {
+            if(event.key === 'Tab') { event.preventDefault(); restartGameBtn.focus(); }
+        });
+
         pauseBtn.addEventListener('click', () => {
             if (isSimulationRunning && currentState !== STATE.STOPPED) {
                 isPaused = !isPaused;
                 pauseBtn.textContent = isPaused ? "Weiter" : "Pause";
-                pauseBtn.style.backgroundColor = isPaused ? "#16824f" : "#8e8e93";
+                pauseBtn.setAttribute("aria-pressed", String(isPaused));
             }
         });
 
@@ -646,6 +359,10 @@
             let h = canvasParent.clientHeight;
             let canvas = createCanvas(w, h);
             canvas.parent('canvas-parent');
+            canvas.elt.setAttribute('aria-label', 'Eishockeyfeld mit Puck und Geschwindigkeitsvektoren. Betrag und Winkel auch über die Regler einstellbar.');
+            canvas.elt.addEventListener('pointerdown', event => canvas.elt.setPointerCapture(event.pointerId));
+            canvas.elt.addEventListener('pointerup', () => { isDraggingDV = false; });
+            canvas.elt.addEventListener('pointercancel', () => { isDraggingDV = false; });
             
             initEnvironment();
         }
@@ -684,7 +401,7 @@
             startBtn.textContent = "▶ Start";
             pauseBtn.textContent = "Pause";
             pauseBtn.disabled = true;
-            pauseBtn.style.backgroundColor = "#5f6870";
+            pauseBtn.setAttribute("aria-pressed", "false");
             
             if (isGameMode && !isGameOver && shotsTaken1 + shotsTaken2 > 0) {
                 showTurnPopup();
@@ -702,15 +419,15 @@
                 // Score Anzeige Spieler 1 (Links Blau)
                 push();
                 fill("#007aff");
-                textSize(24);
+                textSize(width < 600 ? 18 : 24);
                 textStyle(BOLD);
                 textAlign(LEFT, TOP);
                 text("Spieler 1: " + score1 + " (" + shotsTaken1 + "/5)", 30, 30);
                 
                 // Score Anzeige Spieler 2 (Rechts Rot)
                 fill("#ff3b30");
-                textAlign(RIGHT, TOP);
-                text("Spieler 2: " + score2 + " (" + shotsTaken2 + "/5)", width - 30, 30);
+                textAlign(width < 600 ? LEFT : RIGHT, TOP);
+                text("Spieler 2: " + score2 + " (" + shotsTaken2 + "/5)", width < 600 ? 30 : width - 30, width < 600 ? 56 : 30);
                 pop();
             }
 
@@ -1065,17 +782,18 @@
         function endGame() {
             isGameOver = true;
             winnerScreen.style.display = 'flex';
+            restartGameBtn.focus();
             finalScoresText.textContent = "Spieler 1: " + score1 + " | Spieler 2: " + score2;
             
             if (score1 > score2) {
                 winnerText.textContent = "Spieler 1 gewinnt! 🏆";
-                winnerText.style.color = "#007aff";
+
             } else if (score2 > score1) {
                 winnerText.textContent = "Spieler 2 gewinnt! 🏆";
-                winnerText.style.color = "#ff3b30";
+
             } else {
                 winnerText.textContent = "Unentschieden! 🤝";
-                winnerText.style.color = "#ffcc00";
+
             }
             
             // Feuerwerk starten
@@ -1187,6 +905,8 @@
             textSize(12);
             const subWidth = textWidth(parts.subscript);
             const totalWidth = prefixWidth + baseWidth + subWidth + suffixWidth;
+            x = constrain(x, totalWidth / 2 + 12, width - totalWidth / 2 - 12);
+            y = constrain(y, 30, height - 12);
             let cursor = x - totalWidth / 2;
 
             noStroke();
@@ -1384,6 +1104,7 @@
 
         function windowResized() {
             let canvasParent = document.getElementById('canvas-parent');
+            if (canvasParent.clientWidth === width && canvasParent.clientHeight === height) return;
             resizeCanvas(canvasParent.clientWidth, canvasParent.clientHeight);
             initEnvironment();
         }
