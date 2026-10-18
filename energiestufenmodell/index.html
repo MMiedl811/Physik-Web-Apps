@@ -16,6 +16,7 @@
 body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(safe-area-inset-right)) 32px max(20px,env(safe-area-inset-left));background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button,a,summary,input,select{touch-action:manipulation}button,a,summary,select,input[type=number]{min-height:48px}button,a{min-width:48px}button{cursor:pointer}button:active{background:var(--surface-soft)}:focus-visible{outline:3px solid var(--action);outline-offset:3px}button:disabled,select:disabled{cursor:default;background:#eeeef0;color:var(--muted)}
 .app-container{height:auto;grid-template-rows:auto;max-width:1180px;margin:auto;display:grid;grid-template-columns:300px minmax(0,1fr) 240px;gap:16px;align-items:start}
 .app-container>*{min-width:0}
+.visual-stack{display:contents}
 .header{padding:0;min-height:0;grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
 .brand{display:flex;align-items:center;gap:12px}h1{font-size:clamp(24px,3vw,32px);line-height:1.2;letter-spacing:-.03em;font-weight:600;margin:0}
 .brand-icon{display:none}
@@ -71,7 +72,8 @@ body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(
 .toggle-label{font-size:14px;font-weight:600;overflow-wrap:anywhere}
 .toggle-sublabel{font-size:14px;color:var(--muted)}
 @media(max-width:1100px) and (min-width:820px){.app-container{grid-template-columns:300px minmax(0,1fr)}
-.controls{grid-row:2/4}
+.controls{grid-row:2}
+.visual-stack{display:flex;flex-direction:column;gap:16px;grid-column:2;grid-row:2}
 .relaxation{grid-column:2;grid-row:3}
 .stage{grid-row:2}
 .spectra{grid-template-columns:1fr}}
@@ -204,6 +206,7 @@ body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(
         </div>
     </aside>
 
+    <div class="visual-stack">
     <!-- STAGE -->
     <main class="card stage">
         <div class="card-header">Energieniveau-Diagramm · schematische Abstände</div>
@@ -245,6 +248,8 @@ body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(
             <ul class="relax-list" id="relaxation-list"></ul>
         </div>
     </aside>
+
+    </div>
 
     <!-- SPECTRA -->
     <footer class="spectra">
