@@ -3,392 +3,89 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Quanten-Labor 2.1</title>
-    <style>
-        /* === MODERN LIGHT DESIGN SYSTEM === */
-        :root {
-            /* Colors - Fresh & Light */
-            --bg-body: #f3f6f9;
-            --bg-card: rgba(255, 255, 255, 0.85);
-            --bg-card-solid: #ffffff;
-            
-            --primary: #6366f1;      /* Indigo */
-            --primary-light: #818cf8;
-            --accent: #06b6d4;       /* Cyan */
-            --accent-glow: rgba(6, 182, 212, 0.3);
-            
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --text-light: #94a3b8;
-            
-            --success: #10b981;
-            --error: #f43f5e;
-            --warning: #f59e0b;
-            
-            /* Spectrum Colors */
-            --spec-ir: #ef4444;
-            --spec-vis: #22c55e;
-            --spec-uv: #8b5cf6;
+<style>
+/* Keep legacy shared app overrides below this app-local design. */
+@import url("../shared/student-entry.css") layer(student-entry);
+.student-intro-card{box-shadow:none;font-family:inherit}
+.student-intro-start{min-height:48px}
 
-            /* UI */
-            --radius: 12px;
-            --radius-lg: 20px;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.1);
-            
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: var(--font);
-            background: linear-gradient(135deg, #e0e7ff 0%, #f0f9ff 50%, #fdf4ff 100%);
-            color: var(--text-main);
-            /* FIX: Strikte Höhe auf Viewport beschränkt */
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden; /* Kein Scrollen auf Body-Ebene */
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-        }
-
-        /* === LAYOUT === */
-        .app-container {
-            max-width: 1500px;
-            margin: 0 auto;
-            width: 100%;
-            height: 100%; /* Füllt den Body */
-            display: grid;
-            grid-template-columns: 300px 1fr 260px;
-            /* Header auto, Mitte 1fr (rest), Spektren fix 150px */
-            grid-template-rows: auto 1fr 150px; 
-            gap: 15px;
-        }
-
-        /* === HEADER === */
-        .header {
-            grid-column: 1 / -1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            background: var(--bg-card-solid);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            min-height: 60px; /* Fixe Mindesthöhe */
-        }
-
-        .header-actions {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .brand-icon {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            color: white;
-        }
-
-        .brand h1 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .header-note {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            background: #eef2ff;
-            padding: 8px 12px;
-            border-radius: 999px;
-            border: 1px solid #c7d2fe;
-        }
-
-        .model-note {
-            font-size: 0.72rem;
-            line-height: 1.35;
-            color: var(--text-muted);
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: var(--radius);
-            padding: 8px 10px;
-        }
-
-        .quick-steps {
-            font-size: 0.78rem;
-            line-height: 1.5;
-            color: var(--text-main);
-            background: #eef2ff;
-            border-left: 4px solid var(--primary);
-            border-radius: 8px;
-            padding: 8px 10px 8px 12px;
-        }
-
-        .unit-toggle {
-            display: flex;
-            background: #f1f5f9;
-            padding: 3px;
-            border-radius: var(--radius);
-            gap: 2px;
-        }
-
-        .unit-btn {
-            min-width: 44px;
-            min-height: 44px;
-            padding: 6px 16px;
-            border: none;
-            background: transparent;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .unit-btn.active {
-            background: white;
-            color: var(--primary);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-        }
-
-        /* === CARDS === */
-        .card {
-            background: var(--bg-card);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.8);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .card-header {
-            padding: 12px 16px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            background: rgba(255,255,255,0.5);
-            flex-shrink: 0; /* Header nicht schrumpfen */
-        }
-
-        .card-body {
-            padding: 16px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            overflow-y: auto; /* Scrollen innerhalb der Sidebar, falls nötig */
-        }
-
-        /* === CONTROLS === */
-        .controls { grid-column: 1; grid-row: 2; }
-
-        .input-group label {
-            display: block;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-main);
-            margin-bottom: 6px;
-        }
-
-        select {
-            width: 100%;
-            min-height: 48px;
-            padding: 10px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            font-family: var(--font);
-            background: white;
-            cursor: pointer;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 10px center;
-            background-size: 16px;
-            transition: border-color 0.2s;
-        }
-        select:focus { outline: none; border-color: var(--primary); }
-
-        /* Slider */
-        .slider-container {
-            background: #f8fafc;
-            padding: 12px;
-            border-radius: var(--radius);
-            border: 1px solid #e2e8f0;
-        }
-
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary-light) 0%, var(--accent) 100%);
-            border-radius: 3px;
-            cursor: pointer;
-        }
-
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
-            background: white;
-            border: 3px solid var(--primary);
-            border-radius: 50%;
-            cursor: grab;
-            box-shadow: 0 2px 6px rgba(99, 102, 241, 0.3);
-        }
-
-        .number-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
-        input[type="number"] {
-            flex: 1;
-            padding: 8px 10px;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--radius);
-            font-size: 1rem;
-            font-family: 'SF Mono', Monaco, monospace;
-            font-weight: 600;
-            text-align: right;
-        }
-        input[type="number"]:focus { outline: none; border-color: var(--primary); }
-
-        .unit-tag {
-            font-weight: 700;
-            font-size: 0.85rem;
-            color: var(--primary);
-            background: #eef2ff;
-            padding: 8px 10px;
-            border-radius: var(--radius);
-        }
-
-        /* Feedback */
-        .feedback {
-            padding: 10px;
-            border-radius: var(--radius);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-align: center;
-            transition: all 0.3s;
-        }
-        .feedback.neutral { background: #f8fafc; color: var(--text-muted); border: 2px dashed #e2e8f0; }
-        .feedback.valid { background: #ecfdf5; color: #059669; border: 2px solid #a7f3d0; }
-        .feedback.invalid { background: #fef2f2; color: #dc2626; border: 2px solid #fecaca; }
-
-        /* Buttons */
-        .btn {
-            min-height: 44px;
-            padding: 12px 16px;
-            border: none;
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.2s;
-            font-family: var(--font);
-        }
-
-        .btn-excite {
-            background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
-            color: white;
-            opacity: 0.5;
-            pointer-events: none;
-        }
-        .btn-excite.ready {
-            opacity: 1;
-            pointer-events: auto;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-        }
-
-        .btn-reset {
-            background: white;
-            color: var(--text-main);
-            border: 2px solid #e2e8f0;
-            margin-top: auto;
-        }
-        .btn-reset:hover { background: #f8fafc; border-color: #cbd5e1; }
-
-        /* === STAGE === */
-        .stage { 
-            grid-column: 2; 
-            grid-row: 2; 
-            position: relative;
-            /* Wichtig: Keine festen Höhen, Grid regelt das */
-        }
-
-        /* FIX: SVG Container fitting */
-        .stage-svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        /* Energy Counter */
-        .energy-counter {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            padding: 10px 14px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            font-size: 0.75rem;
-            border: 1px solid rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            z-index: 10;
-        }
-
-        .counter-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-        .counter-label { color: var(--text-muted); font-weight: 500; }
-        .counter-val { font-weight: 700; font-family: monospace; font-size: 0.85rem; }
-        .counter-val.in { color: var(--primary); }
-        .counter-val.out { color: var(--success); }
-        .counter-val.balanced { color: var(--accent); }
-
+:root{--student-paper:#f5f5f7;--student-surface:#fff;--student-ink:#1d1d1f;--student-muted:#626269;--student-line:#dedee3;--student-accent:#0066cc;--paper:#f5f5f7;--surface:#fff;--ink:#1d1d1f;--muted:#626269;--action:#0066cc;--action-pressed:#0055aa;--surface-soft:#eaf3ff;--line:#dedee3;--primary:#6366f1;--accent:#06b6d4;--success:#10b981;--spec-ir:#ef4444;--spec-vis:#22c55e;--spec-uv:#8b5cf6;--atelier-surface:#fff;--atelier-ink:#1d1d1f;--atelier-muted:#626269;--atelier-accent:#0066cc;--atelier-line:#dedee3;--atelier-canvas:#f5f5f7}
+*{box-sizing:border-box}
+body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(safe-area-inset-right)) 32px max(20px,env(safe-area-inset-left));background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,input,select{font:inherit}button,a,summary,input,select{touch-action:manipulation}button,a,summary,select,input[type=number]{min-height:48px}button,a{min-width:48px}button{cursor:pointer}button:active{background:var(--surface-soft)}:focus-visible{outline:3px solid var(--action);outline-offset:3px}button:disabled,select:disabled{cursor:default;background:#eeeef0;color:var(--muted)}
+.app-container{height:auto;grid-template-rows:auto;max-width:1180px;margin:auto;display:grid;grid-template-columns:300px minmax(0,1fr) 240px;gap:16px;align-items:start}
+.app-container>*{min-width:0}
+.header{padding:0;min-height:0;grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px}h1{font-size:clamp(24px,3vw,32px);line-height:1.2;letter-spacing:-.03em;font-weight:600;margin:0}
+.brand-icon{display:none}
+.header-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.home-link{display:inline-flex;align-items:center;color:var(--action);text-decoration:none;padding:8px 12px;border-radius:12px;border:1px solid #85858b}
+.header-note{font-size:14px;color:var(--muted);max-width:370px}
+.unit-toggle{display:flex;gap:8px;padding:4px;background:#e9e9ed;border-radius:16px}
+.unit-btn{border:2px solid transparent;background:transparent;color:var(--ink);padding:8px 12px;border-radius:12px}
+.unit-btn.active{border-color:var(--action);color:var(--action);background:var(--surface)}
+.card,.spectrum-card{border:1px solid var(--line);border-radius:20px;background:var(--surface);overflow:hidden}
+.card-header{padding:14px 16px;border-bottom:1px solid var(--line);font-size:17px;font-weight:600;line-height:1.4}
+.card-body{overflow:visible;padding:16px;display:flex;flex-direction:column;gap:12px}
+.input-group label{display:block;font-weight:600;margin-bottom:4px}select{appearance:none;-webkit-appearance:none;min-height:48px;width:100%;min-width:0;background:white;color:var(--ink);border:1px solid #85858b;border-radius:10px;padding:10px 32px 10px 12px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='m4 6 4 4 4-4' fill='none' stroke='%23626269' stroke-width='2'/%3E%3C/svg%3E");background-position:right 10px center;background-repeat:no-repeat}
+.slider-container{padding:8px 12px;background:var(--paper);border-radius:12px}input[type=range]{width:100%;height:48px;margin:0;accent-color:var(--action)}
+.number-row{display:flex;align-items:center;gap:8px}input[type=number]{width:0;min-width:0;flex:1;border:1px solid #85858b;border-radius:10px;padding:8px;background:white;color:var(--ink);font-variant-numeric:tabular-nums}
+.unit-tag{font-size:14px;white-space:nowrap}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:10px 12px;border-radius:12px;border:1px solid #85858b;background:white;color:var(--ink);font-weight:600}
+.btn-excite{background:var(--action);color:white;border-color:var(--action)}
+.btn-excite:active{background:var(--action-pressed)}
+.btn-excite:disabled{border-color:#85858b}
+.feedback{padding:12px;border-radius:12px;font-size:14px;background:var(--paper);color:var(--muted)}
+.feedback.valid{background:#eaf7ee;color:#246338}
+.feedback.invalid{background:#fff0ed;color:#a22f2f}
+.quick-steps,.model-note{display:block;font-size:14px;color:var(--muted);margin:0}
+.quick-steps{display:none}details{border-top:1px solid var(--line);padding-top:4px}summary{display:flex;align-items:center;cursor:pointer;font-weight:600;color:var(--ink)}summary::before{content:'＋';margin-right:8px}details[open] summary::before{content:'−'}
+.stage{grid-column:2;grid-row:2}
+.stage-svg{display:block;width:100%;height:auto;aspect-ratio:520/500;max-height:440px;min-height:0}
+.energy-counter{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px;font-variant-numeric:tabular-nums}
+.counter-row{display:flex;flex-wrap:wrap;gap:8px}
+.counter-label{color:var(--muted)}
+.counter-val{font-weight:600;color:var(--ink)}
+.relaxation{grid-column:3;grid-row:2}
+.relax-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+.relax-item{width:100%;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;padding:10px 12px;border:1px solid #85858b;border-left:4px solid var(--spec-ir);border-radius:12px;background:white;color:var(--ink)}
+.relax-item.uv{border-left-color:var(--spec-uv)}
+.relax-item.vis{border-left-color:var(--spec-vis)}
+.relax-to{display:block;font-size:14px;color:var(--muted)}
+.relax-val{font-weight:600}
+.relax-badge{font-size:12px;color:var(--ink);background:var(--paper);padding:4px;border-radius:6px}
+.relax-hint{font-size:14px;color:var(--muted);margin:0}
+.spectra{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.spectrum-header{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:12px 16px;font-size:14px;font-weight:600}
+.spectrum-mode-badge{font-size:12px;color:var(--action);background:var(--surface-soft);padding:4px 8px;border-radius:8px}
+.spectrum-body{position:relative;min-width:0}
+.spectrum-svg{display:block;width:100%;height:auto;aspect-ratio:4}
+.spectrum-svg text{font-family:inherit}
+.abs-spectrum-bg{display:none}
+.spectra-toggle-row{display:flex;align-items:center;gap:12px;min-height:64px;cursor:pointer;border:2px solid #85858b;padding:10px;border-radius:12px}
+.spectra-toggle-row.active{border-color:var(--action);background:var(--surface-soft)}
+.toggle-switch{flex:none}
+.toggle-switch input{width:24px;height:24px;margin:0;accent-color:var(--action)}
+.toggle-track{display:none}
+.toggle-label{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.toggle-sublabel{font-size:14px;color:var(--muted)}
+@media(max-width:1100px) and (min-width:820px){.app-container{grid-template-columns:300px minmax(0,1fr)}
+.controls{grid-row:2/4}
+.relaxation{grid-column:2;grid-row:3}
+.stage{grid-row:2}
+.spectra{grid-template-columns:1fr}}
+@media(max-width:819px){body{padding:16px}
+.app-container{display:flex;flex-direction:column}
+.app-container>*{width:100%}
+.stage{order:2}
+.controls{order:1}
+.relaxation{order:3}
+.spectra{order:4;grid-template-columns:1fr}
+.header{order:0}
+.stage-svg{min-height:300px}
+.header-actions{width:100%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition:none!important}}
         /* SVG Styles */
         .level-line { stroke: #cbd5e1; stroke-width: 2; stroke-linecap: round; }
         .level-line.ground { stroke: #94a3b8; stroke-width: 3; }
@@ -411,123 +108,6 @@
         }
         @keyframes drawArrow { to { opacity: 1; } }
 
-        /* === RELAXATION === */
-        .relaxation { grid-column: 3; grid-row: 2; }
-
-        .relax-list {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .relax-item {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: var(--radius);
-            padding: 10px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            min-height: 52px;
-            font-family: var(--font);
-            color: inherit;
-            text-align: left;
-        }
-        
-        .relax-item:hover {
-            border-color: var(--primary);
-            transform: translateX(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        .relax-item::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0; width: 4px;
-        }
-        .relax-item.uv::before { background: var(--spec-uv); }
-        .relax-item.vis::before { background: var(--spec-vis); }
-        .relax-item.ir::before { background: var(--spec-ir); }
-
-        .relax-content { margin-left: 6px; }
-        .relax-to { font-size: 0.7rem; color: var(--text-muted); display: block; }
-        .relax-val { font-weight: 700; font-size: 0.9rem; color: var(--text-main); }
-        
-        .relax-badge { 
-            font-size: 0.6rem; 
-            font-weight: 800; 
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-        .uv .relax-badge { background: #f3e8ff; color: #7c3aed; }
-        .vis .relax-badge { background: #dcfce7; color: #16a34a; }
-        .ir .relax-badge { background: #fee2e2; color: #dc2626; }
-
-        .relax-hint {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            padding: 15px;
-        }
-
-        /* === SPECTRA === */
-        .spectra {
-            grid-column: 1 / -1;
-            grid-row: 3;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            /* Höhe wird durch Grid Row definiert */
-        }
-
-        .spectrum-card {
-            background: var(--bg-card-solid);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .spectrum-header {
-            padding: 8px 14px;
-            font-size: 0.65rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            border-bottom: 1px solid #f1f5f9;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .spectrum-body {
-            flex: 1;
-            position: relative;
-            min-height: 0; /* Wichtig für Flexbox in Grid */
-        }
-
-        /* Absorption: Rainbow with black lines */
-        .abs-spectrum-bg {
-            display: none;
-        }
-
-        .spectrum-svg {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
-
         .abs-line {
             stroke: #000000;
             stroke-width: 3;
@@ -546,120 +126,11 @@
         .em-line.non-visible { stroke-dasharray: 6 4; stroke-linecap: round; }
         @keyframes fadeIn { to { opacity: 0.9; } }
 
-        /* === SPECTRA TOGGLE === */
-        .spectra-toggle-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: var(--radius);
-            cursor: pointer;
-            transition: border-color 0.2s, background 0.2s;
-            user-select: none;
-        }
-        .spectra-toggle-row:hover { border-color: var(--primary); background: #eef2ff; }
-        .spectra-toggle-row.active { border-color: var(--primary); background: #eef2ff; }
 
-        .toggle-switch {
-            position: relative;
-            width: 36px;
-            height: 20px;
-            flex-shrink: 0;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-        .toggle-track {
-            position: absolute;
-            inset: 0;
-            background: #cbd5e1;
-            border-radius: 10px;
-            transition: background 0.2s;
-        }
-        .toggle-track::after {
-            content: '';
-            position: absolute;
-            left: 3px;
-            top: 3px;
-            width: 14px;
-            height: 14px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-        }
-        .toggle-switch input:checked + .toggle-track { background: var(--primary); }
-        .toggle-switch input:checked + .toggle-track::after { transform: translateX(16px); }
-
-        .toggle-label {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-main);
-            line-height: 1.3;
-        }
-        .toggle-sublabel {
-            font-size: 0.68rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* Spectrum mode badge */
-        .spectrum-mode-badge {
-            font-size: 0.6rem;
-            font-weight: 800;
-            padding: 2px 7px;
-            border-radius: 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-left: auto;
-        }
-        .spectrum-mode-badge.adaptive { background: #e0f2fe; color: #0369a1; }
-        .spectrum-mode-badge.full { background: #ede9fe; color: #6d28d9; }
-
-        /* Responsive */
-        @media (max-width: 1180px) {
-            body { height: auto; overflow: auto; padding: 10px; }
-            .app-container {
-                display: flex;
-                flex-direction: column;
-                height: auto;
-                gap: 10px;
-            }
-            .header {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-            .header-actions {
-                width: 100%;
-                justify-content: flex-start;
-            }
-            .stage { min-height: 460px; }
-            .spectra { min-height: 220px; }
-            .controls, .relaxation { min-height: 0; }
-        }
-
-        @media (max-width: 700px) {
-            .header-note { width: 100%; border-radius: var(--radius); }
-            .stage { min-height: 390px; }
-            .spectra { display: flex; flex-direction: column; min-height: 420px; }
-            .spectrum-card { min-height: 200px; }
-            .energy-counter { top: 8px; right: 8px; }
-        }
-    </style>
-    <link rel="stylesheet" href="../shared/atelier.css">
-  <link rel="stylesheet" href="../shared/student-entry.css">
-  <style>
-  @media (min-width:701px) and (max-width:960px){
-    body{height:100dvh;overflow:hidden;padding:8px}
-    .app-container{display:grid;grid-template-columns:290px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) 158px;height:100%;gap:8px}
-    .header{grid-column:1/-1;min-height:52px;padding:7px 12px;flex-wrap:nowrap}.brand-icon{width:32px;height:32px}.header-actions{width:auto;flex:1;justify-content:flex-end;flex-wrap:nowrap}.header-note{max-width:380px;padding:6px 9px;font-size:.7rem}.unit-btn{min-height:44px;padding:5px 11px}
-    .controls{grid-column:1;grid-row:2;min-height:0;overflow:auto}.controls .card-header,.relaxation .card-header{padding:7px 10px}.controls .card-body{padding:9px;gap:7px}.quick-steps,.controls .model-note{display:none}.input-group{margin-bottom:7px}.input-group select,.number-row input{min-height:44px}.slider-container input[type="range"]{min-height:44px}.feedback{min-height:0;padding:7px;font-size:.74rem}.btn-excite,.btn-reset,.spectra-toggle-row{min-height:48px;margin-top:6px}.spectra-toggle-row{padding:6px 8px}.toggle-sublabel{display:none}
-    .stage{grid-column:2;grid-row:2;min-height:0!important}.stage-svg{height:100%;min-height:0}.energy-counter{top:7px;right:7px}
-    .relaxation{display:none}
-    .spectra{grid-column:1/-1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;min-height:0!important;gap:8px}.spectrum-card{min-height:0}.spectrum-header{padding:6px 10px;font-size:.7rem}.spectrum-body{min-height:0}
-  }
-  @media (max-width:700px){input,select,button,.spectra-toggle-row{min-height:48px}.quick-steps,.controls .model-note{display:none}}
-  </style>
+.level-label,.level-value{font-size:22px;fill:var(--muted);font-family:inherit}
+.electron{filter:none}
+.electron.excited{filter:none}
+</style>
 </head>
 <body data-physik-app="energiestufenmodell" data-student-home="../" data-student-title="Energie im Atom" data-student-summary="Du untersuchst, welche Energie ein Elektron aufnehmen kann und welcher Übergang dadurch möglich wird." data-student-controls="Wähle Element und Energie. Tippe anschließend auf „Anregen“.">
 
@@ -672,10 +143,11 @@
             <h1>Quanten-Labor</h1>
         </div>
         <div class="header-actions">
-            <div class="header-note">Gerundete Modellgrenzen: IR &lt; 1,6 eV · sichtbar ≈ 1,6–3,3 eV · UV &gt; 3,3 eV</div>
+            <a class="home-link" href="../index.html" aria-label="Zur Übersicht">← Übersicht</a>
+            <div class="header-note">IR und UV sind nicht sichtbar. Gerundete Modellgrenzen: IR &lt; 1,6 eV · sichtbar ≈ 1,6–3,3 eV · UV &gt; 3,3 eV</div>
             <div class="unit-toggle">
-                <button class="unit-btn active" id="btn-ev">Elektronenvolt</button>
-                <button class="unit-btn" id="btn-j">Joule</button>
+                <button class="unit-btn active" id="btn-ev" aria-pressed="true">Elektronenvolt</button>
+                <button class="unit-btn" id="btn-j" aria-pressed="false">Joule</button>
             </div>
         </div>
     </header>
@@ -687,14 +159,14 @@
             <div class="quick-steps"><strong>So geht’s:</strong><br>1. Element wählen · 2. passende ΔE einstellen und anregen · 3. Rücksprung beobachten.</div>
             
             <div class="input-group">
-                <label>Element</label>
+                <label for="element-select">Element</label>
                 <select id="element-select"></select>
             </div>
 
             <div class="input-group">
-                <label>Energie</label>
+                <label for="energy-input">Photonenergie</label>
                 <div class="slider-container">
-                    <input type="range" id="energy-slider" min="0" max="30" step="0.01" value="0">
+                    <input type="range" id="energy-slider" aria-label="Photonenergie einstellen" min="0" max="30" step="0.01" value="0">
                     <div class="number-row">
                         <input type="number" id="energy-input" min="0" max="30" step="0.01" value="0.00">
                         <span class="unit-tag" id="unit-label">eV</span>
@@ -702,11 +174,11 @@
                 </div>
             </div>
 
-            <div id="feedback-box" class="feedback neutral">
+            <div id="feedback-box" role="status" class="feedback neutral">
                 Wähle eine Energie
             </div>
 
-            <div class="model-note">Vereinfachtes Atommodell: Gezeigt werden nur ausgewählte Energieniveaus. Ihre vertikalen Abstände sind zur Lesbarkeit <strong>schematisch</strong>; entscheidend sind die angegebenen Energiewerte. Auswahlregeln und Intensitäten werden nicht berücksichtigt.</div>
+
 
             <button id="btn-excite" class="btn btn-excite">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -728,6 +200,7 @@
                 Alles zurücksetzen
             </button>
 
+            <details><summary>Modell und Hinweise</summary>            <div class="model-note">Vereinfachtes Atommodell: Gezeigt werden nur ausgewählte Energieniveaus. Ihre vertikalen Abstände sind zur Lesbarkeit <strong>schematisch</strong>; entscheidend sind die angegebenen Energiewerte. Auswahlregeln und Intensitäten werden nicht berücksichtigt.</div></details>
         </div>
     </aside>
 
@@ -747,7 +220,7 @@
             </div>
         </div>
 
-        <svg class="stage-svg" id="stage-svg" viewBox="0 0 400 500" preserveAspectRatio="xMidYMid meet">
+        <svg class="stage-svg" id="stage-svg" viewBox="0 0 520 500" role="img" aria-label="Schematische Energieniveaus mit Elektron und Übergangspfeilen" preserveAspectRatio="xMidYMid meet">
             <defs>
                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
                     <polygon points="0 0, 10 3.5, 0 7" fill="context-stroke" />
@@ -782,7 +255,7 @@
             </div>
             <div class="spectrum-body">
                 <div class="abs-spectrum-bg"></div>
-                <svg class="spectrum-svg" id="abs-svg" viewBox="0 0 400 100" preserveAspectRatio="none"></svg>
+                <svg class="spectrum-svg" id="abs-svg" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid meet"></svg>
             </div>
         </div>
         <div class="spectrum-card">
@@ -791,7 +264,7 @@
                 <span class="spectrum-mode-badge adaptive" id="em-mode-badge">aktuelle Sitzung</span>
             </div>
             <div class="spectrum-body" style="background: #111827;">
-                <svg class="spectrum-svg" id="em-svg" viewBox="0 0 400 100" preserveAspectRatio="none"></svg>
+                <svg class="spectrum-svg" id="em-svg" viewBox="0 0 400 100" preserveAspectRatio="xMidYMid meet"></svg>
             </div>
         </div>
     </footer>
@@ -1104,7 +577,7 @@ function getTransitionTrackX(fromIdx, toIdx) {
     const transitions = [];
     const totalLevels = getElementData().levels.length;
     const minX = 90;
-    const maxX = 310;
+    const maxX = 280;
 
     for (let from = totalLevels - 1; from >= 1; from--) {
         for (let to = from - 1; to >= 0; to--) {
@@ -1160,7 +633,7 @@ function renderLadder() {
         const line = createSvgEl('line', {
             x1: 50,
             y1: y,
-            x2: 350,
+            x2: 300,
             y2: y,
             class: idx === 0 ? 'level-line ground' : 'level-line'
         });
@@ -1175,7 +648,7 @@ function renderLadder() {
         dom.ladderGroup.appendChild(txtId);
 
         const txtEv = createSvgEl('text', {
-            x: 360,
+            x: 310,
             y: y + 5,
             class: 'level-value'
         }, formatEnergy(lvl.ev));
@@ -1202,7 +675,7 @@ function renderSpectrumBase(svg, mode) {
     const visibleWidth = Math.max(uvX - irX, 0);
     const gradientId = `${mode}-gradient-${state.element}`;
     const labelColor = isEmission ? '#e2e8f0' : '#334155';
-    const subLabelColor = isEmission ? '#94a3b8' : '#64748b';
+    const subLabelColor = isEmission ? '#cbd5e1' : '#475569';
     const boundaryColor = isEmission ? 'rgba(255,255,255,0.55)' : '#475569';
     const uvWidth = Math.max(SPECTRUM_WIDTH - uvX, 0);
 
@@ -1271,15 +744,15 @@ function renderSpectrumBase(svg, mode) {
     });
 
     [
-        { x: irX / 2, title: 'IR', subtitle: irX > 78 ? 'nicht sichtbar' : '' },
+        { x: irX / 2, title: 'IR', subtitle: '' },
         { x: irX + visibleWidth / 2, title: visibleWidth > 90 ? 'sichtbar' : 'VIS', subtitle: '' },
-        { x: uvX + uvWidth / 2, title: 'UV', subtitle: uvWidth > 78 ? 'nicht sichtbar' : '' }
+        { x: uvX + uvWidth / 2, title: 'UV', subtitle: '' }
     ].forEach(({ x, title, subtitle }) => {
         svg.appendChild(createSvgEl('text', {
             x,
             y: 16,
             fill: labelColor,
-            'font-size': 11,
+            'font-size': 16,
             'font-weight': 700,
             'text-anchor': 'middle'
         }, title));
@@ -1287,9 +760,9 @@ function renderSpectrumBase(svg, mode) {
         if (subtitle) {
             svg.appendChild(createSvgEl('text', {
                 x,
-                y: 29,
+                y: 32,
                 fill: subLabelColor,
-                'font-size': 8,
+                'font-size': 14,
                 'font-weight': 600,
                 'text-anchor': 'middle'
             }, subtitle));
@@ -1304,7 +777,7 @@ function renderSpectrumBase(svg, mode) {
             x,
             y: 92,
             fill: labelColor,
-            'font-size': 10,
+            'font-size': 16,
             'font-weight': 700,
             'text-anchor': 'middle'
         }, label));
@@ -1391,7 +864,7 @@ function renderAbsorptionSpectrum() {
             x: SPECTRUM_WIDTH - 4,
             y: 22,
             fill: '#6366f1',
-            'font-size': 9,
+            'font-size': 14,
             'font-weight': 700,
             'text-anchor': 'end'
         }, fromLabel));
@@ -1480,6 +953,7 @@ function updateValidation() {
     }
 
     state.targetLevelIndex = matchIndex === -1 ? null : matchIndex;
+    dom.btnExcite.disabled = matchIndex === -1;
     renderAbsorptionSpectrum();
 
     if (displayValue < tolerance) {
@@ -1699,6 +1173,8 @@ function updateDisplayUnit(unit) {
 
     dom.btnEv.classList.toggle('active', unit === 'eV');
     dom.btnJ.classList.toggle('active', unit === 'J');
+    dom.btnEv.setAttribute('aria-pressed', String(unit === 'eV'));
+    dom.btnJ.setAttribute('aria-pressed', String(unit === 'J'));
 
     syncInputRange(currentInputEv);
     renderLadder();
