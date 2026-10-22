@@ -85,9 +85,11 @@ function draw() {
   const r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   if (canvas.width !== Math.round(r.width * dpr) || canvas.height !== Math.round(r.height * dpr)) { canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr); }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  geometry = { cx: r.width / 2 + 6, cy: r.height / 2 - 4, scale: Math.min((r.width - 64) / 20, (r.height - 64) / 12) };
+  const scale = Math.min((r.width - 64) / 20, (r.height - 64) / 12);
+  dirty ||= geometry?.scale !== scale;
+  geometry = { cx: r.width / 2 + 6, cy: r.height / 2 - 4, scale };
   ctx.clearRect(0, 0, r.width, r.height); drawGrid();
-  if (dirty && state.total) { lines = fieldLines(state.wires); dirty = false; }
+  if (dirty && state.total) { lines = fieldLines(state.wires, { rings: state.rings, scale }); dirty = false; }
   ctx.save(); const a = pixel({ x: -10.5, y: 6.5 });
   ctx.beginPath(); ctx.rect(a.x, a.y, 21 * geometry.scale, 13 * geometry.scale); ctx.clip();
   if (state.single) drawSingles();
@@ -167,7 +169,7 @@ canvas.addEventListener('focus', () => refresh()); canvas.addEventListener('blur
 document.querySelectorAll('[data-tool]').forEach(b => b.addEventListener('click', () => { state.tool = b.dataset.tool; refresh(); }));
 $('single').addEventListener('change', e => { state.single = e.target.checked; refresh(); });
 $('total').addEventListener('change', e => { state.total = e.target.checked; refresh(); });
-$('rings').addEventListener('change', e => { state.rings = Number(e.target.value); refresh(); });
+$('rings').addEventListener('change', e => { state.rings = Number(e.target.value); refresh(true); });
 $('reverse').addEventListener('click', () => { const w = selected(); if (w) { w.sign *= -1; message(`Stromrichtung bei (${w.x} | ${w.y}) umgekehrt.`); refresh(true); } });
 $('remove').addEventListener('click', remove);
 function loadExample(wires, text) {

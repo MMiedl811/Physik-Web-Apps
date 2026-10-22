@@ -1,14 +1,5 @@
 import { fieldAt, WIRE_RADIUS } from './field-core.mjs';
-
-export function singleFieldRadii(scale, count) {
-  // Every isolated contribution uses the same circles, independent of other
-  // conductors. Circles belonging to different contributions may overlap.
-  // Geometric spacing represents the 1/r field outside the wire.
-  const outer = 3.5;
-  const symbolRadius = Math.max(2.5, WIRE_RADIUS * scale);
-  const inner = Math.min(outer * 0.75, Math.max(outer / 1.85 ** (count - 1), (symbolRadius + 1.3) / scale));
-  return Array.from({ length: count }, (_, i) => count === 1 ? outer : inner * (outer / inner) ** (i / (count - 1)));
-}
+export { singleFieldRadii } from './field-core.mjs';
 
 function segmentDistance(p, a, b) {
   const dx = b.x - a.x, dy = b.y - a.y, length2 = dx * dx + dy * dy;

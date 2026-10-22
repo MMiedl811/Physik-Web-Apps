@@ -9,8 +9,12 @@ for (let count = 1; count <= 10; count++) for (const scale of [14, 21, 24, 42]) 
   const radii = singleFieldRadii(scale, count);
   assert.equal(radii.length, count, 'selected ring count for every conductor');
   assert.ok(radii.every(r => Number.isFinite(r) && r > WIRE_RADIUS));
-  close(radii.at(-1), 3.5);
+  assert.ok(radii.at(-1) < 6, 'outer ring fits the field of view');
+  if (count > 1) assert.ok(radii[0] * scale >= 9.99, 'visible clearance around the conductor');
   for (let i = 1; i < radii.length; i++) assert.ok(radii[i] > radii[i - 1], 'distinct concentric rings');
+  const totalRings = fieldLines(out, { rings: count, scale });
+  assert.equal(totalRings.length, count, 'ring selection also applies to the total field');
+  totalRings.forEach((line, i) => close(Math.hypot(line.points[0].x, line.points[0].y), radii[i]));
 }
 // Independently expected directions by the right-hand rule.
 for (const [x, y, bx, by] of [[1,0,0,1],[0,1,-1,0],[-1,0,0,-1],[0,-1,1,0]]) {
@@ -45,7 +49,7 @@ const longRows = [-2,2].flatMap(y => Array.from({length:401},(_,i)=>({x:i-200,y,
 assert.ok(Math.abs(fieldAt(0,0,longRows).bx / (2*Math.PI) - 1) < .01);
 assert.ok(fieldAt(0,6,longRows).mag < .01 * 2*Math.PI);
 const circles = fieldLines(out);
-assert.ok(circles.length > 5); assert.ok(circles.every(l => l.closed));
+assert.equal(circles.length, 5); assert.ok(circles.every(l => l.closed));
 for (const line of circles) {
   const radius = Math.hypot(line.points[0].x, line.points[0].y);
   for (const p of line.points) assert.ok(Math.abs(Math.hypot(p.x,p.y) / radius - 1) < .001, 'single-wire lines are circles');
@@ -131,6 +135,28 @@ for(const pair of [samePair, oppositePair]) {
   noCrossings(pairLines);
   for(const w of pair) assert.ok(pairLines.some(l=>l.closed&&contains(l,w)&&pair.filter(other=>contains(l,other)).length===1), 'each pair conductor has its own closed loop');
 }
+
+// Density is a display choice: more rings add total-field contours without
+// changing B. Small views reduce clutter, and extrema retain valid topology.
+for (const arrangement of [samePair, oppositePair, wires]) {
+  const counts = [];
+  for (const rings of [1, 5, 10]) {
+    const adaptive = fieldLines(arrangement, { rings, scale: 24 });
+    counts.push(adaptive.length);
+    noCrossings(adaptive);
+    for (const line of adaptive) {
+      if (line.closed) assert.deepEqual(line.points[0], line.points.at(-1));
+      else { assert.ok(boundary(line.points[0])); assert.ok(boundary(line.points.at(-1))); }
+    }
+  }
+  assert.ok(counts[0] < counts[1] && counts[1] < counts[2], 'total density follows the ring selection');
+}
+const smallView = fieldLines(wires, { rings: 5, scale: 14 });
+const largeView = fieldLines(wires, { rings: 5, scale: 42 });
+assert.ok(smallView.length < largeView.length, 'total density adapts to available screen space');
+noCrossings(smallView); noCrossings(largeView);
+assert.ok(singleFieldRadii(14, 10)[0] > singleFieldRadii(42, 10)[0], 'small-view rings retain visible clearance');
+console.log('PASS: 1–10 rings for both single-wire displays; adaptive total density, closed/boundary topology and no crossings at density extrema.');
 
 function distance(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy);}
 for(const scale of [14,21,24,42]){

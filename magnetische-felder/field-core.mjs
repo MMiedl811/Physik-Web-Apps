@@ -159,10 +159,20 @@ function orient(line, wires) {
   return line;
 }
 
-function singleWireLines(wire) {
+export function singleFieldRadii(scale = 24, count = 5) {
+  // All contributions use the same radii, regardless of neighbouring wires.
+  // Reserve a visible gap around the symbol on small canvases; distribute
+  // exactly the selected number of rings over the available field of view.
+  // Equal logarithmic steps retain the outward decrease of line density.
+  const outer = DOMAIN.ymax - 0.6;
+  const inner = Math.max(0.3, 10 / scale);
+  return Array.from({ length: count }, (_, i) => count === 1 ? outer : inner * (outer / inner) ** (i / (count - 1)));
+}
+
+function singleWireLines(wire, scale, rings) {
   const lines = [];
   // Equal logarithmic steps encode B ∝ 1/r; exact circles have no seam drift.
-  for (let radius = 0.34; radius < 16; radius *= 1.85) {
+  for (const radius of singleFieldRadii(scale, rings)) {
     const count = Math.max(96, Math.ceil(2 * Math.PI * radius / 0.05));
     const points = Array.from({ length: count }, (_, i) => {
       const angle = wire.sign * 2 * Math.PI * i / count;
@@ -173,16 +183,19 @@ function singleWireLines(wire) {
   return lines;
 }
 
-export function fieldLines(wires) {
+export function fieldLines(wires, { rings = 5, scale = 24 } = {}) {
   if (!wires.length) return [];
-  if (wires.length === 1) return singleWireLines(wires[0]);
+  if (wires.length === 1) return singleWireLines(wires[0], scale, rings);
   const mesh = makeMesh(wires), strengths = [];
   for (let y = -5; y <= 5; y++) for (let x = -9; x <= 9; x++) {
     if (!wires.some(w => Math.hypot(w.x - x, w.y - y) < 0.6)) strengths.push(fieldAt(x, y, wires).mag);
   }
   strengths.sort((a, b) => a - b);
   // One flux interval for the whole view: homogeneous field → uniform spacing.
-  const interval = Math.max(0.65, 0.65 * (strengths[Math.floor(strengths.length * 0.85)] || 0));
+  // The same control sets total-field density. Smaller canvases use fewer
+  // contours to preserve readable gaps; every contour still follows ψ.
+  const densityScale = (5 / rings) * Math.max(0.65, 24 / scale);
+  const interval = Math.max(0.65, 0.65 * (strengths[Math.floor(strengths.length * 0.85)] || 0)) * densityScale;
   let min = Infinity, max = -Infinity;
   for (const value of mesh.sampled) { min = Math.min(min, value); max = Math.max(max, value); }
   const levels = [];
