@@ -367,8 +367,8 @@ for(const key of ['xmin','xmax','ymin','ymax']) {$(key).addEventListener('focus'
 for(const [id,key] of [['reverse-x','reverseX'],['reverse-y','reverseY']])$(id).addEventListener('change',()=>{remember();state.view[key]=$(id).checked;changed();});
 let replacePending=null;
 function replaceProject(kind,make) {
-  const hasData=state.rows.some(r=>r.x.trim()||r.y.trim());
-  if(hasData&&replacePending!==kind){replacePending=kind;message(`${kind}: Deine aktuellen Werte würden ersetzt. Klicke noch einmal, um fortzufahren. Mit „Rückgängig“ kannst du anschließend zurückkehren.`);return;}
+  const hasData=state.rows.some(r=>r.x.trim()||r.y.trim())||Object.entries(state.protocol).some(([key,value])=>value.trim()&&(key!=='title'||value!=='Mein Versuch'));
+  if(hasData&&replacePending!==kind){replacePending=kind;message(`${kind}: Dein aktuelles Projekt einschließlich Protokolltexten würde ersetzt. Klicke noch einmal, um fortzufahren. Mit „Rückgängig“ kannst du anschließend zurückkehren.`);return;}
   replacePending=null;remember();state=make();nextPick=0;changed({table:true,controls:true});message(`${kind} geladen. Der vorherige Stand bleibt über „Rückgängig“ erreichbar.`);
 }
 document.addEventListener('input',()=>{replacePending=null;});

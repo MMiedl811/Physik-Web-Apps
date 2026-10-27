@@ -25,7 +25,9 @@ for(const [engineName,engine] of Object.entries({chromium,webkit})){
      await page.locator('#protocol-description').fill('Wir lesen zu sechs Zeitpunkten die Fallstrecke ab und tragen die Werte ein.');
      await page.locator('#protocol-analysis').fill('Die Fallstrecke ist proportional zum Quadrat der Fallzeit.');
     }
-    await page.locator('#example').click();await page.waitForTimeout(400);
+    await page.locator('#example').click();
+    if(protocol){assert.match(await page.locator('#notice').textContent(),/noch einmal/);assert.equal(await page.locator('#protocol-name').inputValue(),'Max Mustermann');await page.locator('#example').click();}
+    await page.waitForTimeout(400);
     // Example replaces the project. Populate protocol after choosing example.
     if(protocol){await page.locator('#protocol-title-input').fill('Freier Fall');await page.locator('#protocol-name').fill('Max Mustermann');await page.locator('#protocol-target').fill('Wir untersuchen die Abhängigkeit der Fallstrecke von der Fallzeit.');await page.locator('#protocol-setup').fill('Kugel, Maßskala und Videokamera.');await page.locator('#protocol-description').fill('Zu sechs Zeitpunkten wird die Fallstrecke aus dem Video abgelesen.');await page.locator('#protocol-analysis').fill('Die Fallstrecke wächst proportional zum Quadrat der Fallzeit.');}
     await page.locator('#fit-toggle').click();await page.locator('#slope-toggle').click();
