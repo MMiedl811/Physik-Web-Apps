@@ -8,6 +8,15 @@ Interaktive Physik-Anwendungen für den Unterricht in den Klassen 8 bis 12. Die 
 
 Auf der übersichtlichen Startseite lassen sich alle Anwendungen nach Themen und Klassenstufen finden und sofort starten.
 
+## Allgemeine Methoden in Physik
+
+Zwei Varianten unterstützen das Arbeiten mit Experimenten und Messwerten:
+
+- **[ZABMA-Versuchsprotokoll](https://mmiedl811.github.io/Physik-Web-Apps/zabma-protokoll/)**: Ziel, Aufbau, Beschreibung, Messergebnisse und Auswertung formulieren; mit Messwerttabelle, Diagrammwerkzeugen und einer PDF-Druckvorlage für zwei A4-Seiten einschließlich Platz für eine Skizze und handschriftliche Ergänzungen.
+- **[Diagramme und Auswertung](https://mmiedl811.github.io/Physik-Web-Apps/diagrammwerkstatt/)**: Messwerte direkt darstellen, Steigungsdreieck und Ausgleichsgerade nutzen, Achsen linearisieren und Unsicherheitsintervalle als Fehlerbalken anzeigen; PNG-Export und PDF-Druckvorlage für eine A4-Seite.
+
+Beide Varianten bieten eine überspringbare Einführung, sichern den Arbeitsstand getrennt im Browser und können dieselben JSON-Projektdateien laden. Der PDF-Export verwendet den Druckdialog des Browsers („Als PDF sichern“). Umfangreiche Inhalte werden vor dem Druck gemeldet. Die Ausgleichsgerade ist ungewichtet; die Fehlerbalken ändern ihre Berechnung nicht.
+
 ## Überblick
 
 Die Sammlung umfasst Simulationen, Lernspiele und Werkzeuge aus Mechanik, Wärmelehre, Elektrodynamik und Atomphysik. Im Mittelpunkt stehen anschauliche Modelle, interaktive Diagramme und ein visuell-graphischer Zugang zu physikalischen Zusammenhängen.

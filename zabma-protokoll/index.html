@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5f7">
+  <title>ZABMA-Versuchsprotokoll · Physik-Web-Apps</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="../diagrammwerkstatt/style.css">
+</head>
+<body data-mode="protocol">
+<div class="app">
+  <header>
+    <a class="home" href="../index.html" aria-label="Zur Übersicht">← Übersicht</a>
+    <div class="heading"><h1>ZABMA-Versuchsprotokoll</h1><p>Von der Fragestellung bis zur grafischen Auswertung.</p></div>
+    <div class="header-actions"><button id="file-open" type="button">Datei</button><button id="help-tour" type="button">Hilfe &amp; Tour</button></div>
+  </header>
+  <nav class="version-nav" aria-label="Methodenvarianten"><a href="../diagrammwerkstatt/">Nur Diagramme und Auswertung →</a></nav>
+  <section class="panel protocol-panel" aria-labelledby="protocol-title">
+    <div class="protocol-top"><div><h2 id="protocol-title">Versuchsprotokoll · ZABMA</h2><p class="hint">Halte Ziel, Aufbau, Beschreibung, Messergebnisse und Auswertung fest.</p></div><label>Versuchstitel<input id="protocol-title-input" maxlength="120" value="Mein Versuch"></label></div>
+    <div class="protocol-meta"><label>Name<input id="protocol-name" maxlength="120" placeholder="Vor- und Nachname"></label><label>Partnerinnen und Partner<input id="protocol-partners" maxlength="160"></label><label>Kurs / Klasse<input id="protocol-class" maxlength="80"></label><label>Datum<input id="protocol-date" type="date"></label></div>
+    <div class="protocol-editor" id="protocol-editor">
+      <label>Z · Ziel<textarea id="protocol-target" rows="3" maxlength="2000" placeholder="Was soll mit dem Versuch untersucht oder bestimmt werden?"></textarea></label>
+      <label>A · Aufbau<textarea id="protocol-setup" rows="3" maxlength="2000" placeholder="Welche Geräte werden wie angeordnet?"></textarea></label>
+      <label>B · Beschreibung<textarea id="protocol-description" rows="3" maxlength="2400" placeholder="Wie läuft der Versuch ab und welche Größen misst du?"></textarea></label>
+      <label>A · Auswertung<textarea id="protocol-analysis" rows="3" maxlength="2400" placeholder="Was zeigt das Diagramm? Welche Beziehung oder gesuchte Größe erkennst du?"></textarea></label>
+    </div>
+  </section>
+  <main>
+    <section class="panel data-panel" aria-labelledby="data-title">
+      <div class="data-heading">
+        <h2 id="data-title">Messwerte</h2>
+        <div class="data-actions">
+          <button id="example" type="button">Beispiel</button>
+          <button id="add-row" type="button">＋ Messung</button>
+          <button id="undo" type="button" disabled>Rückgängig</button>
+          <button id="data-toggle" type="button" aria-expanded="true" aria-controls="input-area">Tabelle einklappen</button>
+        </div>
+      </div>
+      <div id="input-area">
+        <div class="data-entry">
+          <div id="axis-fields">
+            <div class="axis-entry"><strong>x</strong><label>Zeichen<input id="x-symbol" maxlength="24" value="x" placeholder="t"></label><label>Einheit<input id="x-unit" maxlength="40" placeholder="z. B. s"></label></div>
+            <div class="axis-entry"><strong>y</strong><label>Zeichen<input id="y-symbol" maxlength="24" value="y" placeholder="s"></label><label>Einheit<input id="y-unit" maxlength="40" placeholder="z. B. m"></label></div>
+          </div>
+          <div class="table-wrap" tabindex="0" aria-label="Messwerttabelle, weitere Messungen durch seitliches Scrollen">
+            <table><caption class="sr-only">Je Messung stehen x- und y-Wert untereinander. Umgerechnete Werte erscheinen darunter.</caption><thead id="table-head"></thead><tbody id="table-body"></tbody></table>
+          </div>
+        </div>
+        <p id="table-hint" class="hint small">Wertepaare stehen untereinander · weitere Messungen durch seitliches Scrollen.</p>
+      </div>
+      <p id="storage-hint" class="hint" hidden></p>
+      <p id="notice" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="workspace" aria-label="Diagramm und Werkzeuge">
+      <section class="panel plot-panel" aria-labelledby="plot-title">
+        <div class="plot-heading"><label class="title-label" for="diagram-title" id="plot-title">Diagrammtitel<input id="diagram-title" value="Mein Diagramm" maxlength="80"></label><span id="point-count" class="count">0 Punkte</span></div>
+        <div class="plot-toolbar">
+          <div class="segments" role="group" aria-label="Messpunkte darstellen">
+            <button data-style="points" aria-pressed="true" type="button">Punkte</button>
+            <button data-style="line" aria-pressed="false" type="button">Verbinden</button>
+            <button data-style="smooth" aria-pressed="false" type="button">Glatte Kurve</button>
+          </div>
+          <button id="swap" type="button">x ⇄ y tauschen</button>
+          <button id="auto-view" type="button">Ansicht anpassen</button>
+        </div>
+        <div class="tool-tabs" role="group" aria-label="Auswertungswerkzeuge zuschalten">
+          <button id="slope-toggle" type="button" aria-pressed="false">Steigungsdreieck</button>
+          <button id="fit-toggle" type="button" aria-pressed="false">Ausgleichsgerade</button>
+          <button id="linearize-open" type="button" aria-controls="linearize-details">Linearisieren</button>
+          <button id="uncertainty-open" type="button" aria-controls="uncertainty-details">Fehlerbalken</button>
+        </div>
+        <div id="plot-container"><svg id="plot" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramm ohne Messwerte"></svg><div id="empty-state"><strong>Hier entsteht dein Diagramm.</strong><span>Trage links ein Wertepaar ein<br>oder lade ein Beispiel.</span></div></div>
+        <div class="legend"><span><i class="dot"></i>Messpunkte</span><span id="connection-legend" hidden><i class="line"></i>Verbindung</span><span id="fit-legend" hidden><i class="line fit"></i>Ausgleichsgerade</span><span id="slope-legend" hidden><i class="line slope"></i>Steigungsdreieck</span></div>
+        <p id="plot-hint" class="hint">Die Achsen passen sich automatisch an deine Werte an.</p>
+        <div id="issues" class="issues" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <section class="panel tools-panel" aria-labelledby="tools-title">
+        <h2 id="tools-title">Auswertung und Einstellungen</h2>
+        <p id="tools-intro" class="hint">Schalte oben am Diagramm ein Werkzeug ein. Die Auswertung erscheint hier.</p>
+        <div class="analysis-results">
+        <div id="slope-panel" class="tool-section" hidden>
+          <h3>Steigung zwischen zwei Messpunkten</h3>
+          <div class="row"><label>Punkt A<select id="point-a"></select></label><label>Punkt B<select id="point-b"></select></label></div>
+          <p id="pick-hint" class="hint">Tippe alternativ zwei Punkte im Diagramm an.</p>
+          <div id="slope-result" class="result" aria-live="polite"></div>
+        </div>
+        <div id="fit-panel" class="tool-section" hidden>
+          <h3>Eine Gerade an die Messwerte anpassen</h3>
+          <label class="check"><input id="origin" type="checkbox">Gerade durch den Ursprung (b = 0)</label>
+          <div id="fit-result" class="result" aria-live="polite"></div>
+          <p class="hint">Alle gültigen Punkte werden gleich gewichtet. Minimiert wird die Summe der quadrierten senkrechten Abweichungen in den angezeigten Koordinaten. Unsicherheiten in x und y gehen nicht in die Anpassung ein.</p>
+        </div>
+        </div>
+        <div class="settings-grid">
+        <details id="linearize-details">
+          <summary>Achsen umformen · Linearisieren</summary>
+          <div class="row"><label>Waagrechte Achse<select id="transform-x"></select></label><label>Senkrechte Achse<select id="transform-y"></select></label></div>
+          <p id="transform-hint" class="hint"></p>
+          <button id="original" type="button">Originalgrößen anzeigen</button>
+          <p class="hint">Beispiel: s ∝ t² → s gegen t² auftragen. Bei I ∝ 1/R → I gegen 1/R auftragen. Die umgerechneten Werte stehen zusätzlich in der Tabelle. Eine allgemeine Parabel mit linearem Anteil wird durch Quadrieren allein nicht zur Geraden.</p>
+        </details>
+        <details id="axes-details">
+          <summary>Achsen einstellen</summary>
+          <label class="check"><input id="manual-view" type="checkbox">Achsengrenzen selbst festlegen</label>
+          <div id="bounds-controls" hidden><div class="row"><label>x von<input id="xmin" inputmode="decimal"></label><label>x bis<input id="xmax" inputmode="decimal"></label></div><div class="row"><label>y von<input id="ymin" inputmode="decimal"></label><label>y bis<input id="ymax" inputmode="decimal"></label></div></div>
+          <div class="row"><label class="check"><input id="reverse-x" type="checkbox">x-Richtung umkehren</label><label class="check"><input id="reverse-y" type="checkbox">y-Richtung umkehren</label></div>
+        </details>
+        <details>
+          <summary>Was zeigt das Diagramm?</summary>
+          <p>Messpunkte sind deine eingegebenen Werte. „Verbinden“ und „Glatte Kurve“ verbinden die Punkte nach aufsteigendem x-Wert. Die glatte Kurve ist eine formtreue Interpolation, keine Ausgleichskurve und kein Nachweis für einen physikalischen Zusammenhang.</p>
+          <p>Die automatische Skalierung zeigt die Daten mit etwas Rand. Der Ursprung muss dabei nicht im Bild liegen. „Ansicht anpassen“ stellt die automatische Skalierung wieder her.</p>
+          <p>Eine Achsenumformung ändert auch die Bedeutung und Einheit einer Steigung. Aus Fehlerbalken werden die umgeformten Intervalle; sie können asymmetrisch werden. Ungültige Punkte oder Intervalle werden erklärt und ausgelassen.</p>
+          <p>Eine passende Gerade allein beweist keine Gesetzmäßigkeit. Prüfe auch die physikalische Bedeutung, die Streuung der Daten und den untersuchten Wertebereich.</p>
+          <a class="source-link" href="https://www.itl.nist.gov/div898/handbook/pmd/section4/pmd431.htm" target="_blank" rel="noopener noreferrer">Rechenverfahren: kleinste Quadrate (NIST) ↗</a>
+        </details>
+      <details class="metadata">
+        <summary>Größenbeschreibung (optional)</summary>
+        <div class="row">
+          <label>Größe<input id="x-name" maxlength="60" placeholder="z. B. Zeit"></label>
+          <label>Größe<input id="y-name" maxlength="60" placeholder="z. B. Weg"></label>
+        </div>
+      </details>
+      <details id="uncertainty-details">
+        <summary>Messunsicherheiten</summary>
+        <label class="check"><input id="uncertainty-on" type="checkbox">Fehlerbalken anzeigen</label>
+        <div id="uncertainty-options" hidden>
+          <label>Eingabe<select id="uncertainty-mode"><option value="common">Gleicher Wert für alle Punkte</option><option value="individual">Einzeln je Messpunkt</option></select></label>
+          <div id="common-uncertainty" class="row">
+            <label><span id="ux-label">Δx</span><input id="common-ux" inputmode="decimal" placeholder="nicht angegeben"></label>
+            <label><span id="uy-label">Δy</span><input id="common-uy" inputmode="decimal" placeholder="nicht angegeben"></label>
+          </div>
+          <p class="hint">Gib die halbe Breite des Unsicherheitsintervalls in der Originaleinheit ein: Wert ± Δ. Leer = nicht angegeben. Die App rechnet keine Einheiten um.</p>
+          <p class="hint">Die Ausgleichsgerade bleibt ungewichtet. Fehlerbalken erzeugen keine automatische Steigungsunsicherheit.</p>
+        </div>
+      </details>
+      <details id="file-details">
+        <summary>Datei und Export</summary>
+        <div class="file-actions"><button id="save" type="button">Projekt speichern</button><button id="load" type="button">Projekt laden</button><button id="png" type="button">Diagramm als PNG</button><button id="pdf" type="button" class="primary">Versuchsprotokoll als PDF</button></div>
+        <input id="file" type="file" accept=".json,application/json" hidden>
+        <p class="hint">Im PDF-Druckdialog „Als PDF sichern“ wählen. Das Protokoll umfasst zwei A4-Seiten und lässt Raum für eine Aufbauskizze und handschriftliche Ergänzungen. Für umfangreiche Inhalte erscheint vor dem Druck ein Hinweis. Dein Stand wird zusätzlich in diesem Browser gesichert, soweit der Browser dies erlaubt. Speichere eine Projektdatei, um ihn sicher aufzubewahren oder auf ein anderes Gerät zu übertragen.</p>
+        <button id="clear" class="danger" type="button">Leeres Projekt</button>
+      </details>
+        </div>
+      </section>
+    </section>
+  </main>
+  <footer>Deine Protokolle und Messwerte bleiben auf deinem Gerät · ohne Anmeldung</footer>
+  <div id="print-document" aria-hidden="true"></div>
+</div>
+<script type="module" src="../diagrammwerkstatt/app.js"></script>
+</body>
+</html>
