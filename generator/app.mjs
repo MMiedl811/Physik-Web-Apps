@@ -1,4 +1,4 @@
-import { defaults, sample, advance, wrap, radians, parameters } from './model.mjs';
+import { defaults, sample, advance, wrap, radians, parameters, carrierForceA } from './model.mjs';
 
 const $ = id => document.getElementById(id);
 const state = { ...defaults, running: false };
@@ -27,6 +27,8 @@ function magnet(x, label, fill) {
   return poly(face,fill)+poly(side,label==='N'?'#f1c0c1':'#bdd1ee')+poly(top,label==='N'?'#f5d6d6':'#d3e3f6')+poly(front,label==='N'?'#f9eeee':'#edf3fb')+text(center[0],center[1]+11,label,'text-anchor="middle" class="big"');
 }
 function machine(m) {
+  const force=carrierForceA(m,state.carrier),forceLabel=state.carrier==='positive'?'F₊':'Fₑ';
+  $('machine').dataset.forceA=String(force);
   const r=m.sideA, at=(factor,y)=>[r[0]*factor,y,r[2]*factor];
   const title='<title id="machineTitle">Rotierende Spule im festen Magnetfeld</title><desc id="machineDesc">Nordpol links, Südpol rechts. Leiterseite A ist kupferfarben, B türkis. Die Darstellung und alle Werte gehören zum gleichen Drehwinkel.</desc>';
   let out=title+magnet(-2.1,'N','#b54a4f')+magnet(1.62,'S','#426eaa');
@@ -52,12 +54,11 @@ function machine(m) {
       const v=m.velocityA.map(x=>x/Math.abs(m.omega)*.57), tip=project([r[0]+v[0],0,r[2]+v[2]]);
       out+=arrow(a,tip,'#315c8a',4)+text(tip[0]+8,tip[1]+4,'v','style="fill:#315c8a;font-size:24px"');
     }
-    if(m.electronA!==0){
-      // For electrons on A, q(v×B) points up when omega*sin(theta)>0.
-      const tip=project(at(1,.48*m.electronA));
-      out+=arrow([a[0]+22,a[1]],[tip[0]+22,tip[1]],'#6f3a9e',4)+text(tip[0]+30,tip[1]+7,'Fₑ','style="fill:#6f3a9e;font-size:24px"');
-      const btip=project(at(-1,-.48*m.electronA));
-      out+=arrow([b[0]-22,b[1]],[btip[0]-22,btip[1]],'#6f3a9e',4)+text(btip[0]-58,btip[1]+7,'Fₑ','style="fill:#6f3a9e;font-size:24px"');
+    if(force!==0){
+      const tip=project(at(1,.48*force));
+      out+=arrow([a[0]+22,a[1]],[tip[0]+22,tip[1]],'#6f3a9e',4)+text(tip[0]+30,tip[1]+7,forceLabel,'style="fill:#6f3a9e;font-size:24px"');
+      const btip=project(at(-1,-.48*force));
+      out+=arrow([b[0]-22,b[1]],[btip[0]-22,btip[1]],'#6f3a9e',4)+text(btip[0]-58,btip[1]+7,forceLabel,'style="fill:#6f3a9e;font-size:24px"');
     }
   } else {
     const tip=project(m.normal.map(x=>1.05*x));
@@ -127,13 +128,14 @@ function plot(m){
 }
 function explain(m){
   const still=m.omega===0,zero=m.sine===0,peak=Math.abs(m.cosine)<1e-9;
+  const positive=state.carrier==='positive',force=carrierForceA(m,state.carrier),carriers=positive?'positive Ladungsträger':'Elektronen';
   $('fluxReadout').hidden=state.explanation!=='flux';$('fluxValue').textContent=`${fmt(m.linkage/parameters.turns*1000,1)} mWb`;$('fluxMeter').value=m.linkage/parameters.turns*1000;
   if(state.explanation==='lorentz'){
     $('explainLabel').textContent='LORENTZKRAFT & LADUNGSTRENNUNG';
     $('explainTitle').textContent='Bewegung trennt Ladungen';
-    $('explainText').textContent='Der Antrieb bewegt die Spule und ihre freien Elektronen durch das Magnetfeld. Die magnetische Lorentzkraft verschiebt Elektronen entlang der Leiterseiten. Die Ladungsverschiebung erzeugt eine Spannung zwischen den Spulenenden.';
-    $('positionText').textContent=still?'Stillstand: keine Bewegung der Spule, keine bewegungsbedingte Ladungstrennung und keine Induktionsspannung.':zero?'In dieser Stellung bewegen sich die langen Leiterseiten parallel zum Magnetfeld. Entlang dieser Seiten wirkt keine magnetische Lorentzkraft: Die Spannung ist null.':`${peak?'Betragsmaximum: Die Leiterbewegung steht senkrecht zum Magnetfeld. ':''}An A wirkt die magnetische Kraft auf Elektronen nach ${m.electronA>0?'oben':'unten'}, an B nach ${m.electronA>0?'unten':'oben'}. Nach einer halben Umdrehung kehrt sich die Ladungstrennung um.`;
-    $('vectorLegend').textContent='v: Leiterbewegung · Fₑ: magnetische Kraft auf Elektronen';
+    $('explainText').textContent=`Der Antrieb bewegt die Spule und ihre ${positive?'im Modell beweglichen positiven Ladungsträger':'freien Elektronen'} durch das Magnetfeld. Die magnetische Lorentzkraft verschiebt ${carriers} entlang der Leiterseiten. Die Ladungsverschiebung erzeugt eine Spannung zwischen den Spulenenden.`;
+    $('positionText').textContent=still?'Stillstand: keine Bewegung der Spule, keine bewegungsbedingte Ladungstrennung und keine Induktionsspannung.':zero?'In dieser Stellung bewegen sich die langen Leiterseiten parallel zum Magnetfeld. Entlang dieser Seiten wirkt keine magnetische Lorentzkraft: Die Spannung ist null.':`${peak?'Betragsmaximum: Die Leiterbewegung steht senkrecht zum Magnetfeld. ':''}An A wirkt die magnetische Kraft auf ${carriers} nach ${force>0?'oben':'unten'}, an B nach ${force>0?'unten':'oben'}. Nach einer halben Umdrehung kehrt sich die Ladungstrennung um.`;
+    $('vectorLegend').textContent=`v: Leiterbewegung · ${positive?'F₊':'Fₑ'}: magnetische Kraft auf ${carriers}`;
   }else{
     $('explainLabel').textContent='MAGNETISCHER FLUSS';
     $('explainTitle').textContent='Die Orientierung macht den Unterschied';
@@ -144,6 +146,7 @@ function explain(m){
   $('commonText').textContent=state.kind==='ac'?'Schleifringe verbinden dieselben Spulenenden stets mit denselben Bürsten. Daher wechselt die Spannung auch außen ihr Vorzeichen.':'Der Kommutator ändert die Spannungserzeugung in der Spule nicht. Er tauscht nur die äußeren Anschlüsse: Die Spannung pulsiert und wird nach jeder halben Umdrehung null.';
 }
 function render(){
+  if(!state.carrier)return;
   const m=sample(state.angle,state.rpm,state.direction),outer=state.kind==='ac'?m.emf:m.dc;
   $('angle').value=state.angle;$('angleRead').textContent=`${fmt(state.angle,0)}°`;
   $('rpm').value=state.rpm;$('rpmRead').textContent=`${state.rpm} U/min`;
@@ -155,6 +158,8 @@ function render(){
   $('step').textContent=state.direction>0?'Schritt +15°':'Schritt −15°';
   document.querySelectorAll('[data-kind]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===state.kind)));
   document.querySelectorAll('[data-explanation]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.explanation===state.explanation)));
+  document.querySelectorAll('[data-carrier]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.carrier===state.carrier)));
+  $('carrierNote').textContent=state.carrier==='positive'?'Modell: bewegliche positive Ladungsträger. Ihre Bewegungsrichtung definiert die technische Stromrichtung; im Metall bewegen sich tatsächlich Elektronen.':'Elektronenmodell: Elektronen sind negativ. Ihre gerichtete Verschiebung ist der technischen Stromrichtung entgegengesetzt.';
   machine(m);contacts(m);plot(m);explain(m);
   scene?.update(state,m);
 }
@@ -163,15 +168,35 @@ function animate(time){
   if(state.running&&lastTime!==null){state.angle=advance(state.angle,Math.min((time-lastTime)/1000,.1),state.rpm,state.direction);render();}
   lastTime=time;requestAnimationFrame(animate);
 }
-$('run').addEventListener('click',()=>{state.running=!state.running;lastTime=null;render();});
+$('run').addEventListener('click',()=>{if(!state.carrier)return;state.running=!state.running;lastTime=null;render();});
 $('step').addEventListener('click',()=>{state.running=false;state.angle=wrap(Math.round(state.angle)+15*state.direction);render();});
 $('angle').addEventListener('input',e=>{state.running=false;state.angle=Number(e.target.value);render();});
 $('rpm').addEventListener('input',e=>{state.rpm=Number(e.target.value);render();});
 $('reverse').addEventListener('click',()=>{state.direction*=-1;render();});
-$('reset').addEventListener('click',()=>{Object.assign(state,defaults,{running:false});lastTime=null;scene?.view('space');render();});
+$('reset').addEventListener('click',()=>{const carrier=state.carrier;Object.assign(state,defaults,{running:false,carrier});lastTime=null;scene?.view('space');render();});
 document.querySelectorAll('[data-kind]').forEach(b=>b.addEventListener('click',()=>{state.kind=b.dataset.kind;render();}));
 document.querySelectorAll('[data-explanation]').forEach(b=>b.addEventListener('click',()=>{state.explanation=b.dataset.explanation;render();}));
 document.addEventListener('visibilitychange',()=>{lastTime=null;});
+function chooseCarrier(carrier){
+  if(!['positive','electrons'].includes(carrier))return;
+  const firstChoice=!state.carrier;state.carrier=carrier;
+  document.querySelector('.shell').inert=false;document.querySelector('.shell').removeAttribute('data-awaiting-carrier');
+  render();
+  if($('carrierDialog').open)$('carrierDialog').close();
+  if(firstChoice)$('run').focus({preventScroll:true});
+}
+document.querySelectorAll('[data-choose-carrier]').forEach(b=>b.addEventListener('click',()=>chooseCarrier(b.dataset.chooseCarrier)));
+document.querySelectorAll('[data-carrier]').forEach(b=>b.addEventListener('click',()=>chooseCarrier(b.dataset.carrier)));
+$('carrierDialog').addEventListener('cancel',e=>e.preventDefault());
+$('carrierDialog').addEventListener('keydown',e=>{
+  if(e.key!=='Tab')return;
+  e.preventDefault();
+  const controls=[...$('carrierDialog').querySelectorAll('button,a[href]')];
+  const index=controls.indexOf(document.activeElement);
+  const next=index<0?(e.shiftKey?controls.length-1:0):(index+(e.shiftKey?-1:1)+controls.length)%controls.length;
+  controls[next].focus();
+});
+$('carrierDialog').showModal();$('carrierTitle').focus({preventScroll:true});
 render();requestAnimationFrame(animate);
 function unavailable(){scene=null;$('scene').hidden=true;$('machine').removeAttribute('hidden');$('sceneMessage').hidden=false;$('sceneHelp').hidden=true;document.querySelector('.view-controls').hidden=true;}
 document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>scene?.view(b.dataset.view)));

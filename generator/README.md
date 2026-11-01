@@ -24,3 +24,9 @@ Vom Projektordner mit einem lokalen HTTP-Server ausliefern, beispielsweise `pyth
 - Screenshots der vier Moduskombinationen und Kameraansichten erstellt; Sichtkontrolle insbesondere beider iPad-Formate in beiden Browsern sowie Desktop und schmalem Fenster. Kontaktansicht nach Bereinigung erneut geprüft; 3D-Beschriftungen anschließend vergrößert und nochmals visuell kontrolliert.
 
 Kein Test auf echter iPad-Hardware. Vorgeschriebene Drehzahl und nahezu unbelastete Spannungsmessung; Lastbremsung und Verluste bleiben außerhalb des Modells. Veröffentlichung durch Matthias am 1. November 2026 mit „Push“ freigegeben. Remote-Commit und Pages-Status werden nach dem Push separat kontrolliert.
+
+## Pflichtauswahl ergänzt
+
+Vor dem Start erscheint eine nicht vorausgewählte Entscheidung zwischen technischen Stromrichtungen mit positiven Modellträgern und Elektronen. Kraftpfeile in 3D und SVG, Legende und Erklärung folgen der Wahl. Spulenstellung und Spannungen bleiben beim Wechsel erhalten. Reset behält die Wahl; Neuladen fragt erneut. Tastaturfokus bleibt im Dialog, Escape überspringt die Entscheidung nicht.
+
+Prüfungen: 6/6 Modelltests bestanden; `generator-carrier.test.mjs` und bestehende `generator-browser.test.mjs` in Chromium und WebKit mit Touch bei 1440×1000, 1024×768, 820×1180, 600×900, 390×844 und 720×500 bestanden. Beide Trägermodelle, Generatorarten und Erklärungen, unabhängige Kraftvorzeichen, Zustandswechsel, Reset/Neuladen, Stillstand, WebGL-Fallback und lokaler Betrieb ohne Internet geprüft. Screenshots von Dialog und beiden Betrachtungsweisen angesehen. Keine Prüfung auf echter iPad-Hardware.

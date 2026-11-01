@@ -12,6 +12,7 @@ for(const [name,engine] of Object.entries({chromium,webkit})){
       page.on('pageerror',e=>errors.push(e.message));page.on('requestfailed',r=>failed.push(r.url()));
       page.on('request',r=>{if(!r.url().startsWith(base)&&!r.url().startsWith('data:'))external.push(r.url());});
       await page.goto(base+'/generator/');
+      await page.locator('[data-choose-carrier=electrons]').click();
       await page.waitForFunction(()=>document.querySelector('#machine').hasAttribute('hidden')||!document.querySelector('#sceneMessage').hidden);
       assert.equal(await page.locator('#sceneMessage').isVisible(),false,'WebGL must work');
       assert.equal(await page.locator('#machine').isVisible(),false);
@@ -60,18 +61,20 @@ for(const [name,engine] of Object.entries({chromium,webkit})){
       await page.locator('#reset').click();await page.locator('summary').click();await layout();
       // Zoom-equivalent: half desktop viewport plus 200% font scaling at the narrow layout.
       if(width===720){await page.addStyleTag({content:'body{font-size:200%}'});await layout();}
-      await page.locator('header .back').click();await page.locator('a.card[href="generator/"]').click();await page.locator('footer a').click();assert.match(page.url(),/index.html#nutzung$/);
+      await page.locator('header .back').click();await page.locator('a.card[href="generator/"]').click();await page.locator('[data-choose-carrier=electrons]').click();await page.locator('footer a').click();assert.match(page.url(),/index.html#nutzung$/);
       assert.deepEqual(errors,[]);assert.deepEqual(failed,[]);assert.deepEqual(external,[]);
       console.log(name,width,'modes, views, limits, controls, navigation and layout PASS');await page.close();
     }
     const page=await browser.newPage();
     await page.addInitScript(()=>{const get=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:get.call(this,type,...args);};});
     await page.goto(base+'/generator/');await page.waitForFunction(()=>!document.querySelector('#sceneMessage').hidden);
+    await page.locator('[data-choose-carrier=electrons]').click();
     assert.equal(await page.locator('#machine').isVisible(),true);await page.locator('[data-kind=dc]').click();await page.locator('[data-explanation=flux]').click();await page.locator('#angle').fill('270');assert.equal(await page.locator('#outerU').textContent(),'1,01 V');
     console.log(name,'WebGL unavailable fallback PASS');await page.close();
     // A fresh context with all non-local network access blocked proves local runtime use.
     const local=await browser.newContext();await local.route('**/*',route=>route.request().url().startsWith(base)?route.continue():route.abort());
     const lp=await local.newPage();await lp.goto(base+'/generator/');await lp.waitForFunction(()=>document.querySelector('#machine').hasAttribute('hidden'));
+    await lp.locator('[data-choose-carrier=electrons]').click();
     await lp.locator('#run').click();await lp.waitForFunction(()=>document.querySelector('#angleRead').textContent!=='45°');await local.close();console.log(name,'local runtime without internet PASS');
   }finally{await browser.close();}
 }

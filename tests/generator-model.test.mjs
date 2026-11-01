@@ -1,8 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sample, advance, parameters, radians } from '../generator/model.mjs';
+import { sample, advance, parameters, radians, carrierForceA, defaults } from '../generator/model.mjs';
 const near=(a,b,tol=1e-8)=>assert.ok(Math.abs(a-b)<tol,`${a} != ${b}`);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+test('Keine Vorauswahl; Kraft aus q(v×B) wechselt mit Ladungsvorzeichen',()=>{
+  assert.equal(defaults.carrier,null);
+  for(const angle of [0,45,90,180,270,360])for(const rpm of [0,12])for(const direction of [-1,1]){
+    const m=sample(angle,rpm,direction),a=radians(angle),omega=direction*rpm*2*Math.PI/60;
+    const v=cross([0,omega,0],[Math.sin(a),0,Math.cos(a)]),fieldForce=cross(v,[.4,0,0]);
+    const positive=Math.abs(fieldForce[1])<1e-10?0:Math.sign(fieldForce[1]);
+    assert.equal(carrierForceA(m,'positive'),positive);
+    assert.equal(carrierForceA(m,'electrons'),-positive||0);
+    assert.equal(carrierForceA(m,null),0);
+  }
+});
 test('Spannung stimmt mit unabhängig integrierter Bewegungsinduktion an beiden Leiterseiten überein',()=>{
   // Each active side is 0.20m long, radius=0.05m -> area=0.02m².
   for(const angle of [0,15,45,90,150,180,225,270,359])for(const rpm of [0,12,30])for(const direction of [-1,1]){

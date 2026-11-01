@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from './vendor/three/OrbitControls.js';
+import { carrierForceA } from './model.mjs';
 
 // Own WebGL scene. All rotor parts have the SAME rigid transform about +y.
 export function createScene(canvas, onView, onLost) {
@@ -94,7 +95,7 @@ export function createScene(canvas, onView, onLost) {
     route(dcFixed,[[sign*.53,-1.5,0],[sign*1.1,-1.5,0]],.023,'#626269');
     label(dcFixed,name,'#42424a',[sign*1.22,-1.5,.05],.23);
   }
-  let activeView='space',lastPolarity=null,contactDetail=false,cachedState=null,cachedSample=null;
+  let activeView='space',lastPolarity=null,lastCarrier=null,contactDetail=false,cachedState=null,cachedSample=null;
   const draw=()=>renderer.render(scene,camera);
   controls.addEventListener('change',draw);
   controls.addEventListener('start',()=>{activeView='custom';onView('custom');});
@@ -136,13 +137,16 @@ export function createScene(canvas, onView, onLost) {
     if(polarity!==lastPolarity){terminal1.userData.write(`1 ${polarity===0?'':polarity>0?'+':'−'}`);terminal2.userData.write(`2 ${polarity===0?'':polarity>0?'−':'+'}`);lastPolarity=polarity;}
     acRotor.visible=acFixed.visible=state.kind==='ac';dcRotor.visible=dcFixed.visible=state.kind==='dc';
     const lorentz=state.explanation==='lorentz';
+    const force=carrierForceA(m,state.carrier);
+    canvas.dataset.forceA=String(force);
+    if(lastCarrier!==state.carrier){const label=state.carrier==='positive'?'F₊':'Fₑ';faTag.userData.write(label);fbTag.userData.write(label);lastCarrier=state.carrier;}
     field.visible=tagA.visible=tagB.visible=!contactDetail;poleTags.forEach(t=>t.visible=!contactDetail);
     area.visible=normal.visible=normalTag.visible=!lorentz&&!contactDetail;
-    forceA.visible=forceB.visible=faTag.visible=fbTag.visible=lorentz&&m.electronA!==0&&!contactDetail;
-    if(m.electronA!==0){
-      forceA.setDirection(new THREE.Vector3(0,m.electronA,0));forceB.setDirection(new THREE.Vector3(0,-m.electronA,0));
+    forceA.visible=forceB.visible=faTag.visible=fbTag.visible=lorentz&&force!==0&&!contactDetail;
+    if(force!==0){
+      forceA.setDirection(new THREE.Vector3(0,force,0));forceB.setDirection(new THREE.Vector3(0,-force,0));
       const len=.65*Math.abs(m.sine);forceA.setLength(len,Math.min(.15,len*.35),.07);forceB.setLength(len,Math.min(.15,len*.35),.07);
-      faTag.position.y=m.electronA*(len+.16);fbTag.position.y=-m.electronA*(len+.16);
+      faTag.position.y=force*(len+.16);fbTag.position.y=-force*(len+.16);
     }
     velocity.visible=vTag.visible=lorentz&&m.omega!==0&&!contactDetail;
     velocity.setDirection(new THREE.Vector3(state.direction,0,0));vTag.position.x=state.direction*.74;

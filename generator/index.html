@@ -9,7 +9,19 @@
   <script type="module" src="app.mjs"></script>
 </head>
 <body>
-<div class="shell">
+<dialog id="carrierDialog" aria-labelledby="carrierTitle" aria-describedby="carrierIntro">
+  <p class="eyebrow">VOR DER UNTERSUCHUNG</p>
+  <h2 id="carrierTitle" tabindex="-1" autofocus>Welche Ladungsträger betrachtest du?</h2>
+  <p id="carrierIntro">Wähle zuerst eine Betrachtungsweise. Kraftpfeile und Erklärungen richten sich nach deiner Wahl.</p>
+  <div class="carrier-choices">
+    <button data-choose-carrier="positive"><strong>Technische Stromrichtung</strong><span>Modell mit positiven Ladungsträgern (+)</span></button>
+    <button data-choose-carrier="electrons"><strong>Elektronen</strong><span>Negative Ladungsträger (−)</span></button>
+  </div>
+  <p class="small">Im Metall sind Elektronen beweglich. Die technische Stromrichtung ist als Bewegungsrichtung positiver Ladungen definiert. Du kannst die Betrachtungsweise später wechseln.</p>
+  <a href="../index.html">← Zur Übersicht</a>
+</dialog>
+<noscript>Bitte aktiviere JavaScript, um eine Betrachtungsweise zu wählen und den Generator zu untersuchen.</noscript>
+<div class="shell" inert data-awaiting-carrier>
   <header><a class="back" href="../index.html">← Übersicht</a><span class="badge">Klasse 10 · In Testphase</span></header>
   <div class="heading"><div><p class="eyebrow">ELEKTROMAGNETISCHE INDUKTION</p><h1>Von der Drehung zur Spannung</h1><p>Derselbe Generator. Zwei Arten, die Spannung abzugreifen.</p></div></div>
   <main class="workspace">
@@ -35,6 +47,8 @@
     <div class="right-stack">
     <section class="card controls" aria-labelledby="controls-title">
       <h2 id="controls-title">Untersuchen</h2>
+      <fieldset><legend>Betrachtungsweise</legend><div class="segments"><button data-carrier="positive" aria-pressed="false">Technische Stromrichtung<span>Positive Ladungsträger (+)</span></button><button data-carrier="electrons" aria-pressed="false">Elektronen<span>Negative Ladungsträger (−)</span></button></div></fieldset>
+      <p id="carrierNote" class="small"></p>
       <fieldset><legend>Spannung abgreifen</legend><div class="segments"><button data-kind="ac" aria-pressed="true">Schleifringe<span>Wechselspannung</span></button><button data-kind="dc" aria-pressed="false">Kommutator<span>Gleichspannung</span></button></div></fieldset>
       <fieldset><legend>Erklärung</legend><div class="segments"><button data-explanation="lorentz" aria-pressed="true">Lorentzkraft</button><button data-explanation="flux" aria-pressed="false">Spulenfläche</button></div></fieldset>
       <div class="actions"><button id="run" class="primary">Start</button><button id="step">Schritt +15°</button></div>

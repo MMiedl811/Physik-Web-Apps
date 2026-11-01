@@ -23,3 +23,7 @@ Die Plus-/Minuszeichen an den Spulenenden zeigen die Polung der idealen Induktio
 ## Räumlicher Aufbau
 
 Spule, isolierte Achse, Zuleitungen und Kontaktflächen sind starre Rotorbauteile. Bürsten, transparente Magnetpole und Sockel bleiben fest. Schleifringe liegen axial getrennt; die Zuleitung zum unteren Ring verläuft innerhalb der Öffnung des oberen Rings. Die Halbringe sind echte hohle Ringsektoren mit Isolationsspalt. Die Hauptansicht ist frei drehbar; Front-, Drauf- und Kontaktansicht verändern keinen Modellzustand. Bei fehlendem WebGL bleibt eine gekennzeichnete SVG-Funktionsskizze mit sämtlichen Controls verfügbar.
+
+## Betrachtungswahl (Nachtrag)
+
+Vor dem ersten Start wird ohne Vorauswahl verpflichtend zwischen technischen Stromrichtungen im Modell positiver Ladungsträger und Elektronen gewählt. Der spätere Wechsel verändert nur die Trägerbetrachtung: Kräfte gemäß q(v×B), Kraftbeschriftungen und Erklärung. Spannungen, Endpolung, Winkel, Drehzahl, Drehsinn und Kontaktbelegung bleiben unverändert. Bei positiven Trägern ist die magnetische Kraft gegenüber Elektronen umgekehrt. Die gerichtete Ladungsverschiebung ist von der gemeinsamen mechanischen Leiterbewegung zu unterscheiden; bei hochohmiger Messung wird kein dauerhafter Laststrom behauptet. Im Metall sind tatsächlich Elektronen beweglich; positive bewegliche Träger sind ein ausdrücklich bezeichnetes Modell. Reset behält die Wahl bei; Neuladen verlangt eine neue Entscheidung.

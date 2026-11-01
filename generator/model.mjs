@@ -1,6 +1,6 @@
 // Ideal generator, fixed B and A; positive contour: side A down, side B up.
 export const TAU = 2 * Math.PI;
-export const defaults = { angle: 45, rpm: 12, direction: 1, kind: 'ac', explanation: 'lorentz' };
+export const defaults = { angle: 45, rpm: 12, direction: 1, kind: 'ac', explanation: 'lorentz', carrier: null };
 export const parameters = { turns: 100, field: .4, area: .02 };
 export const radians = degrees => degrees * Math.PI / 180;
 export const wrap = degrees => ((degrees % 360) + 360) % 360;
@@ -19,4 +19,8 @@ export function sample(angle, rpm, direction = 1, p = parameters) {
 }
 export function advance(angle, seconds, rpm, direction) {
   return wrap(angle + seconds * rpm * 6 * direction);
+}
+// Magnetic force q(v×B): carrier choice changes force, never terminal voltage.
+export function carrierForceA(m, carrier) {
+  return carrier === 'positive' ? -m.electronA || 0 : carrier === 'electrons' ? m.electronA : 0;
 }
