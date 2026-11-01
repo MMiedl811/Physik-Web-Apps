@@ -132,6 +132,39 @@ body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(
 .level-label,.level-value{font-size:22px;fill:var(--muted);font-family:inherit}
 .electron{filter:none}
 .electron.excited{filter:none}
+
+/* Dunkle Laborbühne; Bedienung und Modellfarben bleiben erhalten. */
+.stage{--lab-bg:#101226;--lab-text:#f2f3ff;--lab-muted:#bdc5df;background:var(--lab-bg);color:var(--lab-text);border-color:#353950}
+.stage .card-header{border-color:#353950;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.stage-subtitle{display:block;font-size:14px;font-weight:400;color:var(--lab-muted)}
+.level-status{font-size:14px;font-weight:600;border:1px solid #767e9f;border-radius:8px;padding:4px 8px;white-space:nowrap}
+.stage .energy-counter{border-color:#353950;background:#191d35}
+.stage .counter-label{color:var(--lab-muted)}
+.stage .counter-val{color:var(--lab-text)}
+.stage .counter-val.balanced{color:#79e5b9}
+.stage .level-line{stroke:#727c9e;stroke-width:2}
+.stage .level-line.ground{stroke:#9aa7cd;stroke-width:3}
+.stage .level-line.current{stroke:#9ceaff;stroke-width:4;filter:drop-shadow(0 0 4px #06b6d455)}
+.stage .level-label,.stage .level-value{fill:var(--lab-muted)}
+.stage .level-label.current,.stage .level-value.current{fill:var(--lab-text);font-weight:700}
+.stage .electron{fill:#67e8f9;stroke:#e3fcff;stroke-width:2;filter:drop-shadow(0 0 9px #06b6d4)}
+.stage .electron.excited{fill:#fb7185;stroke:#ffe4eb;filter:drop-shadow(0 0 9px #f43f5e)}
+.stage .arrow-excite{stroke:#a5a7ff}
+.stage .arrow-contour{stroke:#bdc5df;stroke-width:5}
+.photon-readout{--photon-color:#bdc5df;display:grid;grid-template-columns:88px minmax(0,1fr);align-items:center;gap:12px;padding:16px;border-top:1px solid #353950;background:#191d35;min-height:110px}
+.photon-readout svg{width:88px;height:44px;overflow:visible;color:var(--photon-color)}
+.photon-readout path{filter:drop-shadow(0 0 4px currentColor)}
+.photon-readout.is-nonvisible path{stroke-dasharray:4 4;filter:none}
+.photon-readout strong{display:block;font-size:16px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.photon-readout p{margin:2px 0 0;color:var(--lab-muted);font-size:14px}
+.photon-readout small{display:block;color:var(--lab-muted);font-size:12px;margin-top:4px}
+.photon-readout.is-event svg{animation:photon-arrival .7s ease-out}
+@keyframes photon-arrival{from{opacity:.25;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+.em-line:not(.non-visible){filter:drop-shadow(0 0 3px currentColor)}
+.spectrum-card{border-radius:20px}
+.spectrum-header{align-content:center;min-height:84px}
+.spectrum-header>span:first-child{display:none}
+@media(prefers-reduced-motion:reduce){.stage .electron{transition:none}.photon-readout.is-event svg{animation:none}}
 </style>
 </head>
 <body data-physik-app="energiestufenmodell" data-student-home="../" data-student-title="Energie im Atom" data-student-summary="Du untersuchst, welche Energie ein Elektron aufnehmen kann und welcher Übergang dadurch möglich wird." data-student-controls="Wähle Element und Energie. Tippe anschließend auf „Anregen“.">
@@ -209,7 +242,7 @@ body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(
     <div class="visual-stack">
     <!-- STAGE -->
     <main class="card stage">
-        <div class="card-header">Energieniveau-Diagramm · schematische Abstände</div>
+        <div class="card-header"><div>Energieniveau-Diagramm<span class="stage-subtitle">Schematische Abstände · ausgewählte Niveaus</span></div><span class="level-status" id="level-status">Aktuell: E₀</span></div>
         
         <!-- Minimalist Energy Counter -->
         <div class="energy-counter" id="energy-counter">
@@ -229,13 +262,17 @@ body{height:auto;width:auto;overflow:visible;margin:0;padding:20px max(20px,env(
                     <polygon points="0 0, 10 3.5, 0 7" fill="context-stroke" />
                 </marker>
                 <marker id="arrowhead-excite" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#6366f1" />
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#a5a7ff" />
                 </marker>
             </defs>
             <g id="ladder-group"></g>
             <g id="arrows-group"></g>
             <circle id="electron" class="electron" cx="200" cy="450" r="12" />
         </svg>
+        <div class="photon-readout" id="photon-readout">
+            <svg viewBox="0 0 100 44" aria-hidden="true"><path d="M 2 22 Q 8 0 14 22 T 26 22 T 38 22 T 50 22 T 62 22 T 74 22 T 86 22 T 98 22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
+            <div><strong id="photon-title">Energie macht den Unterschied.</strong><p id="photon-detail">Ein passendes Photon ermöglicht den Übergang.</p><small>Wellensymbol schematisch · keine maßstäbliche Wellenlänge</small></div>
+        </div>
     </main>
 
     <!-- RELAXATION -->
@@ -667,6 +704,10 @@ function moveElectron(levelIndex) {
     const el = getElementData();
     const y = getY(levelIndex, el.levels.length);
     dom.electron.setAttribute('cy', y);
+    document.getElementById('level-status').textContent = `Aktuell: ${el.levels[levelIndex].id}`;
+    [...dom.ladderGroup.querySelectorAll('.level-line')].forEach((line, i) => line.classList.toggle('current', i === levelIndex));
+    [...dom.ladderGroup.querySelectorAll('.level-label')].forEach((label, i) => label.classList.toggle('current', i === levelIndex));
+    [...dom.ladderGroup.querySelectorAll('.level-value')].forEach((label, i) => label.classList.toggle('current', i === levelIndex));
     
     if (levelIndex > 0) dom.electron.classList.add('excited');
     else dom.electron.classList.remove('excited');
@@ -701,7 +742,7 @@ function renderSpectrumBase(svg, mode) {
         gradient.appendChild(createSvgEl('stop', {
             offset: `${offset}%`,
             'stop-color': stop.color,
-            'stop-opacity': isEmission ? 0.30 : 0.95
+            'stop-opacity': isEmission ? 0.08 : 0.95
         }));
     });
 
@@ -843,7 +884,6 @@ function renderAbsorptionSpectrum() {
     } else {
         // ── Adaptiv: zeige Linien vom aktuellen Niveau nach oben (ΔE-Photonen)
         const currentEv = el.levels[state.currentLevelIndex].ev;
-        const currentId = el.levels[state.currentLevelIndex].id;
 
         for (let i = state.currentLevelIndex + 1; i < el.levels.length; i++) {
             const deltaEv = el.levels[i].ev - currentEv;
@@ -861,18 +901,7 @@ function renderAbsorptionSpectrum() {
             }));
         }
 
-        // Label: von welchem Niveau aus (oben rechts im Spektrum)
-        const fromLabel = state.currentLevelIndex === 0
-            ? 'von E₀'
-            : `von ${currentId}`;
-        dom.absSvg.appendChild(createSvgEl('text', {
-            x: SPECTRUM_WIDTH - 4,
-            y: 22,
-            fill: '#6366f1',
-            'font-size': 14,
-            'font-weight': 700,
-            'text-anchor': 'end'
-        }, fromLabel));
+
     }
 }
 
@@ -908,6 +937,7 @@ function renderEmissionSpectrum() {
                 y2: 84,
                 class: classes.join(' '),
                 stroke: getSpectralColor(ev),
+                color: getSpectralColor(ev),
                 'stroke-width': isEmitted ? '5' : '2',
                 style: isEmitted ? '' : 'opacity: 0.3; animation: none;'
             }));
@@ -925,6 +955,7 @@ function renderEmissionSpectrum() {
                 y2: 84,
                 class: classes.join(' '),
                 stroke: getSpectralColor(ev),
+                color: getSpectralColor(ev),
                 'stroke-width': (4.5 + (count - 1) * 1.2).toFixed(1)
             }));
         });
@@ -1014,6 +1045,7 @@ function excite() {
     updateCounter();
     updateRelaxationOptions();
     setFeedback('neutral', `Angeregt! In ${el.levels[toIdx].id} · Weiteres Photon eingeben oder Rücksprung wählen.`);
+    showPhotonEvent('absorption', deltaE, fromIdx, toIdx);
     updateSpectraBadges();
 }
 
@@ -1087,6 +1119,7 @@ function relax(targetIndex, energyDiff) {
     } else {
         setFeedback('neutral', `Photon abgegeben: ${formatEnergy(energyDiff)} · ${getPhotonHint(energyDiff)}`);
     }
+    showPhotonEvent('emission', energyDiff, currentIdx, targetIndex);
     updateSpectraBadges();
 }
 
@@ -1115,18 +1148,49 @@ function drawArrow(fromIdx, toIdx, color, x) {
     const el = getElementData();
     const y1 = getY(fromIdx, el.levels.length);
     const y2 = getY(toIdx, el.levels.length);
+    const d = `M ${x} ${y1} L ${x} ${y2}`;
+    // Explizite Markerfarbe funktioniert auch ohne SVG context-stroke in Safari.
+    const markerId = `em-arrow-${color.slice(1)}`;
+    if (!document.getElementById(markerId)) {
+        const marker = createSvgEl('marker', { id: markerId, markerWidth: 11, markerHeight: 8, refX: 9, refY: 3.5, orient: 'auto' });
+        marker.appendChild(createSvgEl('polygon', { points: '0 0, 10 3.5, 0 7', fill: color, stroke: '#bdc5df', 'stroke-width': 0.6 }));
+        document.querySelector('#stage-svg defs').appendChild(marker);
+    }
+    dom.arrowsGroup.appendChild(createSvgEl('path', { d, class: 'arrow-path arrow-contour', 'aria-hidden': 'true' }));
+    dom.arrowsGroup.appendChild(createSvgEl('path', {
+        d, stroke: color, class: 'arrow-path', 'marker-end': `url(#${markerId})`
+    }));
+}
 
-    const path = createSvgEl('path', {
-        d: `M ${x} ${y1} L ${x} ${y2}`,
-        stroke: color,
-        class: 'arrow-path',
-        'marker-end': 'url(#arrowhead)'
-    });
-
-    dom.arrowsGroup.appendChild(path);
+// Rein visuelle Rückmeldung; kein zusätzlicher Modellzustand.
+let lastPhotonEvent = null;
+function showPhotonEvent(kind, energy, from, to, animate = true) {
+    lastPhotonEvent = { kind, energy, from, to };
+    const box = document.getElementById('photon-readout');
+    const levels = getElementData().levels;
+    const nonvisible = getRegionName(energy) !== 'VIS';
+    box.classList.remove('is-event');
+    box.classList.toggle('is-nonvisible', nonvisible);
+    // IR/UV nur neutral als Symbol zeigen; sie sind keine sichtbaren Farben.
+    box.style.setProperty('--photon-color', nonvisible ? '#bdc5df' : getSpectralColor(energy));
+    document.getElementById('photon-title').textContent = `${kind === 'emission' ? 'Photon abgegeben' : 'Photon aufgenommen'} · ${formatEnergy(energy)}`;
+    document.getElementById('photon-detail').textContent = `${levels[from].id} → ${levels[to].id} · ${getPhotonHint(energy)}`;
+    if (animate) {
+        void box.offsetWidth;
+        box.classList.add('is-event');
+    }
+}
+function clearPhotonEvent() {
+    lastPhotonEvent = null;
+    const box = document.getElementById('photon-readout');
+    box.classList.remove('is-event', 'is-nonvisible');
+    box.style.removeProperty('--photon-color');
+    document.getElementById('photon-title').textContent = 'Energie macht den Unterschied.';
+    document.getElementById('photon-detail').textContent = 'Ein passendes Photon ermöglicht den Übergang.';
 }
 
 function resetSystem() {
+    clearPhotonEvent();
     state.currentLevelIndex = 0;
     state.targetLevelIndex = null;
     state.absorbedLevelIndex = null;
@@ -1175,6 +1239,10 @@ function updateDisplayUnit(unit) {
 
     const currentInputEv = getInputEnergyEv();
     state.unit = unit;
+    if (lastPhotonEvent) {
+        const { kind, energy, from, to } = lastPhotonEvent;
+        showPhotonEvent(kind, energy, from, to, false);
+    }
 
     dom.btnEv.classList.toggle('active', unit === 'eV');
     dom.btnJ.classList.toggle('active', unit === 'J');
