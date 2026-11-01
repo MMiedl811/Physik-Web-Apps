@@ -101,6 +101,9 @@
         .card-meta { overflow-wrap: anywhere; hyphens: auto; margin-top: 12px; color: var(--muted); font-size: .94rem; line-height: 1.5; }
         footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 40px; padding: 20px 0 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .88rem; }
         footer a { display: inline-flex; align-items: center; min-height: 48px; color: var(--action); font-weight: 500; text-underline-offset: 4px; }
+        .usage { flex-basis: 100%; min-width: 0; padding-bottom: 8px; }
+        .usage h2 { margin: 0 0 8px; color: var(--ink); font-size: 1rem; font-weight: 600; }
+        .usage p { max-width: 85ch; margin: 0 0 8px; overflow-wrap: anywhere; }
         @media (hover: hover) and (pointer: fine) {
             .card:hover { border-color: var(--action); }
             .topic-nav a:hover { border-color: var(--action); background: var(--surface-soft); }
@@ -177,7 +180,16 @@
                 </div>
             </section>
         </main>
-        <footer><span>&copy; <span id="year"></span> · Physik-Web-Apps</span><a href="https://github.com/MMiedl811/Physik-Web-Apps" target="_blank" rel="noopener noreferrer">Projekt auf GitHub ↗</a></footer>
+        <footer>
+            <span>&copy; <span id="year"></span> · Physik-Web-Apps</span>
+            <a href="https://github.com/MMiedl811/Physik-Web-Apps" target="_blank" rel="noopener noreferrer">Projekt auf GitHub ↗</a>
+            <section class="usage" id="nutzung" aria-labelledby="nutzung-title">
+                <h2 id="nutzung-title">Nutzung und Weitergabe</h2>
+                <p>Die hier bereitgestellten Web-Apps darf jeder kostenlos verwenden, auch im Unterricht und ohne vorherige Anfrage.</p>
+                <p>Die Übernahme von Apps oder Quellcode und die Bereitstellung oder Weiterveröffentlichung eigener Kopien (auch veränderter Fassungen) erfordern die vorherige Zustimmung des Betreibers, soweit eigene Schutzrechte bestehen. Bitte vorab über das GitHub-Projekt anfragen.</p>
+                <p>Gesetzliche Erlaubnisse und die gesonderten Lizenzen eingebundener Drittbestandteile bleiben unberührt. Bei einem öffentlichen GitHub-Repository ist das Ansehen und Forken im Rahmen der GitHub-Bedingungen erlaubt.</p>
+            </section>
+        </footer>
     </div>
     <script>
         document.getElementById('year').textContent = new Date().getFullYear();
