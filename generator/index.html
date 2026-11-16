@@ -20,6 +20,10 @@
   <p class="small">Im Metall sind Elektronen beweglich. Die technische Stromrichtung ist als Bewegungsrichtung positiver Ladungen definiert. Du kannst die Betrachtungsweise später wechseln.</p>
   <a href="../index.html">← Zur Übersicht</a>
 </dialog>
+<dialog id="positionDialog" aria-labelledby="positionTitle" aria-describedby="positionMechanism positionConnection">
+  <h2 id="positionTitle"></h2><p id="positionMechanism"></p><p id="positionConnection" class="observation"></p>
+  <button id="closePosition" class="primary">Zurück zur Untersuchung</button>
+</dialog>
 <noscript>Bitte aktiviere JavaScript, um eine Betrachtungsweise zu wählen und den Generator zu untersuchen.</noscript>
 <div class="shell" inert data-awaiting-carrier>
   <header><a class="back" href="../index.html">← Übersicht</a><span class="badge">Klasse 10 · In Testphase</span></header>
@@ -28,18 +32,31 @@
     <div class="left-stack">
     <section class="card apparatus" aria-labelledby="apparatus-title">
       <div class="card-head"><h2 id="apparatus-title">Der Generator</h2><span id="motionState">Momentaufnahme</span></div>
+      <div class="transport" aria-label="Drehung steuern"><button id="run" class="primary">Start</button><button id="step">Schritt +15°</button><output id="sceneAngle" aria-label="Aktueller Drehwinkel">θ = 45°</output></div>
       <div class="view-controls" aria-label="3D-Ansicht"><button data-view="space" aria-pressed="true">Räumlich</button><button data-view="front" aria-pressed="false">Vorne</button><button data-view="top" aria-pressed="false">Von oben</button><button data-view="contacts" aria-pressed="false">Kontakte</button></div>
+      <fieldset class="overlays"><legend>In der Grafik anzeigen</legend><label><input id="showForce" type="checkbox">Lorentzkraft</label><label><input id="showMotion" type="checkbox" checked>Leiterbewegung</label><label><input id="showField" type="checkbox">Magnetfeld</label></fieldset>
+      <p id="viewHint" class="view-hint">Drehe die Spule mit Start oder untersuche eine Stellung mit Schritt +15°.</p>
       <canvas id="scene" tabindex="0" aria-label="Drehbares 3D-Modell des Generators. Ziehen oder Pfeiltasten dreht die Ansicht; Plus und Minus zoomen."></canvas>
-      <p class="small scene-help" id="sceneHelp">3D-Ansicht ziehen · Pfeiltasten drehen · +/− zoomen. Die Kamera verändert den Drehwinkel der Spule nicht. Polschuhe zur Einsicht transparent; graue Achse elektrisch isoliert.</p>
+      <p class="small" id="driveNote">Die Hand treibt die Spule über Kurbel und Achse mechanisch an.</p>
+      <p class="small scene-help" id="sceneHelp">Ansicht ziehen · Pfeiltasten drehen · +/− zoomen. Magnetpole transparent; Achse elektrisch isoliert.</p>
       <p class="small" id="sceneMessage" hidden>3D ist hier nicht verfügbar. Die Funktionsskizze und alle Untersuchungen bleiben bedienbar.</p>
       <svg id="machine" viewBox="0 0 760 360" role="img" aria-labelledby="machineTitle machineDesc"><title id="machineTitle">Rotierende Spule im festen Magnetfeld</title><desc id="machineDesc">Schematische räumliche Ansicht. Nordpol links, Südpol rechts. Die Spule dreht sich um die senkrechte Achse.</desc></svg>
-      <div class="legend"><span><i class="copper"></i>Leiterseite A</span><span><i class="teal"></i>Leiterseite B</span><span id="vectorLegend">v: Leiterbewegung · Fₑ: magnetische Kraft auf Elektronen</span></div>
+      <div class="pole-key" aria-label="Magnetpole"><span class="north"><b>N</b> Nordpol</span><span class="south"><b>S</b> Südpol</span></div>
+      <div class="legend" id="sceneLegend"><span id="sideLegend" hidden><i class="copper"></i>A · <i class="teal"></i>B: Leiterseiten</span><span id="vectorLegend"></span></div>
+      <section id="contactDetail" hidden aria-labelledby="contactTitle">
+      <p class="contact-purpose">Die Spule dreht sich, die Bürsten X und Y stehen still. Die Kontakte übertragen die Spannung an den äußeren Stromkreis.</p>
       <div class="contact-head"><h3 id="contactTitle">Zwei getrennte Schleifringe</h3><span>Anschlussdetail · Blick auf die Achse</span></div>
       <svg id="contacts" viewBox="0 0 760 185" role="img" aria-labelledby="contactSvgTitle"><title id="contactSvgTitle">Verbindung der Spulenenden mit ruhenden Bürsten</title></svg>
       <p id="contactText" class="caption"></p>
+      <p id="contactPhase" class="observation"></p>
+      </section>
     </section>
     <section class="card plot-card" aria-labelledby="plot-title"><div class="card-head"><h2 id="plot-title">Spannungen vergleichen</h2><span id="periodRead"></span></div>
+      <div class="plot-tools"><p id="plotHint">Markierte Punkte bei 0°, 90°, 180° und 270° anklicken: oben dieselbe Spulenstellung anzeigen.</p><label class="help-option"><input id="showStopHelp" type="checkbox">Erklärung beim Anklicken</label></div>
+      <div class="plot-surface" role="group" aria-label="Spannungsdiagramm mit vier wählbaren Stellungen" aria-describedby="plotHint">
       <svg id="plot" viewBox="0 0 760 270" role="img" aria-labelledby="plotSvgTitle"><title id="plotSvgTitle">Spannung beider Generatorarten über einer Umdrehung</title></svg>
+      <button class="plot-hit" data-angle="0" aria-label="0 Grad: Stellung anzeigen"></button><button class="plot-hit" data-angle="90" aria-label="90 Grad: Stellung anzeigen"></button><button class="plot-hit" data-angle="180" aria-label="180 Grad: Stellung anzeigen"></button><button class="plot-hit" data-angle="270" aria-label="270 Grad: Stellung anzeigen"></button>
+      </div>
       <div class="legend"><span><i class="ac-line"></i>Schleifringe</span><span><i class="dc-line"></i>Kommutator</span></div>
       <p class="caption">Modellwerte · Gleiche Spule und Drehzahl für beide Kurven. Die Markierung zeigt die aktuelle Stellung; bei umgekehrtem Drehsinn läuft sie nach links.</p>
     </section>
@@ -47,11 +64,10 @@
     <div class="right-stack">
     <section class="card controls" aria-labelledby="controls-title">
       <h2 id="controls-title">Untersuchen</h2>
-      <fieldset><legend>Betrachtungsweise</legend><div class="segments"><button data-carrier="positive" aria-pressed="false">Technische Stromrichtung<span>Positive Ladungsträger (+)</span></button><button data-carrier="electrons" aria-pressed="false">Elektronen<span>Negative Ladungsträger (−)</span></button></div></fieldset>
+      <fieldset><legend>Betrachtungsweise</legend><div class="segments"><button data-carrier="positive" aria-pressed="false">Positive (+)</button><button data-carrier="electrons" aria-pressed="false">Elektronen (−)</button></div></fieldset>
       <p id="carrierNote" class="small"></p>
       <fieldset><legend>Spannung abgreifen</legend><div class="segments"><button data-kind="ac" aria-pressed="true">Schleifringe<span>Wechselspannung</span></button><button data-kind="dc" aria-pressed="false">Kommutator<span>Gleichspannung</span></button></div></fieldset>
       <fieldset><legend>Erklärung</legend><div class="segments"><button data-explanation="lorentz" aria-pressed="true">Lorentzkraft</button><button data-explanation="flux" aria-pressed="false">Spulenfläche</button></div></fieldset>
-      <div class="actions"><button id="run" class="primary">Start</button><button id="step">Schritt +15°</button></div>
       <p class="small" id="pauseNote">Momentaufnahme bei eingestellter Drehzahl. „0 U/min“ zeigt den Stillstand.</p>
       <label for="angle">Drehwinkel θ <output id="angleRead">45°</output></label><input id="angle" type="range" min="0" max="360" step="1" value="45">
       <label for="rpm">Drehzahl <output id="rpmRead">12 U/min</output></label><input id="rpm" type="range" min="0" max="30" step="1" value="12">

@@ -19,7 +19,7 @@ for(const [name,engine] of Object.entries({chromium,webkit})){
       async function layout(){
         const result=await page.evaluate(()=>{
           const ids=[...document.querySelectorAll('[id]')].map(e=>e.id);
-          const bad=[...document.querySelectorAll('button,input,a,summary')].filter(e=>e.getClientRects().length&&(!e.closest('details:not([open])')||e.tagName==='SUMMARY')).filter(e=>{const b=e.getBoundingClientRect();return b.width<47.9||b.height<47.9}).map(e=>e.id||e.textContent);
+          const bad=[...document.querySelectorAll('button,input,a,summary')].filter(e=>e.getClientRects().length&&(!e.closest('details:not([open])')||e.tagName==='SUMMARY')).filter(e=>{const b=(e.type==='checkbox'?e.closest('label'):e).getBoundingClientRect();return b.width<47.9||b.height<47.9}).map(e=>e.id||e.textContent);
           return {overflow:document.documentElement.scrollWidth>innerWidth,duplicates:ids.filter((id,i)=>ids.indexOf(id)!==i),bad};
         });
         assert.equal(result.overflow,false,JSON.stringify({name,width,result}));assert.deepEqual(result.duplicates,[]);assert.deepEqual(result.bad,[]);

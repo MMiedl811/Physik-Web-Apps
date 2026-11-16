@@ -27,3 +27,17 @@ Spule, isolierte Achse, Zuleitungen und Kontaktflächen sind starre Rotorbauteil
 ## Betrachtungswahl (Nachtrag)
 
 Vor dem ersten Start wird ohne Vorauswahl verpflichtend zwischen technischen Stromrichtungen im Modell positiver Ladungsträger und Elektronen gewählt. Der spätere Wechsel verändert nur die Trägerbetrachtung: Kräfte gemäß q(v×B), Kraftbeschriftungen und Erklärung. Spannungen, Endpolung, Winkel, Drehzahl, Drehsinn und Kontaktbelegung bleiben unverändert. Bei positiven Trägern ist die magnetische Kraft gegenüber Elektronen umgekehrt. Die gerichtete Ladungsverschiebung ist von der gemeinsamen mechanischen Leiterbewegung zu unterscheiden; bei hochohmiger Messung wird kein dauerhafter Laststrom behauptet. Im Metall sind tatsächlich Elektronen beweglich; positive bewegliche Träger sind ein ausdrücklich bezeichnetes Modell. Reset behält die Wahl bei; Neuladen verlangt eine neue Entscheidung.
+
+## Reduzierte Darstellung · 16. November 2026
+
+Eigene lokale Überarbeitung ohne neue Fremdassets oder Bibliothekswechsel: drei unabhängige Pfeilebenen, kontextabhängige Anschlussbeschriftung, Nordpol rot und Südpol grün. Die Kontaktansicht benennt den Zweck der Bürsten und leitet Zuordnung, äußere Polung und Winkel bis zum nächsten Wechsel aus demselben Modellzustand ab. Das Induktionsmodell, die Vorzeichenkonvention und die idealisierte Kontaktmechanik bleiben bestehen.
+
+## Handkurbel · 16. November 2026
+
+Eigene prozedurale Three.js-Geometrie in `drive.mjs`: Achsverlängerung, Kurbelarm, senkrechter Drehgriff und schematische greifende Hand mit kurzem Unterarm. Keine Fremdmodelle, Bilddateien, Texturen oder zusätzlichen Bibliotheken. Kurbel und Griff sind an der vorhandenen Rotorgruppe befestigt. Die Hand folgt dem tatsächlichen Weltpunkt des Griffes, behält dabei ihre Orientierung bei; der Griff kann sich in der Hand drehen. Sie läuft mit derselben Winkelvorgabe, auch bei umgekehrtem Drehsinn. Pause hält die gesamte Bewegung an. In der Kontaktansicht ist der Handantrieb zugunsten des Anschlussdetails ausgeblendet. Der SVG-Fallback erklärt den mechanischen Antrieb textlich. Die Bewegung ist eine kinematische Illustration der vorgegebenen Drehzahl, keine zusätzliche Kraft- oder Dynamiksimulation.
+
+## Erläuterungen und Vektorpfeile · 16. November 2026
+
+Eigene kurze Stellungsbeschreibungen in `checkpoints.mjs`, fachlich aus dem vorhandenen Modell abgeleitet: bei 0°/180° magnetischer Kraftanteil und Spannung null, bei 90°/270° betragsmäßige Maxima bei unveränderter positiver Drehzahl. Der Drehsinn verändert die Vorzeichen; bei Stillstand sind beide null. Hinweise auf Fluss und Kontaktumschaltung verwenden dieselbe Winkel- und Spannungskonvention. `vectors.mjs` erzeugt eigene native MathML- und SVG-Beschriftungen, `scene.mjs` zeichnet die Vektorpfeile auf die bestehenden Canvas-Texturen. Keine neuen Fremdassets, Schriften oder Bibliotheken.
+
+Die Stellungswahl erfolgt nun über selbst erzeugte Markierungen auf den Kurven im Spannungsdiagramm. Die stabilen nativen Trefferzonen ändern denselben bestehenden Winkelzustand; Geometrie, Induktionsmodell und optionale Erklärungen bleiben synchron. Keine zusätzlichen Fremdbestandteile.

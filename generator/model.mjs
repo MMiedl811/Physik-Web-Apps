@@ -1,6 +1,7 @@
 // Ideal generator, fixed B and A; positive contour: side A down, side B up.
 export const TAU = 2 * Math.PI;
-export const defaults = { angle: 45, rpm: 12, direction: 1, kind: 'ac', explanation: 'lorentz', carrier: null };
+export const defaults = { angle: 45, rpm: 12, direction: 1, kind: 'ac', explanation: 'lorentz', carrier: null,
+  showForce: false, showMotion: true, showField: false, showStopHelp: false, view: 'space', contactDetail: false };
 export const parameters = { turns: 100, field: .4, area: .02 };
 export const radians = degrees => degrees * Math.PI / 180;
 export const wrap = degrees => ((degrees % 360) + 360) % 360;

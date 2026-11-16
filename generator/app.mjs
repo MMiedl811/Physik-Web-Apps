@@ -1,4 +1,6 @@
 import { defaults, sample, advance, wrap, radians, parameters, carrierForceA } from './model.mjs';
+import {checkpointExplanation,checkpointAngles} from './checkpoints.mjs';
+import {vectorMath,vectorSVG} from './vectors.mjs';
 
 const $ = id => document.getElementById(id);
 const state = { ...defaults, running: false };
@@ -24,16 +26,18 @@ function magnet(x, label, fill) {
   const side=[[x+w,-y,-z],[x+w,-y,z],[x+w,y,z],[x+w,y,-z]];
   const poly=(pts,f)=>`<polygon points="${pts.map(project).map(p2).join(' ')}" fill="${f}" stroke="${fill}" stroke-width="2"/>`;
   const center=project([x+w/2,0,z]);
-  return poly(face,fill)+poly(side,label==='N'?'#f1c0c1':'#bdd1ee')+poly(top,label==='N'?'#f5d6d6':'#d3e3f6')+poly(front,label==='N'?'#f9eeee':'#edf3fb')+text(center[0],center[1]+11,label,'text-anchor="middle" class="big"');
+  return poly(face,fill)+poly(side,label==='N'?'#f1c0c1':'#b9dac5')+poly(top,label==='N'?'#f5d6d6':'#d5eadd')+poly(front,label==='N'?'#f9eeee':'#eef7f1')+text(center[0],center[1]+11,label,'text-anchor="middle" class="big"');
 }
 function machine(m) {
   const force=carrierForceA(m,state.carrier),forceLabel=state.carrier==='positive'?'F₊':'Fₑ';
   $('machine').dataset.forceA=String(force);
   const r=m.sideA, at=(factor,y)=>[r[0]*factor,y,r[2]*factor];
   const title='<title id="machineTitle">Rotierende Spule im festen Magnetfeld</title><desc id="machineDesc">Nordpol links, Südpol rechts. Leiterseite A ist kupferfarben, B türkis. Die Darstellung und alle Werte gehören zum gleichen Drehwinkel.</desc>';
-  let out=title+magnet(-2.1,'N','#b54a4f')+magnet(1.62,'S','#426eaa');
-  for(const y of [-.55,0,.55])out+=arrow(project([-1.55,y,-.5]),project([1.5,y,-.5]),'#9eacb4',2);
-  out+=text(515,58,'B →','style="font-size:24px;fill:#47545c"');
+  let out=title+magnet(-2.1,'N','#b54a4f')+magnet(1.62,'S','#22834d');
+  if(state.showField){
+    for(const y of [-.55,0,.55])out+=arrow(project([-1.55,y,-.5]),project([1.5,y,-.5]),'#788e9d',2);
+    out+=vectorSVG(515,58,'B','#47545c');
+  }
   out+=path3([[0,-1.15,0],[0,1.3,0]],'#8c8c95',3,'stroke-dasharray="7 7"');
   // The open winding is split into two colored sides; the gap is at its bottom.
   if(state.explanation==='flux'){
@@ -43,26 +47,27 @@ function machine(m) {
   out+=path3([at(.24,-.8),at(1,-.8),at(1,.8),at(0,.8)],'#a84b0b',7);
   out+=path3([at(0,.8),at(-1,.8),at(-1,-.8),at(-.24,-.8)],'#08766f',7);
   const a=project(at(1,0)),b=project(at(-1,0));
-  out+=dot(a[0],a[1],'A','#a84b0b')+dot(b[0],b[1],'B','#08766f');
+  if(state.showForce)out+=dot(a[0],a[1],'A','#a84b0b')+dot(b[0],b[1],'B','#08766f');
   const t1=project(at(.24,-.8)),t2=project(at(-.24,-.8));
   out+=path3([at(.24,-.8),at(.24,-1.2)],'#a84b0b',4)+path3([at(-.24,-.8),at(-.24,-1.2)],'#08766f',4);
   // Static labels identify coil ends without implying a permanent pole.
   const sign=sgn(m.emf);
-  out+=text(t1[0]+14,t1[1]+45,`1 ${sign===0?'':sign>0?'+':'−'}`,'style="font-size:23px;fill:#a84b0b"')+text(t2[0]-48,t2[1]+45,`2 ${sign===0?'':sign>0?'−':'+'}`,'style="font-size:23px;fill:#08766f"');
-  if(state.explanation==='lorentz') {
-    if(m.omega!==0){
+  if(state.contactDetail)out+=text(t1[0]+14,t1[1]+45,`1 ${sign===0?'':sign>0?'+':'−'}`,'style="font-size:23px;fill:#a84b0b"')+text(t2[0]-48,t2[1]+45,`2 ${sign===0?'':sign>0?'−':'+'}`,'style="font-size:23px;fill:#08766f"');
+    if(state.showMotion&&m.omega!==0){
       const v=m.velocityA.map(x=>x/Math.abs(m.omega)*.57), tip=project([r[0]+v[0],0,r[2]+v[2]]);
-      out+=arrow(a,tip,'#315c8a',4)+text(tip[0]+8,tip[1]+4,'v','style="fill:#315c8a;font-size:24px"');
+      out+=arrow(a,tip,'#315c8a',4)+vectorSVG(tip[0]+8,tip[1]+4,'v','#315c8a');
     }
-    if(force!==0){
+    if(state.showForce&&force!==0){
       const tip=project(at(1,.48*force));
-      out+=arrow([a[0]+22,a[1]],[tip[0]+22,tip[1]],'#6f3a9e',4)+text(tip[0]+30,tip[1]+7,forceLabel,'style="fill:#6f3a9e;font-size:24px"');
+      const insetA=a[0]>380?-1:1;
+      out+=arrow([a[0]+22*insetA,a[1]],[tip[0]+22*insetA,tip[1]],'#6f3a9e',4)+vectorSVG(tip[0]+(insetA>0?30:-48),tip[1]+7,forceLabel,'#6f3a9e');
       const btip=project(at(-1,-.48*force));
-      out+=arrow([b[0]-22,b[1]],[btip[0]-22,btip[1]],'#6f3a9e',4)+text(btip[0]-58,btip[1]+7,forceLabel,'style="fill:#6f3a9e;font-size:24px"');
+      const insetB=b[0]>380?-1:1;
+      out+=arrow([b[0]+22*insetB,b[1]],[btip[0]+22*insetB,btip[1]],'#6f3a9e',4)+vectorSVG(btip[0]+(insetB>0?30:-48),btip[1]+7,forceLabel,'#6f3a9e');
     }
-  } else {
+  if(state.explanation==='flux'){
     const tip=project(m.normal.map(x=>1.05*x));
-    out+=arrow(project([0,0,0]),tip,'#6f3a9e',4)+text(tip[0]+12,tip[1]-7,'n','style="fill:#6f3a9e;font-size:24px"');
+    out+=arrow(project([0,0,0]),tip,'#6f3a9e',4)+vectorSVG(tip[0]+12,tip[1]-7,'n','#6f3a9e');
     // Small end-on inset: oriented normal, B, and the exact same rotation angle.
     out+=`<rect x="28" y="282" width="242" height="65" rx="12" fill="#f5f5f7"/>`;
     out+=text(42,308,'Fluss je Windung','class="minor"')+text(42,334,`${fmt(m.linkage/parameters.turns*1000,1)} mWb`,'style="font-size:22px;font-weight:600"');
@@ -86,7 +91,7 @@ function contacts(m) {
       out+=text(cx,166,`Ring ${i}`,'text-anchor="middle" style="font-size:24px"');
     }
     $('contactTitle').textContent='Zwei getrennte Schleifringe';
-    $('contactText').textContent='Die Ringe sitzen hintereinander auf der Achse; hier sind sie getrennt gezeigt. X bleibt mit 1 und Y mit 2 verbunden. Die äußere Polung wechselt.';
+    $('contactText').textContent='Zwei getrennte Ringe halten die Verbindungen X ↔ 1 und Y ↔ 2. Sie sitzen hintereinander auf der Achse und sind hier nebeneinander gezeigt.';
   } else {
     const cx=380,cy=84,r=48,gap=.065;
     out+=`<path d="${arc(cx,cy,r,theta-Math.PI+gap,theta-gap)}" fill="none" stroke="#a84b0b" stroke-width="18"/>`;
@@ -100,14 +105,18 @@ function contacts(m) {
     out+=text(cx+190,62,'X','text-anchor="middle" style="font-size:24px;font-weight:600"')+text(cx-190,62,'Y','text-anchor="middle" style="font-size:24px;font-weight:600"');
     out+=text(cx,170,m.contact===0?'Kontaktwechsel':m.contact>0?'X ↔ 1     Y ↔ 2':'X ↔ 2     Y ↔ 1','text-anchor="middle" style="font-size:24px"');
     $('contactTitle').textContent='Ein geteilter Ring: der Kommutator';
-    $('contactText').textContent='Zwei isolierte Halbringe drehen mit der Spule. Nach jedem halben Umlauf wechselt jede Bürste zum anderen Spulenende. Außen bleibt die Polung bei gleichem Drehsinn erhalten.';
+    $('contactText').textContent='Zwei isolierte Halbringe drehen mit der Spule. Nach jeder halben Umdrehung wechselt jede Bürste zum anderen Spulenende.';
   }
   out+=text(28,30,`1 ${coilSign===0?'0':coilSign>0?'+':'−'} / 2 ${coilSign===0?'0':coilSign>0?'−':'+'}`,'style="font-size:23px;font-weight:600"');
   out+=text(728,30,`X ${sgn(outer)===0?'0':outer>0?'+':'−'} / Y ${sgn(outer)===0?'0':outer>0?'−':'+'}`,'text-anchor="end" style="font-size:23px;font-weight:600"');
   $('contacts').innerHTML=out;
+  const polarity=sgn(outer)===0?'Die Spannung ist gerade null.':`Außen ist X ${outer>0?'positiv':'negativ'} gegenüber Y.`;
+  const next=state.direction>0?180-(wrap(state.angle)%180):(wrap(state.angle)%180||180);
+  $('contactPhase').textContent=state.rpm===0?'Stillstand: Die Verbindungen bleiben bestehen. Ohne Drehung entsteht keine Induktionsspannung.':state.kind==='ac'?`Jetzt: X ist mit 1 verbunden, Y mit 2. ${polarity} Auch nach einer halben Umdrehung bleiben diese Verbindungen gleich; die Spannung wechselt ihr Vorzeichen.`:m.contact===0?`Jetzt bei ${fmt(state.angle,0)}°: Die Spulenspannung ist null. Die Bürsten wechseln gerade den Halbring und damit das angeschlossene Spulenende.`:`Jetzt: X ↔ ${m.contact>0?'1':'2'}, Y ↔ ${m.contact>0?'2':'1'}. ${polarity} In ${fmt(next,0)}° erfolgt der nächste Kontaktwechsel bei einer Spulenspannung von null.`;
 }
 function plot(m){
   const left=72,right=716,top=38,bottom=218,mid=(top+bottom)/2,scale=72/Math.max(1,m.peak);
+  const svgWidth=Math.max(1,$('plot').getBoundingClientRect().width),markerRadius=Math.max(7,6*760/svgWidth),markerStroke=Math.max(3,2*760/svgWidth);
   const x=a=>left+(right-left)*a/360,y=u=>mid-u*scale;
   let out='<title id="plotSvgTitle">Wechselspannung und pulsierende Gleichspannung über dem Drehwinkel</title>';
   for(const u of [-Math.max(1,m.peak),0,Math.max(1,m.peak)]){
@@ -122,6 +131,15 @@ function plot(m){
   const cursor=x(state.angle),value=state.kind==='ac'?m.emf:m.dc;
   out+=line([[cursor,top-6],[cursor,bottom]],'#42424a',2,'stroke-dasharray="3 5"');
   out+=`<circle cx="${cursor}" cy="${y(value)}" r="7" fill="white" stroke="${state.kind==='ac'?'#6941b0':'#167440'}" stroke-width="4"/>`;
+  for(const angle of checkpointAngles){
+    const point=sample(angle,state.rpm,state.direction);
+    const values=[{value:point.dc,color:'#167440'},{value:point.emf,color:'#6941b0'}];
+    // Both curves are clickable through one stable, 48px-wide native button.
+    if(Math.abs(point.dc-point.emf)<1e-9)values.splice(state.kind==='ac'?0:1,1);
+    for(const point of values)out+=`<circle class="checkpoint-dot" cx="${x(angle)}" cy="${y(point.value)}" r="${markerRadius}" fill="white" stroke="${point.color}" stroke-width="${markerStroke}"/>`;
+    const hit=document.querySelector(`[data-angle="${angle}"]`);
+    hit.style.left=`${x(angle)/760*100}%`;hit.style.top=`${(top-8)/270*100}%`;hit.style.height=`${(bottom-top+44)/270*100}%`;
+  }
   out+=text(394,269,'Drehwinkel θ','text-anchor="middle" style="font-size:22px"');
   $('plot').innerHTML=out;
   $('periodRead').textContent=state.rpm===0?'Stillstand':`1 Umlauf: ${fmt(60/state.rpm,1)} s`;
@@ -133,22 +151,37 @@ function explain(m){
   if(state.explanation==='lorentz'){
     $('explainLabel').textContent='LORENTZKRAFT & LADUNGSTRENNUNG';
     $('explainTitle').textContent='Bewegung trennt Ladungen';
-    $('explainText').textContent=`Der Antrieb bewegt die Spule und ihre ${positive?'im Modell beweglichen positiven Ladungsträger':'freien Elektronen'} durch das Magnetfeld. Die magnetische Lorentzkraft verschiebt ${carriers} entlang der Leiterseiten. Die Ladungsverschiebung erzeugt eine Spannung zwischen den Spulenenden.`;
+    $('explainText').textContent=`Der Antrieb bewegt die Spule samt ${positive?'positiven Modellträgern':'Elektronen'} durch das Magnetfeld. Die Lorentzkraft trennt Ladungen; zwischen den Spulenenden entsteht eine Spannung.`;
     $('positionText').textContent=still?'Stillstand: keine Bewegung der Spule, keine bewegungsbedingte Ladungstrennung und keine Induktionsspannung.':zero?'In dieser Stellung bewegen sich die langen Leiterseiten parallel zum Magnetfeld. Entlang dieser Seiten wirkt keine magnetische Lorentzkraft: Die Spannung ist null.':`${peak?'Betragsmaximum: Die Leiterbewegung steht senkrecht zum Magnetfeld. ':''}An A wirkt die magnetische Kraft auf ${carriers} nach ${force>0?'oben':'unten'}, an B nach ${force>0?'unten':'oben'}. Nach einer halben Umdrehung kehrt sich die Ladungstrennung um.`;
-    $('vectorLegend').textContent=`v: Leiterbewegung · ${positive?'F₊':'Fₑ'}: magnetische Kraft auf ${carriers}`;
+    if(!state.showForce&&!still&&!zero)$('positionText').textContent='Schalte „Lorentzkraft“ ein, um die Kraftrichtungen an den beiden Leiterseiten A und B zu vergleichen.';
   }else{
     $('explainLabel').textContent='MAGNETISCHER FLUSS';
     $('explainTitle').textContent='Die Orientierung macht den Unterschied';
     $('explainText').textContent='Das Magnetfeld B bleibt gleich stark, auch die Spulenfläche A bleibt gleich groß. Beim Drehen ändert sich ihre Orientierung zum Feld. Dadurch ändert sich der magnetische Fluss durch die Spule. Nur eine zeitliche Änderung erzeugt Induktionsspannung.';
     $('positionText').textContent=still?'Stillstand: Der magnetische Fluss bleibt zeitlich konstant. Auch bei großem Fluss entsteht keine Spannung.':zero?'Die Flächennormale n ist parallel oder antiparallel zum Feld. Der Fluss hat einen Extremwert und ändert sich in diesem Moment nicht: U = 0.':peak?'Die Spulenfläche liegt parallel zum Magnetfeld: Der Fluss ist gerade null, seine zeitliche Änderung ist betragsmäßig maximal. Deshalb ist der Spannungsbetrag maximal.':`Fluss je Windung: ${fmt(m.linkage/parameters.turns*1000,1)} mWb. Entscheidend für die Spannung ist, wie schnell sich dieser Wert ändert, nicht wie groß er gerade ist.`;
-    $('vectorLegend').textContent='n: Flächennormale · θ: Drehwinkel von n gegenüber B · Fläche blau hinterlegt';
   }
   $('commonText').textContent=state.kind==='ac'?'Schleifringe verbinden dieselben Spulenenden stets mit denselben Bürsten. Daher wechselt die Spannung auch außen ihr Vorzeichen.':'Der Kommutator ändert die Spannungserzeugung in der Spule nicht. Er tauscht nur die äußeren Anschlüsse: Die Spannung pulsiert und wird nach jeder halben Umdrehung null.';
+  $('vectorLegend').innerHTML=[state.showMotion?`${vectorMath('v')}: Leiterbewegung`:null,state.showForce?`${vectorMath('F',positive?'+':'e')}: Kraft auf ${carriers}`:null,state.showField?`${vectorMath('B')}: Magnetfeld von N nach S`:null,state.explanation==='flux'?`${vectorMath('n')}: Flächennormale`:null].filter(Boolean).map(v=>`<span class="vector-entry">${v}</span>`).join(' ');
+  $('sideLegend').hidden=!state.showForce;
 }
+function viewUI(){
+  document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===state.view)));
+  $('contactDetail').hidden=!state.contactDetail;
+  document.querySelector('.overlays').hidden=state.contactDetail;
+  $('sceneLegend').hidden=state.contactDetail;
+  document.querySelector('.explanation').hidden=state.contactDetail;
+  $('driveNote').hidden=state.contactDetail;
+  $('viewHint').textContent=state.contactDetail?'Hier untersuchst du, wie die drehenden Spulenenden mit den ruhenden Bürsten verbunden bleiben. Nutze die Einzelschritte, um den Kontaktwechsel zu verfolgen.':state.view==='top'?'Blick entlang der Drehachse: Verfolge die Leiterbewegung relativ zum Magnetfeld.':state.view==='front'?'Die feste Vorderansicht hilft, Leiterbewegung und Kraftrichtung zu vergleichen.':'Starte die Drehung oder gehe mit Schritt +15° von Stellung zu Stellung. Blende die Pfeile einzeln ein.';
+}
+function onView(name){state.view=name;if(name!=='custom')state.contactDetail=name==='contacts';viewUI();if(state.carrier)render();}
 function render(){
   if(!state.carrier)return;
   const m=sample(state.angle,state.rpm,state.direction),outer=state.kind==='ac'?m.emf:m.dc;
   $('angle').value=state.angle;$('angleRead').textContent=`${fmt(state.angle,0)}°`;
+  $('sceneAngle').textContent=`θ = ${fmt(state.angle,0)}°`;
+  for(const id of ['showForce','showMotion','showField','showStopHelp'])$(id).checked=state[id];
+  document.querySelectorAll('[data-angle]').forEach(b=>{b.setAttribute('aria-pressed',String(Math.abs(wrap(state.angle)-Number(b.dataset.angle))<1e-8));b.setAttribute('aria-label',`${b.dataset.angle} Grad: Stellung anzeigen${state.showStopHelp?' und erklären':''}`);});
+  viewUI();
   $('rpm').value=state.rpm;$('rpmRead').textContent=`${state.rpm} U/min`;
   $('coilU').textContent=`${fmt(m.emf)} V`;$('outerU').textContent=`${fmt(outer)} V`;
   $('polarity').textContent=`U₁₂: Spulenende 1 gegen 2. Uₓᵧ: Bürste X gegen Y. ${state.direction<0?'Drehsinn umgekehrt.':''}`;
@@ -159,7 +192,7 @@ function render(){
   document.querySelectorAll('[data-kind]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.kind===state.kind)));
   document.querySelectorAll('[data-explanation]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.explanation===state.explanation)));
   document.querySelectorAll('[data-carrier]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.carrier===state.carrier)));
-  $('carrierNote').textContent=state.carrier==='positive'?'Modell: bewegliche positive Ladungsträger. Ihre Bewegungsrichtung definiert die technische Stromrichtung; im Metall bewegen sich tatsächlich Elektronen.':'Elektronenmodell: Elektronen sind negativ. Ihre gerichtete Verschiebung ist der technischen Stromrichtung entgegengesetzt.';
+  $('carrierNote').textContent=state.carrier==='positive'?'Positive Modellträger: technische Stromrichtung. Im Metall bewegen sich Elektronen.':'Elektronenmodell: gerichtete Verschiebung entgegen der technischen Stromrichtung.';
   machine(m);contacts(m);plot(m);explain(m);
   scene?.update(state,m);
 }
@@ -170,12 +203,27 @@ function animate(time){
 }
 $('run').addEventListener('click',()=>{if(!state.carrier)return;state.running=!state.running;lastTime=null;render();});
 $('step').addEventListener('click',()=>{state.running=false;state.angle=wrap(Math.round(state.angle)+15*state.direction);render();});
+let positionTrigger=null;
+document.querySelectorAll('[data-angle]').forEach(b=>b.addEventListener('click',()=>{
+  if(!state.carrier)return;
+  state.running=false;state.angle=Number(b.dataset.angle);lastTime=null;render();
+  if(state.showStopHelp){
+    const info=checkpointExplanation(state.angle,state);positionTrigger=b;
+    $('positionTitle').textContent=info.title;$('positionMechanism').textContent=info.mechanism;$('positionConnection').textContent=info.connection;
+    $('positionDialog').showModal();$('closePosition').focus({preventScroll:true});
+  }
+}));
+$('closePosition').addEventListener('click',()=>$('positionDialog').close());
+$('positionDialog').addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();$('closePosition').focus();}});
+$('positionDialog').addEventListener('close',()=>positionTrigger?.focus({preventScroll:true}));
+new ResizeObserver(()=>{if(state.carrier)plot(sample(state.angle,state.rpm,state.direction));}).observe($('plot'));
 $('angle').addEventListener('input',e=>{state.running=false;state.angle=Number(e.target.value);render();});
 $('rpm').addEventListener('input',e=>{state.rpm=Number(e.target.value);render();});
 $('reverse').addEventListener('click',()=>{state.direction*=-1;render();});
 $('reset').addEventListener('click',()=>{const carrier=state.carrier;Object.assign(state,defaults,{running:false,carrier});lastTime=null;scene?.view('space');render();});
 document.querySelectorAll('[data-kind]').forEach(b=>b.addEventListener('click',()=>{state.kind=b.dataset.kind;render();}));
 document.querySelectorAll('[data-explanation]').forEach(b=>b.addEventListener('click',()=>{state.explanation=b.dataset.explanation;render();}));
+for(const id of ['showForce','showMotion','showField','showStopHelp'])$(id).addEventListener('change',e=>{state[id]=e.target.checked;render();});
 document.addEventListener('visibilitychange',()=>{lastTime=null;});
 function chooseCarrier(carrier){
   if(!['positive','electrons'].includes(carrier))return;
@@ -198,9 +246,9 @@ $('carrierDialog').addEventListener('keydown',e=>{
 });
 $('carrierDialog').showModal();$('carrierTitle').focus({preventScroll:true});
 render();requestAnimationFrame(animate);
-function unavailable(){scene=null;$('scene').hidden=true;$('machine').removeAttribute('hidden');$('sceneMessage').hidden=false;$('sceneHelp').hidden=true;document.querySelector('.view-controls').hidden=true;}
-document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>scene?.view(b.dataset.view)));
+function unavailable(){scene=null;$('scene').hidden=true;$('machine').removeAttribute('hidden');$('sceneMessage').hidden=false;$('sceneHelp').hidden=true;$('driveNote').textContent='Die Spule wird von außen mechanisch angetrieben. Die Handkurbel ist in der 3D-Ansicht sichtbar.';document.querySelectorAll('[data-view]').forEach(b=>{b.disabled=!['space','contacts'].includes(b.dataset.view);});}
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{if(scene)scene.view(b.dataset.view);else onView(b.dataset.view);}));
 import('./scene.mjs').then(({createScene})=>{
-  scene=createScene($('scene'),name=>document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===name))),unavailable);
+  scene=createScene($('scene'),onView,unavailable);
   $('machine').setAttribute('hidden','');render();
 }).catch(unavailable);

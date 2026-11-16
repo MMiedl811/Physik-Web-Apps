@@ -23,6 +23,7 @@ for(const [name,engine] of Object.entries({chromium,webkit})){
       assert.equal(await p.locator('#carrierDialog').isVisible(),false);
       assert.equal(await p.locator('[data-carrier=positive]').getAttribute('aria-pressed'),'true');
       for(const carrier of ['positive','electrons']){
+        await p.locator('#showForce').check();
         await p.locator(`[data-carrier=${carrier}]`).click();
         for(const kind of ['ac','dc'])for(const explanation of ['lorentz','flux']){
           await p.locator(`[data-kind=${kind}]`).click();await p.locator(`[data-explanation=${explanation}]`).click();
@@ -39,7 +40,7 @@ for(const [name,engine] of Object.entries({chromium,webkit})){
             await p.locator(`[data-carrier=${carrier}]`).click();
           }
           if(explanation==='lorentz'){
-            assert.match(await p.locator('#vectorLegend').textContent(),carrier==='positive'?/F₊.*positive Ladungsträger/:/Fₑ.*Elektronen/);
+            assert.equal(await p.locator(`#vectorLegend math[aria-label="Vektor F ${carrier==='positive'?'+':'e'}"]`).count(),1);
             assert.match(await p.locator('#positionText').textContent(),carrier==='positive'?/nach oben, an B nach unten/:/nach unten, an B nach oben/);
           }
           assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
