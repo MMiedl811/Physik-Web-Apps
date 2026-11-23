@@ -23,7 +23,14 @@
         <span class="earth-key">Erdbahn</span>
         <span class="l2-key">Umlauf von L2</span>
       </div>
-      <button type="button" id="play" aria-label="Umlauf starten"><span aria-hidden="true" id="play-icon">▶</span><span id="play-label">Umlauf starten</span></button>
+      <div class="orbit-actions">
+        <div class="orbit-toggles" role="group" aria-label="In der Umlaufgrafik einblenden">
+          <button type="button" id="show-forces" aria-pressed="false" aria-controls="force-layer force-key">Kräfte</button>
+          <button type="button" id="show-l1" aria-pressed="false" aria-controls="l1-point l1-path">L1</button>
+          <button type="button" id="show-l3" aria-pressed="false" aria-controls="l3-point">L3</button>
+        </div>
+        <button type="button" id="play" aria-label="Umlauf starten"><span aria-hidden="true" id="play-icon">▶</span><span id="play-label">Umlauf starten</span></button>
+      </div>
     </div>
     <div class="scene" id="scene">
       <svg id="orbit" viewBox="0 0 640 528" role="img" aria-labelledby="orbit-title orbit-desc">
@@ -70,6 +77,7 @@
           <circle cx="112" cy="415" r="1.7"/><circle cx="522" cy="426" r="1.5"/><circle cx="324" cy="473" r="1.4"/>
         </g>
 
+        <circle id="l1-path" cx="320" cy="264" r="98" class="extra-path" hidden/>
         <circle cx="320" cy="264" r="155" class="orbit-path"/>
         <circle cx="320" cy="264" r="199" class="l2-path"/>
         <path class="orbit-direction" d="M298 111 A155 155 0 0 0 241 131 M253 130 L241 131 L247 121"/>
@@ -80,10 +88,25 @@
           <text id="sun-label" class="body-label" x="320" y="320">Sonne</text>
           <text id="earth-label" class="body-label earth-label" x="475" y="303">Erde</text>
         </g>
+        <g id="l1-point" hidden>
+          <circle id="l1-marker" class="extra-marker" r="5"/>
+          <text id="l1-label" class="body-label extra-label">L1</text>
+        </g>
+        <g id="l3-point" hidden>
+          <circle id="l3-marker" class="extra-marker" r="5"/>
+          <text id="l3-label" class="body-label extra-label">L3</text>
+        </g>
+        <g id="force-layer" aria-hidden="true" hidden></g>
         <circle id="l2-halo" cx="519" cy="264" r="13"/>
         <circle id="l2-marker" cx="519" cy="264" r="5"/>
         <text id="l2-label" class="body-label l2-label" x="519" y="232">L2</text>
       </svg>
+    </div>
+    <div id="force-key" class="force-key" hidden>
+      <span class="sun-force-key">Anziehung durch die Sonne</span>
+      <span class="earth-force-key">Anziehung durch die Erde</span>
+      <span class="resultant-key">Resultierende</span>
+      <span class="force-note">Der Erdbeitrag ist zur Lesbarkeit vergrößert. Der weiße Pfeil zeigt die Summe.</span>
     </div>
     <figcaption>
       <span>Gleiche Umlaufzeit: etwa ein Jahr</span>
@@ -95,7 +118,7 @@
     <summary>Was zeigt das Modell?</summary>
     <p><strong>Erde und L2 durchlaufen in derselben Zeit denselben Winkel.</strong> L2 legt dabei auf dem größeren Umlaufkreis eine längere Strecke zurück. Der gemeinsame Schwerpunkt liegt nahe am Sonnenzentrum. Deshalb erscheint die Sonne in der Mitte der Grafik in Ruhe.</p>
     <p>Am idealisierten L2 ziehen Sonne und Erde in dieselbe Richtung. Die Summe ihrer Gravitationskräfte liefert die Zentripetalkraft für die gemeinsame Umlaufzeit. Im Modell liegt L2 etwa <strong id="distance">1,5 Millionen Kilometer</strong> hinter der Erde. Die Grafik vergrößert diesen Abstand.</p>
-    <p>Das James-Webb-Teleskop bewegt sich auf einer räumlichen Halo-Bahn um L2. Die Animation verfolgt den Punkt L2. Das Sonne-Erde-System besitzt insgesamt fünf solcher Punkte.</p>
+    <p>Das James-Webb-Teleskop bewegt sich auf einer räumlichen Halo-Bahn um L2. Die Animation verfolgt den Punkt L2. L1 liegt zwischen Sonne und Erde. Dort ziehen beide in entgegengesetzte Richtungen. L3 liegt gegenüber der Erde auf der anderen Seite der Sonne. Dort ziehen beide in dieselbe Richtung.</p>
     <p><a href="https://science.nasa.gov/mission/webb/orbit/" target="_blank" rel="noopener noreferrer">NASA · Webb-Bahn</a> · <a href="https://science.nasa.gov/resource/what-is-a-lagrange-point/" target="_blank" rel="noopener noreferrer">NASA · Lagrange-Punkte</a> · <a href="../index.html#nutzung">Nutzung und Weitergabe</a></p>
   </details>
 </main>

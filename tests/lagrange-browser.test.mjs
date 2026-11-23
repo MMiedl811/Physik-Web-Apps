@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const playwrightPath = process.env.PLAYWRIGHT_PATH || path.join(os.homedir(), '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
 const { chromium, webkit } = require(playwrightPath);
-const out = '/tmp/lagrange-orbit-review';
+const out = '/tmp/lagrange-toggles-review';
 await mkdir(out, { recursive: true });
 
 const server = http.createServer(async (req, res) => {
@@ -31,10 +31,14 @@ const base = process.env.LAGRANGE_URL?.replace(/\/$/, '') || `http://127.0.0.1:$
 async function positions(page) {
   return page.evaluate(() => {
     const globe = document.getElementById('earth-globe').transform.baseVal.getItem(0).matrix;
-    const marker = document.getElementById('l2-marker');
+    const coordinates = id => {
+      const marker = document.getElementById(id + '-marker');
+      return [marker.cx.baseVal.value - 320, marker.cy.baseVal.value - 264];
+    };
     return {
       earth: [globe.e - 320, globe.f - 264],
-      l2: [marker.cx.baseVal.value - 320, marker.cy.baseVal.value - 264],
+      l2: coordinates('l2'),
+      extraPoints: [coordinates('l1'), coordinates('l3')],
     };
   });
 }
@@ -60,7 +64,38 @@ try {
         await page.locator('a.card[href="lagrange-labor/"]').tap();
         await page.locator('#play').waitFor();
         await page.screenshot({ path: path.join(out, `${name}-${width}-bereit.png`), fullPage: true });
-        assert.equal(await page.getByRole('button').count(), 1);
+        assert.equal(await page.getByRole('button').count(), 4);
+        const l1 = page.getByRole('button', { name: 'L1', exact: true });
+        const l3 = page.getByRole('button', { name: 'L3', exact: true });
+        const forces = page.getByRole('button', { name: 'Kräfte' });
+        for (const toggle of [l1, l3, forces]) {
+          assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
+          const hit = await toggle.boundingBox();
+          assert.ok(hit.width >= 48 && hit.height >= 48);
+        }
+        assert.ok(!await page.locator('#l1-point').isVisible());
+        assert.ok(!await page.locator('#l3-point').isVisible());
+        assert.ok(!await page.locator('#force-key').isVisible());
+        await l1.tap();
+        assert.ok(await page.locator('#l1-point').isVisible());
+        assert.ok(!await page.locator('#l3-point').isVisible());
+        await l3.tap();
+        await forces.tap();
+        assert.ok(await page.locator('#force-key').isVisible());
+        const earthLengths = {};
+        for (const [point, signs] of Object.entries({ l1: [-1, 1, -1], l2: [-1, -1, -1], l3: [1, 1, 1] })) {
+          assert.ok(await page.locator(`[data-force-point="${point}"]`).isVisible());
+          const [sun, earth, resultant] = await page.locator(`[data-force-point="${point}"] path`).evaluateAll(
+            rays => rays.map(ray => Number(ray.getAttribute('d').match(/H([^ ]+)/)[1])),
+          );
+          assert.deepEqual([sun, earth, resultant].map(Math.sign), signs);
+          assert.ok(Math.abs(sun) > Math.abs(earth));
+          assert.ok(Math.abs(sun + earth - resultant) < 1e-8);
+          assert.equal(Math.abs(resultant) > Math.abs(sun), point !== 'l1');
+          earthLengths[point] = Math.abs(earth);
+        }
+        assert.ok(earthLengths.l3 < Math.min(earthLengths.l1, earthLengths.l2));
+        await page.screenshot({ path: path.join(out, `${name}-${width}-kraefte.png`), fullPage: true });
         assert.equal(await page.locator('input, select').count(), 0);
         assert.equal(await page.locator('details').getAttribute('open'), null);
 
@@ -72,7 +107,11 @@ try {
         await play.tap();
         for (let step = 0; step < 4; step++) {
           await page.clock.runFor(4500);
-          const { earth, l2 } = await positions(page);
+          const { earth, l2, extraPoints } = await positions(page);
+          for (const [index, [x, y]] of extraPoints.entries()) {
+            assert.ok(Math.abs(earth[0] * y - earth[1] * x) < 0.01);
+            assert.equal(Math.sign(earth[0] * x + earth[1] * y), index === 0 ? 1 : -1);
+          }
           assert.ok(Math.abs(Math.hypot(...earth) - 155) < 0.001);
           assert.ok(Math.abs(Math.hypot(...l2) - 199) < 0.001);
           assert.ok(Math.abs(earth[0] * l2[1] - earth[1] * l2[0]) < 0.01);
@@ -96,6 +135,15 @@ try {
         assert.notDeepEqual(await positions(page), pausedAt);
         await page.getByRole('button', { name: 'Umlauf pausieren' }).click();
 
+        await l1.tap();
+        assert.ok(!await page.locator('[data-force-point="l1"]').isVisible());
+        assert.ok(await page.locator('[data-force-point="l3"]').isVisible());
+        await forces.tap();
+        assert.ok(!await page.locator('#force-layer').isVisible());
+        assert.ok(await page.locator('#l3-point').isVisible());
+        await l3.focus();
+        await page.keyboard.press('Space');
+        assert.ok(!await page.locator('#l3-point').isVisible());
         await page.locator('summary').tap();
         assert.match(await page.locator('#distance').textContent(), /1,5/);
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
