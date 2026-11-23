@@ -1,9 +1,9 @@
 # Lagrange-Punkte-Labor
 
-Für Klasse 11 nach Gravitationsgesetz und Zentripetalkraft. In der Übersicht lassen sich L1 bis L5 im äußeren und mitrotierenden Bezugssystem erkunden. In der Kraftprobe verschiebt man einen gedachten Probekörper auf jeder Seite der Erde und vergleicht die Summe der vorzeichenbehafteten Gravitationskräfte mit der benötigten Zentripetalkraft. Der berechnete Punkt lässt sich zum Überprüfen gezielt einstellen.
+Die App visualisiert für Klasse 11, wie Erde und L2 gemeinsam um den fast zentral in der Sonne liegenden Schwerpunkt umlaufen. Die Ansicht lässt sich starten, pausieren und fortsetzen. Der Abstand Erde–L2 und die Körpergrößen sind für die Darstellung überzeichnet. Die Grafik zeigt den idealisierten Punkt L2. Weitere Einordnung und Quellen stehen in der aufklappbaren Erklärung.
 
-Das kreisförmige eingeschränkte Dreikörpermodell verwendet baryzentrische Koordinaten und das Sonne-Erde-Massenverhältnis. L1–L3 werden per Bisektion der radialen Kraftbilanz bestimmt, L4/L5 analytisch. Die schematische Übersicht zeigt die Gleichgewichtslagen, die Kraftprobe untersucht separat einen frei wählbaren Ort auf der Achse. Der Sonnenvergleich lässt den Erdbeitrag aus der Bilanz weg. Das Labor berechnet keine freifliegenden Trajektorien. Die Kraftwerte beziehen sich auf dieselbe Testmasse von 1 000 kg.
+Den dort genannten Abstand berechnet das kreisförmige eingeschränkte Dreikörpermodell (`model.mjs`). Die Bildschirmpositionen und die Wiedergabegeschwindigkeit dienen der schematischen Animation.
 
-Lokal über HTTP öffnen, zum Beispiel vom Projektverzeichnis mit `python3 -m http.server 8879`. Alle Laufzeitdateien liegen im Repository. Die Seite verwendet ES-Module und keinen Service Worker.
+Lokal im Projektverzeichnis per `python3 -m http.server 8879` bereitstellen. Die Laufzeitdateien liegen lokal vor.
 
-Prüfen mit `node --test tests/lagrange-model.test.mjs` und `node tests/lagrange-browser.test.mjs` (Playwright). Optional verweist `LAGRANGE_URL` beim Browsertest auf die veröffentlichte Frontpage.
+Prüfen mit `node --test tests/lagrange-model.test.mjs` und `node tests/lagrange-browser.test.mjs`. Beim Browsertest kann `LAGRANGE_URL` auf die veröffentlichte Frontpage verweisen.
