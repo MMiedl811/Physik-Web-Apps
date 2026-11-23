@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7">
+<title>Lagrange-Punkte-Labor · Physik-Web-Apps</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="style.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<main>
+<header><a class="back" href="../index.html">← Zur Übersicht</a><span class="badge">In Testphase</span><h1>Lagrange-Punkte-Labor</h1><p>Warum kann das James-Webb-Teleskop weiter draußen mit der Erde um die Sonne ziehen?</p></header>
+<section class="card method" aria-labelledby="method-title">
+<h2 id="method-title">Zwei Kräfte addieren, eine Kreisbewegung erklären</h2>
+<div class="method-steps">
+<div><strong>1. Einzelkräfte bestimmen</strong><p>Mit <span class="math">F = GMm/d²</span> bestimmst du den Betrag jeder Gravitationskraft. Der Pfeil zeigt jeweils zur anziehenden Masse.</p></div>
+<div><strong>2. Kräfte addieren</strong><p>Beide Kräfte wirken auf dieselbe Probe. Auf der Sonne-Erde-Linie kannst du ihre Beiträge mit Vorzeichen addieren. Das ist Superposition.</p></div>
+<div><strong>3. Mit dem Sollwert vergleichen</strong><p>Weil die Probe mit der Erde umlaufen soll, ist ihre Winkelgeschwindigkeit vorgegeben. Sie braucht <span class="math">F<sub>Z</sub> = mω²r</span> zum Schwerpunkt.</p></div>
+</div>
+<a class="jump-to-probe" href="#probe-title">Zur Kraftprobe ↓</a>
+</section>
+<div class="workspace">
+<section class="card overview" aria-labelledby="overview-title">
+<div class="panel-head"><h2 id="overview-title">Sonne, Erde und L1–L5</h2><span id="frame-badge">Blick von außen</span></div>
+<div class="segments" role="group" aria-label="Bezugssystem"><button id="inertial" aria-pressed="true">Von außen</button><button id="rotating" aria-pressed="false">Mit der Erde mitdrehen</button></div>
+<div class="transport"><button id="play" class="primary">Start</button><button id="reset">Zurücksetzen</button><label class="tempo" for="speed">Tempo <output id="speed-value">1×</output><input id="speed" type="range" min="0.25" max="3" step="0.25" value="1"></label></div>
+<div class="scene" id="scene">
+<svg id="orbit" viewBox="0 0 640 480" role="img" aria-labelledby="orbit-title orbit-desc">
+<title id="orbit-title">Schematische Übersicht der fünf Lagrange-Punkte</title><desc id="orbit-desc">L1 liegt zwischen Sonne und Erde, L2 hinter der Erde, L3 gegenüber. L4 läuft der Erde um 60 Grad voraus, L5 folgt ihr um 60 Grad. Die Punkte können über die beschrifteten Schaltflächen ausgewählt werden.</desc>
+<circle cx="320" cy="240" r="155" class="orbit-path"/>
+<g id="geometry"></g><g id="bodies"></g>
+</svg>
+<div id="point-controls" role="group" aria-label="Lagrange-Punkt auswählen"></div>
+</div>
+
+<label class="position" for="phase">Umlaufposition <output id="phase-value">0°</output><input id="phase" type="range" min="0" max="360" value="0"></label>
+<p class="caption">Schematische Lage: Körpergrößen und Abstände nicht maßstabsgetreu. L1 und L2 sind von der Erde abgerückt; die winzige Sonnenbewegung um den Schwerpunkt ist hier nicht auflösbar.</p>
+<p class="caption" id="frame-note">Alle fünf Punkte umlaufen den gemeinsamen Schwerpunkt mit derselben Winkelgeschwindigkeit wie die Erde. Ein Umlauf entspricht etwa einem Jahr.</p>
+</section>
+<section class="card inspector" aria-labelledby="point-title">
+<div class="point-kicker"><span id="point-tag">L2</span><span id="stability">Instabil</span></div>
+<h2 id="point-title">Weiter draußen, gleicher Takt</h2><p id="location"></p><p id="explanation"></p>
+<div class="fact"><span>Berechneter Punktabstand zur Erde</span><strong id="distance"></strong></div>
+<p id="example" class="example"></p>
+<div id="force-panel">
+<h3 id="probe-title" tabindex="-1">Wo passt die Kraftsumme?</h3>
+<div class="segments" role="group" aria-label="Seite der Erde"><button id="probe-l1" aria-pressed="false">L1 · Sonnenseite</button><button id="probe-l2" aria-pressed="true">L2 · Außenseite</button></div>
+<p id="search-instruction">Verändere den Abstand der Probe zur Erde. Suche die Stelle, an der die Kraftsumme zur vorgegebenen Umlaufzeit passt.</p>
+<div id="axis" class="axis"></div>
+<label class="position probe" for="probe-distance"><span>Abstand Probe–Erde</span><output id="probe-value"></output><input id="probe-distance" type="range" min="90" max="240" step="1" value="200" aria-describedby="search-instruction"></label>
+<p class="feedback" id="force-status" role="status"></p>
+<div class="segments" role="group" aria-label="Kräftevergleich"><button id="both" aria-pressed="true">Sonne + Erde</button><button id="sun-only" aria-pressed="false">Nur Sonnenbeitrag</button></div>
+<p class="small">Probe: 1 000 kg. Die Zahlen sind gerundet. Auf dieser Achse ist die Richtung zur Sonne positiv (←). Jeder Pfeil hat denselben Längenmaßstab.</p>
+<svg id="forces" viewBox="0 0 390 206" role="img" aria-label="Kraftvergleich"><g id="force-rows"></g></svg>
+<p class="formula" id="formula" aria-label="Vorzeichenbehaftete Summe der Kräfte in Newton"></p>
+<p class="small">Der gestrichelte Pfeil zeigt die für die Kreisbewegung benötigte Kraft. Vergleiche ihn mit der Summe der Gravitationskräfte.</p>
+<button id="exact-point" type="button">Berechneten Punkt einstellen</button>
+<details class="calculation">
+<summary>Wie entstehen die Zahlen?</summary>
+<p>Aus <span class="math">F = GMm/d²</span> ergeben sich die Beträge der Sonnen- und Erdkraft. Für jede Kraft ist <em>d</em> der Abstand der Probe zur jeweils anziehenden Masse.</p>
+<p id="distances"></p>
+<p>In <span class="math">F<sub>Z</sub> = m(2π/T)²r</span> ist <em>r</em> der Abstand der Probe zum gemeinsamen Schwerpunkt von Sonne und Erde. Er liegt sehr nahe an der Sonne. Die gemeinsame Umlaufzeit <em>T</em> beträgt etwa ein Jahr.</p>
+</details>
+</div>
+<div id="advanced" hidden><h3>Die Kräfte als Vektoren</h3><p id="advanced-text"></p><p class="formula"><span class="vector">F</span><sub>S</sub> + <span class="vector">F</span><sub>E</sub> = −mω²<span class="vector">r</span></p><p class="small"><span class="vector">r</span> zeigt vom gemeinsamen Schwerpunkt zum Probekörper. Die resultierende Gravitation zeigt zum Schwerpunkt. Auch hier ist sie nicht null.</p></div>
+</section>
+</div>
+<section class="card inquiry" aria-labelledby="inquiry-title"><div><span class="eyebrow">Selbst herausfinden</span><h2 id="inquiry-title">Was ändert sich zwischen L1 und L2?</h2><p>Stell für L1 und L2 jeweils den berechneten Punkt ein. Prüfe zuerst den Sonnenbeitrag allein. Begründe mit den Pfeilen, warum die Erde die Kraftsumme einmal verkleinert und einmal vergrößert.</p></div><details><summary>Erklärung aufdecken</summary><p>Bei gleicher Winkelgeschwindigkeit wächst der Sollwert mit dem Bahnradius. Die Sonnenkraft nimmt dagegen mit dem Quadrat des Sonnenabstands ab. Beim Radius der Erdbahn sind die beiden Werte fast gleich.</p><p><strong>L1:</strong> Näher an der Sonne wäre die Sonnenanziehung für die gemeinsame Umlaufzeit zu groß. Die Erde zieht entgegen und verringert die resultierende Kraft.</p><p><strong>L2:</strong> Weiter von der Sonne entfernt reicht die Sonnenanziehung nicht aus. Die Erde zieht in dieselbe Richtung und ergänzt die fehlende Kraft.</p></details></section>
+<section class="card notes"><details><summary>Modell, Stabilität und die wirkliche JWST-Bahn</summary>
+<p><strong>Kein Ort ohne Gravitation:</strong> Die Kräfte heben sich an den Lagrange-Punkten im äußeren Bezugssystem nicht auf. Ihre Summe ermöglicht die gemeinsame Kreisbewegung. Im mitrotierenden Bezugssystem bleibt die Lage fest; dort gehört die Zentrifugalkraft zur Beschreibung des Gleichgewichts.</p>
+<p><strong>Berechnung:</strong> Kreisförmiges eingeschränktes Dreikörpermodell: Sonne und Erde kreisen um ihren gemeinsamen Schwerpunkt. Der Probekörper besitzt vernachlässigbare Rückwirkung. Für die Zahlen gelten 1 AE = 149 597 870,7 km und das Sonne-Erde-Massenverhältnis von ungefähr 332 946 : 1. L1–L3 werden aus der Kraftbilanz berechnet, L4/L5 aus den gleichseitigen Dreiecken.</p>
+<p><strong>Stabilität:</strong> L1–L3 sind instabil: Kleine Störungen können anwachsen. L4/L5 sind bei diesem Massenverhältnis im idealisierten Modell gegenüber kleinen Störungen stabil; ein gestörter Körper kann in der Umgebung schwingen. Das ist keine Reibung, die ihn am Punkt zur Ruhe bringt. Eine gestörte Flugbahn wird hier nicht berechnet.</p>
+<p><strong>JWST:</strong> Das Teleskop steht nicht im Punkt L2, sondern bewegt sich auf einer räumlichen Halo-Bahn in seiner Umgebung und benötigt Bahnkorrekturen. L2 ist kein Himmelskörper und zieht das Teleskop nicht an. Die Hauptansicht zeigt die idealisierte Punktlage; eine maßstäbliche oder berechnete Halo-Bahn ist nicht enthalten.</p>
+<figure class="halo"><svg viewBox="0 0 360 140" role="img" aria-label="Symbolische Halo-Bahn: JWST bewegt sich räumlich in der Umgebung von L2. Die Skizze ist keine berechnete Flugbahn."><ellipse cx="150" cy="65" rx="58" ry="38" transform="rotate(-20 150 65)" fill="none" stroke="#16704a" stroke-width="2" stroke-dasharray="5 4"/><circle cx="150" cy="65" r="4" fill="#1d1d1f"/><text x="162" y="71">L2</text><circle cx="200" cy="38" r="6" fill="#956000"/><text x="214" y="42">JWST</text></svg><figcaption>Symbolische Projektion einer räumlichen Halo-Bahn; keine berechnete Flugbahn.</figcaption></figure>
+<p><strong>Übersicht und Kraftprobe:</strong> Oben in der Übersicht bewegen sich die fünf berechneten Lagrange-Punkte. Der Abstandsregler untersucht separat eine frei gewählte Stelle auf der Verbindungslinie. „Nur Sonnenbeitrag“ lässt in der Bilanz die Erdkraft weg. Für diesen Vergleich bleiben die Probe an der gewählten Stelle und die gewünschte Umlaufzeit gleich.</p>
+<p>Weitere Planeten, Mond, Strahlungsdruck, die Erdbahnexzentrizität und reale Bahnkorrekturen sind nicht Teil des Modells. Das Tempo verändert nur die Wiedergabe.</p>
+</details><details><summary>Quellen und Nutzung</summary><p>Fachlicher Hintergrund: <a href="https://science.nasa.gov/resource/what-is-a-lagrange-point/" target="_blank" rel="noopener noreferrer">NASA · Die fünf Lagrange-Punkte</a>, <a href="https://science.nasa.gov/learn/basics-of-space-flight/chapter5-1/" target="_blank" rel="noopener noreferrer">NASA · Planetenbahnen</a>, <a href="https://science.nasa.gov/mission/webb/orbit/" target="_blank" rel="noopener noreferrer">NASA · Webb-Bahn</a>. Zahlenbasis: <a href="https://ssd.jpl.nasa.gov/astro_par.html" target="_blank" rel="noopener noreferrer">JPL · Astronomische Parameter</a>.</p><p>Eigene Darstellung und Programmierung, ohne externe Laufzeitbibliotheken oder Bilddateien. Lokal mit einem Webserver nutzbar; kein Offline-Cache für die gehostete Seite eingerichtet. <a href="../index.html#nutzung">Nutzung und Weitergabe</a>.</p></details></section>
+</main>
+</body></html>
